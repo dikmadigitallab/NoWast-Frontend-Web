@@ -1,137 +1,134 @@
 "use client";
 
-import { Box, Button, IconButton, TextField, Typography } from "@mui/material";
-import { useSearchParams } from "next/navigation";
+import { Box, Button, CircularProgress, IconButton, TextField } from "@mui/material";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { IoIosArrowBack } from "react-icons/io";
+import Logo from "../../assets/pr_logo.png";
+import { useState } from "react";
+import { redirect } from "next/navigation";
+import { CiLogin } from "react-icons/ci";
 import { toast } from "react-toastify";
-import { useState, Suspense } from "react";
+import Image from "next/image";
 import "./style.scss";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 
-export default function ResetPass() {
-    //http://localhost:3000/recover-pass?id=1
+export default function RecoverPass() {
 
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [email, setEmail] = useState("dikma@example.com");
+    const [password, setPassword] = useState("31312@dasd");
     const [isVisible, setIsVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
+
         event.preventDefault();
 
-        if (password !== confirmPassword) {
-            toast.error("As senhas não coincidem. Por favor, tente novamente.");
-            return;
-        }
+        setIsLoading(true);
+
+        document.cookie = `authToken=asdasdasd; Path=/; Max-Age=3600; SameSite=Lax`;
+
+        toast.success("Login realizado com sucesso!");
+
+        setTimeout(() => {
+            redirect("/");
+        }, 4000);
+
     };
 
     return (
-        <Suspense fallback={<div>Carregando...</div>}>
-            <ResetPassContent
-                setPassword={setPassword}
-                setConfirmPassword={setConfirmPassword}
-                isVisible={isVisible}
-                setIsVisible={setIsVisible}
-                handleSubmit={handleSubmit}
-            />
-        </Suspense>
-    );
-}
-
-function ResetPassContent({
-    setPassword,
-    setConfirmPassword,
-    isVisible,
-    setIsVisible,
-    handleSubmit,
-}: any) {
-    const searchParams = useSearchParams();
-    const id = searchParams.get("id");
-
-    return (
-        <Box className="recover-pass-container">
-            <Box className="back-button">
-                <a href="/">
-                    <IoIosArrowBack size={40} />
-                </a>
-            </Box>
-            <Box className="forgot-pass-form">
-                <Box>
-                    <Typography fontSize={28} color="#272727" fontWeight={600}>
-                        Redefinir sua senha
-                    </Typography>
-                    <Typography
-                        fontSize={16}
-                        color="#374151"
-                        marginTop={1}
-                        letterSpacing={-0.7}
-                    >
-                        Crie uma nova senha para sua conta. Certifique-se de que ambas as
-                        senhas sejam iguais.
-                    </Typography>
-                </Box>
-                <form onSubmit={handleSubmit}>
-                    <Box className="input-field" marginTop={3}>
-                        <TextField
-                            onChange={(e) => setPassword(e.target.value)}
-                            label="Nova senha"
-                            variant="outlined"
-                            fullWidth
-                            type={isVisible ? "text" : "password"}
-                            id="password"
-                            placeholder="Digite sua nova senha"
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <IconButton
-                                            aria-label="mostrar senha"
-                                            onClick={() =>
-                                                setIsVisible((prevState: boolean) => !prevState)
-                                            }
-                                            edge="end"
-                                        >
-                                            {isVisible ? <FiEye /> : <FiEyeOff />}
-                                        </IconButton>
-                                    ),
-                                },
-                            }}
-                            required
-                        />
-                        <TextField
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            label="Confirmar senha"
-                            variant="outlined"
-                            fullWidth
-                            type={isVisible ? "text" : "password"}
-                            id="confirm-password"
-                            placeholder="Confirme sua senha"
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <IconButton
-                                            aria-label="mostrar senha"
-                                            onClick={() =>
-                                                setIsVisible((prevState: boolean) => !prevState)
-                                            }
-                                            edge="end"
-                                        >
-                                            {isVisible ? <FiEye /> : <FiEyeOff />}
-                                        </IconButton>
-                                    ),
-                                },
-                            }}
-                            required
-                        />
+        <Box className="main-sign-in-container">
+            <form
+                onSubmit={handleSignIn}
+                className="gap-3 w-[400px] p-[30px] flex items-center rounded-[10px] bg-white flex-col justify-center "
+            >
+                <Box className="flex flex-col gap-2">
+                    <Box className="flex items-center flex-row gap-2">
+                        <Box className="w-[60px] h-[60px] ">
+                            <Image src={Logo} alt="Logo" className="w-full h-full" />
+                        </Box>
+                        <Box>
+                            <Box className="text-[#f5ac40] text-[1.6rem] font-normal mb-[-13px]">Grupo</Box>
+                            <Box className="text-[#2a5163] text-[1.6rem] font-black">Dikma</Box>
+                        </Box>
                     </Box>
+                    <Box className="flex flex-col gap-3">
+                        <Box className="font-bold text-[#6E6B7B]">Resete sua Senha</Box>
+                        <Box className="font-normal text-[#6E6B7B] text-[0.9rem]">Sua nova senha deve ser diferente das senhas usadas anteriormente</Box>
+                    </Box>
+                </Box>
+                <Box className="w-full flex flex-col gap-3">
+                    <TextField
+                        required
+                        error={Boolean(email && !/\S+@\S+\.\S+/.test(email))}
+                        helperText={
+                            email && !/\S+@\S+\.\S+/.test(email)
+                                ? "Por favor, insira um email válido"
+                                : ""
+                        }
+                        name="email"
+                        variant="outlined"
+                        placeholder="Email"
+                        id="email"
+                        value={email ?? ""}
+                        onChange={(e) => setEmail(e.target.value)}
+                        type="email"
+                        fullWidth
+                    />
+                    <TextField
+                        required
+                        type={isVisible ? "text" : "password"}
+                        name="senha"
+                        variant="outlined"
+                        placeholder="Senha"
+                        value={password ?? ""}
+                        onChange={(e) => setPassword(e.target.value)}
+                        fullWidth
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setIsVisible((prevState) => !prevState)}
+                                        edge="end"
+                                    >
+                                        {isVisible ? <FiEye /> : <FiEyeOff />}
+                                    </IconButton>
+                                ),
+                            },
+                        }}
+                        error={Boolean(password && password.length < 6)}
+                        helperText={
+                            password && password.length < 6
+                                ? "Por favor, insira uma senha válida"
+                                : ""
+                        }
+                    />
+                </Box>
+
+                <Box className="w-full flex flex-col gap-3">
                     <Button
-                        variant="contained"
                         type="submit"
-                        className="default-button w-[170px]"
-                        sx={{ marginTop: 2 }}
+                        variant="outlined"
+                        sx={[buttonTheme, { width: "100%", fontWeight: 500 }]}
                     >
-                        Salvar
+                        {isLoading ? (
+                            <CircularProgress size={30} color="inherit" className="text-[#fff]" />
+                        ) : (
+                            <Box className="flex items-center gap-1 text-[#fff]">
+                                Resetar Senha
+                            </Box>
+                        )}
                     </Button>
-                </form>
-            </Box>
+
+                    <Button
+                        variant="outlined"
+                        href="/forgot-pass"
+                        sx={[buttonThemeNoBackground, { width: "100%", fontWeight: 500 }]}
+                    >
+                        Voltar ao Login
+                    </Button>
+                </Box>
+
+            </form>
         </Box>
     );
 }

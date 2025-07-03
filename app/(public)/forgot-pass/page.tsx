@@ -1,47 +1,97 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
-import { IoIosArrowBack } from "react-icons/io";
+"use client";
+
+import { Box, Button, CircularProgress, IconButton, TextField } from "@mui/material";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import Logo from "../../assets/pr_logo.png";
+import { useState } from "react";
+import { redirect } from "next/navigation";
+import { CiLogin } from "react-icons/ci";
+import { toast } from "react-toastify";
+import Image from "next/image";
 import "./style.scss";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 
 export default function ForgotPass() {
-    return (
-        <Box className="forgot-pass-container">
-            <Box className="back-button">
-                <a href="/">
-                    <IoIosArrowBack size={40} />
-                </a>
-            </Box>
 
-            <Box className="forgot-pass-form">
-                <Box>
-                    <Typography fontSize={28} color="#272727" fontWeight={600}>
-                        Esqueceu sua senha?
-                    </Typography>
-                    <Typography fontSize={16} color="#374151" marginTop={1}>
-                        Informe seu email abaixo para redefinir sua senha.
-                    </Typography>
-                </Box>
-                <form>
-                    <Box className="input-field" marginTop={3}>
-                        <TextField
-                            label="Email"
-                            variant="outlined"
-                            fullWidth
-                            type="email"
-                            id="email"
-                            placeholder="Digite seu email"
-                            required
-                        />
-                    </Box>
-                    <Button
-                        variant="contained"
-                        type="submit"
-                        className="default-button w-[170px]"
-                        sx={{ marginTop: 2 }}
-                    >
-                        Enviar
-                    </Button>
-                </form>
+  const [email, setEmail] = useState("dikma@example.com");
+  const [password, setPassword] = useState("31312@dasd");
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
+
+    event.preventDefault();
+
+    setIsLoading(true);
+
+    document.cookie = `authToken=asdasdasd; Path=/; Max-Age=3600; SameSite=Lax`;
+
+    toast.success("Login realizado com sucesso!");
+
+    setTimeout(() => {
+      redirect("/");
+    }, 4000);
+
+  };
+
+  return (
+    <Box className="main-sign-in-container">
+      <form
+        onSubmit={handleSignIn}
+        className="gap-3 w-[400px] p-[30px] flex items-center rounded-[10px] bg-white flex-col justify-center "
+      >
+        <Box className="flex flex-col gap-2">
+          <Box className="flex items-center flex-row gap-2">
+            <Box className="w-[60px] h-[60px] ">
+              <Image src={Logo} alt="Logo" className="w-full h-full" />
             </Box>
+            <Box>
+              <Box className="text-[#f5ac40] text-[1.6rem] font-normal mb-[-13px]">Grupo</Box>
+              <Box className="text-[#2a5163] text-[1.6rem] font-black">Dikma</Box>
+            </Box>
+          </Box>
+          <Box className="flex flex-col gap-3">
+            <Box className="font-bold text-[#6E6B7B] text-[1.2rem]">Esqueceu sua senha?</Box>
+            <Box className="font-normal text-[#6E6B7B] text-[0.9rem]">Preencha seu e-mail e solicite a redefinição</Box>
+          </Box>
         </Box>
-    );
+        <Box className="w-full flex flex-col gap-3">
+          <TextField
+            required
+            error={Boolean(email && !/\S+@\S+\.\S+/.test(email))}
+            helperText={
+              email && !/\S+@\S+\.\S+/.test(email)
+                ? "Por favor, insira um email válido"
+                : ""
+            }
+            name="email"
+            variant="outlined"
+            placeholder="Email"
+            id="email"
+            value={email ?? ""}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            fullWidth
+          />
+        </Box>
+
+        <Box className="w-full flex flex-col gap-3">
+          <Button
+            type="submit"
+            variant="outlined"
+            sx={[buttonTheme, { width: "100%", fontWeight: 500 }]}
+          >
+            {isLoading ? (
+              <CircularProgress size={30} color="inherit" className="text-[#fff]" />
+            ) : (
+              <Box
+                className="flex items-center gap-1 text-[#fff]">
+                Solicitar Senha
+              </Box>
+            )}
+          </Button>
+        </Box>
+      </form>
+    </Box>
+  );
 }

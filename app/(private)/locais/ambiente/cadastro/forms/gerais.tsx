@@ -15,7 +15,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
 
     return (
         <Box className="w-full flex flex-col gap-5">
-            <Box className="w-full flex flex-row justify-between ">
+            <Box className="w-full flex flex-row justify-between gap-2">
                 <Controller
                     name="id"
                     control={control}
@@ -45,7 +45,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                             {...field}
                             error={!!errors.nome}
                             helperText={errors.nome?.message}
-                            className="w-[79.2%]"
+                            className="w-[80%]"
                             sx={formTheme}
                         />
 
@@ -68,7 +68,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                     )}
                 />
             </Box>
-            <Box className="w-full justify-between flex flex-row">
+            <Box className="w-full justify-between flex flex-row gap-2">
                 <Controller
                     name="predio"
                     control={control}
@@ -79,13 +79,13 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                             {...field}
                             error={!!errors.predio}
                             helperText={errors.predio?.message}
-                            className="w-[49.8%]"
+                            className="w-[50%]"
                             sx={formTheme}
                         />
 
                     )}
                 />
-                <FormControl sx={formTheme} className="w-[49.8%]" error={!!errors.setor}>
+                <FormControl sx={formTheme} className="w-[50%]" error={!!errors.setor}>
                     <InputLabel>Setor</InputLabel>
                     <Controller
                         name="setor"

@@ -42,7 +42,7 @@ export default function CadastroPredio() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-full flex flex-row justify-between gap-2">
 
                     <Controller
                         name="id"
@@ -75,13 +75,13 @@ export default function CadastroPredio() {
                                 {...field}
                                 error={!!errors.nome_predio}
                                 helperText={errors.nome_predio?.message}
-                                className="w-[68.8%]"
+                                className="w-[70%]"
                                 sx={formTheme}
                             />
                         )}
                     />
 
-                    <Box className="w-[20%] flex flex-row justify-between ">
+                    <Box className="w-[20%] flex flex-row justify-between gap-2 ">
                         <Controller
                             name="latitude"
                             control={control}
@@ -92,7 +92,7 @@ export default function CadastroPredio() {
                                     {...field}
                                     error={!!errors.latitude}
                                     helperText={errors.latitude?.message}
-                                    className="w-[48%]"
+                                    className="w-[50%]"
                                     sx={formTheme}
                                 />
                             )}
@@ -109,7 +109,7 @@ export default function CadastroPredio() {
                                     {...field}
                                     error={!!errors.longitude}
                                     helperText={errors.longitude?.message}
-                                    className="w-[48%]"
+                                    className="w-[50%]"
                                     sx={formTheme}
                                 />
                             )}

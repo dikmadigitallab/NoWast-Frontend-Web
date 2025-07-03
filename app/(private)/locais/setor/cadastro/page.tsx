@@ -52,7 +52,7 @@ export default function CadastroSetor() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-full flex flex-row justify-between gap-2">
 
                     <Controller
                         name="id"
@@ -85,13 +85,13 @@ export default function CadastroSetor() {
                                 {...field}
                                 error={!!errors.nome_setor}
                                 helperText={errors.nome_setor?.message}
-                                className="w-[40%]"
+                                className="w-[50%]"
                                 sx={formTheme}
                             />
                         )}
                     />
 
-                    <Box className="w-[28%] flex flex-row justify-between ">
+                    <Box className="w-[30%] flex flex-row justify-between gap-2">
                         <Controller
                             name="latitude"
                             control={control}
@@ -102,7 +102,7 @@ export default function CadastroSetor() {
                                     {...field}
                                     error={!!errors.latitude}
                                     helperText={errors.latitude?.message}
-                                    className="w-[49%]"
+                                    className="w-[50%]"
                                     sx={formTheme}
                                 />
                             )}
@@ -117,14 +117,14 @@ export default function CadastroSetor() {
                                     {...field}
                                     error={!!errors.longitude}
                                     helperText={errors.longitude?.message}
-                                    className="w-[49%]"
+                                    className="w-[50%]"
                                     sx={formTheme}
                                 />
                             )}
                         />
                     </Box>
 
-                    <Box className="w-[20%] flex flex-row justify-between ">
+                    <Box className="w-[10%] flex flex-row justify-between ">
                         <FormControl sx={formTheme} className="w-[100%]" error={!!errors.setor}>
                             <InputLabel>Local</InputLabel>
                             <Controller
