@@ -10,7 +10,6 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { IoMdClose } from "react-icons/io";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 
-
 const epiSchema = z.object({
     id: z.string().min(1, "ID é obrigatório"),
     nomeEpi: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -197,10 +196,7 @@ export default function CadastroEPI() {
                 </Box>
 
                 <Box className="w-full flex flex-row gap-5 justify-end">
-                    <Button
-                        variant="outlined"
-                        sx={buttonThemeNoBackground}
-                    >
+                    <Button variant="outlined" sx={buttonThemeNoBackground}>
                         Cancelar
                     </Button>
                     <Button

@@ -7,8 +7,10 @@ import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose } from 'react-icons/io';
+
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import React from "react";
 
 const userSchema = z.object({
     id: z.string().min(1, "ID é obrigatório"),
@@ -29,7 +31,6 @@ const userSchema = z.object({
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
-
 
 export default function CadastroPessoas() {
 
@@ -67,7 +68,7 @@ export default function CadastroPessoas() {
                     key={value}
                     label={value}
                     onDelete={() => onDelete(value)}
-                    deleteIcon={<IoMdClose onMouseDown={(event) => event.stopPropagation()} />}
+                    deleteIcon={<IoMdClose onMouseDown={(event:React.MouseEvent) => event.stopPropagation()} />}
                 />
             ))}
         </Box>
@@ -76,7 +77,6 @@ export default function CadastroPessoas() {
     const onSubmit = (data: UserFormValues) => {
         console.log("Dados enviados:", data);
     };
-
 
     return (
         <StyledMainContainer>
@@ -251,7 +251,6 @@ export default function CadastroPessoas() {
                     />
                 </Box>
 
-
                 <Box className="w-full flex flex-row justify-between">
 
                     <Controller
@@ -303,7 +302,6 @@ export default function CadastroPessoas() {
                         )}
                     </FormControl>
 
-                    {/* Equipamento */}
                     <FormControl sx={formTheme} className="w-[33%]" error={!!errors.equipamento}>
                         <InputLabel>Equipamento</InputLabel>
                         <Controller
