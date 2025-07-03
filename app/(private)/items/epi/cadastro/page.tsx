@@ -47,51 +47,54 @@ export default function CadastroEPI() {
 
     return (
         <StyledMainContainer>
-            <Box className="flex flex-col gap-5">
+            <Box className="flex flex-col gap-2">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">EPIs</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <Box className="w-full flex flex-row justify-between">
-                    <Controller
-                        name="id"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="ID#"
-                                {...field}
-                                error={!!errors.id}
-                                helperText={errors.id?.message}
-                                className="w-[10%]"
-                                sx={{
-                                    ...formTheme,
-                                    "& .MuiOutlinedInput-root": {
-                                        backgroundColor: "#00000012",
-                                        borderRadius: "10px"
-                                    }
-                                }}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="nomeEpi"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Nome do EPI"
-                                {...field}
-                                error={!!errors.nomeEpi}
-                                helperText={errors.nomeEpi?.message}
-                                className="w-[68.8%]"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <FormControl sx={formTheme} className="w-[20%]" error={!!errors.localSelect}>
+                <Box className="w-full flex flex-row gap-2">
+
+                    <Box className="w-[50%] flex flex-row gap-2">
+                        <Controller
+                            name="id"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    variant="outlined"
+                                    label="ID#"
+                                    {...field}
+                                    error={!!errors.id}
+                                    helperText={errors.id?.message}
+                                    className="w-[30%]"
+                                    sx={{
+                                        ...formTheme,
+                                        "& .MuiOutlinedInput-root": {
+                                            backgroundColor: "#00000012",
+                                            borderRadius: "10px"
+                                        }
+                                    }}
+                                />
+                            )}
+                        />
+                        <Controller
+                            name="nomeEpi"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    variant="outlined"
+                                    label="Nome do EPI"
+                                    {...field}
+                                    error={!!errors.nomeEpi}
+                                    helperText={errors.nomeEpi?.message}
+                                    className="w-[70%]"
+                                    sx={formTheme}
+                                />
+                            )}
+                        />
+                    </Box>
+                    <FormControl sx={formTheme} className="w-[50%]" error={!!errors.localSelect}>
                         <InputLabel>Local</InputLabel>
                         <Controller
                             name="localSelect"
@@ -115,67 +118,66 @@ export default function CadastroEPI() {
                         )}
                     </FormControl>
                 </Box>
-
-                <Box className="w-full flex flex-row justify-between">
-                    <Controller
-                        name="gestorResponsavel"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Gestor Responsável"
-                                {...field}
-                                error={!!errors.gestorResponsavel}
-                                helperText={errors.gestorResponsavel?.message}
-                                className="w-[49.8%]"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-
-                    <Controller
-                        name="fotoEpi"
-                        control={control}
-                        render={({ field }) => (
-                            <Box className="w-[49.8%] flex items-center" sx={[formTheme, { border: '1px solid #ccc', borderRadius: '10px', position: 'relative' }]}>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => field.onChange(e.target.files?.[0])}
-                                    className="mt-2"
-                                    style={{ display: 'none' }}
-                                    id="upload-file"
+                <Box className="w-full flex flex-row gap-2">
+                    <Box className="w-full flex flex-row gap-2">
+                        <Controller
+                            name="gestorResponsavel"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    variant="outlined"
+                                    label="Gestor Responsável"
+                                    {...field}
+                                    error={!!errors.gestorResponsavel}
+                                    helperText={errors.gestorResponsavel?.message}
+                                    className="w-[50%]"
+                                    sx={formTheme}
                                 />
-                                <label htmlFor="upload-file" className="w-full">
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        <Box className="ml-2">{field.value?.name || "Selecionar foto do EPI"}</Box>
-                                        {field.value && (
-                                            <Box className="mr-2">
-                                                <IoMdClose
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        field.onChange(null);
-                                                    }}
-                                                    style={{
-                                                        cursor: 'pointer'
-                                                    }}
-                                                />
-                                            </Box>
-                                        )}
-                                    </Box>
-                                </label>
-                            </Box>
-                        )}
-                    />
+                            )}
+                        />
+                        <Controller
+                            name="fotoEpi"
+                            control={control}
+                            render={({ field }) => (
+                                <Box className="w-[50%] flex items-center" sx={[formTheme, { border: '1px solid #ccc', borderRadius: '10px', position: 'relative' }]}>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => field.onChange(e.target.files?.[0])}
+                                        className="mt-2"
+                                        style={{ display: 'none' }}
+                                        id="upload-file"
+                                    />
+                                    <label htmlFor="upload-file" className="w-full">
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            <Box className="ml-2">{field.value?.name || "Selecionar foto do EPI"}</Box>
+                                            {field.value && (
+                                                <Box className="mr-2">
+                                                    <IoMdClose
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            field.onChange(null);
+                                                        }}
+                                                        style={{
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    />
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    </label>
+                                </Box>
+                            )}
+                        />
+                    </Box>
                 </Box>
-
                 <Box className="w-full flex flex-row justify-between">
                     <Controller
                         name="descricao"
@@ -195,18 +197,11 @@ export default function CadastroEPI() {
                         )}
                     />
                 </Box>
-
                 <Box className="w-full flex flex-row gap-5 justify-end">
-                    <Button
-                        variant="outlined"
-                        sx={buttonThemeNoBackground}
-                    >
+                    <Button variant="outlined" sx={buttonThemeNoBackground}>
                         Cancelar
                     </Button>
-                    <Button
-                        variant="outlined"
-                        sx={[buttonTheme, { alignSelf: "end" }]}
-                    >
+                    <Button variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>
                         Cadastrar
                     </Button>
                 </Box>
