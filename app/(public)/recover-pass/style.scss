@@ -1,0 +1,38 @@
+.recover-pass-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f4f6;
+
+    .back-button {
+        top: 20px;
+        left: 20px;
+        cursor: pointer;
+        position: absolute;
+        transition: all .3s ease-in-out;
+    }
+
+    .back-button:hover {
+        color: #00aafd;
+    }
+
+    .forgot-pass-form {
+        width: 100%;
+        padding: 2rem;
+        display: flex;
+        width: 700px;
+        border-radius: 10px;
+        flex-direction: column;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-field {
+        gap: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+}
