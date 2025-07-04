@@ -86,7 +86,7 @@ export default function CadastroPessoas() {
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-[100%] flex flex-row justify-between">
                     <Controller
                         name="id"
                         control={control}
@@ -141,7 +141,7 @@ export default function CadastroPessoas() {
                     />
                 </Box>
 
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-[100%] flex flex-row justify-between">
                     <Controller
                         name="cargo"
                         control={control}
@@ -194,7 +194,7 @@ export default function CadastroPessoas() {
                     />
                 </Box>
 
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-[100%] flex flex-row justify-between">
 
                     <Controller
                         name="gestorResponsavel"
@@ -249,7 +249,7 @@ export default function CadastroPessoas() {
                     />
                 </Box>
 
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-[100%] flex flex-row justify-between">
 
                     <Controller
                         name="localizacaoDeAtuacao"
@@ -335,7 +335,7 @@ export default function CadastroPessoas() {
                 </Box>
 
 
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-[100%] flex flex-row justify-between">
 
                     <FormControl sx={formTheme} className="w-[33%]" error={!!errors.maquina}>
                         <InputLabel>Máquina</InputLabel>
@@ -415,7 +415,7 @@ export default function CadastroPessoas() {
                                     style={{ display: 'none' }}
                                     id="upload-file"
                                 />
-                                <label htmlFor="upload-file" className="w-full">
+                                <label htmlFor="upload-file" className="w-[100%]">
                                     <Box
                                         sx={{
                                             display: 'flex',
@@ -445,7 +445,7 @@ export default function CadastroPessoas() {
                     />
                 </Box>
 
-                <Box className="w-full flex flex-row gap-5 justify-end">
+                <Box className="w-[100%] flex flex-row gap-5 justify-end">
                     <Button
                         variant="outlined"
                         sx={buttonThemeNoBackground}

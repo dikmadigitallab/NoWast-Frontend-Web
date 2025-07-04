@@ -114,7 +114,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                             <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Edição</h1>
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
                             <Controller
                                 name="id"
                                 control={control}
@@ -169,7 +169,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                             />
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
                             <Controller
                                 name="cargo"
                                 control={control}
@@ -222,7 +222,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                             />
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
 
                             <Controller
                                 name="gestor"
@@ -278,7 +278,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                         </Box>
 
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
 
                             <Controller
                                 name="localizacao"
@@ -364,7 +364,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                         </Box>
 
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
                             <FormControl sx={formTheme} className="w-[33%]" error={!!errors.maquina}>
                                 <InputLabel>Máquina</InputLabel>
                                 <Controller
@@ -443,7 +443,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                             style={{ display: 'none' }}
                                             id="upload-file"
                                         />
-                                        <label htmlFor="upload-file" className="w-full">
+                                        <label htmlFor="upload-file" className="w-[100%]">
                                             <Box
                                                 sx={{
                                                     display: 'flex',
@@ -478,7 +478,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                         </Box>
                     </Box>
 
-                    <Box className="w-full flex flex-row gap-5 justify-between items-center">
+                    <Box className="w-[100%] flex flex-row gap-5 justify-between items-center">
                         <Button
                             onClick={() => handleChangeModalEdit(null)}
                             variant="outlined"

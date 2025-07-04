@@ -77,8 +77,8 @@ export default function FormItens({ control, formState: { errors } }: { control:
     );
 
     return (
-        <Box className="w-full flex flex-col gap-5">
-            <Box className="w-full flex flex-col gap-5">
+        <Box className="w-[100%] flex flex-col gap-5">
+            <Box className="w-[100%] flex flex-col gap-5">
                 <Box className="flex items-center gap-2">
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
                     <span className="text-[#3aba8a] font-bold">EPis</span>

@@ -100,17 +100,17 @@ export default function ModalAmbienteEditModal({ modalEdit, handleChangeModalEdi
                 aria-describedby="modal-modal-description"
             >
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[95%] bg-white rounded-lg p-4 justify-between flex flex-col">
-                    <Box className="flex flex-col gap-5 w-full overflow-y-auto">
+                    <Box className="flex flex-col gap-5 w-[100%] overflow-y-auto">
                         <Box className="flex gap-2 ">
                             <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Ambiente</h1>
                             <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                             <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Edição</h1>
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between ">
-                            <Box className="flex w-full flex-col gap-5">
+                        <Box className="w-[100%] flex flex-row justify-between ">
+                            <Box className="flex w-[100%] flex-col gap-5">
 
-                                <Box className="flex w-full items-center h-[100px]">
+                                <Box className="flex w-[100%] items-center h-[100px]">
                                     {[1, 2].map((step) => (
                                         <Box
                                             key={step}
@@ -145,7 +145,7 @@ export default function ModalAmbienteEditModal({ modalEdit, handleChangeModalEdi
                                     )}
 
 
-                                    <Box className="w-full flex flex-row gap-5 justify-end">
+                                    <Box className="w-[100%] flex flex-row gap-5 justify-end">
                                         <Button
                                             variant="outlined"
                                             sx={buttonThemeNoBackground}

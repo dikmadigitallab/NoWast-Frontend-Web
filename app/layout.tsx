@@ -20,7 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick={false} rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
         <Box className="w-screen h-screen flex items-center overflow-hidden">
-          <Box className={`${pathname === "/sign-in" || pathname === "/forgot-pass" ? "hidden" : "w-[340px] h-[75%] h-screen"} `}>
+          <Box className={`${pathname === "/sign-in" || pathname === "/forgot-pass" ? "hidden" : "w-[340px] h-screen"} `}>
             <Sidebar />
           </Box>
           <Box className={`${pathname === "/sign-in" || pathname === "/forgot-pass" ? "w-screen h-screen" : "w-[90%] h-screen bg-[#F8F8F8] flex justify-center items-center"}`}>

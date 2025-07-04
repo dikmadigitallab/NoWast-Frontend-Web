@@ -43,7 +43,7 @@ export default function RecoverPass() {
                 <Box className="flex flex-col gap-2">
                     <Box className="flex items-center flex-row gap-2">
                         <Box className="w-[60px] h-[60px] ">
-                            <Image src={Logo} alt="Logo" className="w-full h-full" />
+                            <Image src={Logo} alt="Logo" className="w-[100%] h-full" />
                         </Box>
                         <Box>
                             <Box className="text-[#f5ac40] text-[1.6rem] font-normal mb-[-13px]">Grupo</Box>
@@ -55,7 +55,7 @@ export default function RecoverPass() {
                         <Box className="font-normal text-[#6E6B7B] text-[0.9rem]">Sua nova senha deve ser diferente das senhas usadas anteriormente</Box>
                     </Box>
                 </Box>
-                <Box className="w-full flex flex-col gap-3">
+                <Box className="w-[100%] flex flex-col gap-3">
                     <TextField
                         required
                         error={Boolean(email && !/\S+@\S+\.\S+/.test(email))}
@@ -104,7 +104,7 @@ export default function RecoverPass() {
                     />
                 </Box>
 
-                <Box className="w-full flex flex-col gap-3">
+                <Box className="w-[100%] flex flex-col gap-3">
                     <Button
                         type="submit"
                         variant="outlined"

@@ -2,7 +2,7 @@ import { Box, Skeleton } from "@mui/material";
 
 export default function LoadingSkeleton() {
   return (
-    <Box className="flex flex-col gap-2 bg-[#e9e9e9] animate-pulse p-5 rounded-lg w-full">
+    <Box className="flex flex-col gap-2 bg-[#e9e9e9] animate-pulse p-5 rounded-lg w-[100%]">
       <Skeleton
         variant="rectangular"
         style={{ borderRadius: 10, width: 300, height: 20 }}

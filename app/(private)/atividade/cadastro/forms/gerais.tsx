@@ -76,9 +76,9 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
 
 
     return (
-        <Box className="w-full flex flex-col gap-5">
+        <Box className="w-[100%] flex flex-col gap-5">
 
-            <Box className="w-full flex flex-row justify-between  gap-2 ">
+            <Box className="w-[100%] flex flex-row justify-between  gap-2 ">
                 <Box className="w-[50%] flex flex-row gap-2">
                     <Controller
                         name="id"
@@ -195,7 +195,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
 
             </Box>
 
-            <Box className="w-full flex flex-row justify-between gap-2  ">
+            <Box className="w-[100%] flex flex-row justify-between gap-2  ">
                 <Controller
                     name="predio"
                     control={control}
@@ -238,7 +238,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                 />
             </Box>
 
-            <Box className="w-full flex flex-row justify-between gap-2  ">
+            <Box className="w-[100%] flex flex-row justify-between gap-2  ">
                 <Controller
                     name="servico"
                     control={control}
@@ -281,7 +281,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                 />
             </Box>
 
-            <Box className="w-full">
+            <Box className="w-[100%]">
                 <Controller
                     name="observacao"
                     control={control}
@@ -301,7 +301,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                 />
             </Box>
 
-            <Box className="w-full flex flex-col gap-5">
+            <Box className="w-[100%] flex flex-col gap-5">
 
                 <Box className="flex items-center gap-2">
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />

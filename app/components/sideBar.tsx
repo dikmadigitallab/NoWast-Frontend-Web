@@ -27,7 +27,15 @@ type OpenAccordionState = {
 };
 
 const navItems: NavItem[] = [
-    { name: 'Dashboard', href: '/', icon: RxDashboard },
+    { 
+        name: 'Dashboard', href: '/', 
+        icon: RxDashboard,
+        subItems: [
+            { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
+            { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
+            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/relatorios' },
+        ]
+     },
     {
         name: 'Pessoas',
         icon: FiUser,
@@ -93,7 +101,7 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="w-full h-full bg-[#fff] text-white flex flex-col justify-between p-5">
+        <aside className="w-[100%] h-full bg-[#fff] text-white flex flex-col justify-between p-5">
             <Box className="flex flex-col gap-10">
                 <Link href="/" className="text-2xl font-bold">
                     <Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" />
@@ -140,7 +148,7 @@ export default function Sidebar() {
                     ))}
                 </nav>
             </Box>
-            <Box className="flex flex-row items-center justify-between w-full">
+            <Box className="flex flex-row items-center justify-between w-[100%]">
                 <Box className="flex flex-row gap-3 items-center">
                     <Box className="relative">
                         <img className="w-[60px] h-[60px] rounded-full object-cover" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg" alt="Logout Icon" />

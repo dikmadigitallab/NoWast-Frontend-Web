@@ -42,7 +42,7 @@ export default function CadastroPredio() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <Box className="w-full flex flex-row justify-between gap-2">
+                <Box className="w-[100%] flex flex-row justify-between gap-2">
 
                     <Controller
                         name="id"
@@ -119,7 +119,7 @@ export default function CadastroPredio() {
                 </Box>
 
 
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-[100%] flex flex-row justify-between">
                     <Controller
                         name="descricao"
                         control={control}
@@ -139,7 +139,7 @@ export default function CadastroPredio() {
                     />
                 </Box>
 
-                <Box className="w-full flex flex-row gap-5 justify-end">
+                <Box className="w-[100%] flex flex-row gap-5 justify-end">
                     <Button
                         variant="outlined"
                         sx={buttonThemeNoBackground}

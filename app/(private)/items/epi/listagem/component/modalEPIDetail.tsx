@@ -21,7 +21,7 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
 
                     <Box className="mt-3 flex flex-col gap-3">
                         <Box className="w-[100%] h-[250px] bg-[#E0E0E0] rounded-md overflow-hidden border border-[#E0E0E0]">
-                            <img src={modalDetail?.foto} alt={modalDetail?.nome} className="w-full h-full object-contain" />
+                            <img src={modalDetail?.foto} alt={modalDetail?.nome} className="w-[100%] h-full object-contain" />
                         </Box>
                         <Box className="flex flex-row gap-8">
                             <Box className="flex flex-col mt-1">

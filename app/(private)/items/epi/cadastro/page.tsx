@@ -53,7 +53,7 @@ export default function CadastroEPI() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <Box className="w-full flex flex-row gap-2">
+                <Box className="w-[100%] flex flex-row gap-2">
 
                     <Box className="w-[50%] flex flex-row gap-2">
                         <Controller
@@ -117,8 +117,8 @@ export default function CadastroEPI() {
                         )}
                     </FormControl>
                 </Box>
-                <Box className="w-full flex flex-row gap-2">
-                    <Box className="w-full flex flex-row gap-2">
+                <Box className="w-[100%] flex flex-row gap-2">
+                    <Box className="w-[100%] flex flex-row gap-2">
                         <Controller
                             name="gestorResponsavel"
                             control={control}
@@ -147,7 +147,7 @@ export default function CadastroEPI() {
                                         style={{ display: 'none' }}
                                         id="upload-file"
                                     />
-                                    <label htmlFor="upload-file" className="w-full">
+                                    <label htmlFor="upload-file" className="w-[100%]">
                                         <Box
                                             sx={{
                                                 display: 'flex',
@@ -177,7 +177,7 @@ export default function CadastroEPI() {
                         />
                     </Box>
                 </Box>
-                <Box className="w-full flex flex-row justify-between">
+                <Box className="w-[100%] flex flex-row justify-between">
                     <Controller
                         name="descricao"
                         control={control}
@@ -196,7 +196,7 @@ export default function CadastroEPI() {
                         )}
                     />
                 </Box>
-                <Box className="w-full flex flex-row gap-5 justify-end">
+                <Box className="w-[100%] flex flex-row gap-5 justify-end">
                     <Button variant="outlined" sx={buttonThemeNoBackground}>
                         Cancelar
                     </Button>

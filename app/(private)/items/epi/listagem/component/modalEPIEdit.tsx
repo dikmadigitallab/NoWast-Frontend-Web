@@ -74,7 +74,7 @@ export default function EditModal({ modalEdit, handleChangeModalEdit, edit }: an
                             <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Edição</h1>
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
                             <Controller
                                 name="id"
                                 control={control}
@@ -130,7 +130,7 @@ export default function EditModal({ modalEdit, handleChangeModalEdit, edit }: an
                             </FormControl>
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
                             <Controller
                                 name="gestor"
                                 control={control}
@@ -160,7 +160,7 @@ export default function EditModal({ modalEdit, handleChangeModalEdit, edit }: an
                                             style={{ display: 'none' }}
                                             id="upload-file"
                                         />
-                                        <label htmlFor="upload-file" className="w-full">
+                                        <label htmlFor="upload-file" className="w-[100%]">
                                             <Box
                                                 sx={{
                                                     display: 'flex',
@@ -190,7 +190,7 @@ export default function EditModal({ modalEdit, handleChangeModalEdit, edit }: an
                             />
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
                             <Controller
                                 name="descricao"
                                 control={control}

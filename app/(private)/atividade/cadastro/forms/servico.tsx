@@ -61,8 +61,8 @@ export default function FormServico({ control, formState: { errors } }: { contro
 
 
     return (
-        <Box className="w-full flex flex-col gap-5">
-            <Box className="w-full flex flex-row justify-between ">
+        <Box className="w-[100%] flex flex-col gap-5">
+            <Box className="w-[100%] flex flex-row justify-between ">
                 <Controller
                     name="servico"
                     control={control}
@@ -97,7 +97,7 @@ export default function FormServico({ control, formState: { errors } }: { contro
                 />
             </Box>
 
-            <Box className="w-full flex flex-col gap-5">
+            <Box className="w-[100%] flex flex-col gap-5">
 
                 <Box className="flex items-center gap-2">
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />

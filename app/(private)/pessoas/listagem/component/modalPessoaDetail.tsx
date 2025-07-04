@@ -21,7 +21,7 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
 
                     <Box className="mt-3 flex flex-col gap-3">
                         <Box className="w-[100%] h-[250px] bg-[#E0E0E0] rounded-md overflow-hidden border border-[#E0E0E0]">
-                            <img src={modalVisualize?.foto} alt={modalVisualize?.nome} className="w-full h-full object-cover object-top" />
+                            <img src={modalVisualize?.foto} alt={modalVisualize?.nome} className="w-[100%] h-full object-cover object-top" />
                         </Box>
                         <Box className="flex flex-col mt-1">
                             <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>

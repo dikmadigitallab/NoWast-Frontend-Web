@@ -14,8 +14,8 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
     ];
 
     return (
-        <Box className="w-full flex flex-col gap-5">
-            <Box className="w-full flex flex-row justify-between gap-2">
+        <Box className="w-[100%] flex flex-col gap-5">
+            <Box className="w-[100%] flex flex-row justify-between gap-2">
                 <Controller
                     name="id"
                     control={control}
@@ -68,7 +68,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                     )}
                 />
             </Box>
-            <Box className="w-full justify-between flex flex-row gap-2">
+            <Box className="w-[100%] justify-between flex flex-row gap-2">
                 <Controller
                     name="predio"
                     control={control}

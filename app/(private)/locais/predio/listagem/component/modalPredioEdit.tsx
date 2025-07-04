@@ -64,7 +64,7 @@ export default function EditModal({ modalEdit, handleChangeModalEdit, edit }: an
                             <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Edição</h1>
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
 
                             <Controller
                                 name="id"
@@ -139,7 +139,7 @@ export default function EditModal({ modalEdit, handleChangeModalEdit, edit }: an
                             </Box>
                         </Box>
 
-                        <Box className="w-full flex flex-row justify-between">
+                        <Box className="w-[100%] flex flex-row justify-between">
                             <Controller
                                 name="descricao"
                                 control={control}
