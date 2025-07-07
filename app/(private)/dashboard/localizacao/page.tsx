@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import ReverseBar from './components/reverseBar';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
+import ReverceChart from '../components/reverseBar';
 
 export default function Atividades() {
 
@@ -80,7 +80,7 @@ export default function Atividades() {
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
 
       <Box className="w-[100%] bg-[#fff] p-5 flex flex-row justify-between items-center gap-5 rounded-lg mb-5 ">
-        <h1 className="text-2xl font-bold text-[#5E5873]">
+        <h1 className="text-2xl font-medium text-[#5E5873]">
           Localização
         </h1>
 
@@ -157,7 +157,7 @@ export default function Atividades() {
           </Box>
         </Box>
         <Box className="w-[33%] px-6 flex-row h-[400px] bg-white rounded-lg">
-          <h1 className="text-2xl font-medium text-[#5E5873] p-7 flex items-center justify-center">Setor</h1>
+          <h1 className="text-2xl font-medium text-[#5E5873] p-7 flex items-center justify-center">Ambiente</h1>
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
               <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#E5F8EE] rounded-full">
@@ -207,7 +207,7 @@ export default function Atividades() {
           </Box>
         </Box>
         <Box className="w-[33%] px-6 flex-row h-[400px] bg-white rounded-lg">
-          <h1 className="text-2xl font-medium text-[#5E5873] p-7 flex items-center justify-center">Setor</h1>
+          <h1 className="text-2xl font-medium text-[#5E5873] p-7 flex items-center justify-center">Tipo</h1>
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
               <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#E5F8EE] rounded-full">
@@ -262,18 +262,18 @@ export default function Atividades() {
       <Box className="flex flex-col gap-5 w-[100%] ">
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
-          <h1 className="text-2xl font-bold text-[#5E5873]">QTD. de M² Limpo por SETOR</h1>
-          <ReverseBar chart={data1} />
+          <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por SETOR</h1>
+          <ReverceChart chart={data1} />
         </Box>
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
-          <h1 className="text-2xl font-bold text-[#5E5873]">QTD. de M² Limpo por AMBIENTE</h1>
-          <ReverseBar chart={data2} />
+          <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por AMBIENTE</h1>
+          <ReverceChart chart={data2} />
         </Box>
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
-          <h1 className="text-2xl font-bold text-[#5E5873]">QTD. de M² Limpo por TIPO</h1>
-          <ReverseBar chart={data3} />
+          <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por TIPO</h1>
+          <ReverceChart chart={data3} />
         </Box>
 
       </Box>

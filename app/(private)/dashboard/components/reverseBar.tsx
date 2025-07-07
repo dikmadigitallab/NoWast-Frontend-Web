@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
-import { Box } from '@mui/material';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -15,8 +14,8 @@ type ReverseBarProps = {
     chart: ChartDataProps;
 };
 
-export default function ReverseBar({ chart }: ReverseBarProps) {
-    const [chartData, setChartData] = useState({
+export default function ReverceChart({ chart }: ReverseBarProps) {
+    const [chartData] = useState({
         series: [{
             data: chart.data
         }],
@@ -65,7 +64,7 @@ export default function ReverseBar({ chart }: ReverseBarProps) {
                 categories: chart.categories,
                 labels: {
                     style: {
-                        fontSize: '1rem', 
+                        fontSize: '1rem',
                     }
                 }
             }
@@ -73,16 +72,13 @@ export default function ReverseBar({ chart }: ReverseBarProps) {
     });
 
     return (
-        <Box className="w-full h-full">
-            <Box id="chart" className="w-full h-full">
-                <ReactApexChart 
-                    options={chartData.options} 
-                    series={chartData.series} 
-                    type="bar" 
-                    height={550} 
-                />
-            </Box>
-        </Box>
+        <ReactApexChart
+            className="w-full"
+            options={chartData.options}
+            series={chartData.series}
+            type="bar"
+            height={550}
+        />
     );
 }
 

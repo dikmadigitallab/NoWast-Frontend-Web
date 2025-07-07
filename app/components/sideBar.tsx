@@ -27,15 +27,15 @@ type OpenAccordionState = {
 };
 
 const navItems: NavItem[] = [
-    { 
-        name: 'Dashboard', href: '/', 
+    {
+        name: 'Dashboard', href: '/',
         icon: RxDashboard,
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
-            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/relatorios' },
+            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
         ]
-     },
+    },
     {
         name: 'Pessoas',
         icon: FiUser,
@@ -103,9 +103,7 @@ export default function Sidebar() {
     return (
         <aside className="w-[100%] h-full bg-[#fff] text-white flex flex-col justify-between p-5">
             <Box className="flex flex-col gap-10">
-                <Link href="/" className="text-2xl font-bold">
-                    <Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" />
-                </Link>
+                <Link href="/" className="text-2xl font-bold"><Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" /></Link>
                 <nav className="flex-1 space-y-2">
                     <Box className="font-medium text-[1.1rem] text-[#B9B9C3] mb-5">Menu</Box>
                     {navItems.map(({ name, href, icon: Icon, subItems }) => (

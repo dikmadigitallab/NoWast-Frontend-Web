@@ -1,67 +1,33 @@
-'use client'; // necessário se estiver usando o app/ directory
+'use client';
 
-import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
-import { ApexOptions } from 'apexcharts';
+import { buttonTheme } from '@/app/styles/buttonTheme/theme';
+import { StyledMainContainer } from '@/app/styles/container/container';
+import { Box, Button } from '@mui/material';
+import React from 'react';
 
-const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
-
-const ApexChart: React.FC = () => {
-  const [chartData] = useState<{
-    series: ApexAxisChartSeries;
-    options: ApexOptions;
-  }>({
-    series: [
-      {
-        name: 'series1',
-        data: [31, 40, 28, 51, 42, 109, 100],
-      },
-      {
-        name: 'series2',
-        data: [11, 32, 45, 32, 34, 52, 41],
-      },
-    ],
-    options: {
-      chart: {
-        height: 350,
-        type: 'area',
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        curve: 'smooth',
-      },
-      xaxis: {
-        type: 'datetime',
-        categories: [
-          "2018-09-19T00:00:00.000Z",
-          "2018-09-19T01:30:00.000Z",
-          "2018-09-19T02:30:00.000Z",
-          "2018-09-19T03:30:00.000Z",
-          "2018-09-19T04:30:00.000Z",
-          "2018-09-19T05:30:00.000Z",
-          "2018-09-19T06:30:00.000Z"
-        ],
-      },
-      tooltip: {
-        x: {
-          format: 'dd/MM/yy HH:mm',
-        },
-      },
-    },
-  });
+export default function Home() {
 
   return (
-    <div>
-      <ReactApexChart
-        options={chartData.options}
-        series={chartData.series}
-        type="area"
-        height={350}
-      />
-    </div>
+    <StyledMainContainer className="flex flex-row justify-between">
+      <Box className="flex flex-col items-center justify-between gap-2 w-[28%] p-4 rounded-sm h-[400px] border-1 border-[#5e58731f]">
+        <img className="w-full object-cover h-[50%]" src="https://itsoo.com.br/wp-content/uploads/2019/08/itsoo_portfolio_adcos-1_1196x699_acf_cropped-1.jpg" alt="empresa" />
+        <span className='text-[#5E5873] text-[1.4rem] font-medium'>Adcos</span>
+        <span className='text-[#5E5873] text-[.8rem]'>lLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not.</span>
+        <Button sx={[buttonTheme, {width: "100%"}]} variant="contained" color="primary" className="mt-4">Acessar</Button>
+      </Box>
+      <Box className="flex flex-col items-center justify-between gap-2 w-[28%] p-4 rounded-sm h-[400px] border-1 border-[#5e58731f]">
+        <img className="w-full object-cover h-[50%]" src="https://institutoideias.com.br/novo/wp-content/uploads/2024/04/62307264a39b9e9c515e5934.png" alt="empresa" />
+        <span className='text-[#5E5873] text-[1.4rem] font-medium'>ArcelorMital</span>
+        <span className='text-[#5E5873] text-[.8rem]'>lLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not.</span>
+        <Button sx={[buttonTheme, {width: "100%"}]} variant="contained" color="primary" className="mt-4">Acessar</Button>
+      </Box>
+      <Box className="flex flex-col items-center justify-between gap-2 w-[28%] p-4 rounded-sm h-[400px] border-1 border-[#5e58731f]">
+        <img className="w-full object-cover h-[50%]" src="https://tex.com.br/wp-content/uploads/2023/03/logo-nemak-2.png" alt="empresa" />
+        <span className='text-[#5E5873] text-[1.4rem] font-medium'>Nemak</span>
+        <span className='text-[#5E5873] text-[.8rem]'>lLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not.</span>
+        <Button sx={[buttonTheme, {width: "100%"}]} variant="contained" color="primary" className="mt-4">Acessar</Button>
+      </Box>
+    </StyledMainContainer>
   );
 };
 
-export default ApexChart;

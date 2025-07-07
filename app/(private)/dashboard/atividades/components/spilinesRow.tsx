@@ -1,10 +1,8 @@
-'use client'; // necessário se estiver usando o app/ directory
-
+'use client';
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 import { Box } from '@mui/material';
-import { MdOutlineChecklist } from "react-icons/md";
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -12,6 +10,7 @@ type ChartItem = {
   name: string;
   data: number[];
   color: string;
+  icon?: any;
 };
 
 type SpilinesRowProps = {
@@ -22,6 +21,7 @@ export default function SpilinesRow({ data }: SpilinesRowProps) {
 
   const [chartData] = useState(
     data.map((item: any) => ({
+      icon: item.icon,
       series: [
         {
           name: item.name,
@@ -41,12 +41,11 @@ export default function SpilinesRow({ data }: SpilinesRowProps) {
     <>
       {chartData.map((data: any, index: any) => (
         <Box key={index} className="flex flex-col justify-between w-[25%] h-[160px] bg-[#fff] rounded-lg relative overflow-hidden">
-
           <Box className="flex flex-row items-center gap-3 mt-5 ml-5">
             <Box
-              style={{background: `${data.series[0]?.color}80`,border: `2px solid ${data.series[0]?.color}`}}
-              className={`p-2 rounded-full`}
-            ><MdOutlineChecklist size={24} color={data.series[0]?.color} /></Box>
+             style={{ background: `${data.series[0]?.color}` }} className={`p-3 rounded-full`}>
+              {data.icon}
+            </Box>
             <Box className="flex flex-col ">
               <span className='text-[#5E5873] text-[1.5rem] font-bold'>925</span>
               <span className='text-[#5E5873] text-[1.1rem] font-normal mt-[-5px]'>Total</span>
@@ -63,17 +62,17 @@ export default function SpilinesRow({ data }: SpilinesRowProps) {
                     show: false,
                   },
                 },
-                 tooltip: {
-                theme: 'dark',
-                style: {
+                tooltip: {
+                  theme: 'dark',
+                  style: {
                     fontSize: '16px',
-                },
-                y: {
+                  },
+                  y: {
                     formatter: function (val: number) {
-                        return val + " ocorrências";
+                      return val + " ocorrências";
                     }
-                }
-            },
+                  }
+                },
                 xaxis: {
                   labels: {
                     show: false,

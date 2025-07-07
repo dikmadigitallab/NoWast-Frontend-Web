@@ -26,7 +26,7 @@ export default function ReverseBar() {
                         ranges: [{
                             from: 0,
                             to: 1500,
-                            color: '#08bdb4'
+                            color: '#29C770'
                         }]
                     }
                 }
@@ -41,7 +41,7 @@ export default function ReverseBar() {
                 },
                 y: {
                     formatter: function (val: number) {
-                        return val + " ocorrências";
+                        return val + "Justificativas";
                     }
                 }
             },
