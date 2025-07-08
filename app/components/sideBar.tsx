@@ -4,76 +4,21 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import Logo from "@/app/assets/logo-1.png";
-import { RxDashboard } from 'react-icons/rx';
 import { usePathname } from 'next/navigation';
 import { Box, Collapse } from '@mui/material';
 import { IoMdSettings } from 'react-icons/io';
-import { MdOutlinePlace } from 'react-icons/md';
 import { IoLogOutOutline } from "react-icons/io5";
-import { FaRegCalendar, FaRegCircle } from 'react-icons/fa';
-import { FiBox, FiUser, FiChevronDown } from 'react-icons/fi';
-
-type NavItem = {
-    name: string;
-    href?: string;
-    icon: React.ComponentType<{ className?: string; color?: string; size?: number }>;
-    subItems?: SubItem[];
-};
-
-type SubItem = { icon?: React.ComponentType<{ className?: string; color?: string; size?: number }>; name: string; href: string };
+import { FiChevronDown } from 'react-icons/fi';
+import { navAdmDikmaItems } from '../navigation/navigation';
 
 type OpenAccordionState = {
     [key: string]: boolean;
 };
 
-const navItems: NavItem[] = [
-    {
-        name: 'Dashboard', href: '/',
-        icon: RxDashboard,
-        subItems: [
-            { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
-            { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
-            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
-        ]
-    },
-    {
-        name: 'Pessoas',
-        icon: FiUser,
-        subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/pessoas/listagem' }
-        ]
-    },
-    {
-        name: 'Itens',
-        icon: FiBox,
-        subItems: [
-            { icon: FaRegCircle, name: 'EPI', href: '/items/epi/listagem' },
-            { icon: FaRegCircle, name: 'Equipamento', href: '/items/equipamento/listagem' },
-            { icon: FaRegCircle, name: 'Produto', href: '/items/produto/listagem' },
-            { icon: FaRegCircle, name: 'Transporte', href: '/items/transporte/listagem' },
-        ]
-    },
-    {
-        name: 'Locais',
-        icon: MdOutlinePlace,
-        subItems: [
-            { icon: FaRegCircle, name: 'Prédio', href: '/locais/predio/listagem' },
-            { icon: FaRegCircle, name: 'Setor', href: '/locais/setor/listagem' },
-            { icon: FaRegCircle, name: 'Ambiente', href: '/locais/ambiente/listagem' }
-        ]
-    },
-    {
-        name: 'Atividades',
-        icon: FaRegCalendar,
-        subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/atividade/listagem' }
-        ]
-    }
-];
-
 const STORAGE_KEY = 'lastOpenedAccordion';
 
 export default function Sidebar() {
+
     const pathname = usePathname();
     const [openAccordion, setOpenAccordion] = useState<OpenAccordionState>({});
 
@@ -88,7 +33,17 @@ export default function Sidebar() {
         }
     }, []);
 
+    if (typeof sessionStorage !== 'undefined' && pathname === '/') {
+        sessionStorage.clear();
+    }
+
     const handleAccordionToggle = (itemName: string) => {
+        
+        if(itemName === '/' || itemName === 'predio') {
+            setOpenAccordion({});
+            sessionStorage.clear();
+        }
+
         setOpenAccordion(prev => {
             const newState: OpenAccordionState = {};
             newState[itemName] = !prev[itemName];
@@ -97,16 +52,17 @@ export default function Sidebar() {
 
         const lastAcordeon: OpenAccordionState = { [itemName]: true };
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(lastAcordeon));
-
     };
 
     return (
         <aside className="w-[100%] h-full bg-[#fff] text-white flex flex-col justify-between p-5">
             <Box className="flex flex-col gap-10">
-                <Link href="/" className="text-2xl font-bold"><Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" /></Link>
+                <Link 
+                 onClick={() => handleAccordionToggle("/")}
+                href="/" className="text-2xl font-bold"><Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" /></Link>
                 <nav className="flex-1 space-y-2">
                     <Box className="font-medium text-[1.1rem] text-[#B9B9C3] mb-5">Menu</Box>
-                    {navItems.map(({ name, href, icon: Icon, subItems }) => (
+                    {navAdmDikmaItems.map(({ name, href, icon: Icon, subItems }) => (
                         subItems ? (
                             <Box key={name}>
                                 <Box
@@ -136,7 +92,9 @@ export default function Sidebar() {
                                 </Collapse>
                             </Box>
                         ) : (
-                            <Link key={name} href={href as string} className={`group flex items-center space-x-3 px-4 py-2 rounded transition-colors hover:bg-[#00B288] ${pathname === href ? 'bg-[#00B288] text-white' : ''}`}>
+                            <Link 
+                            onClick={() => handleAccordionToggle(name)}
+                            key={name} href={href as string} className={`group flex items-center space-x-3 px-4 py-2 rounded transition-colors hover:bg-[#00B288] ${pathname === href ? 'bg-[#00B288] text-white' : ''}`}>
                                 <Icon className="transition-colors group-hover:!text-white" color={pathname === href ? '#fff' : '#5E5873'} size={25} />
                                 <span className={`font-medium text-[1.2rem] ${pathname === href ? 'text-white' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
                                     {name}

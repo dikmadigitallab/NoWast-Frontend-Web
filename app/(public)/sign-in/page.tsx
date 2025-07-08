@@ -38,9 +38,9 @@ export default function SignIn() {
     <Box className="main-sign-in-container">
       <form
         onSubmit={handleSignIn}
-        className="gap-3 w-[400px] p-[30px] flex items-center rounded-[10px] bg-white flex-col justify-center "
+        className="gap-3 w-[400px] p-[30px] flex items-center rounded-[5px] bg-white flex-col justify-center "
       >
-        <Box className="flex flex-col gap-2">
+        <Box className="flex flex-col gap-5">
           <Box className="flex items-center flex-row gap-2">
             <Box className="w-[60px] h-[60px] ">
               <Image src={Logo} alt="Logo" className="w-[100%] h-full" />

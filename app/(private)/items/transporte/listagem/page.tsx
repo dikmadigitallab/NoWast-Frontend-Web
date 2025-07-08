@@ -85,7 +85,7 @@ export default function ListagemTransportes() {
     return (
         <>
             <StyledMainContainer>
-                <Box className="flex flex-col gap-2">
+                <Box className="flex flex-col gap-5">
                     <Box className="flex gap-2">
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Transporte</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>

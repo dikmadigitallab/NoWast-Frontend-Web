@@ -3,7 +3,7 @@ export const formTheme = {
         color: "#000",
     },
     '& .MuiOutlinedInput-root': {
-        borderRadius: "10px",
+        borderRadius: "5px",
         "& input::placeholder": {
             opacity: 0.6,
         },

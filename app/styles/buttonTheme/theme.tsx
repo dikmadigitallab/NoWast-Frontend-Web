@@ -4,7 +4,7 @@ export const buttonTheme = {
     borderColor: "#00B288",
     gap: 1,
     backgroundColor: "#00B288",
-    borderRadius: "10px",
+    borderRadius: "5px",
     color: "white",
     "&:hover": {
         backgroundColor: "#8ED4B8"
@@ -24,7 +24,8 @@ export const buttonThemeNoBackground = {
     gap: 1,
     backgroundColor: "#fff",
     color: "#5E5873",
-    borderRadius: "10px",
+    borderRadius: "5px",
+    fontWeight: 500,
     "&:hover": {
         backgroundColor: "#8ED4B8",
         color: "#fff"
@@ -34,5 +35,6 @@ export const buttonThemeNoBackground = {
         backgroundColor: "#fff",
         color: "#666",
         cursor: "not-allowed"
-    }
+    },
 }
+

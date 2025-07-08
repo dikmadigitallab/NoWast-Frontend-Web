@@ -37,13 +37,11 @@ export default function CadastroPredio() {
         <StyledMainContainer>
             <Box className="flex flex-col gap-5">
                 <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Prédios</h1>
+                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Prédio</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
-
                 <Box className="w-[100%] flex flex-row justify-between gap-2">
-
                     <Controller
                         name="id"
                         control={control}
@@ -59,7 +57,7 @@ export default function CadastroPredio() {
                                     ...formTheme,
                                     "& .MuiOutlinedInput-root": {
                                         backgroundColor: "#00000012",
-                                        borderRadius: "10px"
+                                        borderRadius: "5px"
                                     }
                                 }}
                             />
@@ -80,7 +78,6 @@ export default function CadastroPredio() {
                             />
                         )}
                     />
-
                     <Box className="w-[20%] flex flex-row justify-between gap-2 ">
                         <Controller
                             name="latitude"
@@ -97,8 +94,6 @@ export default function CadastroPredio() {
                                 />
                             )}
                         />
-
-
                         <Controller
                             name="longitude"
                             control={control}
@@ -114,11 +109,8 @@ export default function CadastroPredio() {
                                 />
                             )}
                         />
-
                     </Box>
                 </Box>
-
-
                 <Box className="w-[100%] flex flex-row justify-between">
                     <Controller
                         name="descricao"
@@ -138,7 +130,6 @@ export default function CadastroPredio() {
                         )}
                     />
                 </Box>
-
                 <Box className="w-[100%] flex flex-row gap-5 justify-end">
                     <Button
                         variant="outlined"

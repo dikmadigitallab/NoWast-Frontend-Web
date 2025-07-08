@@ -102,7 +102,7 @@ export default function CadastroPessoas() {
                                     ...formTheme,
                                     "& .MuiOutlinedInput-root": {
                                         backgroundColor: "#00000012",
-                                        borderRadius: "10px"
+                                        borderRadius: "5px"
                                     }
                                 }}
                             />
@@ -167,7 +167,7 @@ export default function CadastroPessoas() {
                                     labelId="tipo_usuario"
                                     label="Tipo de usuário"
                                     {...field}
-                                    className="w-[100%] rounded-[10px]"
+                                    className="w-[100%] rounded-[5px]"
                                 >
                                     <MenuItem value="Administrador Dikma">Administrador Dikma</MenuItem>
                                     <MenuItem value="Administrador Cliente">Administrador Cliente</MenuItem>

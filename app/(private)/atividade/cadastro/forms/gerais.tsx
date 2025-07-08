@@ -95,7 +95,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                                     ...formTheme,
                                     "& .MuiOutlinedInput-root": {
                                         backgroundColor: "#00000012",
-                                        borderRadius: "10px"
+                                        borderRadius: "5px"
                                     }
                                 }}
                             />
@@ -210,7 +210,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                             sx={{
                                 ...formTheme,
                                 "& .MuiOutlinedInput-root": {
-                                    borderRadius: "10px"
+                                    borderRadius: "5px"
                                 }
                             }}
                         />
@@ -230,7 +230,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                             sx={{
                                 ...formTheme,
                                 "& .MuiOutlinedInput-root": {
-                                    borderRadius: "10px"
+                                    borderRadius: "5px"
                                 }
                             }}
                         />
@@ -253,7 +253,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                             sx={{
                                 ...formTheme,
                                 "& .MuiOutlinedInput-root": {
-                                    borderRadius: "10px"
+                                    borderRadius: "5px"
                                 }
                             }}
                         />
@@ -273,7 +273,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                             sx={{
                                 ...formTheme,
                                 "& .MuiOutlinedInput-root": {
-                                    borderRadius: "10px"
+                                    borderRadius: "5px"
                                 }
                             }}
                         />

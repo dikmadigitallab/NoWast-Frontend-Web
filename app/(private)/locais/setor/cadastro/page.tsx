@@ -69,7 +69,7 @@ export default function CadastroSetor() {
                                     ...formTheme,
                                     "& .MuiOutlinedInput-root": {
                                         backgroundColor: "#00000012",
-                                        borderRadius: "10px"
+                                        borderRadius: "5px"
                                     }
                                 }}
                             />

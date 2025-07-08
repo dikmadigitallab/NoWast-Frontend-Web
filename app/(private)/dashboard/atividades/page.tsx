@@ -164,7 +164,6 @@ export default function Atividades() {
           </Box>
         </Box>
       </Box>
-
     </StyledMainContainer>
   );
 }

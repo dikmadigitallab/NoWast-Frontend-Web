@@ -93,7 +93,7 @@ export default function EditModal({ modalEdit, handleChangeModalEdit, edit }: an
                                             ...formTheme,
                                             "& .MuiOutlinedInput-root": {
                                                 backgroundColor: "#00000012",
-                                                borderRadius: "10px"
+                                                borderRadius: "5px"
                                             }
                                         }}
                                     />
