@@ -24,13 +24,11 @@ export default function ForgotPass() {
 
     setIsLoading(true);
 
-    document.cookie = `authToken=asdasdasd; Path=/; Max-Age=3600; SameSite=Lax`;
-
-    toast.success("Login realizado com sucesso!");
+    toast.success("Email enviado com sucesso.");
 
     setTimeout(() => {
-      redirect("/");
-    }, 4000);
+      redirect("/recover-pass");
+    }, 1000);
 
   };
 

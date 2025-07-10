@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Modal from '@mui/material/Modal';
 import { useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
@@ -33,7 +33,7 @@ type PessoaFormValues = z.infer<typeof pessoaSchema>;
 
 export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit, edit }: any) {
 
-    console.log("Edit Data:", edit);
+    const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const { control, handleSubmit, formState: { errors, isValid }, watch, reset } = useForm<PessoaFormValues>({
         resolver: zodResolver(pessoaSchema),
@@ -71,6 +71,14 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                     label={value}
                     onDelete={() => onDelete(value)}
                     deleteIcon={<IoMdClose onMouseDown={(event) => event.stopPropagation()} />}
+                    sx={{
+                        backgroundColor: '#00B288',
+                        color: 'white',
+                        borderRadius: '4px',
+                        '& .MuiChip-deleteIcon': {
+                            color: 'white',
+                        },
+                    }}
                 />
             ))}
         </Box>
@@ -97,6 +105,24 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
             })
         }
     }, [edit])
+
+
+    const handleOpenDisableModal = () => {
+        setOpenDisableModal(true);
+    };
+
+    const handleCloseDisableModal = () => {
+        setOpenDisableModal(false);
+    };
+
+    const handleDisableConfirm = () => {
+        // Lógica para desabilitar o usuário aqui
+        console.log("Usuário desabilitado");
+        handleCloseDisableModal();
+        handleChangeModalEdit(null);
+    };
+
+
 
     return (
         <Box>
@@ -223,7 +249,6 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                         </Box>
 
                         <Box className="w-[100%] flex flex-row justify-between">
-
                             <Controller
                                 name="gestor"
                                 control={control}
@@ -239,7 +264,6 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                     />
                                 )}
                             />
-
                             <Controller
                                 name="data_inicio"
                                 control={control}
@@ -257,7 +281,6 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                     />
                                 )}
                             />
-
                             <Controller
                                 name="data_fim"
                                 control={control}
@@ -276,7 +299,6 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                 )}
                             />
                         </Box>
-
 
                         <Box className="w-[100%] flex flex-row justify-between">
 
@@ -307,17 +329,17 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                             multiple
                                             label="EPI de responsabilidade"
                                             input={<OutlinedInput label="EPI de responsabilidade" />}
-                                            value={field.value}
+                                            value={field.value || []}
                                             onChange={field.onChange}
                                             renderValue={(selected) => renderChips(
                                                 selected as string[],
                                                 'epi_responsabilidade',
-                                                (value) => field.onChange(field?.value?.filter((item) => item !== value))
+                                                (value) => field.onChange(field.value?.filter((item) => item !== value) || [])
                                             )}
                                         >
                                             {epiOptions.map((epi) => (
                                                 <MenuItem key={epi} value={epi}>
-                                                    <Checkbox checked={field?.value?.includes(epi)} />
+                                                    <Checkbox checked={field.value?.includes(epi) || false} />
                                                     <ListItemText primary={epi} />
                                                 </MenuItem>
                                             ))}
@@ -339,7 +361,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                             multiple
                                             label="Equipamento"
                                             input={<OutlinedInput label="Equipamento" />}
-                                            value={field.value}
+                                            value={field.value || []}
                                             onChange={field.onChange}
                                             renderValue={(selected) => renderChips(
                                                 selected as string[],
@@ -363,7 +385,6 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
 
                         </Box>
 
-
                         <Box className="w-[100%] flex flex-row justify-between">
                             <FormControl sx={formTheme} className="w-[33%]" error={!!errors.maquina}>
                                 <InputLabel>Máquina</InputLabel>
@@ -375,7 +396,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                             multiple
                                             label="Máquina"
                                             input={<OutlinedInput label="Máquina" />}
-                                            value={field.value}
+                                            value={field.value || []}
                                             onChange={field.onChange}
                                             renderValue={(selected) => renderChips(
                                                 selected as string[],
@@ -397,7 +418,6 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                 )}
                             </FormControl>
 
-                            {/* Produtos */}
                             <FormControl sx={formTheme} className="w-[33%]" error={!!errors.produtos}>
                                 <InputLabel>Produtos</InputLabel>
                                 <Controller
@@ -408,7 +428,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                             multiple
                                             label="Produtos"
                                             input={<OutlinedInput label="Produtos" />}
-                                            value={field.value}
+                                            value={field.value || []}
                                             onChange={field.onChange}
                                             renderValue={(selected) => renderChips(
                                                 selected as string[],
@@ -425,9 +445,7 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                         </Select>
                                     )}
                                 />
-                                {errors.produtos && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.produtos.message}</p>
-                                )}
+                                {errors.produtos && (<p className="text-red-500 text-xs mt-1">{errors.produtos.message}</p>)}
                             </FormControl>
 
                             <Controller
@@ -471,31 +489,50 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
                                     </Box>
                                 )}
                             />
-
-                            {/* {errors.foto && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.foto.message}</p>
-                                )} */}
                         </Box>
                     </Box>
 
                     <Box className="w-[100%] flex flex-row gap-5 justify-between items-center">
-                        <Button
-                            onClick={() => handleChangeModalEdit(null)}
-                            variant="outlined"
-                            sx={buttonThemeNoBackground}
-                        >
-                            Cancelar
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>
+                            Desabilitar
                         </Button>
-                        <Button
-                            type="submit"
-                            variant="outlined"
-                            sx={[buttonTheme, { alignSelf: "end" }]}
-                        >
-                            Salvar
-                        </Button>
+                        <Box className="flex flex-row gap-2">
+                            <Button onClick={() => handleChangeModalEdit(null)} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                            <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>Salvar</Button>
+                        </Box>
                     </Box>
                 </Box>
+            </Modal>
 
+            <Modal
+                open={openDisableModal}
+                onClose={handleCloseDisableModal}
+                aria-labelledby="disable-confirmation-modal"
+                aria-describedby="disable-confirmation-modal-description"
+            >
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar desabilitação</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar o esse usuário? não será possível habilitar novamente.</p>
+
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                            <Button
+                                onClick={handleCloseDisableModal}
+                                variant="outlined"
+                                sx={buttonThemeNoBackground}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                onClick={handleDisableConfirm}
+                                variant="outlined"
+                                sx={buttonTheme}
+                            >
+                                Desabilitar
+                            </Button>
+                        </Box>
+                    </Box>
+                </Box>
             </Modal>
         </Box>
     );

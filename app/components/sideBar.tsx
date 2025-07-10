@@ -9,7 +9,10 @@ import { Box, Collapse } from '@mui/material';
 import { IoMdSettings } from 'react-icons/io';
 import { IoLogOutOutline } from "react-icons/io5";
 import { FiChevronDown } from 'react-icons/fi';
-import { navAdmDikmaItems } from '../navigation/navigation';
+import { ADM_DIKMA, CLIENTE_DIKMA, GESTAO, DIKMA_DIRETORIA } from '../navigation/navigation';
+import { Logout } from '../utils/logout';
+import { FaCircle } from 'react-icons/fa';
+import { useAuthStore } from '../store/storeApp';
 
 type OpenAccordionState = {
     [key: string]: boolean;
@@ -20,7 +23,24 @@ const STORAGE_KEY = 'lastOpenedAccordion';
 export default function Sidebar() {
 
     const pathname = usePathname();
+    const { userType } = useAuthStore();
+    const [mounted, setMounted] = useState(false);
     const [openAccordion, setOpenAccordion] = useState<OpenAccordionState>({});
+
+    const getNavItems = () => {
+        switch (userType) {
+            case 'ADM_DIKMA':
+                return ADM_DIKMA;
+            case 'CLIENTE_DIKMA':
+                return CLIENTE_DIKMA;
+            case 'GESTAO':
+                return GESTAO;
+            case 'DIKMA_DIRETORIA':
+                return DIKMA_DIRETORIA;
+            default:
+                return [];
+        }
+    };
 
     useEffect(() => {
         const savedState = sessionStorage.getItem(STORAGE_KEY);
@@ -38,8 +58,8 @@ export default function Sidebar() {
     }
 
     const handleAccordionToggle = (itemName: string) => {
-        
-        if(itemName === '/' || itemName === 'predio') {
+
+        if (itemName === '/' || itemName === 'predio') {
             setOpenAccordion({});
             sessionStorage.clear();
         }
@@ -54,15 +74,21 @@ export default function Sidebar() {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(lastAcordeon));
     };
 
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted || !userType) return null;
+
     return (
         <aside className="w-[100%] h-full bg-[#fff] text-white flex flex-col justify-between p-5">
             <Box className="flex flex-col gap-10">
-                <Link 
-                 onClick={() => handleAccordionToggle("/")}
-                href="/" className="text-2xl font-bold"><Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" /></Link>
+                <Link
+                    onClick={() => handleAccordionToggle("/")}
+                    href="/" className="text-2xl font-bold"><Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" /></Link>
                 <nav className="flex-1 space-y-2">
                     <Box className="font-medium text-[1.1rem] text-[#B9B9C3] mb-5">Menu</Box>
-                    {navAdmDikmaItems.map(({ name, href, icon: Icon, subItems }) => (
+                    {getNavItems()?.map(({ name, href, icon: Icon, subItems }) => (
                         subItems ? (
                             <Box key={name}>
                                 <Box
@@ -82,9 +108,9 @@ export default function Sidebar() {
                                 </Box>
                                 <Collapse in={openAccordion[name]}>
                                     {subItems.map(({ icon: Icon, name: subName, href: subHref }) => (
-                                        <Link key={subName} href={subHref} className={`group flex items-center mb-2 px-10 py-2 gap-2 rounded transition-colors hover:bg-[#00B288] ${pathname === subHref ? 'bg-[#1e876e] text-white' : ''}`}>
-                                            {Icon && <Icon className="text-[#fff]" size={10} />}
-                                            <span className={`font-medium text-[1.1rem] ${pathname === subHref ? 'text-white' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
+                                        <Link key={subName} href={subHref} className={`group flex items-center mb-2 px-10 py-2 gap-2 rounded transition-colors hover:bg-[#00B288]`}>
+                                            {Icon && <FaCircle className={`${pathname === subHref ? 'text-[#1e876e] animate-pulse' : 'text-[#dbdbdb]'} `} size={10} />}
+                                            <span className={`font-medium text-[1.1rem] ${pathname === subHref ? 'text-[#5E5873]' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
                                                 {subName}
                                             </span>
                                         </Link>
@@ -92,9 +118,9 @@ export default function Sidebar() {
                                 </Collapse>
                             </Box>
                         ) : (
-                            <Link 
-                            onClick={() => handleAccordionToggle(name)}
-                            key={name} href={href as string} className={`group flex items-center space-x-3 px-4 py-2 rounded transition-colors hover:bg-[#00B288] ${pathname === href ? 'bg-[#00B288] text-white' : ''}`}>
+                            <Link
+                                onClick={() => handleAccordionToggle(name)}
+                                key={name} href={href as string} className={`group flex items-center space-x-3 px-4 py-2 rounded transition-colors hover:bg-[#00B288] ${pathname === href ? 'bg-[#00B288] text-white' : ''}`}>
                                 <Icon className="transition-colors group-hover:!text-white" color={pathname === href ? '#fff' : '#5E5873'} size={25} />
                                 <span className={`font-medium text-[1.2rem] ${pathname === href ? 'text-white' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
                                     {name}
@@ -117,7 +143,9 @@ export default function Sidebar() {
                         <Box className="text-[#B9B9C3] text-[.9rem]">Admin</Box>
                     </Box>
                 </Box>
-                <IoLogOutOutline color='#5E5873' size={35} className='cursor-pointer' />
+                <Box onClick={() => Logout()} component="div">
+                    <IoLogOutOutline color='#5E5873' size={35} className='cursor-pointer' />
+                </Box>
             </Box>
         </aside>
     );

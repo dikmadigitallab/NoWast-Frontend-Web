@@ -43,7 +43,7 @@ export default function SpilinesRow({ data }: SpilinesRowProps) {
         <Box key={index} className="flex flex-col justify-between w-[25%] h-[160px] bg-[#fff] rounded-lg relative overflow-hidden">
           <Box className="flex flex-row items-center gap-3 mt-5 ml-5">
             <Box
-             style={{ background: `${data.series[0]?.color}` }} className={`p-3 rounded-full`}>
+              style={{ background: `${data.series[0]?.color}` }} className={`p-3 rounded-full`}>
               {data.icon}
             </Box>
             <Box className="flex flex-col ">

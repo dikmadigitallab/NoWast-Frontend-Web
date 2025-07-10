@@ -68,11 +68,20 @@ export default function CadastroPessoas() {
                     key={value}
                     label={value}
                     onDelete={() => onDelete(value)}
-                    deleteIcon={<IoMdClose onMouseDown={(event:React.MouseEvent) => event.stopPropagation()} />}
+                    deleteIcon={<IoMdClose onMouseDown={(event) => event.stopPropagation()} />}
+                    sx={{
+                        backgroundColor: '#00B288',
+                        color: 'white',
+                        borderRadius: '4px',
+                        '& .MuiChip-deleteIcon': {
+                            color: 'white',
+                        },
+                    }}
                 />
             ))}
         </Box>
     );
+
 
     const onSubmit = (data: UserFormValues) => {
         console.log("Dados enviados:", data);

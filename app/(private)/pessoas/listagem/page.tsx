@@ -49,9 +49,9 @@ export default function DataGridUsuarios() {
                     <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalVisualize(params.row)}>
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
-                    {/* <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
                         <MdOutlineModeEditOutline color='#635D77' />
-                    </IconButton> */}
+                    </IconButton>
                 </Box>
             ),
         },

@@ -14,7 +14,7 @@ type NavItem = {
     subItems?: SubItem[];
 };
 
-export const navAdmDikmaItems: NavItem[] = [
+export const ADM_DIKMA: NavItem[] = [
     {
         name: 'Início', href: '/',
         icon: IoHomeOutline,
@@ -61,14 +61,14 @@ export const navAdmDikmaItems: NavItem[] = [
             { icon: FaRegCircle, name: 'Listagem', href: '/atividade/listagem' }
         ]
     },
-       {
+    {
         name: 'Notificações', href: '/notificacoes',
         icon: IoNotificationsCircleOutline,
     },
-   
+
 ];
 
-export const navAdmClienteItems: NavItem[] = [
+export const CLIENTE_DIKMA: NavItem[] = [
     {
         name: 'Início', href: '/',
         icon: IoHomeOutline,
@@ -117,7 +117,7 @@ export const navAdmClienteItems: NavItem[] = [
     }
 ];
 
-export const navGestaoItems: NavItem[] = [
+export const GESTAO: NavItem[] = [
     {
         name: 'Início', href: '/',
         icon: IoHomeOutline,
@@ -141,7 +141,7 @@ export const navGestaoItems: NavItem[] = [
     },
 ];
 
-export const navDiretoriaDikmaItems: NavItem[] = [
+export const DIKMA_DIRETORIA: NavItem[] = [
     {
         name: 'Início', href: '/',
         icon: IoHomeOutline,

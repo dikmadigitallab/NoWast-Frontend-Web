@@ -1,23 +1,29 @@
-'use client';
+"use client";
 
+import { useState, useEffect } from 'react';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import ADM_Dikma from './component/usersContent/adm_dikma';
-import { useState } from 'react';
 import Gestao from './component/usersContent/gestao';
 import ADM_Cliente from './component/usersContent/adm_cliente';
 import ADM_Diretoria from './component/usersContent/adm_diretoria';
+import { useAuthStore } from '@/app/store/storeApp';
 
 export default function Home() {
+  const { userType } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
 
-  const [typeUser, setTypeUser] = useState<string>('ADM_DIKMA');
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !userType) return null;
 
   return (
     <StyledMainContainer>
-      {typeUser === 'ADM_DIKMA' && <ADM_Dikma />}
-      {typeUser === 'GESTAO' && <Gestao />}
-      {typeUser === 'CLIENTE_DIKMA' && <ADM_Cliente />}
-      {typeUser === 'DIRETORIA' && <ADM_Diretoria />}
+      {userType === 'ADM_DIKMA' && <ADM_Dikma />}
+      {userType === 'GESTAO' && <Gestao />}
+      {userType === 'CLIENTE_DIKMA' && <ADM_Cliente />}
+      {userType === 'DIKMA_DIRETORIA' && <ADM_Diretoria />}
     </StyledMainContainer>
   );
-};
-
+}

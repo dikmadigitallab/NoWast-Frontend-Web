@@ -10,13 +10,16 @@ import { toast } from "react-toastify";
 import Image from "next/image";
 import "./style.scss";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { useAuthStore } from "@/app/store/storeApp";
 
 export default function SignIn() {
 
+  const { setUserType } = useAuthStore()
   const [email, setEmail] = useState("dikma@example.com");
   const [password, setPassword] = useState("31312@dasd");
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
 
@@ -28,9 +31,11 @@ export default function SignIn() {
 
     toast.success("Login realizado com sucesso!");
 
+    setUserType('ADM_DIKMA')
+
     setTimeout(() => {
       redirect("/");
-    }, 4000);
+    }, 1000);
 
   };
 

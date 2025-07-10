@@ -102,7 +102,7 @@ export default function DataGridAtividades() {
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
                             <GoDownload size={25} color='#635D77' />
                         </Button>
-                        <Button href="/items/epi/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
+                        <Button href="/atividade/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
                             Cadastrar Atividade
                         </Button>

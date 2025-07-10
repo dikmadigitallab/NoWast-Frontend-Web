@@ -28,35 +28,36 @@ export default function Atividades() {
   };
 
   const dataSpilines = [
-    { name: 'series1', icon: <MdOutlineChecklist size={24} color='#fff' />, data: [31, 40, 28, 51, 42, 109, 100], color: '#a105e9' },
-    { name: 'series2', icon: <CiCircleCheck size={27} color='#fff' />, data: [11, 32, 45, 32, 34, 52, 41], color: '#00f968' },
-    { name: 'series3', icon: <BsExclamationSquare size={24} color='#fff' />, data: [50, 90, 40, 60, 80, 75, 55], color: '#2196f3' },
-    { name: 'series4', icon: <BsExclamationDiamond size={24} color='#fff' />, data: [25, 50, 75, 25, 50, 75, 25], color: '#ff0040' },
+    { name: 'series1', icon: <MdOutlineChecklist size={24} color='#fff' />, data: [61, 31, 61, 131, 31, 71, 131], color: '#a105e9', tension: 0.9 },
+    { name: 'series2', icon: <CiCircleCheck size={27} color='#fff' />, data: [11, 32, 45, 32, 34, 52, 41], color: '#00f968', tension: 0.9 },
+    { name: 'series3', icon: <BsExclamationSquare size={24} color='#fff' />, data: [50, 90, 40, 60, 80, 75, 55], color: '#2196f3', tension: 0.9 },
+    { name: 'series4', icon: <BsExclamationDiamond size={24} color='#fff' />, data: [25, 50, 75, 25, 50, 75, 25], color: '#ff0040', tension: 0.9 },
   ];
+
 
   const dataDonuts = [
     {
-      title: "Atividades Gerais",
+      title: "Atividades",
       data: [
         { name: 'Concluídas', total: 80, data: [11, 32, 45], color: '#a105e9' },
         { name: 'Em Aberto', total: 150, data: [31, 40, 28], color: '#08bdb4' },
         { name: 'Aprovações', total: 120, data: [50, 90, 40], color: '#2196f3' },
+        { name: 'Justificadas', total: 150, data: [50, 90, 40], color: '#ff0040' },
       ]
     },
     {
       title: "Execuções",
       data: [
-        { name: 'Concluídas', total: 250, data: [31, 40, 28], color: '#6f08bd' },
-        { name: 'Em Aberto', total: 140, data: [11, 32, 45], color: '#EA5455' },
-        { name: 'Aprovações', total: 120, data: [50, 90, 40], color: '#2196f3' },
+        { name: 'No Prazo', total: 250, data: [31, 40, 28], color: '#6f08bd' },
+        { name: 'Fora do Prazo', total: 140, data: [11, 32, 45], color: '#EA5455' }
       ]
     },
     {
       title: "Aprovações",
       data: [
-        { name: 'Concluídas', total: 180, data: [11, 32, 45], color: '#2196f3' },
-        { name: 'Em Aberto', total: 250, data: [31, 40, 28], color: '#14bd08' },
-        { name: 'Aprovações', total: 120, data: [50, 90, 40], color: '#ff0040' },
+        { name: 'Apovadas', total: 180, data: [11, 32, 45], color: '#2196f3' },
+        { name: 'Não Aprovadas', total: 250, data: [31, 40, 28], color: '#14bd08' },
+        { name: 'Reprovadas', total: 120, data: [50, 90, 40], color: '#ff0040' },
       ]
     }
   ];

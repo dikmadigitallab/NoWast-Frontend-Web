@@ -5,7 +5,6 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import Logo from "../../assets/pr_logo.png";
 import { useState } from "react";
 import { redirect } from "next/navigation";
-import { CiLogin } from "react-icons/ci";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import "./style.scss";
@@ -26,11 +25,11 @@ export default function RecoverPass() {
 
         document.cookie = `authToken=asdasdasd; Path=/; Max-Age=3600; SameSite=Lax`;
 
-        toast.success("Login realizado com sucesso!");
+        toast.success("Senha resetada com sucesso.");
 
         setTimeout(() => {
             redirect("/");
-        }, 4000);
+        }, 1000);
 
     };
 
@@ -121,7 +120,7 @@ export default function RecoverPass() {
 
                     <Button
                         variant="outlined"
-                        href="/forgot-pass"
+                        href="/sign-in"
                         sx={[buttonThemeNoBackground, { width: "100%", fontWeight: 500 }]}
                     >
                         Voltar ao Login
