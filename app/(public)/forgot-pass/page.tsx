@@ -1,11 +1,9 @@
 "use client";
 
 import { Box, Button, CircularProgress, IconButton, TextField } from "@mui/material";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 import Logo from "../../assets/pr_logo.png";
 import { useState } from "react";
 import { redirect } from "next/navigation";
-import { CiLogin } from "react-icons/ci";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import "./style.scss";

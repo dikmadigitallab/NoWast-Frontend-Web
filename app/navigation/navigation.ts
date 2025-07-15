@@ -14,6 +14,13 @@ type NavItem = {
     subItems?: SubItem[];
 };
 
+export const DEFAULT: NavItem[] = [
+    {
+        name: 'Início', href: '/',
+        icon: IoHomeOutline,
+    }
+];
+
 export const ADM_DIKMA: NavItem[] = [
     {
         name: 'Início', href: '/',
@@ -65,7 +72,6 @@ export const ADM_DIKMA: NavItem[] = [
         name: 'Notificações', href: '/notificacoes',
         icon: IoNotificationsCircleOutline,
     },
-
 ];
 
 export const CLIENTE_DIKMA: NavItem[] = [

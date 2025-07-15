@@ -1,7 +1,7 @@
 "use client";
 import { create } from 'zustand';
 
-type UserType = 'ADM_DIKMA' | 'GESTAO' | 'CLIENTE_DIKMA' | 'DIKMA_DIRETORIA' | null;
+type UserType = 'DEFAULT' | 'ADM_DIKMA' | 'GESTAO' | 'CLIENTE_DIKMA' | 'DIKMA_DIRETORIA' | null;
 
 interface AuthStore {
     userType: UserType;
@@ -22,7 +22,7 @@ const decrypt = (data: string): string => {
 };
 
 export const useAuthStore = create<AuthStore>((set, get) => {
-    let storedType: UserType = null;
+    let storedType: UserType = 'DEFAULT';
 
     if (typeof window !== 'undefined') {
         const stored = localStorage.getItem('userType');

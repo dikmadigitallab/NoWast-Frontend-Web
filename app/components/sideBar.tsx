@@ -9,7 +9,7 @@ import { Box, Collapse } from '@mui/material';
 import { IoMdSettings } from 'react-icons/io';
 import { IoLogOutOutline } from "react-icons/io5";
 import { FiChevronDown } from 'react-icons/fi';
-import { ADM_DIKMA, CLIENTE_DIKMA, GESTAO, DIKMA_DIRETORIA } from '../navigation/navigation';
+import { ADM_DIKMA, CLIENTE_DIKMA, GESTAO, DIKMA_DIRETORIA, DEFAULT } from '../navigation/navigation';
 import { Logout } from '../utils/logout';
 import { FaCircle } from 'react-icons/fa';
 import { useAuthStore } from '../store/storeApp';
@@ -29,6 +29,8 @@ export default function Sidebar() {
 
     const getNavItems = () => {
         switch (userType) {
+            case 'DEFAULT':
+                return DEFAULT;
             case 'ADM_DIKMA':
                 return ADM_DIKMA;
             case 'CLIENTE_DIKMA':

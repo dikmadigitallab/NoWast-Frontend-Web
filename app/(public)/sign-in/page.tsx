@@ -1,41 +1,53 @@
 "use client";
 
-import { Box, Button, CircularProgress, IconButton, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, IconButton, TextField, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import Logo from "../../assets/pr_logo.png";
 import { useState } from "react";
 import { redirect } from "next/navigation";
-import { CiLogin } from "react-icons/ci";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import "./style.scss";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useAuthStore } from "@/app/store/storeApp";
 
-export default function SignIn() {
+type UserType = 'ADM_DIKMA' | 'GESTAO' | 'DIKMA_DIRETORIA' | null;
 
-  const { setUserType } = useAuthStore()
-  const [email, setEmail] = useState("dikma@example.com");
+export default function SignIn() {
+  const { setUserType } = useAuthStore();
   const [password, setPassword] = useState("31312@dasd");
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedEmailType, setSelectedEmailType] = useState<UserType>(null);
 
+  const emailTypes = [
+    { value: 'ADM_DIKMA', label: 'Adiministrador DIKMA' },
+    { value: 'GESTAO', label: 'Gestão' },
+    { value: 'DIKMA_DIRETORIA', label: 'Diretoria DIKMA' }
+  ];
+
+  const handleEmailTypeChange = (event: any) => {
+    const value = event.target.value as UserType;
+    setSelectedEmailType(value);
+    setUserType(value);
+  };
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
-
     event.preventDefault();
-
     setIsLoading(true);
 
     document.cookie = `authToken=asdasdasd; Path=/; Max-Age=3600; SameSite=Lax`;
-
     toast.success("Login realizado com sucesso!");
 
-    setUserType('ADM_DIKMA')
-
-    setTimeout(() => {
-      redirect("/");
-    }, 1000);
+    if (selectedEmailType === 'ADM_DIKMA') {
+      setTimeout(() => {
+        redirect("/dashboard/atividades");
+      }, 1000);
+    } else {
+      setTimeout(() => {
+        redirect("/");
+      }, 1000);
+    }
 
   };
 
@@ -61,23 +73,24 @@ export default function SignIn() {
           </Box>
         </Box>
         <Box className="w-[100%] flex flex-col gap-3">
-          <TextField
-            required
-            error={Boolean(email && !/\S+@\S+\.\S+/.test(email))}
-            helperText={
-              email && !/\S+@\S+\.\S+/.test(email)
-                ? "Por favor, insira um email válido"
-                : ""
-            }
-            name="email"
-            variant="outlined"
-            placeholder="Email"
-            id="email"
-            value={email ?? ""}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            fullWidth
-          />
+          <FormControl fullWidth>
+            <InputLabel id="email-type-label">Tipo de Usuário</InputLabel>
+            <Select
+              labelId="email-type-label"
+              id="email-type-select"
+              value={selectedEmailType || ''}
+              label="Tipo de Usuário"
+              onChange={handleEmailTypeChange}
+              required
+            >
+              {emailTypes.map((type) => (
+                <MenuItem key={type.value} value={type.value}>
+                  {type.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <TextField
             required
             type={isVisible ? "text" : "password"}
