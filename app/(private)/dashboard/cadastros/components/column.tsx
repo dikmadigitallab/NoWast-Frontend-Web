@@ -14,7 +14,7 @@ const CadastroColumnChart = () => {
             data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
             type: 'column'
         }, {
-            name: 'Início',
+            name: 'Inicio',
             data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
             type: 'area'
         }, {
@@ -26,7 +26,27 @@ const CadastroColumnChart = () => {
             chart: {
                 type: 'line',
                 height: 350,
-                stacked: false
+                stacked: false,
+                locales: [{
+                    name: 'pt-BR',
+                    options: {
+                        months: ['Janeiro', 'Fevereiro', 'Mar o', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+                        shortMonths: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                        days: ['Domingo', 'Segunda-feira', 'Ter a-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'S bado'],
+                        shortDays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S b'],
+                        toolbar: {
+                            exportToCSV: 'Exportar para CSV',
+                            exportToSVG: 'Exportar para SVG',
+                            selection: 'Selec o',
+                            selectionZoom: 'Zoom de selec o',
+                            zoomIn: 'Ampliar',
+                            zoomOut: 'Reduzir',
+                            pan: 'Mover',
+                            reset: 'Reset'
+                        }
+                    }
+                }],
+                defaultLocale: 'pt-BR'
             },
             stroke: {
                 width: [0, 2, 5],
@@ -67,7 +87,7 @@ const CadastroColumnChart = () => {
                 y: {
                     formatter: function (y: number) {
                         if (typeof y !== "undefined") {
-                            return y.toFixed(0) + " ocorrências";
+                            return y.toFixed(0) + " ocorr ncias";
                         }
                         return y;
                     }

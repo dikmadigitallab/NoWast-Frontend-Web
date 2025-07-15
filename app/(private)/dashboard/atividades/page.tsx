@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import SpilinesRow from './components/spilinesRow';
 import DonutsRow from './components/donutsRow';
 import ColumnChart from './components/column';
@@ -14,9 +14,10 @@ import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
 
 export default function Atividades() {
   const [filters, setFilters] = useState({
-    data: '',
-    setor: '',
-    ambiente: ''
+    data: '', // Alterado para string vazia para o input de data
+    colaborador: 'todos',
+    setor: 'todos',
+    ambiente: 'todos'
   });
 
   const handleFilterChange = (event: any) => {
@@ -33,7 +34,6 @@ export default function Atividades() {
     { name: 'series3', icon: <BsExclamationSquare size={24} color='#fff' />, data: [50, 90, 40, 60, 80, 75, 55], color: '#2196f3', tension: 0.9 },
     { name: 'series4', icon: <BsExclamationDiamond size={24} color='#fff' />, data: [25, 50, 75, 25, 50, 75, 25], color: '#ff0040', tension: 0.9 },
   ];
-
 
   const dataDonuts = [
     {
@@ -62,16 +62,8 @@ export default function Atividades() {
     }
   ];
 
-
-  const dateOptions = [
-    "Últimos 7 dias",
-    "Últimos 30 dias",
-    "Este mês",
-    "Mês passado",
-    "Este ano"
-  ];
-
   const sectorOptions = [
+    "todos",
     "Administrativo",
     "Operacional",
     "Financeiro",
@@ -80,6 +72,7 @@ export default function Atividades() {
   ];
 
   const environmentOptions = [
+    "todos",
     "Produção",
     "Desenvolvimento",
     "Testes",
@@ -87,29 +80,52 @@ export default function Atividades() {
     "Todos os ambientes"
   ];
 
+  const collaboratorOptions = [
+    "todos",
+    "Todos os colaboradores",
+    "João Paulo",
+    "Maria Silva",
+    "Pedro Henrique",
+    "Ana Luiza"
+  ];
+
   return (
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
+
       <Box className="w-[100%] bg-[#fff] p-5 flex flex-row justify-between items-center gap-5 rounded-lg mb-5 ">
         <h1 className="text-2xl font-medium text-[#5E5873]">
           Atividades
         </h1>
-        <Box className="w-[50%] flex flex-wrap gap-2 mt-5 float-right">
-          <FormControl sx={formTheme} className="w-[30%]">
-            <InputLabel>Data</InputLabel>
-            <Select
+
+        <Box className="w-[50%] flex flex-wrap justify-end gap-2 mt-5">
+          <FormControl sx={formTheme} className="w-[20%]">
+            <TextField
               label="Data"
+              type="date"
               name="data"
               value={filters.data}
               onChange={handleFilterChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </FormControl>
+          <FormControl sx={formTheme} className="w-[20%]">
+            <InputLabel>Colaborador</InputLabel>
+            <Select
+              label="Colaborador"
+              name="colaborador"
+              value={filters.colaborador}
+              onChange={handleFilterChange}
             >
-              {dateOptions.map((option) => (
+              {collaboratorOptions.map((option) => (
                 <MenuItem key={option} value={option}>
                   {option}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          <FormControl sx={formTheme} className="w-[30%]">
+          <FormControl sx={formTheme} className="w-[20%]">
             <InputLabel>Setor</InputLabel>
             <Select
               label="Setor"
@@ -124,7 +140,7 @@ export default function Atividades() {
               ))}
             </Select>
           </FormControl>
-          <FormControl sx={formTheme} className="w-[30%]">
+          <FormControl sx={formTheme} className="w-[20%]">
             <InputLabel>Ambiente</InputLabel>
             <Select
               label="Ambiente"
