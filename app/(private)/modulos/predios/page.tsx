@@ -64,6 +64,7 @@ export default function Predios() {
                                 variant="contained"
                                 color="primary"
                                 className="mt-4"
+                                href="/dashboard/atividades"
                             >
                                 {predio.status === "inativo" ? "Pedir Acesso" : "Acessar"}
                             </Button>

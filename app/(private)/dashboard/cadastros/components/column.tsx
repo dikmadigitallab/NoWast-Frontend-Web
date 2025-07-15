@@ -12,83 +12,64 @@ const CadastroColumnChart = () => {
         series: [{
             name: 'Pessoas',
             data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
-            color: '#2196F3'
+            type: 'column'
         }, {
             name: 'Início',
             data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
-            color: '#4CAF50'
+            type: 'area'
         }, {
             name: 'Fim',
             data: [35, 41, 36, 26, 45, 48, 52, 53, 41],
-            color: '#FF9800'
+            type: 'line'
         }],
         options: {
             chart: {
-                type: 'bar' as const,
+                type: 'line',
                 height: 350,
-                toolbar: {
-                    show: false
-                }
+                stacked: false
+            },
+            stroke: {
+                width: [0, 2, 5],
+                curve: 'smooth'
             },
             plotOptions: {
                 bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
-                    borderRadius: 5,
-                    borderRadiusApplication: 'end'
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                show: true,
-                width: 2,
-            },
-            xaxis: {
-                categories: ['04/03/2025', '05/03/2025', '06/03/2025', '07/03/2025', '08/03/2025', '09/03/2025', '10/03/2025', '11/03/2025', '12/03/2025'],
-                axisTicks: {
-                    show: false
-                },
-                axisBorder: {
-                    show: false
-                },
-                labels: {
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        colors: ['#000']
-                    }
-                }
-            },
-            yaxis: {
-                title: {
-                    text: 'Início e Fim de Contrato',
-                    style: {
-                        color: '#5E5873',
-                        fontSize: '16px',
-                        fontWeight: 600
-                    }
-                },
-                labels: {
-                    style: {
-                        colors: ['#000'],
-                        fontSize: '14px',
-                        fontWeight: 600
-                    }
+                    columnWidth: '50%'
                 }
             },
             fill: {
-                opacity: 1
+                opacity: [0.85, 0.25, 1],
+                gradient: {
+                    inverseColors: false,
+                    shade: 'light',
+                    type: 'vertical',
+                    opacityFrom: 0.85,
+                    opacityTo: 0.55,
+                    stops: [0, 100, 100, 100]
+                }
+            },
+            labels: ['04/03/2025', '05/03/2025', '06/03/2025', '07/03/2025', '08/03/2025', '09/03/2025', '10/03/2025', '11/03/2025', '12/03/2025'],
+            markers: {
+                size: 0
+            },
+            xaxis: {
+                type: 'datetime'
+            },
+            yaxis: {
+                title: {
+                    text: 'Início e Fim de Contrato'
+                },
+                min: 0
             },
             tooltip: {
-                theme: 'dark',
-                style: {
-                    fontSize: '16px',
-                },
+                shared: true,
+                intersect: false,
                 y: {
-                    formatter: function (val: number) {
-                        return val + " ocorrências";
+                    formatter: function (y: number) {
+                        if (typeof y !== "undefined") {
+                            return y.toFixed(0) + " ocorrências";
+                        }
+                        return y;
                     }
                 }
             }
@@ -96,8 +77,9 @@ const CadastroColumnChart = () => {
 
     });
 
+
     return (
-        <ReactApexChart options={state.options} series={state.series} type="bar" height={350} />
+        <ReactApexChart options={state.options} series={state.series} type="line" height={350} />
     );
 }
 

@@ -66,6 +66,7 @@ export default function Empresas() {
                                 variant="contained"
                                 color="primary"
                                 className="mt-4"
+                                href="/dashboard/atividades"
                             >
                                 {empresa.status === "inativo" ? "Pedir Acesso" : "Acessar"}
                             </Button>

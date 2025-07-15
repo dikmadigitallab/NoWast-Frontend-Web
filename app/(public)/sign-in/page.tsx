@@ -14,6 +14,7 @@ import { useAuthStore } from "@/app/store/storeApp";
 type UserType = 'ADM_DIKMA' | 'GESTAO' | 'DIKMA_DIRETORIA' | null;
 
 export default function SignIn() {
+
   const { setUserType } = useAuthStore();
   const [password, setPassword] = useState("31312@dasd");
   const [isVisible, setIsVisible] = useState(false);
