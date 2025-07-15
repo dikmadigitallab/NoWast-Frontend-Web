@@ -97,7 +97,7 @@ export default function Atividades() {
           Atividades
         </h1>
 
-        <Box className="w-[50%] flex flex-wrap justify-end gap-2 mt-5">
+        <Box className="w-[50%] flex flex-wrap justify-end gap-2">
           <FormControl sx={formTheme} className="w-[20%]">
             <TextField
               label="Data"

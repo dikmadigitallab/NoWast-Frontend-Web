@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
 import ReverceChart from '../components/reverseBar';
@@ -11,8 +11,7 @@ export default function Atividades() {
 
   const [filters, setFilters] = useState({
     data: '',
-    setor: '',
-    ambiente: ''
+    colaborador: 'todos'
   });
 
   const handleFilterChange = (event: any) => {
@@ -67,14 +66,14 @@ export default function Atividades() {
     color: '#3357FF'
   }
 
-  const dateOptions = [
-    "Últimos 7 dias",
-    "Últimos 30 dias",
-    "Este mês",
-    "Mês passado",
-    "Este ano"
+  const collaboratorOptions = [
+    "todos",
+    "Todos os colaboradores",
+    "João Paulo",
+    "Maria Silva",
+    "Pedro Henrique",
+    "Ana Luiza"
   ];
-
 
   return (
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
@@ -84,16 +83,28 @@ export default function Atividades() {
           Localização
         </h1>
 
-        <Box className="w-[15%] flex flex-wrap gap-2 mt-5 float-right">
-          <FormControl sx={formTheme} className="w-[100%]">
-            <InputLabel>Data</InputLabel>
-            <Select
+        <Box className="w-[50%] flex flex-wrap justify-end gap-2">
+          <FormControl sx={formTheme} className="w-[30%]">
+            <TextField
               label="Data"
+              type="date"
               name="data"
               value={filters.data}
               onChange={handleFilterChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </FormControl>
+          <FormControl sx={formTheme} className="w-[30%]">
+            <InputLabel>Colaborador</InputLabel>
+            <Select
+              label="Colaborador"
+              name="colaborador"
+              value={filters.colaborador}
+              onChange={handleFilterChange}
             >
-              {dateOptions.map((option) => (
+              {collaboratorOptions.map((option) => (
                 <MenuItem key={option} value={option}>
                   {option}
                 </MenuItem>

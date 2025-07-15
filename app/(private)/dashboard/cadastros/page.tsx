@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { FaHelmetSafety } from "react-icons/fa6";
 import { RiToolsFill } from "react-icons/ri";
@@ -15,8 +15,10 @@ export default function Atividades() {
 
     const [filters, setFilters] = useState({
         data: '',
+        predio: '',
         setor: '',
-        ambiente: ''
+        ambiente: '',
+        nivelContrato: ''
     });
 
     const handleFilterChange = (event: any) => {
@@ -35,11 +37,43 @@ export default function Atividades() {
         "Este ano"
     ];
 
+    const predioOptions = [
+        "Predio 1",
+        "Predio 2",
+        "Predio 3",
+        "Predio 4",
+        "Predio 5"
+    ];
+
+    const setorOptions = [
+        "Setor 1",
+        "Setor 2",
+        "Setor 3",
+        "Setor 4",
+        "Setor 5"
+    ];
+
+    const ambienteOptions = [
+        "Ambiente 1",
+        "Ambiente 2",
+        "Ambiente 3",
+        "Ambiente 4",
+        "Ambiente 5"
+    ];
+
+    const nivelContratoOptions = [
+        "Nivel 1",
+        "Nivel 2",
+        "Nivel 3",
+        "Nivel 4",
+        "Nivel 5"
+    ];
+
     const cards = [
         { title: "Equipamento", value: 925, icon: <RiToolsFill size={25} color="#5E5873" /> },
         { title: "Transporte", value: 925, icon: <IoCarOutline size={25} color="#5E5873" /> },
         { title: "EPI", value: 925, icon: <FaHelmetSafety size={25} color="#5E5873" /> },
-        { title: "Protudos", value: 925, icon: <FiBox size={25} color="#5E5873" /> }
+        { title: "Produtos", value: 925, icon: <FiBox size={25} color="#5E5873" /> }
     ];
 
     const data3 = {
@@ -64,22 +98,12 @@ export default function Atividades() {
                 <h1 className="text-2xl font-medium text-[#5E5873]">
                     Cadastros
                 </h1>
-                <Box className="flex flex-row flex-wrap gap-2 mt-5">
-                    <FormControl sx={formTheme} className='w-[170px]'>
+
+                <Box className="w-[70%] flex flex-wrap justify-end gap-2">
+                    <FormControl sx={formTheme} className="w-[15%]">
                         <InputLabel>Data</InputLabel>
-                        <Select label="Data" name="data" value={filters.data} onChange={handleFilterChange}>
-                            {dateOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    <FormControl sx={formTheme} className='w-[170px]'>
-                        <InputLabel>Nível de Contrato</InputLabel>
                         <Select
-                            label="Nível de Contrato"
+                            label="Data"
                             name="data"
                             value={filters.data}
                             onChange={handleFilterChange}
@@ -92,26 +116,15 @@ export default function Atividades() {
                         </Select>
                     </FormControl>
 
-                    <FormControl sx={formTheme} className='w-[170px]'>
-                        <InputLabel>Ambiente</InputLabel>
-                        <Select label="Ambiente" name="data" value={filters.data} onChange={handleFilterChange}>
-                            {dateOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    <FormControl sx={formTheme} className='w-[170px]'>
-                        <InputLabel>Prédios</InputLabel>
+                    <FormControl sx={formTheme} className='w-[15%]'>
+                        <InputLabel>Predio</InputLabel>
                         <Select
-                            label="Prédios"
-                            name="data"
-                            value={filters.data}
+                            label="Predio"
+                            name="predio"
+                            value={filters.predio}
                             onChange={handleFilterChange}
                         >
-                            {dateOptions.map((option) => (
+                            {predioOptions.map((option) => (
                                 <MenuItem key={option} value={option}>
                                     {option}
                                 </MenuItem>
@@ -119,15 +132,47 @@ export default function Atividades() {
                         </Select>
                     </FormControl>
 
-                    <FormControl sx={formTheme} className='w-[170px]'>
+                    <FormControl sx={formTheme} className='w-[15%]'>
                         <InputLabel>Setor</InputLabel>
                         <Select
                             label="Setor"
-                            name="data"
-                            value={filters.data}
+                            name="setor"
+                            value={filters.setor}
                             onChange={handleFilterChange}
                         >
-                            {dateOptions.map((option) => (
+                            {setorOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl sx={formTheme} className='w-[15%]'>
+                        <InputLabel>Ambiente</InputLabel>
+                        <Select
+                            label="Ambiente"
+                            name="ambiente"
+                            value={filters.ambiente}
+                            onChange={handleFilterChange}
+                        >
+                            {ambienteOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl sx={formTheme} className='w-[15%]'>
+                        <InputLabel>Nivel de Contrato</InputLabel>
+                        <Select
+                            label="Nivel de Contrato"
+                            name="nivelContrato"
+                            value={filters.nivelContrato}
+                            onChange={handleFilterChange}
+                        >
+                            {nivelContratoOptions.map((option) => (
                                 <MenuItem key={option} value={option}>
                                     {option}
                                 </MenuItem>
@@ -154,11 +199,13 @@ export default function Atividades() {
                 ))}
             </Box>
 
-            <Box className="w-full bg-[#fff] p-5 mt-5 rounded-lg">
+            <Box className="gap-5 p-7 w-[100%]  bg-white rounded-lg mb-5 mt-5">
+                <h1 className="text-2xl font-medium text-[#5E5873] mb-5">Início e Fim do Contrado</h1>
                 <CadastroColumnChart />
             </Box>
 
-            <Box className="w-full bg-[#fff] p-5 mt-5 rounded-lg">
+            <Box className="gap-5 p-7 w-[100%]  bg-white rounded-lg mb-5">
+                <h1 className="text-2xl font-medium text-[#5E5873] mb-5">Total de Pessoas Por Cargo</h1>
                 <ReverceChart chart={data3} />
             </Box>
 
