@@ -14,7 +14,7 @@ import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
 
 export default function Atividades() {
   const [filters, setFilters] = useState({
-    data: '', // Alterado para string vazia para o input de data
+    data: '',
     colaborador: 'todos',
     setor: 'todos',
     ambiente: 'todos'
@@ -97,7 +97,7 @@ export default function Atividades() {
           Atividades
         </h1>
 
-        <Box className="w-[50%] flex flex-wrap justify-end gap-2">
+        <Box className="w-[70%] flex flex-wrap justify-end gap-2">
           <FormControl sx={formTheme} className="w-[20%]">
             <TextField
               label="Data"

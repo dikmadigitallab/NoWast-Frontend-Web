@@ -5,7 +5,6 @@ import { useAuthStore } from "@/app/store/storeApp";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { Box, Button } from "@mui/material";
-import { IoIosCloseCircleOutline } from "react-icons/io";
 
 interface Module {
   id: number
@@ -24,6 +23,8 @@ export default function Home() {
         window.location.href = 'modulos/predios';
       } else if (userType === 'DIKMA_DIRETORIA') {
         window.location.href = 'modulos/empresas';
+      } else if (userType === 'ADM_DIKMA') {
+        window.location.href = 'dashboard/atividades';
       }
     }
   }
@@ -56,9 +57,7 @@ export default function Home() {
         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
         <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Módulos</h1>
       </Box>
-
       <Header />
-
       <Box className="w-full flex flex-col">
         <Box className="w-full flex flex-wrap flex-row justify-between">
           {modules.map(module => (

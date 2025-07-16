@@ -31,7 +31,7 @@ export default function Predios() {
             id: 3,
             name: "Auto Forno",
             image: "https://images.pexels.com/photos/3730670/pexels-photo-3730670.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-            status: "inativo"
+            status: "ativo"
         }
     ];
 

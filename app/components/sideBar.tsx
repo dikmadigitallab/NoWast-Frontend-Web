@@ -85,9 +85,9 @@ export default function Sidebar() {
     return (
         <aside className="w-[100%] h-full bg-[#fff] text-white flex flex-col justify-between p-5">
             <Box className="flex flex-col gap-10">
-                <Link
+                <Box
                     onClick={() => handleAccordionToggle("/")}
-                    href="/" className="text-2xl font-bold"><Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" /></Link>
+                    className="text-2xl font-bold"><Image src={Logo} alt="Logo" objectFit='contain' className="w-[130px]" /></Box>
                 <nav className="flex-1 space-y-2">
                     <Box className="font-medium text-[1.1rem] text-[#B9B9C3] mb-5">Menu</Box>
                     {getNavItems()?.map(({ name, href, icon: Icon, subItems }) => (

@@ -10,15 +10,19 @@ import { IoCarOutline } from 'react-icons/io5';
 import { FiBox } from 'react-icons/fi';
 import CadastroColumnChart from './components/column';
 import ReverceChart from '../components/reverseBar';
+import { useAuthStore } from '@/app/store/storeApp';
 
 export default function Atividades() {
+
+    const { userType } = useAuthStore();
+
 
     const [filters, setFilters] = useState({
         data: '',
         predio: '',
         setor: '',
         ambiente: '',
-        nivelContrato: ''
+        empresa: ''
     });
 
     const handleFilterChange = (event: any) => {
@@ -29,13 +33,27 @@ export default function Atividades() {
         }));
     };
 
-    const dateOptions = [
-        "Últimos 7 dias",
-        "Últimos 30 dias",
-        "Este mês",
-        "Mês passado",
-        "Este ano"
+    const cards = [
+        { title: "Equipamento", value: 925, icon: <RiToolsFill size={25} color="#5E5873" /> },
+        { title: "Transporte", value: 925, icon: <IoCarOutline size={25} color="#5E5873" /> },
+        { title: "EPI", value: 925, icon: <FaHelmetSafety size={25} color="#5E5873" /> },
+        { title: "Produtos", value: 925, icon: <FiBox size={25} color="#5E5873" /> }
     ];
+
+    const data3 = {
+        data: [2200, 2000, 1800, 1600, 1400, 1200, 1000, 800, 600, 400],
+        categories: [
+            "ADM",
+            "Operador",
+            "Analista de Gestão e Estrutura",
+            "Operador de Área",
+            "Gestão",
+            "Operador 2",
+            "Operador 3",
+            "Operador 4"
+        ],
+        color: '#7367F0'
+    }
 
     const predioOptions = [
         "Predio 1",
@@ -61,35 +79,13 @@ export default function Atividades() {
         "Ambiente 5"
     ];
 
-    const nivelContratoOptions = [
-        "Nivel 1",
-        "Nivel 2",
-        "Nivel 3",
-        "Nivel 4",
-        "Nivel 5"
-    ];
 
-    const cards = [
-        { title: "Equipamento", value: 925, icon: <RiToolsFill size={25} color="#5E5873" /> },
-        { title: "Transporte", value: 925, icon: <IoCarOutline size={25} color="#5E5873" /> },
-        { title: "EPI", value: 925, icon: <FaHelmetSafety size={25} color="#5E5873" /> },
-        { title: "Produtos", value: 925, icon: <FiBox size={25} color="#5E5873" /> }
+    const empresaOptions = [
+        "todas",
+        "Adcos",
+        "Acelormittal",
+        "Nemak"
     ];
-
-    const data3 = {
-        data: [2200, 2000, 1800, 1600, 1400, 1200, 1000, 800, 600, 400],
-        categories: [
-            "ADM",
-            "Operador",
-            "Analista de Gestão e Estrutura",
-            "Operador de Área",
-            "Gestão",
-            "Operador 2",
-            "Operador 3",
-            "Operador 4"
-        ],
-        color: '#7367F0'
-    }
 
     return (
         <StyledMainContainer style={{ background: "#f8f8f8" }}>
@@ -99,24 +95,20 @@ export default function Atividades() {
                     Cadastros
                 </h1>
 
-                <Box className="w-[70%] flex flex-wrap justify-end gap-2">
-                    <FormControl sx={formTheme} className="w-[15%]">
-                        <InputLabel>Data</InputLabel>
-                        <Select
+                <Box className="w-[80%] flex flex-wrap justify-end gap-2">
+                    <FormControl sx={formTheme} className="w-[16%]">
+                        <TextField
                             label="Data"
+                            type="date"
                             name="data"
                             value={filters.data}
                             onChange={handleFilterChange}
-                        >
-                            {dateOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                        />
                     </FormControl>
-
-                    <FormControl sx={formTheme} className='w-[15%]'>
+                    <FormControl sx={formTheme} className='w-[16%]'>
                         <InputLabel>Predio</InputLabel>
                         <Select
                             label="Predio"
@@ -132,7 +124,26 @@ export default function Atividades() {
                         </Select>
                     </FormControl>
 
-                    <FormControl sx={formTheme} className='w-[15%]'>
+                    {
+                        userType === 'DIKMA_DIRETORIA' &&
+                        <FormControl sx={formTheme} className="w-[16%]">
+                            <InputLabel>Empresa</InputLabel>
+                            <Select
+                                label="Empresa"
+                                name="empresa"
+                                value={filters.empresa}
+                                onChange={handleFilterChange}
+                            >
+                                {empresaOptions.map(option => (
+                                    <MenuItem key={option} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    }
+
+                    <FormControl sx={formTheme} className='w-[16%]'>
                         <InputLabel>Setor</InputLabel>
                         <Select
                             label="Setor"
@@ -148,7 +159,7 @@ export default function Atividades() {
                         </Select>
                     </FormControl>
 
-                    <FormControl sx={formTheme} className='w-[15%]'>
+                    <FormControl sx={formTheme} className='w-[16%]'>
                         <InputLabel>Ambiente</InputLabel>
                         <Select
                             label="Ambiente"
@@ -157,22 +168,6 @@ export default function Atividades() {
                             onChange={handleFilterChange}
                         >
                             {ambienteOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    <FormControl sx={formTheme} className='w-[15%]'>
-                        <InputLabel>Nivel de Contrato</InputLabel>
-                        <Select
-                            label="Nivel de Contrato"
-                            name="nivelContrato"
-                            value={filters.nivelContrato}
-                            onChange={handleFilterChange}
-                        >
-                            {nivelContratoOptions.map((option) => (
                                 <MenuItem key={option} value={option}>
                                     {option}
                                 </MenuItem>

@@ -6,12 +6,17 @@ import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
 import ReverceChart from '../components/reverseBar';
+import { useAuthStore } from '@/app/store/storeApp';
 
 export default function Atividades() {
 
+  const { userType } = useAuthStore();
+
   const [filters, setFilters] = useState({
     data: '',
-    colaborador: 'todos'
+    colaborador: 'todos',
+    empresa: 'todas',
+    predio: 'todos',
   });
 
   const handleFilterChange = (event: any) => {
@@ -75,6 +80,20 @@ export default function Atividades() {
     "Ana Luiza"
   ];
 
+  const empresaOptions = [
+    "todas",
+    "Adcos",
+    "Acelormittal",
+    "Nemak"
+  ];
+
+  const predioOptions = [
+    "todos",
+    "Coqueria",
+    "Sinterização",
+    "Auto Forno"
+  ];
+
   return (
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
 
@@ -83,8 +102,8 @@ export default function Atividades() {
           Localização
         </h1>
 
-        <Box className="w-[50%] flex flex-wrap justify-end gap-2">
-          <FormControl sx={formTheme} className="w-[30%]">
+        <Box className="w-[70%] flex flex-wrap justify-end gap-2">
+          <FormControl sx={formTheme} className="w-[23%]">
             <TextField
               label="Data"
               type="date"
@@ -96,7 +115,7 @@ export default function Atividades() {
               }}
             />
           </FormControl>
-          <FormControl sx={formTheme} className="w-[30%]">
+          <FormControl sx={formTheme} className="w-[23%]">
             <InputLabel>Colaborador</InputLabel>
             <Select
               label="Colaborador"
@@ -104,7 +123,42 @@ export default function Atividades() {
               value={filters.colaborador}
               onChange={handleFilterChange}
             >
-              {collaboratorOptions.map((option) => (
+              {collaboratorOptions.map(option => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {
+            userType === 'DIKMA_DIRETORIA' &&
+            <FormControl sx={formTheme} className="w-[23%]">
+              <InputLabel>Empresa</InputLabel>
+              <Select
+                label="Empresa"
+                name="empresa"
+                value={filters.empresa}
+                onChange={handleFilterChange}
+              >
+                {empresaOptions.map(option => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          }
+
+          <FormControl sx={formTheme} className="w-[23%]">
+            <InputLabel>Prédio</InputLabel>
+            <Select
+              label="Prédio"
+              name="predio"
+              value={filters.predio}
+              onChange={handleFilterChange}
+            >
+              {predioOptions.map(option => (
                 <MenuItem key={option} value={option}>
                   {option}
                 </MenuItem>
