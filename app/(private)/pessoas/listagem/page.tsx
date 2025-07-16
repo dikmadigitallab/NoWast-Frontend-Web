@@ -56,6 +56,19 @@ export default function DataGridUsuarios() {
             ),
         },
         {
+            field: 'status',
+            headerName: 'Status',
+            width: 120,
+            renderCell: (params) => (
+                <Chip
+                    label={params.value}
+                    color={params.value === 'ativo' ? 'success' : 'error'}
+                    size="small"
+                    variant="outlined"
+                />
+            ),
+        },
+        {
             field: 'id',
             headerName: '#ID',
             width: 80
@@ -95,19 +108,6 @@ export default function DataGridUsuarios() {
             field: 'gestor_responsavel',
             headerName: 'Gestor Responsável',
             width: 200,
-        },
-        {
-            field: 'status',
-            headerName: 'Status',
-            width: 120,
-            renderCell: (params) => (
-                <Chip
-                    label={params.value}
-                    color={params.value === 'ativo' ? 'success' : 'error'}
-                    size="small"
-                    variant="outlined"
-                />
-            ),
         }
     ];
 

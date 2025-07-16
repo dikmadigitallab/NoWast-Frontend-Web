@@ -22,22 +22,22 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                     <Box className="mt-3 flex flex-col gap-3">
 
                         <Box className="flex flex-row gap-3">
-                            <Box className="flex flex-col w-[20%]">
+                            <Box className="flex flex-col w-[50%]">
                                 <Box className="font-semibold text-[#6E6B7B]">ID:</Box>
                                 <Box className="text-[#6E6B7B]">{modalVisualize?.id}</Box>
                             </Box>
-                            <Box className="flex flex-col w-[20%]">
+                            <Box className="flex flex-col w-[50%]">
                                 <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>
                                 <Box className="text-[#6E6B7B]">{modalVisualize?.nome}</Box>
                             </Box>
                         </Box>
 
                         <Box className="flex flex-row gap-3">
-                            <Box className="flex flex-col w-[20%]">
+                            <Box className="flex flex-col w-[50%]">
                                 <Box className="font-semibold text-[#6E6B7B]">Raio:</Box>
                                 <Box className="text-[#6E6B7B]">{modalVisualize?.raio}</Box>
                             </Box>
-                            <Box className="flex flex-col w-[20%]">
+                            <Box className="flex flex-col w-[50%]">
                                 <Box className="font-semibold text-[#6E6B7B]">Serviço:</Box>
                                 <Box className="text-[#6E6B7B]">{modalVisualize?.servico}</Box>
                             </Box>

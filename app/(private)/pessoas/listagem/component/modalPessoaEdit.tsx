@@ -116,7 +116,6 @@ export default function ModalPessoaEditModal({ modalEdit, handleChangeModalEdit,
     };
 
     const handleDisableConfirm = () => {
-        // Lógica para desabilitar o usuário aqui
         console.log("Usuário desabilitado");
         handleCloseDisableModal();
         handleChangeModalEdit(null);

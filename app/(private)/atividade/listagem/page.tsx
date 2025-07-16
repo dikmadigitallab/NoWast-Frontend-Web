@@ -44,6 +44,9 @@ export default function DataGridAtividades() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
+                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalVisualize(params.row)}>
+                        <MdOutlineVisibility color='#635D77' />
+                    </IconButton>
                     <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
                         <MdOutlineModeEditOutline color='#635D77' />
                     </IconButton>
@@ -61,9 +64,25 @@ export default function DataGridAtividades() {
             width: 200,
         },
         {
-            field: 'raio',
-            headerName: 'Raio',
-            width: 120,
+            field: 'setor',
+            headerName: 'Setor',
+            width: 150,
+        },
+        {
+            field: 'predio',
+            headerName: 'Predio',
+            width: 150,
+        },
+        {
+            field: 'dataHora',
+            headerName: 'Data e Hora',
+            width: 240,
+            renderCell: (params) => <span>{params.row.data ? `${params.row.data} - ${params.row.hora}` : '-'}</span>,
+        },
+        {
+            field: 'dimensao',
+            headerName: 'Dimensão',
+            width: 150,
         },
         {
             field: 'servico',
@@ -71,15 +90,9 @@ export default function DataGridAtividades() {
             width: 150,
         },
         {
-            field: 'tipo',
+            field: 'Tipo',
             headerName: 'Tipo',
             width: 150,
-        },
-        {
-            field: 'descricao',
-            headerName: 'Descrição',
-            width: 300,
-            flex: 1,
         },
     ];
 

@@ -64,6 +64,23 @@ export default function DataGridUsuarios() {
             width: 200,
         },
         {
+            field: 'dimensao',
+            headerName: 'Dimensão',
+            width: 200,
+        },
+        {
+            field: 'predio',
+            headerName: 'Prédio',
+            width: 200,
+            renderCell: (params) => <span>{params.row.predio?.nome || '-'}</span>
+        },
+        {
+            field: 'setor',
+            headerName: 'Setor',
+            width: 200,
+            renderCell: (params) => <span>{params.row.setor?.nome || '-'}</span>
+        },
+        {
             field: 'raio',
             headerName: 'Raio',
             width: 120,

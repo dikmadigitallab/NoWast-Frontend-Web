@@ -2,254 +2,138 @@ export const rows: any[] = [
     {
         id: "1",
         nome: "nome do Ambiente",
-        raio: "10m²",
+        setor: "10m²",
+        predio: "Coqueria",
+        data: "10/10/2022",
+        hora: "10:00",
+        dimensao: "m²",
         servico: "Usina",
-        tipo: "Correia",
-        descricao: "Correia central com grande necessidade de limpeza quente.",
-        checklist: [
-            "LIMPAR MESA DE IMPACTO",
-            "LIMPAR CAVALETES",
-            "LIMPAR BANDEJAMENTO",
-            "LIMPAR PASSARELA DO LADO DIREITO E ESQUERDO",
-            "LIMPAR PISO ZERO",
-            "LIMPAR LIMPEZA DAS PLACAS E CONTRAPESO"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
+        Tipo: "Esteira",
+        pessoas: [
+            {
+                status: "Não Realizado",
+                encarregado: "João da Silva",
+                descricao: "Chegou depois do almoço",
+            },
+            {
+                status: "Realizado",
+                encarregado: "João da Silva",
+            },
+            {
+                status: "Realizado",
+                encarregado: "João da Silva",
+            },
+        ]
     },
     {
         id: "2",
-        nome: "Ambiente 2",
-        raio: "10m²",
+        nome: "Ambiente A",
+        setor: "20m²",
+        predio: "Fábrica",
+        data: "11/11/2022",
+        hora: "11:00",
+        dimensao: "m²",
         servico: "Fábrica",
-        tipo: "Máquina",
-        descricao: "Máquina de grande porte com grande necessidade de lubrificação.",
-        checklist: [
-            "VERIFICAR NÍVEL DE ÓLEO",
-            "VERIFICAR FERRAMENTAS",
-            "VERIFICAR CALIBRAÇÃO",
-            "VERIFICAR LIMPEZA",
-            "VERIFICAR PNEUS",
-            "VERIFICAR BATERIAS"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
+        Tipo: "Máquina",
+        pessoas: [
+            {
+                status: "Realizado",
+                encarregado: "Maria Oliveira",
+                descricao: "Finalizou antes do prazo",
+            },
+            {
+                status: "Realizado",
+                encarregado: "Maria Oliveira",
+            },
+        ]
     },
     {
         id: "3",
-        nome: "Ambiente 3",
-        raio: "10m²",
+        nome: "Ambiente B",
+        setor: "15m²",
+        predio: "Armazém",
+        data: "12/12/2022",
+        hora: "12:00",
+        dimensao: "m²",
         servico: "Armazém",
-        tipo: "Empilhadeira",
-        descricao: "Empilhadeira com grande necessidade de manutenção preventiva.",
-        checklist: [
-            "VERIFICAR NÍVEL DE ÓLEO",
-            "VERIFICAR FERRAMENTAS",
-            "VERIFICAR CALIBRAÇÃO",
-            "VERIFICAR LIMPEZA",
-            "VERIFICAR PNEUS",
-            "VERIFICAR BATERIAS"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
+        Tipo: "Empilhadeira",
+        pessoas: [
+            {
+                status: "Não Realizado",
+                encarregado: "Carlos Mendes",
+                descricao: "Faltou material",
+            },
+            {
+                status: "Realizado",
+                encarregado: "Carlos Mendes",
+            },
+        ]
     },
     {
         id: "4",
-        nome: "Ambiente 4",
-        raio: "10m²",
-        servico: "Escritório",
-        tipo: "Computador",
-        descricao: "Computador com grande necessidade de manutenção preventiva.",
-        checklist: [
-            "VERIFICAR NÍVEL DE ÓLEO",
-            "VERIFICAR FERRAMENTAS",
-            "VERIFICAR CALIBRAÇÃO",
-            "VERIFICAR LIMPEZA",
-            "VERIFICAR PNEUS",
-            "VERIFICAR BATERIAS"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
+        nome: "Ambiente C",
+        setor: "25m²",
+        predio: "Laboratório",
+        data: "13/01/2023",
+        hora: "13:00",
+        dimensao: "m²",
+        servico: "Laboratório",
+        Tipo: "Microscópio",
+        pessoas: [
+            {
+                status: "Realizado",
+                encarregado: "Ana Souza",
+                descricao: "Trabalho perfeito",
+            },
+            {
+                status: "Realizado",
+                encarregado: "Ana Souza",
+            },
+        ]
     },
     {
         id: "5",
-        nome: "Ambiente 5",
-        raio: "10m²",
-        servico: "Laboratório",
-        tipo: "Microscópio",
-        descricao: "Microscópio com grande necessidade de manutenção preventiva.",
-        checklist: [
-            "VERIFICAR NÍVEL DE ÓLEO",
-            "VERIFICAR FERRAMENTAS",
-            "VERIFICAR CALIBRAÇÃO",
-            "VERIFICAR LIMPEZA",
-            "VERIFICAR PNEUS",
-            "VERIFICAR BATERIAS"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
+        nome: "Ambiente D",
+        setor: "30m²",
+        predio: "Escritório",
+        data: "14/02/2023",
+        hora: "14:00",
+        dimensao: "m²",
+        servico: "Escritório",
+        Tipo: "Computador",
+        pessoas: [
+            {
+                status: "Não Realizado",
+                encarregado: "Pedro Lima",
+                descricao: "Problemas técnicos",
+            },
+            {
+                status: "Realizado",
+                encarregado: "Pedro Lima",
+            },
+        ]
     },
     {
         id: "6",
-        nome: "Ambiente 6",
-        raio: "10m²",
+        nome: "Ambiente E",
+        setor: "35m²",
+        predio: "Usina",
+        data: "15/03/2023",
+        hora: "15:00",
+        dimensao: "m²",
         servico: "Usina",
-        tipo: "Turbinas",
-        descricao: "Turbinas com grande necessidade de manutenção preventiva.",
-        checklist: [
-            "VERIFICAR NÍVEL DE ÓLEO",
-            "VERIFICAR FERRAMENTAS",
-            "VERIFICAR CALIBRAÇÃO",
-            "VERIFICAR LIMPEZA",
-            "VERIFICAR PNEUS",
-            "VERIFICAR BATERIAS"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
-    },
-    {
-        id: "7",
-        nome: "Ambiente 7",
-        raio: "10m²",
-        servico: "Fábrica",
-        tipo: "Máquina",
-        descricao: "Máquina de grande porte com grande necessidade de lubrificação.",
-        checklist: [
-            "VERIFICAR NÍVEL DE ÓLEO",
-            "VERIFICAR FERRAMENTAS",
-            "VERIFICAR CALIBRAÇÃO",
-            "VERIFICAR LIMPEZA",
-            "VERIFICAR PNEUS",
-            "VERIFICAR BATERIAS"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
-    },
-    {
-        id: "8",
-        nome: "Ambiente 8",
-        raio: "10m²",
-        servico: "Armazém",
-        tipo: "Empilhadeira",
-        descricao: "Empilhadeira com grande necessidade de manutenção preventiva.",
-        checklist: [
-            "VERIFICAR NÍVEL DE ÓLEO",
-            "VERIFICAR FERRAMENTAS",
-            "VERIFICAR CALIBRAÇÃO",
-            "VERIFICAR LIMPEZA",
-            "VERIFICAR PNEUS",
-            "VERIFICAR BATERIAS"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
-    },
-    {
-        id: "9",
-        nome: "Ambiente 9",
-        raio: "10m²",
-        servico: "Escritório",
-        tipo: "Computador",
-        descricao: "Computador com grande necessidade de manutenção preventiva.",
-        checklist: [
-            "VERIFICAR NÍVEL DE ÓLEO",
-            "VERIFICAR FERRAMENTAS",
-            "VERIFICAR CALIBRAÇÃO",
-            "VERIFICAR LIMPEZA",
-            "VERIFICAR PNEUS",
-            "VERIFICAR BATERIAS"
-        ],
-        setor: {
-            id: "#124",
-            nome: "Tratamento de Gás",
-            descricao: "Iorem ipsum dolor sit amet",
-            dimensao: "10m²"
-        },
-        predio: {
-            id: "#124",
-            nome: "Coqueria",
-            descricao: "Iorem ipsum dolor sit amet",
-            raio: "40m²"
-        }
+        Tipo: "Turbina",
+        pessoas: [
+            {
+                status: "Realizado",
+                encarregado: "Lucas Ferreira",
+                descricao: "Operação bem-sucedida",
+            },
+            {
+                status: "Realizado",
+                encarregado: "Lucas Ferreira",
+            },
+        ]
     }
-]
+];
 

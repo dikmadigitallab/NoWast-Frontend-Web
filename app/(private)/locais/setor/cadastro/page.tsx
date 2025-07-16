@@ -1,13 +1,15 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Box, FormControl, InputLabel, Select, MenuItem, Button } from "@mui/material";
+import { TextField, Box, FormControl, InputLabel, Select, MenuItem, Button, Modal } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const setorSchema = z.object({
     id: z.string().min(1, "ID é obrigatório"),
@@ -41,6 +43,21 @@ export default function CadastroSetor() {
         "Oficina",
         "Depósito"
     ];
+
+    const router = useRouter();
+    const [openDisableModal, setOpenDisableModal] = useState(false);
+
+    const handleOpenDisableModal = () => {
+        setOpenDisableModal(true);
+    };
+
+    const handleCloseDisableModal = () => {
+        setOpenDisableModal(false);
+    };
+
+    const handleDisableConfirm = () => {
+        router.push('/locais/setor/listagem');
+    };
 
 
     return (
@@ -173,20 +190,23 @@ export default function CadastroSetor() {
                 </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5 justify-end">
-                    <Button
-                        variant="outlined"
-                        sx={buttonThemeNoBackground}
-                    >
-                        Cancelar
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        sx={[buttonTheme, { alignSelf: "end" }]}
-                    >
-                        Cadastrar
-                    </Button>
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                    <Button variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>Cadastrar</Button>
                 </Box>
             </Box>
+
+            <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
         </StyledMainContainer>
     )
 }

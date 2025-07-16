@@ -4,20 +4,22 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { ptBR } from '@mui/x-data-grid/locales';
-import { MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
+import { MdOutlineFilterAlt, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { FiPlus, FiUser } from 'react-icons/fi';
-import { Button, IconButton } from '@mui/material';
+import { Button, IconButton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { rows } from './data';
 import DetailModal from './component/modalProdutosDetail';
 import EditModal from './component/modalProdutosEdit';
-import { buttonTheme } from '@/app/styles/buttonTheme/theme';
+import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
+import { GoDownload } from 'react-icons/go';
+import { formTheme } from '@/app/styles/formTheme/theme';
 
 export default function ListagemPessoas() {
 
     const [edit, setEdit] = useState<any | null>(null);
     const [modalEdit, setModalEdit] = useState(false);
-
+    const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
 
@@ -85,31 +87,57 @@ export default function ListagemPessoas() {
     return (
         <>
             <StyledMainContainer>
+
+                <DetailModal
+                    handleChangeModalDetail={() => handleChangeModalDetail(null)}
+                    modalDetail={detail}
+                />
+                <EditModal
+                    edit={edit}
+                    modalEdit={modalEdit}
+                    handleChangeModalEdit={() => setModalEdit(!modalEdit)}
+                />
+
                 <Box className="flex flex-col gap-5">
-                    <Box className="flex gap-2">
-                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Produto</h1>
-                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
+                    <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
+                        <Box className="flex gap-2">
+                            <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Produto</h1>
+                            <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
+                            <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
+                        </Box>
+                        <Box className="flex  items-center self-end gap-3">
+                            <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
+                                <MdOutlineFilterAlt size={25} color='#635D77' />
+                            </Button>
+                            <Button variant="outlined" sx={buttonThemeNoBackground}>
+                                <GoDownload size={25} color='#635D77' />
+                            </Button>
+                            <Button href="/items/produto/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
+                                <FiPlus size={25} />
+                                Cadastrar Produto
+                            </Button>
+                        </Box>
                     </Box>
-
-                    <DetailModal
-                        handleChangeModalDetail={() => handleChangeModalDetail(null)}
-                        modalDetail={detail}
-                    />
-                    <EditModal
-                        edit={edit}
-                        modalEdit={modalEdit}
-                        handleChangeModalEdit={() => setModalEdit(!modalEdit)}
-                    />
-
-                    <Button
-                        href="/items/produto/cadastro"
-                        variant="outlined"
-                        sx={[buttonTheme, { alignSelf: "end" }]}
-                    >
-                        <FiPlus size={25} />
-                        Cadastrar Produto
-                    </Button>
+                    {
+                        isFilter && (
+                            <Box>
+                                <Box className="flex gap-3 justify-between items-center">
+                                    <TextField variant="outlined" label="Nome, Email ou Usuário" className="w-[100%]" sx={formTheme} />
+                                    <TextField variant="outlined" label="Cargo" className="w-[100%]" sx={formTheme} />
+                                    <TextField variant="outlined" label="Encarregado Responsável" className="w-[100%]" sx={formTheme} />
+                                    <TextField variant="outlined" label="Gestor Responsável" className="w-[100%]" sx={formTheme} />
+                                </Box>
+                                <Box className="flex gap-2 items-center justify-end mt-2">
+                                    <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(false)}>
+                                        Limpar
+                                    </Button>
+                                    <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
+                                        Pesquisar
+                                    </Button>
+                                </Box>
+                            </Box>
+                        )
+                    }
 
                     <DataGrid
                         rows={rows}
@@ -139,7 +167,7 @@ export default function ListagemPessoas() {
                         }}
                     />
                 </Box>
-            </StyledMainContainer>
+            </StyledMainContainer >
         </>
     );
 }

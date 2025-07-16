@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
@@ -87,6 +87,11 @@ export default function Atividades() {
         "Nemak"
     ];
 
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
     return (
         <StyledMainContainer style={{ background: "#f8f8f8" }}>
 
@@ -125,7 +130,7 @@ export default function Atividades() {
                     </FormControl>
 
                     {
-                        userType === 'DIKMA_DIRETORIA' &&
+                        isClient && userType === 'DIKMA_DIRETORIA' &&
                         <FormControl sx={formTheme} className="w-[16%]">
                             <InputLabel>Empresa</InputLabel>
                             <Select

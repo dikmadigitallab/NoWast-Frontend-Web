@@ -50,13 +50,13 @@ export default function ListagemSetores() {
             width: 180,
         },
         {
-            field: 'local',
-            headerName: 'Local',
+            field: 'nome',
+            headerName: 'Nome do Setor',
             width: 180,
         },
         {
-            field: 'nome',
-            headerName: 'Nome do Setor',
+            field: 'local',
+            headerName: 'Local',
             width: 180,
         },
         {

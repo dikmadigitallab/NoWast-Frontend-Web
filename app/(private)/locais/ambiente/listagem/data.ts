@@ -5,6 +5,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Usina",
         tipo: "Correia",
+        dimensao: "10m²",
         descricao: "Correia central com grande necessidade de limpeza quente.",
         checklist: [
             "LIMPAR MESA DE IMPACTO",
@@ -33,6 +34,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Fábrica",
         tipo: "Máquina",
+        dimensao: "10m²",
         descricao: "Máquina de grande porte com grande necessidade de lubrificação.",
         checklist: [
             "VERIFICAR NÍVEL DE ÓLEO",
@@ -61,6 +63,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Armazém",
         tipo: "Empilhadeira",
+        dimensao: "10m²",
         descricao: "Empilhadeira com grande necessidade de manutenção preventiva.",
         checklist: [
             "VERIFICAR NÍVEL DE ÓLEO",
@@ -89,6 +92,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Escritório",
         tipo: "Computador",
+        dimensao: "10m²",
         descricao: "Computador com grande necessidade de manutenção preventiva.",
         checklist: [
             "VERIFICAR NÍVEL DE ÓLEO",
@@ -117,6 +121,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Laboratório",
         tipo: "Microscópio",
+        dimensao: "10m²",
         descricao: "Microscópio com grande necessidade de manutenção preventiva.",
         checklist: [
             "VERIFICAR NÍVEL DE ÓLEO",
@@ -145,6 +150,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Usina",
         tipo: "Turbinas",
+        dimensao: "10m²",
         descricao: "Turbinas com grande necessidade de manutenção preventiva.",
         checklist: [
             "VERIFICAR NÍVEL DE ÓLEO",
@@ -173,6 +179,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Fábrica",
         tipo: "Máquina",
+        dimensao: "10m²",
         descricao: "Máquina de grande porte com grande necessidade de lubrificação.",
         checklist: [
             "VERIFICAR NÍVEL DE ÓLEO",
@@ -201,6 +208,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Armazém",
         tipo: "Empilhadeira",
+        dimensao: "10m²",
         descricao: "Empilhadeira com grande necessidade de manutenção preventiva.",
         checklist: [
             "VERIFICAR NÍVEL DE ÓLEO",
@@ -229,6 +237,7 @@ export const rows: any[] = [
         raio: "10m²",
         servico: "Escritório",
         tipo: "Computador",
+        dimensao: "10m²",
         descricao: "Computador com grande necessidade de manutenção preventiva.",
         checklist: [
             "VERIFICAR NÍVEL DE ÓLEO",

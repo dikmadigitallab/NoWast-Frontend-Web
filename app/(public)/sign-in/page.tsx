@@ -125,9 +125,9 @@ export default function SignIn() {
               <Box sx={{ fontWeight: 500 }} className="flex items-center gap-1 text-[#fff]"> Entrar</Box>
             )}
           </Button>
-          <Button variant="outlined" href="/forgot-pass" sx={[buttonThemeNoBackground, { width: "100%", fontWeight: 500 }]}>
+          {/* <Button variant="outlined" href="/forgot-pass" sx={[buttonThemeNoBackground, { width: "100%", fontWeight: 500 }]}>
             Esqueci minha Senha
-          </Button>
+          </Button> */}
         </Box>
       </form>
     </Box>

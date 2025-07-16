@@ -4,10 +4,12 @@ import { Box } from "@mui/material";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useAuthStore } from "../store/storeApp";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
 
     const { userType } = useAuthStore();
+    const pathname = usePathname();
 
     const userTypes = {
         DEFAULT: '',
@@ -33,7 +35,7 @@ export default function Header() {
                     <p className="text-[#00b288] text-[1.2rem] font-semibold animate-pulse">{userTypes[userType!]}</p>
                     <p className="text-[#5E5873] text-[1rem]">Escolha uma das empresas para iniciar sua jornada com a Dikma.</p>
                 </Box>
-                <a href='/'><IoIosCloseCircleOutline className='cursor-pointer animate-pulse' size={40} color="#5E5873" /></a>
+                {pathname !== '/' && <a href="/"><IoIosCloseCircleOutline size={40} className="text-[#5E5873] text-[2rem] cursor-pointer" /></a>}
             </Box>
         </Box>
     )

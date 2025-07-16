@@ -6,12 +6,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Modal } from "@mui/material";
 import FormDadosGerais from "./forms/gerais";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import FormPessoas from "./forms/pessoas";
 import FormItens from "./forms/itens";
 import FormCheckList from "./forms/checklist";
+import { useRouter } from "next/navigation";
 
 const ambienteSchema = z.object({
     id: z.string().min(1, "ID do local é obrigatório"),
@@ -63,7 +64,9 @@ export default function Locais() {
     });
 
 
+    const router = useRouter();
     const [section, setSection] = useState(1);
+    const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const onSubmit = (data: UserFormValues) => {
         console.log("Form data enviado:", data);
@@ -109,19 +112,18 @@ export default function Locais() {
         return false;
     };
 
-    // console.log(
-    //     `ID: ${watch("id")}`,
-    //     `Ambiente: ${watch("ambiente")}`,
-    //     `Recorrência: ${watch("recorrencia")}`,
-    //     `Repete dia: ${watch("repete_dia")}`,
-    //     `Horário: ${watch("horario")}`,
-    //     `Prédio: ${watch("predio")}`,
-    //     `Setor: ${watch("setor")}`,
-    //     `Serviço: ${watch("servico")}`,
-    //     `Tipo: ${watch("tipo")}`,
-    //     `Observação: ${watch("observacao")}`,
+    const handleOpenDisableModal = () => {
+        setOpenDisableModal(true);
+    };
 
-    // )
+    const handleCloseDisableModal = () => {
+        setOpenDisableModal(false);
+    };
+
+    const handleDisableConfirm = () => {
+        router.push('/atividade/listagem');
+    };
+
 
     return (
         <StyledMainContainer>
@@ -158,7 +160,6 @@ export default function Locais() {
                 </Box>
 
                 <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-
                     {section === 1 && (
                         <FormDadosGerais control={control} formState={{ errors }} />
                     )}
@@ -176,25 +177,25 @@ export default function Locais() {
                     )}
 
                     <Box className="w-[100%] flex flex-row gap-5 justify-end">
-                        <Button
-                            variant="outlined"
-                            sx={buttonThemeNoBackground}
-                            onClick={() => setSection(1)}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="outlined"
-                            disabled={checkComplete(section) ? false : true}
-                            sx={[buttonTheme, { alignSelf: "end" }]}
-                            onClick={section !== 4 ? handleNext : undefined}
-                        >
-                            {section === 4 ? "Enviar" : "Avançar"}
-                        </Button>
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                        <Button type="submit" variant="outlined" disabled={checkComplete(section) ? false : true} sx={[buttonTheme, { alignSelf: "end" }]} onClick={section !== 4 ? handleNext : undefined}>{section === 4 ? "Enviar" : "Avançar"}</Button>
                     </Box>
                 </form>
             </Box>
+
+
+            <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
         </StyledMainContainer>
     );
 }
