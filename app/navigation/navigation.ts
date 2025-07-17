@@ -21,6 +21,18 @@ export const DEFAULT: NavItem[] = [
     }
 ];
 
+export const ADM_CLIENTE: NavItem[] = [
+    {
+        name: 'Dashboard',
+        icon: RxDashboard,
+        subItems: [
+            { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
+            { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
+            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
+        ]
+    },
+];
+
 export const ADM_DIKMA: NavItem[] = [
     {
         name: 'Início', href: '/',
@@ -56,6 +68,7 @@ export const ADM_DIKMA: NavItem[] = [
         name: 'Locais',
         icon: MdOutlinePlace,
         subItems: [
+            { icon: FaRegCircle, name: 'Empresa', href: '/locais/empresa/listagem' },
             { icon: FaRegCircle, name: 'Prédio', href: '/locais/predio/listagem' },
             { icon: FaRegCircle, name: 'Setor', href: '/locais/setor/listagem' },
             { icon: FaRegCircle, name: 'Ambiente', href: '/locais/ambiente/listagem' }

@@ -306,7 +306,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                 <Box className="flex items-center gap-2">
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
                     <span className="text-[#3aba8a] font-bold">Pessoas</span>
-                    <Box className="w-[100%] h-[1px] bg-[#3aba8a] " />
+                    <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
                 </Box>
 
                 <Box className="flex flex-row gap-3 h-[60px]">

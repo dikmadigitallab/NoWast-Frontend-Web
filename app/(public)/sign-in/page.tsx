@@ -1,62 +1,30 @@
 "use client";
 
-import { Box, Button, CircularProgress, IconButton, TextField, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { Box, Button, CircularProgress, IconButton, TextField } from "@mui/material";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import Logo from "../../assets/pr_logo.png";
 import { useState } from "react";
-import { redirect } from "next/navigation";
-import { toast } from "react-toastify";
 import Image from "next/image";
 import "./style.scss";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import { useAuthStore } from "@/app/store/storeApp";
-
-type UserType = 'ADM_DIKMA' | 'GESTAO' | 'DIKMA_DIRETORIA' | null;
+import { buttonTheme } from "@/app/styles/buttonTheme/theme";
+import { useLogin } from "@/app/hooks/usuarios/login";
 
 export default function SignIn() {
 
-  const { setUserType } = useAuthStore();
-  const [password, setPassword] = useState("31312@dasd");
+  const { login, isLoading } = useLogin();
   const [isVisible, setIsVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedEmailType, setSelectedEmailType] = useState<UserType>(null);
-
-  const emailTypes = [
-    { value: 'ADM_DIKMA', label: 'Adiministrador DIKMA' },
-    { value: 'GESTAO', label: 'Gestão' },
-    { value: 'DIKMA_DIRETORIA', label: 'Diretoria DIKMA' }
-  ];
-
-  const handleEmailTypeChange = (event: any) => {
-    const value = event.target.value as UserType;
-    setSelectedEmailType(value);
-    setUserType(value);
-  };
+  const [user, setUser] = useState({ email: "admin@dikma.com.br", password: "123456" });
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
-
-    document.cookie = `authToken=asdasdasd; Path=/; Max-Age=3600; SameSite=Lax`;
-    toast.success("Login realizado com sucesso!");
-
-    if (selectedEmailType === 'ADM_DIKMA') {
-      setTimeout(() => {
-        redirect("/dashboard/atividades");
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        redirect("/");
-      }, 1000);
-    }
-
+    login(user.email, user.password);
   };
 
   return (
     <Box className="main-sign-in-container">
       <form
         onSubmit={handleSignIn}
-        className="gap-3 w-[400px] p-[30px] flex items-center rounded-[5px] bg-white flex-col justify-center "
+        className="gap-3 w-[400px] p-[30px] flex items-center rounded-[5px] bg-white flex-col justify-center"
       >
         <Box className="flex flex-col gap-5">
           <Box className="flex items-center flex-row gap-2">
@@ -70,53 +38,51 @@ export default function SignIn() {
           </Box>
           <Box className="flex flex-col gap-3">
             <Box className="font-bold text-[#6E6B7B]">Bem Vindo</Box>
-            <Box className="font-normal text-[#6E6B7B] text-[0.9rem]">Preencha as informações abaixo para acessar o sistema</Box>
+            <Box className="font-normal text-[#6E6B7B] text-[0.9rem]">
+              Preencha as informações abaixo para acessar o sistema
+            </Box>
           </Box>
         </Box>
+
         <Box className="w-[100%] flex flex-col gap-3">
-          <FormControl fullWidth>
-            <InputLabel id="email-type-label">Tipo de Usuário</InputLabel>
-            <Select
-              labelId="email-type-label"
-              id="email-type-select"
-              value={selectedEmailType || ''}
-              label="Tipo de Usuário"
-              onChange={handleEmailTypeChange}
-              required
-            >
-              {emailTypes.map((type) => (
-                <MenuItem key={type.value} value={type.value}>
-                  {type.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <TextField
+            required
+            type="text"
+            name="email"
+            variant="outlined"
+            placeholder="Email"
+            value={user.email}
+            onChange={(e) => setUser({ ...user, email: e.target.value })}
+            fullWidth
+            error={Boolean(user.email && user.email.length < 5)}
+            helperText={user.email && user.email.length < 5 ? "Insira um e-mail válido" : ""}
+          />
 
           <TextField
             required
             type={isVisible ? "text" : "password"}
-            name="senha"
+            name="password"
             variant="outlined"
             placeholder="Senha"
-            value={password ?? ""}
-            onChange={(e) => setPassword(e.target.value)}
+            value={user.password}
+            onChange={(e) => setUser({ ...user, password: e.target.value })}
             fullWidth
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => setIsVisible((prevState) => !prevState)}
-                    edge="end"
-                  >
-                    {isVisible ? <FiEye /> : <FiEyeOff />}
-                  </IconButton>
-                ),
-              },
+            InputProps={{
+              endAdornment: (
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={() => setIsVisible((prevState) => !prevState)}
+                  edge="end"
+                >
+                  {isVisible ? <FiEye /> : <FiEyeOff />}
+                </IconButton>
+              ),
             }}
-            error={Boolean(password && password.length < 6)}
-            helperText={password && password.length < 6 ? "Por favor, insira uma senha válida" : ""} />
+            error={Boolean(user.password && user.password.length < 6)}
+            helperText={user.password && user.password.length < 6 ? "Por favor, insira uma senha válida" : ""}
+          />
         </Box>
+
         <Box className="w-[100%] flex flex-col gap-3">
           <Button type="submit" variant="outlined" sx={[buttonTheme, { width: "100%" }]}>
             {isLoading ? (
@@ -125,9 +91,6 @@ export default function SignIn() {
               <Box sx={{ fontWeight: 500 }} className="flex items-center gap-1 text-[#fff]"> Entrar</Box>
             )}
           </Button>
-          {/* <Button variant="outlined" href="/forgot-pass" sx={[buttonThemeNoBackground, { width: "100%", fontWeight: 500 }]}>
-            Esqueci minha Senha
-          </Button> */}
         </Box>
       </form>
     </Box>

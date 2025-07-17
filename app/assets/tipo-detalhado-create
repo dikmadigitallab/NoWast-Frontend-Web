@@ -1,0 +1,165 @@
+// Enums
+export enum UserTypeEnum {
+  DIKMA_DIRECTOR = 'DIKMA_DIRECTOR',
+  CONTRACT_MANAGER = 'CONTRACT_MANAGER',
+  // Adicione outros valores do enum conforme necessário
+}
+
+export enum StatusEnum {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  // Adicione outros valores do enum conforme necessário
+}
+
+export enum PersonTypeEnum {
+  PHYSICAL = 'PHYSICAL',
+  JURIDICAL = 'JURIDICAL',
+  // Adicione outros valores do enum conforme necessário
+}
+
+export enum GenderEnum {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER',
+  // Adicione outros valores do enum conforme necessário
+}
+
+// DTOs de conexão
+export interface ConnectRoleDto {
+  id?: number;
+  name?: string;
+}
+
+export interface ConnectContractDto {
+  id: number;
+}
+
+export interface ConnectPositionDto {
+  id?: number;
+  name?: string;
+}
+
+export interface ConnectUsersDto {
+  id: number;
+}
+
+export interface ConnectPersonDto {
+  id?: number;
+  document?: string;
+}
+
+// DTO para criar pessoa
+export interface CreatePersonDto {
+  name: string;
+  tradeName?: string;
+  document?: string;
+  briefDescription?: string;
+  birthDate?: string; // ISO date string
+  gender?: GenderEnum;
+  personType: PersonTypeEnum;
+  email?: string;
+  phone?: string;
+}
+
+// DTOs de relação
+export interface CreateUsersPersonRelationInputDto {
+  create?: CreatePersonDto;
+  connect?: ConnectPersonDto;
+}
+
+export interface CreateUsersRoleRelationInputDto {
+  connect: ConnectRoleDto;
+}
+
+export interface CreateUsersContractRelationInputDto {
+  connect: ConnectContractDto;
+}
+
+export interface CreateUsersPositionRelationInputDto {
+  connect: ConnectPositionDto;
+}
+
+export interface CreateUsersSupervisorRelationInputDto {
+  connect: ConnectUsersDto;
+}
+
+export interface CreateUsersManagerRelationInputDto {
+  connect: ConnectUsersDto;
+}
+
+// DTO principal
+export interface CreateUsersDto {
+  /** Senha do usuário */
+  password: string;
+
+  /** Tipo de usuário */
+  userType: UserTypeEnum;
+
+  /** Status do usuário */
+  status?: StatusEnum;
+
+  /** Fonte do usuário */
+  source?: string;
+
+  /** Email do usuário */
+  email: string;
+
+  /** Telefone do usuário */
+  phone?: string;
+
+  /** Primeiro login do usuário */
+  firstLogin?: boolean;
+
+  /** Dados da pessoa associada ao usuário */
+  person: CreateUsersPersonRelationInputDto;
+
+  /** Grupo/Role do usuário */
+  role?: CreateUsersRoleRelationInputDto;
+
+  /** Contrato associado */
+  contract?: CreateUsersContractRelationInputDto;
+
+  /** Cargo associado ao usuário */
+  position?: CreateUsersPositionRelationInputDto;
+
+  /** Supervisor do usuário */
+  supervisor?: CreateUsersSupervisorRelationInputDto;
+
+  /** Gerente do usuário */
+  manager?: CreateUsersManagerRelationInputDto;
+
+  /** IDs dos EPIs vinculados ao usuário */
+  epiIds?: number[];
+
+  /** IDs dos Equipamentos vinculados ao usuário */
+  equipmentIds?: number[];
+
+  /** IDs dos Veículos vinculados ao usuário */
+  vehicleIds?: number[];
+
+  /** IDs dos Produtos vinculados ao usuário */
+  productIds?: number[];
+}
+
+// Exemplo de uso no front-end
+export const createUserExample: CreateUsersDto = {
+  password: 'senhaSegura123',
+  userType: UserTypeEnum.CONTRACT_MANAGER,
+  email: 'usuario@exemplo.com',
+  phone: '(11) 99999-9999',
+  firstLogin: true,
+  person: {
+    create: {
+      name: 'João Silva',
+      document: '12345678900',
+      personType: PersonTypeEnum.PHYSICAL,
+      email: 'joao@exemplo.com',
+      phone: '(11) 99999-9999',
+    },
+  },
+  role: {
+    connect: {
+      id: 1,
+    },
+  },
+};

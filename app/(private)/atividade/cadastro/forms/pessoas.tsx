@@ -88,7 +88,7 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
                 <Box className="flex items-center gap-2">
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
                     <span className="text-[#3aba8a] font-bold">Responsáveis</span>
-                    <Box className="w-[100%] h-[1px] bg-[#3aba8a] " />
+                    <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
                 </Box>
 
                 <Box className="flex flex-row gap-3 h-[60px]">

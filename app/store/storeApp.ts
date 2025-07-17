@@ -1,12 +1,15 @@
 "use client";
 import { create } from 'zustand';
 
-type UserType = 'DEFAULT' | 'ADM_DIKMA' | 'GESTAO' | 'CLIENTE_DIKMA' | 'DIKMA_DIRETORIA' | null;
-
 interface AuthStore {
-    userType: UserType;
-    setUserType: (type: UserType) => void;
-    clearUserType: () => void;
+    id: number | null;
+    email: string | null;
+    documento: string | undefined | null;
+    userType: 'DEFAULT' | 'Admin' | 'GESTAO' | 'CLIENTE_DIKMA' | 'DIKMA_DIRETORIA' | null;
+    setId: (id: number | null) => void;
+    setEmail: (email: string | null) => void;
+    setDocumento: (documento: string | null) => void;
+    setUserType: (userType: 'DEFAULT' | 'Admin' | 'GESTAO' | 'CLIENTE_DIKMA' | 'DIKMA_DIRETORIA' | null) => void;
 }
 
 const encrypt = (data: string): string => {
@@ -22,33 +25,57 @@ const decrypt = (data: string): string => {
 };
 
 export const useAuthStore = create<AuthStore>((set, get) => {
-    let storedType: UserType = 'DEFAULT';
+   
+    let storedId: number | null = null;
+    let storedEmail: string | null = null;
+    let storedDocumento: string | null = null;
+    let storedTipoUsuario: 'DEFAULT' | 'Admin' | 'GESTAO' | 'CLIENTE_DIKMA' | 'DIKMA_DIRETORIA' | null = null;
 
     if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('userType');
+        const stored = localStorage.getItem('user');
         if (stored) {
             const decoded = decrypt(stored);
-            if (['ADM_DIKMA', 'GESTAO', 'CLIENTE_DIKMA', 'DIKMA_DIRETORIA'].includes(decoded)) {
-                storedType = decoded as UserType;
-            } else {
-                console.warn("Tipo de usuário inválido:", decoded);
+            try {
+                const userData = JSON.parse(decoded);
+                storedId = userData?.id || null;
+                storedEmail = userData?.email || null;
+                storedDocumento = userData?.documento || null;
+                storedTipoUsuario = userData?.userType || null;
+            } catch (err) {
+                console.warn("Dados de usuário inválidos:", decoded);
             }
         }
     }
 
     return {
-        userType: storedType,
-        setUserType: (type) => {
-            if (type && typeof window !== 'undefined') {
-                localStorage.setItem('userType', encrypt(type));
-            }
-            set({ userType: type });
-        },
-        clearUserType: () => {
+        id: storedId,
+        email: storedEmail,
+        documento: storedDocumento,
+        userType: storedTipoUsuario,
+        setId: (id) => {
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('userType');
+                localStorage.setItem('user', encrypt(JSON.stringify({ id, email: get().email, documento: get().documento, userType: get().userType })));
             }
-            set({ userType: null });
+            set({ id });
+        },
+        setEmail: (email) => {
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('user', encrypt(JSON.stringify({ id: get().id, email, documento: get().documento, userType: get().userType })));
+            }
+            set({ email });
+        },
+        setDocumento: (documento) => {
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('user', encrypt(JSON.stringify({ id: get().id, email: get().email, documento, userType: get().userType })));
+            }
+            set({ documento });
+        },
+        setUserType: (userType) => {
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('user', encrypt(JSON.stringify({ id: get().id, email: get().email, documento: get().documento, userType })));
+            }
+            set({ userType });
         },
     };
 });
+

@@ -11,6 +11,7 @@ import { Box, Button, Modal } from "@mui/material";
 import FormDadosGerais from "./forms/gerais";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/app/store/storeApp";
 
 const ambienteSchema = z.object({
     id: z.string().min(1, "ID do local é obrigatório"),

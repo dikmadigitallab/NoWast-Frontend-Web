@@ -23,7 +23,7 @@ export default function Home() {
         window.location.href = 'modulos/predios';
       } else if (userType === 'DIKMA_DIRETORIA') {
         window.location.href = 'modulos/empresas';
-      } else if (userType === 'ADM_DIKMA') {
+      } else if (userType === 'Admin') {
         window.location.href = 'dashboard/atividades';
       }
     }

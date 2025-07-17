@@ -31,7 +31,7 @@ export default function Sidebar() {
         switch (userType) {
             case 'DEFAULT':
                 return DEFAULT;
-            case 'ADM_DIKMA':
+            case 'Admin':
                 return ADM_DIKMA;
             case 'CLIENTE_DIKMA':
                 return CLIENTE_DIKMA;
