@@ -1,6 +1,6 @@
 "use client";
 
-import Header from "@/app/components/header";
+import Header from "@/app/components/userHeader";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { Box, Button } from "@mui/material";

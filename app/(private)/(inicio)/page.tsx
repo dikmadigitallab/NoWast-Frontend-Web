@@ -1,6 +1,6 @@
 "use client";
 
-import Header from "@/app/components/header";
+import UserHeader from "@/app/components/userHeader";
 import { useAuthStore } from "@/app/store/storeApp";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
@@ -57,7 +57,7 @@ export default function Home() {
         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
         <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Módulos</h1>
       </Box>
-      <Header />
+      <UserHeader />
       <Box className="w-full flex flex-col">
         <Box className="w-full flex flex-wrap flex-row justify-between">
           {modules.map(module => (

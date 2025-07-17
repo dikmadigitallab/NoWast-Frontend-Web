@@ -6,14 +6,14 @@ import { useAuthStore } from "../store/storeApp";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-export default function Header() {
+export default function UserHeader() {
 
     const { userType } = useAuthStore();
     const pathname = usePathname();
 
     const userTypes = {
         DEFAULT: '',
-        ADM_DIKMA: 'Administrador Dikma',
+        Admin: 'Administrador Dikma',
         GESTAO: 'Gestão',
         CLIENTE_DIKMA: 'Cliente Dikma',
         DIKMA_DIRETORIA: 'Diretoria Dikma',

@@ -6,13 +6,11 @@ import { useState, useEffect } from 'react';
 import Logo from "@/app/assets/logo-1.png";
 import { usePathname } from 'next/navigation';
 import { Box, Collapse } from '@mui/material';
-import { IoMdSettings } from 'react-icons/io';
-import { IoLogOutOutline } from "react-icons/io5";
 import { FiChevronDown } from 'react-icons/fi';
 import { ADM_DIKMA, CLIENTE_DIKMA, GESTAO, DIKMA_DIRETORIA, DEFAULT } from '../navigation/navigation';
-import { Logout } from '../utils/logout';
 import { FaCircle } from 'react-icons/fa';
 import { useAuthStore } from '../store/storeApp';
+import UserFooter from './userFooter';
 
 type OpenAccordionState = {
     [key: string]: boolean;
@@ -83,7 +81,7 @@ export default function Sidebar() {
     if (!mounted || !userType) return null;
 
     return (
-        <aside className="w-[100%] h-full bg-[#fff] text-white flex flex-col justify-between p-5">
+        <aside className="w-[100%] h-full bg-[#fff] text-white flex flex-col justify-between p-3">
             <Box className="flex flex-col gap-10">
                 <Box
                     onClick={() => handleAccordionToggle("/")}
@@ -99,7 +97,7 @@ export default function Sidebar() {
                                 >
                                     <Box className="flex items-center gap-3">
                                         <Icon className="transition-colors group-hover:!text-white" color={openAccordion[name] ? '#fff' : '#5E5873'} size={25} />
-                                        <span className={`font-medium text-[1.2rem] ${openAccordion[name] ? 'text-white' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
+                                        <span className={`font-medium text-[1rem] ${openAccordion[name] ? 'text-white' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
                                             {name}
                                         </span>
                                     </Box>
@@ -124,7 +122,7 @@ export default function Sidebar() {
                                 onClick={() => handleAccordionToggle(name)}
                                 key={name} href={href as string} className={`group flex items-center space-x-3 px-4 py-2 rounded transition-colors hover:bg-[#00B288] ${pathname === href ? 'bg-[#00B288] text-white' : ''}`}>
                                 <Icon className="transition-colors group-hover:!text-white" color={pathname === href ? '#fff' : '#5E5873'} size={25} />
-                                <span className={`font-medium text-[1.2rem] ${pathname === href ? 'text-white' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
+                                <span className={`font-medium text-[1rem] ${pathname === href ? 'text-white' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
                                     {name}
                                 </span>
                             </Link>
@@ -132,23 +130,7 @@ export default function Sidebar() {
                     ))}
                 </nav>
             </Box>
-            <Box className="flex flex-row items-center justify-between w-[100%]">
-                <Box className="flex flex-row gap-3 items-center">
-                    <Box className="relative">
-                        <img className="w-[60px] h-[60px] rounded-full object-cover" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg" alt="Logout Icon" />
-                        <Box className="absolute bottom-0 right-0 w-[27px] h-[27px] bg-[#00B288] rounded-full flex justify-center items-center z-10">
-                            <IoMdSettings color="#fff" size={16} />
-                        </Box>
-                    </Box>
-                    <Box>
-                        <span className="font-medium text-[1rem] text-[#5E5873]">Juliana Santos</span>
-                        <Box className="text-[#B9B9C3] text-[.9rem]">Admin</Box>
-                    </Box>
-                </Box>
-                <Box onClick={() => Logout()} component="div">
-                    <IoLogOutOutline color='#5E5873' size={35} className='cursor-pointer' />
-                </Box>
-            </Box>
+            <UserFooter />
         </aside>
     );
 }
