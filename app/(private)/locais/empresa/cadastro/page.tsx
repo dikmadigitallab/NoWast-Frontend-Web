@@ -103,8 +103,10 @@ export default function CadastroEmpresa() {
     /**
      * Confirma a dele o do setor empresarial
      */
-    const handleDeleteConfirm = () => {
-        if (setor && data && typeof setorDeleteId === "number") {
+    const handleDeleteConfirm = async () => {
+        await deleteSetorEmpresarial(setorDeleteId);
+        handleCloseDeleteModal();
+        if (data && typeof setorDeleteId === "number") {
             setData({
                 ...data,
                 data: {
@@ -113,8 +115,8 @@ export default function CadastroEmpresa() {
                 }
             });
         }
-        deleteSetorEmpresarial(setorDeleteId);
     };
+
 
     /**
      * Abre o modal de confirma o para desabilitar a empresa
