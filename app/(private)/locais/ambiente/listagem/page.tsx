@@ -102,9 +102,7 @@ export default function DataGridUsuarios() {
             flex: 1,
         },
     ];
-
-
-
+    
     return (
         <StyledMainContainer>
 
@@ -127,7 +125,7 @@ export default function DataGridUsuarios() {
                         </Button>
                         <Button href="/locais/ambiente/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
-                            Cadastrar Prédio
+                            Cadastrar Ambiente
                         </Button>
                     </Box>
                 </Box>

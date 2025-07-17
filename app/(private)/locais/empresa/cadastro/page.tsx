@@ -19,6 +19,7 @@ import { FaCheck } from "react-icons/fa";
 import { useCreateSetorEmpresarial } from "@/app/hooks/setor_empresarial/create";
 import { useAuthStore } from "@/app/store/storeApp";
 import { useCreateEmpresa } from "@/app/hooks/empresa/create";
+import { useDeleteSetorEmpresarial } from "@/app/hooks/setor_empresarial/delete";
 
 const empresaSchema = z.object({
     acronym: z.string().min(1, "Sigla é obrigatória").max(10, "Sigla deve ter no máximo 10 caracteres"),
@@ -57,8 +58,11 @@ export default function CadastroEmpresa() {
     const [novoSetor, setNovoSetor] = useState<string>("");
     const { createEmpresa } = useCreateEmpresa()
     const { data: setor, createSetorEmpresarial } = useCreateSetorEmpresarial();
+    const { deleteSetorEmpresarial } = useDeleteSetorEmpresarial();
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const { documento, id, email } = useAuthStore();
+    const [setorDeleteId, setSetorDeleteId] = useState<string>("");
 
     const { control, handleSubmit, formState: { errors, isValid }, watch, setValue, trigger } = useForm<EmpresaFormValues>({
         resolver: zodResolver(empresaSchema),
@@ -66,7 +70,7 @@ export default function CadastroEmpresa() {
             acronym: "",
             description: "",
             person: {
-                create: { name: "", tradeName: "", document: "", briefDescription: "", birthDate: "", gender: "MALE", personType: "INDIVIDUAL", email: "", phone: "" },
+                create: { name: "", tradeName: "", document: "", briefDescription: "", birthDate: "", gender: "MALE", personType: "LEGAL", email: "", phone: "" },
                 connect: {
                     id: undefined,
                     document: ""
@@ -81,14 +85,54 @@ export default function CadastroEmpresa() {
         mode: "onChange"
     });
 
+    /**
+     * Abre o modal de confirma o para deletar o setor empresarial
+     */
+    const handleOpenDeleteModal = (id: string) => {
+        setSetorDeleteId(id);
+        setOpenDeleteModal(true);
+    };
+
+    /**
+     * Fecha o modal de confirma o para deletar o setor empresarial
+     */
+    const handleCloseDeleteModal = () => {
+        setOpenDeleteModal(false);
+    };
+
+    /**
+     * Confirma a dele o do setor empresarial
+     */
+    const handleDeleteConfirm = () => {
+        if (setor && data && typeof setorDeleteId === "number") {
+            setData({
+                ...data,
+                data: {
+                    ...data.data,
+                    items: data.data.items.filter(item => item.id !== setorDeleteId)
+                }
+            });
+        }
+        deleteSetorEmpresarial(setorDeleteId);
+    };
+
+    /**
+     * Abre o modal de confirma o para desabilitar a empresa
+     */
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
     };
 
+    /**
+     * Fecha o modal de confirma o para desabilitar a empresa
+     */
     const handleCloseDisableModal = () => {
         setOpenDisableModal(false);
     };
 
+    /**
+     * Confirma a desabilita o da empresa e redireciona para a lista de empresas
+     */
     const handleDisableConfirm = () => {
         router.push('/locais/empresa/listagem');
     };
@@ -130,13 +174,13 @@ export default function CadastroEmpresa() {
         {
             field: 'acoes',
             headerName: 'Ações',
-            width: 120,
+            width: 70,
             sortable: false,
             filterable: false,
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="visualizar" size="small" >
+                    <IconButton aria-label="visualizar" size="small" onClick={() => handleOpenDeleteModal(params.row.id)}>
                         <GoTrash color='#635D77' size={20} />
                     </IconButton>
                 </Box>
@@ -226,7 +270,6 @@ export default function CadastroEmpresa() {
                                             {...field}
                                             error={!!errors.person?.create?.personType}
                                         >
-                                            <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
                                             <MenuItem value="LEGAL">Pessoa Jurídica</MenuItem>
                                         </Select>
                                     </FormControl>
@@ -268,11 +311,10 @@ export default function CadastroEmpresa() {
                                 name="person.create.document"
                                 control={control}
                                 render={({ field }) => {
-                                    const label = watch("person.create.personType") === "INDIVIDUAL" ? "CPF" : "CNPJ";
                                     return (
                                         <TextField
                                             variant="outlined"
-                                            label={label}
+                                            label="CNPJ"
                                             {...field}
                                             error={!!errors.person?.create?.document}
                                             helperText={errors.person?.create?.document?.message}
@@ -441,6 +483,20 @@ export default function CadastroEmpresa() {
                     </Box>
                 </form>
             </Box>
+
+            <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Excluir Setor Empresarial</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir o setor empresarial? está ação é irreversível.</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                            <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleDeleteConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
+
             <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
@@ -453,6 +509,7 @@ export default function CadastroEmpresa() {
                     </Box>
                 </Box>
             </Modal>
+
         </StyledMainContainer>
     );
 }

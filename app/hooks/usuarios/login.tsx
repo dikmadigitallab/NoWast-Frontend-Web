@@ -38,7 +38,7 @@ export const useLogin = () => {
             }
 
         } catch (error) {
-            toast.success("Usuário ou senha inválidos!");
+            toast.error("Usuário ou senha inválidos!");
             setError((error as any)?.response?.data?.message || null);
         } finally {
             setIsLoading(false);

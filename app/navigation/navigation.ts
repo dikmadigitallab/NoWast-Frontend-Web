@@ -1,7 +1,7 @@
 import { MdOutlinePlace } from 'react-icons/md';
 import { RxDashboard } from 'react-icons/rx';
 import { IoHomeOutline, IoNotificationsCircleOutline } from "react-icons/io5";
-import { FaRegCalendar, FaRegCircle } from 'react-icons/fa';
+import { FaRegBuilding, FaRegCalendar, FaRegCircle } from 'react-icons/fa';
 import { FiBox, FiUser } from 'react-icons/fi';
 import { BsBuildings } from 'react-icons/bs';
 
@@ -35,7 +35,8 @@ export const ADM_CLIENTE: NavItem[] = [
 
 export const ADM_DIKMA: NavItem[] = [
     {
-        name: 'Início', href: '/',
+        name: 'Início',
+        href: '/',
         icon: IoHomeOutline,
     },
     {
@@ -46,6 +47,11 @@ export const ADM_DIKMA: NavItem[] = [
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
             { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
         ]
+    },
+    {
+        name: 'Empresa',
+        href: '/locais/empresa/listagem',
+        icon: FaRegBuilding ,
     },
     {
         name: 'Pessoas',
@@ -68,7 +74,6 @@ export const ADM_DIKMA: NavItem[] = [
         name: 'Locais',
         icon: MdOutlinePlace,
         subItems: [
-            { icon: FaRegCircle, name: 'Empresa', href: '/locais/empresa/listagem' },
             { icon: FaRegCircle, name: 'Prédio', href: '/locais/predio/listagem' },
             { icon: FaRegCircle, name: 'Setor', href: '/locais/setor/listagem' },
             { icon: FaRegCircle, name: 'Ambiente', href: '/locais/ambiente/listagem' }
