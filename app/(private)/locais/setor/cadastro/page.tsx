@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Box, FormControl, InputLabel, Select, MenuItem, Button, Modal } from "@mui/material";
+import { TextField, Box, Button, Modal } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,7 +30,7 @@ type SetorFormValues = z.infer<typeof setorSchema>;
 
 export default function CadastroSetor() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<SetorFormValues>({
+    const { control, handleSubmit, formState: { errors } } = useForm<SetorFormValues>({
         resolver: zodResolver(setorSchema),
         defaultValues: {
             name: "",
@@ -72,13 +72,12 @@ export default function CadastroSetor() {
 
     return (
         <StyledMainContainer>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Setor</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
-
                 <Box className="w-[100%] flex flex-row justify-between gap-2">
                     <Controller
                         name="name"
@@ -164,7 +163,6 @@ export default function CadastroSetor() {
                         )}
                     />
                 </Box>
-
                 <Box className="w-[100%] flex flex-row gap-5 justify-end">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
                     <Button variant="outlined" type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>Cadastrar</Button>

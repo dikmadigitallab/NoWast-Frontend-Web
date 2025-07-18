@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Box, Button, Modal, MenuItem, Select, FormControl, InputLabel, IconButton } from "@mui/material";
+import { TextField, Box, Button, Modal, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,16 +10,9 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiPlus } from "react-icons/fi";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { ptBR } from "@mui/x-data-grid/locales";
-import { useGetSetorEmpresarial } from "@/app/hooks/setor_empresarial/get";
-import { GoTrash } from "react-icons/go";
-import { FaCheck } from "react-icons/fa";
-import { useCreateSetorEmpresarial } from "@/app/hooks/setor_empresarial/create";
 import { useAuthStore } from "@/app/store/storeApp";
 import { useCreateEmpresa } from "@/app/hooks/empresa/create";
-import { useDeleteSetorEmpresarial } from "@/app/hooks/setor_empresarial/delete";
+
 
 const empresaSchema = z.object({
     acronym: z.string().min(1, "Sigla é obrigatória").max(10, "Sigla deve ter no máximo 10 caracteres"),
@@ -54,17 +47,11 @@ type EmpresaFormValues = z.infer<typeof empresaSchema>;
 export default function CadastroEmpresa() {
 
     const router = useRouter();
-    const { data, setData } = useGetSetorEmpresarial();
-    const [novoSetor, setNovoSetor] = useState<string>("");
     const { createEmpresa } = useCreateEmpresa()
-    const { data: setor, createSetorEmpresarial } = useCreateSetorEmpresarial();
-    const { deleteSetorEmpresarial } = useDeleteSetorEmpresarial();
     const [openModal, setOpenModal] = useState(false);
-    const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const { documento, id, email } = useAuthStore();
-    const [setorDeleteId, setSetorDeleteId] = useState<string>("");
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch, setValue, trigger } = useForm<EmpresaFormValues>({
+    const { control, handleSubmit, formState: { errors }, watch, setValue, trigger } = useForm<EmpresaFormValues>({
         resolver: zodResolver(empresaSchema),
         defaultValues: {
             acronym: "",
@@ -85,28 +72,6 @@ export default function CadastroEmpresa() {
         mode: "onChange"
     });
 
-    const handleOpenDeleteModal = (id: string) => {
-        setSetorDeleteId(id);
-        setOpenDeleteModal(true);
-    };
-
-    const handleCloseDeleteModal = () => {
-        setOpenDeleteModal(false);
-    };
-
-    const handleDeleteConfirm = async () => {
-        await deleteSetorEmpresarial(setorDeleteId);
-        handleCloseDeleteModal();
-        if (data && typeof setorDeleteId === "number") {
-            setData({
-                ...data,
-                data: {
-                    ...data.data,
-                    items: data.data.items.filter(item => item.id !== setorDeleteId)
-                }
-            });
-        }
-    };
 
     const handleOpenModal = () => {
         setOpenModal(true);
@@ -135,16 +100,6 @@ export default function CadastroEmpresa() {
         createEmpresa(formattedData);
     };
 
-    useEffect(() => {
-        if (setor && data) {
-            setData({
-                ...data, data: {
-                    ...data.data,
-                    items: [...data.data.items, setor]
-                }
-            });
-        }
-    }, [setor]);
 
     useEffect(() => {
         setValue("person.create.document", documento || "");
@@ -153,54 +108,9 @@ export default function CadastroEmpresa() {
         setValue("person.create.email", email || "");
     }, [documento, id]);
 
-    const columns: GridColDef<any>[] = [
-        {
-            field: 'acoes',
-            headerName: 'Ações',
-            width: 70,
-            sortable: false,
-            filterable: false,
-            disableColumnMenu: true,
-            renderCell: (params) => (
-                <Box>
-                    <IconButton aria-label="visualizar" size="small" onClick={() => handleOpenDeleteModal(params.row.id)}>
-                        <GoTrash color='#635D77' size={20} />
-                    </IconButton>
-                </Box>
-            ),
-        },
-        {
-            field: 'selecione',
-            headerName: 'Selecione',
-            width: 120,
-            sortable: false,
-            filterable: false,
-            disableColumnMenu: true,
-            renderCell: (params) => (
-                <IconButton onClick={() => {
-                    setValue("businessSector.connect.id", params.row.id)
-                }
-                } aria-label="editar" size="small" >
-                    <FaCheck color={watch("businessSector.connect.id") === params.row.id ? "#00B288" : "#B9B9C3"} size={20} />
-                </IconButton>
-            ),
-        },
-        {
-            field: 'id',
-            headerName: '#ID',
-            width: 120
-        },
-        {
-            field: 'description',
-            headerName: 'Descrição',
-            width: 320,
-        },
-
-    ];
-
     return (
         <StyledMainContainer>
-            <Box className="flex flex-col gap-5">
+            <Box className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Empresa</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
@@ -394,56 +304,10 @@ export default function CadastroEmpresa() {
                             )}
                         />
                     </Box>
-                    <Box className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
-                        <h2 className="text-[#5E5873] text-[1.2rem] font-normal">Prédio</h2>
-                        <Box className="w-[100%] flex flex-col gap-5">
-                            <Box className="flex items-center gap-2">
-                                <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
-                                <span className="text-[#3aba8a] font-bold">Prédio</span>
-                                <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
-                            </Box>
-                            <Box className="flex flex-row gap-2 h-[60px]">
-                                <TextField
-                                    variant="outlined"
-                                    label="Criar novo prédio"
-                                    type="text"
-                                    value={novoSetor}
-                                    onChange={(e) => setNovoSetor(e.target.value)}
-                                    InputLabelProps={{ shrink: true }}
-                                    placeholder="Digite o nome do prério"
-                                    className="w-[49.8%] mb-5"
-                                    sx={formTheme}
-                                />
-                                <Button sx={[buttonTheme, { height: "90%" }]} disabled={!novoSetor.trim()} onClick={() => createSetorEmpresarial(novoSetor)}> <FiPlus size={25} color="#fff" /></Button>
-                            </Box>
-                            <DataGrid
-                                rows={data?.data?.items ?? []}
-                                columns={columns}
-                                localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                                initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-                                pageSizeOptions={[5, 10, 25]}
-                                disableRowSelectionOnClick
-                                hideFooterSelectedRowCount
-                                sx={{
-                                    '& .MuiDataGrid-columnHeaders': {
-                                        backgroundColor: 'unset',
-                                        color: 'unset',
-                                    },
-                                    '& .MuiDataGrid-row:nth-of-type(odd)': {
-                                        backgroundColor: '#FAFAFA',
-                                    },
-                                    '& .MuiDataGrid-row:hover': {
-                                        backgroundColor: '#f0f0f0',
-                                    },
-                                }}
-                            />
-                            {errors.businessSector?.connect?.id && (
-                                <span className="text-[#d32f2f] text-[0.75rem] ml-[14px] mt-[-12px]">
-                                    {errors.businessSector.connect.id.message}
-                                </span>
-                            )}
-                        </Box>
-                    </Box>
+                    {/* <Box className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
+                     
+                    </Box> */}
+
                     <Box className="w-[100%] flex flex-row gap-5 justify-end">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenModal}>
                             Cancelar
@@ -457,18 +321,6 @@ export default function CadastroEmpresa() {
                 </form>
             </Box>
 
-            <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
-                    <Box className="flex flex-col gap-[30px]">
-                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Excluir Setor Empresarial</h2>
-                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir o setor empresarial? está ação é irreversível.</p>
-                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDeleteConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
-                        </Box>
-                    </Box>
-                </Box>
-            </Modal>
 
             <Modal open={openModal} onClose={handleCloseModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">

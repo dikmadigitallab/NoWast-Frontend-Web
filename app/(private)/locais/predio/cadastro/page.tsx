@@ -59,110 +59,108 @@ export default function CadastroPredio() {
     return (
         <StyledMainContainer>
 
-            <Box className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Prédio</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
-                <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
 
-                    <Box className="w-[100%] flex flex-row justify-between gap-2">
+                <Box className="w-[100%] flex flex-row justify-between gap-2">
+                    <Controller
+                        name="id"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="ID#"
+                                {...field}
+                                error={!!errors.id}
+                                helperText={errors.id?.message}
+                                className="w-[10%]"
+                                sx={{
+                                    ...formTheme,
+                                    "& .MuiOutlinedInput-root": {
+                                        backgroundColor: "#00000012",
+                                        borderRadius: "5px"
+                                    }
+                                }}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="nome_predio"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Nome do Prédio"
+                                {...field}
+                                error={!!errors.nome_predio}
+                                helperText={errors.nome_predio?.message}
+                                className="w-[70%]"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Box className="w-[20%] flex flex-row justify-between gap-2 ">
                         <Controller
-                            name="id"
+                            name="latitude"
                             control={control}
                             render={({ field }) => (
                                 <TextField
                                     variant="outlined"
-                                    label="ID#"
+                                    label="Latitudeº"
                                     {...field}
-                                    error={!!errors.id}
-                                    helperText={errors.id?.message}
-                                    className="w-[10%]"
-                                    sx={{
-                                        ...formTheme,
-                                        "& .MuiOutlinedInput-root": {
-                                            backgroundColor: "#00000012",
-                                            borderRadius: "5px"
-                                        }
-                                    }}
-                                />
-                            )}
-                        />
-                        <Controller
-                            name="nome_predio"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    variant="outlined"
-                                    label="Nome do Prédio"
-                                    {...field}
-                                    error={!!errors.nome_predio}
-                                    helperText={errors.nome_predio?.message}
-                                    className="w-[70%]"
+                                    error={!!errors.latitude}
+                                    helperText={errors.latitude?.message}
+                                    className="w-[50%]"
                                     sx={formTheme}
                                 />
                             )}
                         />
-                        <Box className="w-[20%] flex flex-row justify-between gap-2 ">
-                            <Controller
-                                name="latitude"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField
-                                        variant="outlined"
-                                        label="Latitudeº"
-                                        {...field}
-                                        error={!!errors.latitude}
-                                        helperText={errors.latitude?.message}
-                                        className="w-[50%]"
-                                        sx={formTheme}
-                                    />
-                                )}
-                            />
-                            <Controller
-                                name="longitude"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField
-                                        variant="outlined"
-                                        label="Longitudeº"
-                                        {...field}
-                                        error={!!errors.longitude}
-                                        helperText={errors.longitude?.message}
-                                        className="w-[50%]"
-                                        sx={formTheme}
-                                    />
-                                )}
-                            />
-                        </Box>
-                    </Box>
-                    <Box className="w-[100%] flex flex-row justify-between">
                         <Controller
-                            name="descricao"
+                            name="longitude"
                             control={control}
                             render={({ field }) => (
                                 <TextField
                                     variant="outlined"
-                                    label="Descrição"
-                                    multiline
-                                    rows={10}
+                                    label="Longitudeº"
                                     {...field}
-                                    error={!!errors.descricao}
-                                    helperText={errors.descricao?.message}
-                                    className="w-[100%]"
+                                    error={!!errors.longitude}
+                                    helperText={errors.longitude?.message}
+                                    className="w-[50%]"
                                     sx={formTheme}
                                 />
                             )}
                         />
                     </Box>
-                    <Box className="w-[100%] flex flex-row gap-5 justify-end">
-                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>
-                            {loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar "}</Button>
-                    </Box>
-                </form>
-            </Box>
+                </Box>
+                <Box className="w-[100%] flex flex-row justify-between">
+                    <Controller
+                        name="descricao"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Descrição"
+                                multiline
+                                rows={10}
+                                {...field}
+                                error={!!errors.descricao}
+                                helperText={errors.descricao?.message}
+                                className="w-[100%]"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+                <Box className="w-[100%] flex flex-row gap-5 justify-end">
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                    <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>
+                        {loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar "}</Button>
+                </Box>
+            </form>
 
 
             <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">

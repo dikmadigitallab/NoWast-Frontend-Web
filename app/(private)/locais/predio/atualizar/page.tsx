@@ -88,7 +88,6 @@ export default function EditarPredio() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Editar</h1>
                 </Box>
                 <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
-
                     <Box className="w-[100%] flex flex-row justify-between gap-2">
                         <Controller
                             name="id"

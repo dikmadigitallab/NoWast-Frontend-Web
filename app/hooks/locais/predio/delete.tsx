@@ -2,13 +2,15 @@ import { Logout } from "@/app/utils/logout";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import api from "../../api";
+import { useRouter } from "next/navigation";
 
 export const useDeletePredio = () => {
 
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const deletePredio = async (id: string) => {
+    const deletePredio = async (id: number) => {
         setError(null);
         setLoading(true);
 
@@ -28,12 +30,15 @@ export const useDeletePredio = () => {
                 },
             });
 
-            toast.success("Setor Empresarial excluído com sucesso");
+            toast.success("Predio Empresarial excluído com sucesso");
             setLoading(false);
+            setTimeout(() => {
+                router.push('/locais/predio/listagem');
+            }, 1000);
         } catch (error) {
             setLoading(false);
-            setError("Erro ao excluir setor empresarial");
-            toast.error("Erro ao excluir setor empresarial");
+            setError("Erro ao excluir predio empresarial");
+            toast.error("Erro ao excluir predio empresarial");
         }
     };
 

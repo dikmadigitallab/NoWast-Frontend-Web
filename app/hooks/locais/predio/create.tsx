@@ -2,14 +2,16 @@ import { toast } from "react-toastify";
 import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
 import api from "../../api";
+import { useRouter } from "next/navigation";
 
 export const useCreatePredio = () => {
 
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState(null);
 
-    const createPredio = async (setor: string) => {
+    const createPredio = async (predio: string) => {
 
         setError(null);
         setLoading(true);
@@ -24,7 +26,7 @@ export const useCreatePredio = () => {
         }
 
         try {
-            const response = await api.post("/building", setor, {
+            const response = await api.post("/building", predio, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
@@ -32,12 +34,15 @@ export const useCreatePredio = () => {
             });
 
             setData(response.data.data);
-            toast.success("Setor Empresarial criado com sucesso");
+            toast.success("Predio Empresarial criado com sucesso");
             setLoading(false);
+            setTimeout(() => {
+                router.push('/locais/predio/listagem');
+            }, 1000);
         } catch (error) {
             setLoading(false);
-            setError("Erro ao criar setor empresarial");
-            toast.error("Erro ao criar setor empresarial");
+            setError("Erro ao criar predio empresarial");
+            toast.error("Erro ao criar predio empresarial");
         }
     };
 

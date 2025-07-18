@@ -96,14 +96,12 @@ export default function EditarSetor() {
 
     return (
         <StyledMainContainer>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-
+            <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Setor</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Editar</h1>
                 </Box>
-
                 <Box className="w-[100%] flex flex-row justify-between gap-2">
                     <Controller
                         name="name"
@@ -175,7 +173,7 @@ export default function EditarSetor() {
                     <Button variant="outlined" sx={buttonThemeNoBackground} disabled={loading} onClick={handleOpenDeleteModal}>Excluir</Button>
                     <Box className="flex flex-row gap-5" >
                         <Button variant="outlined" sx={buttonThemeNoBackground} disabled={loading} onClick={handleOpenDisableModal}>Cancelar</Button>
-                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Confirmar"}</Button>
+                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
                     </Box>
                 </Box>
             </form>

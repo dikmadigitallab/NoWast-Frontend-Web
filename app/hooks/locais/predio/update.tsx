@@ -1,19 +1,21 @@
-import { toast } from "react-toastify";
-import { useState } from "react";
-import { Logout } from "@/app/utils/logout";
+'use client';
 import api from "../../api";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { Logout } from "@/app/utils/logout";
+import { useRouter } from "next/navigation";
 
 export const useUpdatePredio = () => {
 
+    const router = useRouter();
+    const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState(null);
 
-    const updatePredio = async (id: string, novoPredio: any) => {
+    const updatePredio = async (id: number, novoPredio: any) => {
 
         setError(null);
         setLoading(true);
-
 
         const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
 
@@ -31,13 +33,16 @@ export const useUpdatePredio = () => {
                 },
             });
 
-            setData(response.data.data);
-            toast.success("Setor Empresarial criado com sucesso");
+            setData(response.data);
+            toast.success("Prédio Atualizado com sucesso");
             setLoading(false);
+            setTimeout(() => {
+                router.push('/locais/predio/listagem');
+            }, 1000);
         } catch (error) {
             setLoading(false);
-            setError("Erro ao criar setor empresarial");
-            toast.error("Erro ao criar setor empresarial");
+            setError("Erro ao atualizar predio");
+            toast.error("Erro ao atualizar setor");
         }
     };
 

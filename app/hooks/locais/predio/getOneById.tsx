@@ -24,7 +24,7 @@ export const useGetOnePredio = () => {
         }
 
         try {
-            const response = await api.get<any>(`/predio/${id}`, {
+            const response = await api.get<any>(`/building/${id}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export const useGetOnePredio = () => {
             });
             setData(response.data.data);
         } catch (error) {
-            setError("Erro ao buscar setores empresariais");
+            setError("Erro ao buscar predios");
             if (error instanceof Error) {
                 console.error(error.message);
             }
