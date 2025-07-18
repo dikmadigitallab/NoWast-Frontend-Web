@@ -1,16 +1,18 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Box, Button, Modal, CircularProgress } from "@mui/material";
+import Modal from '@mui/material/Modal';
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
+import { TextField, Box, Button, CircularProgress } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useCreatePredio } from "@/app/hooks/locais/predio/create";
+import { StyledMainContainer } from "@/app/styles/container/container";
+import { useRouter } from "next/navigation";
+import { useUpdatePredio } from "@/app/hooks/locais/predio/update";
+
 
 const predioSchema = z.object({
     id: z.string().min(1, "ID é obrigatório"),
@@ -25,17 +27,36 @@ const predioSchema = z.object({
     })
 });
 
-type PredioFormValues = z.infer<typeof predioSchema>;
+type EpiFormValues = z.infer<typeof predioSchema>;
 
-export default function CadastroPredio() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<PredioFormValues>({
+export default function EditarPredio() {
+
+    const { control, handleSubmit, formState: { errors, isValid }, watch, reset } = useForm<EpiFormValues>({
         resolver: zodResolver(predioSchema),
-        defaultValues: { id: "", nome_predio: "", latitude: "", longitude: "", descricao: "" },
+        defaultValues: {
+            id: "",
+            contract: { connect: { id: 1 } },
+            latitude: "",
+            longitude: "",
+            descricao: ""
+        },
         mode: "onChange"
     });
 
-    const { createPredio, loading } = useCreatePredio();
+    // useEffect(() => {
+    //     if (edit && modalEdit) {
+    //         reset({
+    //             id: edit.id,
+    //             nome: edit.nome,
+    //             latitude: edit.latitude,
+    //             longitude: edit.longitude,
+    //             descricao: edit.descricao
+    //         })
+    //     }
+    // }, [edit])
+
+    const { updatePredio, loading } = useUpdatePredio();
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -53,8 +74,9 @@ export default function CadastroPredio() {
 
     const onSubmit = (data: any) => {
         console.log(data)
-        // createPredio(data);
+        // updatePredio(data);
     };
+
 
     return (
         <StyledMainContainer>
@@ -63,7 +85,7 @@ export default function CadastroPredio() {
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Prédio</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
+                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Editar</h1>
                 </Box>
                 <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
 
@@ -158,8 +180,7 @@ export default function CadastroPredio() {
                     </Box>
                     <Box className="w-[100%] flex flex-row gap-5 justify-end">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>
-                            {loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar "}</Button>
+                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
                     </Box>
                 </form>
             </Box>
@@ -179,5 +200,6 @@ export default function CadastroPredio() {
             </Modal>
 
         </StyledMainContainer>
-    )
+
+    );
 }

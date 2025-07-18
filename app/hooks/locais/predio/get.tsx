@@ -2,36 +2,15 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../api";
+import api from "../../api";
 
-type SetorEmpresarial = {
-    id: number;
-    description: string;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string | null;
-};
-
-type SetorEmpresarialResponse = {
-    data: {
-        items: SetorEmpresarial[];
-        totalCount: number;
-        pageSize: number;
-        pageNumber: number;
-        count: number;
-        totalPages: number;
-        isFirstPage: boolean;
-        isLastPage: boolean;
-    }
-};
-
-export const useGetSetorEmpresarial = () => {
+export const useGetPredio = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<SetorEmpresarialResponse | null>(null);
+    const [data, setData] = useState<any>(null);
 
-    const getSetorEmpresarial = async () => {
+    const getPredio = async () => {
         setError(null);
         setLoading(true);
 
@@ -45,7 +24,7 @@ export const useGetSetorEmpresarial = () => {
         }
 
         try {
-            const response = await api.get<SetorEmpresarialResponse>("/businessSector", {
+            const response = await api.get<any>("/building", {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
@@ -64,11 +43,11 @@ export const useGetSetorEmpresarial = () => {
     };
 
     useEffect(() => {
-        getSetorEmpresarial();
+        getPredio();
     }, []);
 
     return {
-        getSetorEmpresarial,
+        getPredio,
         loading,
         error,
         data,

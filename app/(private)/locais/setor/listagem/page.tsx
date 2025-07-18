@@ -8,21 +8,25 @@ import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline } f
 import { FiPlus } from 'react-icons/fi';
 import { Button, IconButton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { rows } from './data';
-import Link from 'next/link';
-import EditModal from './component/modalSetorEdit';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
+import { useGetSetor } from '@/app/hooks/locais/setor/get';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import { useRouter } from 'next/navigation';
 
 export default function ListagemSetores() {
 
-    const [edit, setEdit] = useState<any | null>(null);
-    const [modalEdit, setModalEdit] = useState(false);
+    const router = useRouter();
     const [isFilter, setIsFilter] = useState(false);
-    const handleChangeModalEdit = (data: any) => {
-        setEdit(data);
-        setModalEdit(!modalEdit);
+    const { loading, error, data } = useGetSetor();
+    const { id, setId } = useGetIDStore()
+
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/locais/setor/atualizar`);
+        }, 1000)
     }
 
     const columns: GridColDef<any>[] = [
@@ -34,7 +38,7 @@ export default function ListagemSetores() {
             filterable: false,
             disableColumnMenu: true,
             renderCell: (params) => (
-                <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
                     <MdOutlineModeEditOutline color='#635D77' />
                 </IconButton>
             ),
@@ -45,18 +49,8 @@ export default function ListagemSetores() {
             width: 80
         },
         {
-            field: 'setor',
+            field: 'name',
             headerName: 'Setor',
-            width: 180,
-        },
-        {
-            field: 'nome',
-            headerName: 'Nome do Setor',
-            width: 180,
-        },
-        {
-            field: 'local',
-            headerName: 'Local',
             width: 180,
         },
         {
@@ -70,7 +64,7 @@ export default function ListagemSetores() {
             ),
         },
         {
-            field: 'descricao',
+            field: 'description',
             headerName: 'Descrição',
             width: 300,
         }
@@ -78,12 +72,6 @@ export default function ListagemSetores() {
 
     return (
         <StyledMainContainer>
-
-            <EditModal
-                edit={edit}
-                modalEdit={modalEdit}
-                handleChangeModalEdit={() => setModalEdit(!modalEdit)}
-            />
 
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
@@ -127,7 +115,7 @@ export default function ListagemSetores() {
                 }
 
                 <DataGrid
-                    rows={rows}
+                    rows={data?.data.items}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

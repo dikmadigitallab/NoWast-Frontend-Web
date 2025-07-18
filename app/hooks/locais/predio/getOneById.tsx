@@ -1,37 +1,16 @@
 'use client';
 
 import { Logout } from "@/app/utils/logout";
-import { useEffect, useState } from "react";
-import api from "../api";
+import { useState } from "react";
+import api from "../../api";
 
-type SetorEmpresarial = {
-    id: number;
-    description: string;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string | null;
-};
-
-type SetorEmpresarialResponse = {
-    data: {
-        items: SetorEmpresarial[];
-        totalCount: number;
-        pageSize: number;
-        pageNumber: number;
-        count: number;
-        totalPages: number;
-        isFirstPage: boolean;
-        isLastPage: boolean;
-    }
-};
-
-export const useGetSetorEmpresarial = () => {
+export const useGetOnePredio = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<SetorEmpresarialResponse | null>(null);
+    const [data, setData] = useState<any>(null);
 
-    const getSetorEmpresarial = async () => {
+    const getOnePredio = async (id: string | number) => {
         setError(null);
         setLoading(true);
 
@@ -45,30 +24,26 @@ export const useGetSetorEmpresarial = () => {
         }
 
         try {
-            const response = await api.get<SetorEmpresarialResponse>("/businessSector", {
+            const response = await api.get<any>(`/predio/${id}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
-
-            setData(response.data);
+            setData(response.data.data);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
-                console.error("Error fetching business sectors:", error.message);
+                console.error(error.message);
             }
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        getSetorEmpresarial();
-    }, []);
 
     return {
-        getSetorEmpresarial,
+        getOnePredio,
         loading,
         error,
         data,

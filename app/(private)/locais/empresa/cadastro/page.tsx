@@ -59,7 +59,7 @@ export default function CadastroEmpresa() {
     const { createEmpresa } = useCreateEmpresa()
     const { data: setor, createSetorEmpresarial } = useCreateSetorEmpresarial();
     const { deleteSetorEmpresarial } = useDeleteSetorEmpresarial();
-    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const { documento, id, email } = useAuthStore();
     const [setorDeleteId, setSetorDeleteId] = useState<string>("");
@@ -85,24 +85,15 @@ export default function CadastroEmpresa() {
         mode: "onChange"
     });
 
-    /**
-     * Abre o modal de confirma o para deletar o setor empresarial
-     */
     const handleOpenDeleteModal = (id: string) => {
         setSetorDeleteId(id);
         setOpenDeleteModal(true);
     };
 
-    /**
-     * Fecha o modal de confirma o para deletar o setor empresarial
-     */
     const handleCloseDeleteModal = () => {
         setOpenDeleteModal(false);
     };
 
-    /**
-     * Confirma a dele o do setor empresarial
-     */
     const handleDeleteConfirm = async () => {
         await deleteSetorEmpresarial(setorDeleteId);
         handleCloseDeleteModal();
@@ -117,25 +108,15 @@ export default function CadastroEmpresa() {
         }
     };
 
-
-    /**
-     * Abre o modal de confirma o para desabilitar a empresa
-     */
-    const handleOpenDisableModal = () => {
-        setOpenDisableModal(true);
+    const handleOpenModal = () => {
+        setOpenModal(true);
     };
 
-    /**
-     * Fecha o modal de confirma o para desabilitar a empresa
-     */
-    const handleCloseDisableModal = () => {
-        setOpenDisableModal(false);
+    const handleCloseModal = () => {
+        setOpenModal(false);
     };
 
-    /**
-     * Confirma a desabilita o da empresa e redireciona para a lista de empresas
-     */
-    const handleDisableConfirm = () => {
+    const handleConfirm = () => {
         router.push('/locais/empresa/listagem');
     };
 
@@ -414,42 +395,32 @@ export default function CadastroEmpresa() {
                         />
                     </Box>
                     <Box className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
-                        <h2 className="text-[#5E5873] text-[1.2rem] font-normal">Setor de Negócios</h2>
+                        <h2 className="text-[#5E5873] text-[1.2rem] font-normal">Prédio</h2>
                         <Box className="w-[100%] flex flex-col gap-5">
                             <Box className="flex items-center gap-2">
                                 <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
-                                <span className="text-[#3aba8a] font-bold">Setor empresarial</span>
+                                <span className="text-[#3aba8a] font-bold">Prédio</span>
                                 <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
                             </Box>
                             <Box className="flex flex-row gap-2 h-[60px]">
                                 <TextField
                                     variant="outlined"
-                                    label="Criar novo Setor Empresarial"
+                                    label="Criar novo prédio"
                                     type="text"
                                     value={novoSetor}
                                     onChange={(e) => setNovoSetor(e.target.value)}
                                     InputLabelProps={{ shrink: true }}
-                                    placeholder="Digite o nome do setor empresarial"
+                                    placeholder="Digite o nome do prério"
                                     className="w-[49.8%] mb-5"
                                     sx={formTheme}
                                 />
-                                <Button sx={[buttonTheme, { height: "90%" }]}
-                                    disabled={!novoSetor.trim()}
-                                    onClick={() => createSetorEmpresarial(novoSetor)}>
-                                    <FiPlus size={25} color="#fff" />
-                                </Button>
+                                <Button sx={[buttonTheme, { height: "90%" }]} disabled={!novoSetor.trim()} onClick={() => createSetorEmpresarial(novoSetor)}> <FiPlus size={25} color="#fff" /></Button>
                             </Box>
                             <DataGrid
                                 rows={data?.data?.items ?? []}
                                 columns={columns}
                                 localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                                initialState={{
-                                    pagination: {
-                                        paginationModel: {
-                                            pageSize: 10,
-                                        },
-                                    },
-                                }}
+                                initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
                                 pageSizeOptions={[5, 10, 25]}
                                 disableRowSelectionOnClick
                                 hideFooterSelectedRowCount
@@ -474,7 +445,7 @@ export default function CadastroEmpresa() {
                         </Box>
                     </Box>
                     <Box className="w-[100%] flex flex-row gap-5 justify-end">
-                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenModal}>
                             Cancelar
                         </Button>
                         <Button
@@ -499,14 +470,14 @@ export default function CadastroEmpresa() {
                 </Box>
             </Modal>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+            <Modal open={openModal} onClose={handleCloseModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                            <Button onClick={handleCloseModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
                         </Box>
                     </Box>
                 </Box>
