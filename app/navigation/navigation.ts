@@ -51,13 +51,14 @@ export const ADM_DIKMA: NavItem[] = [
     {
         name: 'Empresa',
         href: '/locais/empresa/listagem',
-        icon: FaRegBuilding ,
+        icon: FaRegBuilding,
     },
     {
         name: 'Pessoas',
         icon: FiUser,
         subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/pessoas/listagem' }
+            { icon: FaRegCircle, name: 'Listagem', href: '/pessoas/listagem' },
+            { icon: FaRegCircle, name: 'Cadastro', href: '/pessoas/cadastro' }
         ]
     },
     {

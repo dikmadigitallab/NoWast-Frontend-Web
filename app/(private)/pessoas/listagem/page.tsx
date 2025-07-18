@@ -1,7 +1,6 @@
 "use client";
 
 import Link from 'next/link';
-import { rows } from './data';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import React, { useState } from 'react';
@@ -16,9 +15,11 @@ import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, Md
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
+import { useGetPessoa } from '@/app/hooks/pessoa/get';
 
 export default function DataGridUsuarios() {
 
+    const { data, loading } = useGetPessoa()
     const [edit, setEdit] = useState<any>(null);
     const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
@@ -56,25 +57,12 @@ export default function DataGridUsuarios() {
             ),
         },
         {
-            field: 'status',
-            headerName: 'Status',
-            width: 120,
-            renderCell: (params) => (
-                <Chip
-                    label={params.value}
-                    color={params.value === 'ativo' ? 'success' : 'error'}
-                    size="small"
-                    variant="outlined"
-                />
-            ),
-        },
-        {
             field: 'id',
             headerName: '#ID',
             width: 80
         },
         {
-            field: 'nome',
+            field: 'name',
             headerName: 'Nome',
             width: 180,
             renderCell: (params) => (
@@ -84,37 +72,47 @@ export default function DataGridUsuarios() {
             ),
         },
         {
-            field: 'email',
-            headerName: 'Email',
-            width: 220,
-        },
-        {
-            field: 'tipo_usuario',
-            headerName: 'Usuário',
+            field: 'document',
+            headerName: 'CPF/CNPJ',
             width: 120,
-            renderCell: (params) => `@${params.value}`,
         },
         {
-            field: 'cargo',
-            headerName: 'Cargo',
+            field: 'tradeName',
+            headerName: 'Razão Social',
             width: 180,
         },
         {
-            field: 'encarregado',
-            headerName: 'Encarregado Responsável',
-            width: 200,
+            field: 'birthDate',
+            headerName: 'Data de Nascimento',
+            width: 140,
+            renderCell: (params) => (
+                new Date(params.value).toLocaleString('pt-BR', { year: 'numeric', month: 'numeric', day: 'numeric' })
+            ),
         },
         {
-            field: 'gestor_responsavel',
-            headerName: 'Gestor Responsável',
+            field: 'gender',
+            headerName: 'Gênero',
+            width: 120,
+            renderCell: (params) => (
+                params.value === 'MALE' ? 'Masculino' : 'Feminino'
+            ),
+        },
+        {
+            field: 'email',
+            headerName: 'Email',
             width: 200,
+            renderCell: (params: any) => (
+                params.row.emails.find((email: any) => email.isDefault)?.email || '-'
+            ),
         }
     ];
 
+    console.log(data?.data.items);
+
     return (
         <StyledMainContainer>
-            <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} />
-            <ModalUserEditModal edit={edit} modalEdit={modalEdit} handleChangeModalEdit={handleChangeModalEdit} />
+            {/* <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} /> */}
+            {/* <ModalUserEditModal edit={edit} modalEdit={modalEdit} handleChangeModalEdit={handleChangeModalEdit} /> */}
 
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
@@ -158,7 +156,7 @@ export default function DataGridUsuarios() {
                 }
 
                 <DataGrid
-                    rows={rows}
+                    rows={data?.data.items}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
