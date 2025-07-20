@@ -57,7 +57,6 @@ export default function CadastroEPI() {
     const handleCloseDisableModal = () => setOpenDisableModal(false);
     const handleDisableConfirm = () => router.push('/items/epi/listagem');
 
-
     return (
         <StyledMainContainer>
             <Box className="flex flex-col gap-5">

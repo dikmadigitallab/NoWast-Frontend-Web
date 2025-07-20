@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, Checkbox, ListItemText, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress, Checkbox, ListItemText } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,49 +10,88 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCreatePessoa } from "@/app/hooks/pessoa/create";
+import { IoMdClose } from "react-icons/io";
 
 const userSchema = z.object({
-    name: z.string().min(1, "O nome é obrigatório"),
-    tradeName: z.string().min(1, "Nome Fantasia é obrigatório"),
-    document: z.string().min(11, "Documento deve ter pelo menos 11 caracteres"),
-    briefDescription: z.string().min(1, "Descrição é obrigatório"),
-    birthDate: z.string().min(1, "Data de nascimento é obrigatório"),
-    email: z.string().email("Email inválido"),
-    phone: z.string().min(10, "Telefone inválido"),
-    gender: z.enum(["MALE", "FEMALE", "OTHER"], {
-        required_error: "Gênero é obrigatório",
-        invalid_type_error: "Selecione um gênero válido"
+    password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres" }),
+    userType: z.enum(["DIKMA_DIRECTOR", "OTHER_TYPE"], {
+        required_error: "Tipo de usuário é obrigatório",
+        invalid_type_error: "Tipo de usuário inválido",
     }),
-    personType: z.enum(["INDIVIDUAL", "LEGAL"], {
-        required_error: "Tipo de pessoa é obrigatório",
-        invalid_type_error: "Selecione um tipo válido"
+    email: z.string().email({ message: "Email inválido" }),
+    firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
+    status: z.enum(["ACTIVE", "INACTIVE"], {
+        required_error: "Status é obrigatório",
+        invalid_type_error: "Status inválido",
     }),
-
+    source: z.string().optional(),
+    phone: z.string().min(10, { message: "Telefone inválido" }),
+    person: z.object({
+        create: z.object({
+            name: z.string().min(1, { message: "O nome é obrigatório" }),
+            tradeName: z.string().min(1, { message: "Nome Fantasia é obrigatório" }),
+            document: z.string().min(11, { message: "Documento deve ter pelo menos 11 caracteres" }),
+            briefDescription: z.string().min(1, { message: "Descrição é obrigatória" }),
+            birthDate: z.string().min(1, { message: "Data de nascimento é obrigatória" }),
+            gender: z.enum(["MALE", "FEMALE", "OTHER"], { required_error: "Gênero é obrigatório", invalid_type_error: "Gênero inválido" }),
+            personType: z.enum(["INDIVIDUAL", "COMPANY"], { required_error: "Tipo de pessoa é obrigatório", invalid_type_error: "Tipo de pessoa inválido" }),
+            email: z.string().email({ message: "Email inválido" }),
+            phone: z.string().min(10, { message: "Telefone inválido" }),
+        }),
+    }),
+    role: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do papel inválido", required_error: "Selecione um cargo" }).min(1, { message: "Selecione um cargo" }) }) }),
+    contract: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do contrato inválido", required_error: "Selecione um contrato" }).min(1, { message: "Selecione um contrato" }) }) }),
+    position: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do cargo inválido", required_error: "Selecione uma posição" }).min(1, { message: "Selecione uma posição" }) }) }),
+    supervisor: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do supervisor inválido", required_error: "Selecione um supervisor" }).min(1, { message: "Selecione um supervisor" }) }) }),
+    manager: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do gerente inválido", required_error: "Selecione um gerente" }).min(1, { message: "Selecione um gerente" }) }) }),
+    epiIds: z.array(z.number({ invalid_type_error: "ID de EPI inválido" }), { required_error: "Selecione pelo menos um EPI" }).min(1, { message: "Selecione pelo menos um EPI" }),
+    equipmentIds: z.array(z.number({ invalid_type_error: "ID de equipamento inválido" }), { required_error: "Selecione pelo menos um equipamento" }).min(1, { message: "Selecione pelo menos um equipamento" }),
+    vehicleIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }), { required_error: "Selecione pelo menos um veículo" }).min(1, { message: "Selecione pelo menos um veículo" }),
+    productIds: z.array(z.number({ invalid_type_error: "ID de produto inválido" }), { required_error: "Selecione pelo menos um produto" }).min(1, { message: "Selecione pelo menos um produto" }),
 });
+
 
 type UserFormValues = z.infer<typeof userSchema>;
 
-export default function CadastroPessoas() {
+export default function CadastroUsuario() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<UserFormValues>({
+    const { control, handleSubmit, formState: { errors, isValid }, watch, setValue } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
-            name: "",
-            tradeName: "",
-            document: "",
-            briefDescription: "",
-            birthDate: "",
-            gender: undefined,
-            personType: undefined,
+            password: "",
+            userType: undefined,
             email: "",
-            phone: ""
+            firstLogin: true,
+            status: "ACTIVE",
+            phone: "",
+            person: {
+                create: {
+                    name: "",
+                    tradeName: "",
+                    document: "",
+                    briefDescription: "",
+                    birthDate: "",
+                    gender: undefined,
+                    personType: undefined,
+                    email: "",
+                    phone: ""
+                }
+            },
+            role: { connect: { id: undefined } },
+            contract: { connect: { id: undefined } },
+            position: { connect: { id: undefined } },
+            supervisor: { connect: { id: undefined } },
+            manager: { connect: { id: undefined } },
+            epiIds: [],
+            equipmentIds: [],
+            vehicleIds: [],
+            productIds: []
         },
         mode: "onChange"
     });
 
+
     const router = useRouter();
-    const { createPessoa, loading } = useCreatePessoa();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const handleOpenDisableModal = () => {
@@ -64,132 +103,107 @@ export default function CadastroPessoas() {
     };
 
     const handleDisableConfirm = () => {
-        router.push('/pessoas/listagem');
+        router.push('/usuarios/listagem');
     };
 
-    const onSubmit = (formData: any) => {
-        createPessoa(formData);
+    const onSubmit = (formData: UserFormValues) => {
+        console.log(formData);
     };
+
+
+    //Relacionamentos
+
+    const roles = [
+        { id: 1, name: "Administrador" },
+        { id: 2, name: "Gerente" },
+        { id: 3, name: "Supervisor" },
+    ];
+
+    const contracts = [
+        { id: 1, name: "CLT" },
+        { id: 2, name: "PJ" },
+        { id: 3, name: "Estágio" },
+    ];
+
+    const positions = [
+        { id: 1, name: "Desenvolvedor" },
+        { id: 2, name: "Designer" },
+        { id: 3, name: "Analista" },
+    ];
+
+    const supervisors = [
+        { id: 1, name: "João Silva" },
+        { id: 2, name: "Maria Souza" },
+        { id: 3, name: "Carlos Oliveira" },
+    ];
+
+    const managers = [
+        { id: 1, name: "Ana Paula" },
+        { id: 2, name: "Roberto Santos" },
+        { id: 3, name: "Fernanda Lima" },
+    ];
+
+    // ITEMS
+
+    const epis = [
+        { id: 1, name: "EPI 1" },
+        { id: 2, name: "EPI 2" },
+    ];
+
+    const equipments = [
+        { id: 1, name: "Equipamento 1" },
+        { id: 2, name: "Equipamento 2" },
+    ];
+
+    const vehicles = [
+        { id: 1, name: "Veículo 1" },
+        { id: 2, name: "Veículo 2" },
+    ];
+
+    const products = [
+        { id: 1, name: "Produto 1" },
+        { id: 2, name: "Produto 2" },
+    ];
+
+    const renderChips = (
+        selected: number[],
+        fieldName: string,
+        onDelete: (value: number) => void,
+        items: { id: number, name: string }[]
+    ) => (
+        <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {selected.map((value) => {
+                const selectedItem = items.find(item => item.id === value);
+                return (
+                    <Chip
+                        key={value}
+                        label={selectedItem ? selectedItem.name : value}
+                        onDelete={() => onDelete(value)}
+                        deleteIcon={<IoMdClose onMouseDown={(event) => event.stopPropagation()} />}
+                        sx={{
+                            backgroundColor: '#00B288',
+                            color: 'white',
+                            borderRadius: '4px',
+                            '& .MuiChip-deleteIcon': {
+                                color: 'white',
+                            },
+                        }}
+                    />
+                );
+            })}
+        </Box>
+    );
 
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Pessoas</h1>
+                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Usuários</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Nome completo*"
-                                {...field}
-                                error={!!errors.name}
-                                helperText={errors.name?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="tradeName"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Nome Fantasia*"
-                                {...field}
-                                error={!!errors.tradeName}
-                                helperText={errors.tradeName?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="document"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Documento*"
-                                {...field}
-                                error={!!errors.document}
-                                helperText={errors.document?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="birthDate"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Data de Nascimento*"
-                                type="date"
-                                InputLabelProps={{ shrink: true }}
-                                {...field}
-                                error={!!errors.birthDate}
-                                helperText={errors.birthDate?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="gender"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.gender}>
-                                <InputLabel>Gênero*</InputLabel>
-                                <Select
-                                    label="Gênero*"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="MALE">Masculino</MenuItem>
-                                    <MenuItem value="FEMALE">Feminino</MenuItem>
-                                    <MenuItem value="OTHER">Outro</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.gender?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
-                        name="personType"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.personType}>
-                                <InputLabel>Tipo de Pessoa</InputLabel>
-                                <Select
-                                    label="Tipo de Pessoa"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
-                                    <MenuItem value="LEGAL">Pessoa Jurídica</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.personType?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                </Box>
-
+                {/* User Information Section */}
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
                         name="email"
@@ -197,8 +211,7 @@ export default function CadastroPessoas() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Email*"
-                                type="email"
+                                label="Email do usuário*"
                                 {...field}
                                 error={!!errors.email}
                                 helperText={errors.email?.message}
@@ -207,6 +220,64 @@ export default function CadastroPessoas() {
                             />
                         )}
                     />
+                    <Controller
+                        name="password"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Senha*"
+                                type="password"
+                                {...field}
+                                error={!!errors.password}
+                                helperText={errors.password?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="userType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.userType}>
+                                <InputLabel>Tipo de Usuário*</InputLabel>
+                                <Select
+                                    label="Tipo de Usuário*"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="DIKMA_DIRECTOR">Diretor DIKMA</MenuItem>
+                                    <MenuItem value="OTHER_TYPE">Outro Tipo</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.userType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
+                        name="status"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth>
+                                <InputLabel>Status</InputLabel>
+                                <Select
+                                    label="Status"
+                                    {...field}
+                                    value={field.value || "ACTIVE"}
+                                >
+                                    <MenuItem value="ACTIVE">Ativo</MenuItem>
+                                    <MenuItem value="INACTIVE">Inativo</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
                         name="phone"
                         control={control}
@@ -222,10 +293,175 @@ export default function CadastroPessoas() {
                             />
                         )}
                     />
+                    <Controller
+                        name="firstLogin"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth>
+                                <InputLabel>Primeiro Login</InputLabel>
+                                <Select
+                                    label="Primeiro Login"
+                                    {...field}
+                                    value={field.value ? "true" : "false"}
+                                    onChange={(e) => field.onChange(e.target.value === "true")}
+                                >
+                                    <MenuItem value="true">Sim</MenuItem>
+                                    <MenuItem value="false">Não</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+                {/* Person Information Section */}
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.name"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Nome completo*"
+                                {...field}
+                                error={!!errors.person?.create?.name}
+                                helperText={errors.person?.create?.name?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.tradeName"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Nome Fantasia*"
+                                {...field}
+                                error={!!errors.person?.create?.tradeName}
+                                helperText={errors.person?.create?.tradeName?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.document"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Documento*"
+                                {...field}
+                                error={!!errors.person?.create?.document}
+                                helperText={errors.person?.create?.document?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.birthDate"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Data de Nascimento*"
+                                type="date"
+                                InputLabelProps={{ shrink: true }}
+                                {...field}
+                                error={!!errors.person?.create?.birthDate}
+                                helperText={errors.person?.create?.birthDate?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.gender"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.person?.create?.gender}>
+                                <InputLabel>Gênero*</InputLabel>
+                                <Select
+                                    label="Gênero*"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="MALE">Masculino</MenuItem>
+                                    <MenuItem value="FEMALE">Feminino</MenuItem>
+                                    <MenuItem value="OTHER">Outro</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.person?.create?.gender?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
+                        name="person.create.personType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.person?.create?.personType}>
+                                <InputLabel>Tipo de Pessoa</InputLabel>
+                                <Select
+                                    label="Tipo de Pessoa"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
+                                    <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.person?.create?.personType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.email"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Email da Pessoa*"
+                                type="email"
+                                {...field}
+                                error={!!errors.person?.create?.email}
+                                helperText={errors.person?.create?.email?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.phone"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Telefone da Pessoa*"
+                                {...field}
+                                error={!!errors.person?.create?.phone}
+                                helperText={errors.person?.create?.phone?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
                 </Box>
 
                 <Controller
-                    name="briefDescription"
+                    name="person.create.briefDescription"
                     control={control}
                     render={({ field }) => (
                         <TextField
@@ -234,12 +470,301 @@ export default function CadastroPessoas() {
                             multiline
                             rows={4}
                             {...field}
-                            error={!!errors.briefDescription}
-                            helperText={errors.briefDescription?.message}
+                            error={!!errors.person?.create?.briefDescription}
+                            helperText={errors.person?.create?.briefDescription?.message}
                             sx={formTheme}
                         />
                     )}
                 />
+
+                {/* Relations Section */}
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relacionamentos</h2>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="role.connect.id"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.role?.connect?.id}>
+                                <InputLabel>Cargo*</InputLabel>
+                                <Select
+                                    label="Cargo*"
+                                    {...field}
+                                    error={!!errors.role?.connect?.id}
+                                    value={field.value ?? ""}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                >
+                                    <MenuItem value="" disabled>Selecione um cargo...</MenuItem>
+                                    {roles.map((role) => (
+                                        <MenuItem key={role.id} value={role.id}>
+                                            {role.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors.role?.connect?.id?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
+                        name="contract.connect.id"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.contract?.connect?.id}>
+                                <InputLabel>Contrato*</InputLabel>
+                                <Select
+                                    label="Contrato*"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                >
+                                    <MenuItem value="" disabled>Selecione um contrato...</MenuItem>
+                                    {contracts.map((contract) => (
+                                        <MenuItem key={contract.id} value={contract.id}>
+                                            {contract.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors.contract?.connect?.id?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="position.connect.id"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
+                                <InputLabel>Posição*</InputLabel>
+                                <Select
+                                    label="Posição*"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                >
+                                    <MenuItem value="" disabled>Selecione uma posição...</MenuItem>
+                                    {positions.map((position) => (
+                                        <MenuItem key={position.id} value={position.id}>
+                                            {position.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
+                        name="supervisor.connect.id"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.supervisor?.connect?.id}>
+                                <InputLabel>Supervisor*</InputLabel>
+                                <Select
+                                    label="Supervisor*"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                >
+                                    <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
+                                    {supervisors.map((supervisor) => (
+                                        <MenuItem key={supervisor.id} value={supervisor.id}>
+                                            {supervisor.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors.supervisor?.connect?.id?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="manager.connect.id"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.manager?.connect?.id}>
+                                <InputLabel>Gerente*</InputLabel>
+                                <Select
+                                    label="Gerente*"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                >
+                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
+                                    {managers.map((manager) => (
+                                        <MenuItem key={manager.id} value={manager.id}>
+                                            {manager.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors.manager?.connect?.id?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Items</h2>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="epiIds"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.epiIds} sx={{ width: '25%' }}>
+                                <InputLabel>EPIs*</InputLabel>
+                                <Select
+                                    multiple
+                                    label="EPIs*"
+                                    input={<OutlinedInput label="EPIs*" />}
+                                    value={field.value || []}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        field.onChange(Array.isArray(value) ? value : []);
+                                    }}
+                                    renderValue={(selected) => renderChips(
+                                        selected as number[],
+                                        'epiIds',
+                                        (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
+                                        epis
+                                    )}
+                                >
+                                    <MenuItem disabled>Adicione EPIs</MenuItem>
+                                    <MenuItem value={1}>
+                                        <Checkbox checked={field.value.includes(1)} />
+                                        <ListItemText primary="EPI 1" />
+                                    </MenuItem>
+                                    <MenuItem value={2}>
+                                        <Checkbox checked={field.value.includes(2)} />
+                                        <ListItemText primary="EPI 2" />
+                                    </MenuItem>
+                                </Select>
+                                {errors.epiIds && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.epiIds.message}</p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
+
+                    <Controller
+                        name="equipmentIds"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.equipmentIds} sx={{ width: '25%' }}>
+                                <InputLabel>Equipamentos*</InputLabel>
+                                <Select
+                                    multiple
+                                    label="Equipamentos*"
+                                    input={<OutlinedInput label="Equipamentos*" />}
+                                    value={field.value || []}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        field.onChange(Array.isArray(value) ? value : []);
+                                    }}
+                                    renderValue={(selected) => renderChips(
+                                        selected as number[],
+                                        'equipmentIds',
+                                        (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
+                                        epis
+                                    )}
+                                >
+                                    <MenuItem disabled>Adicione equipamentos</MenuItem>
+                                    <MenuItem value={1}>
+                                        <Checkbox checked={field.value.includes(1)} />
+                                        <ListItemText primary="Equipamento 1" />
+                                    </MenuItem>
+                                    <MenuItem value={2}>
+                                        <Checkbox checked={field.value.includes(2)} />
+                                        <ListItemText primary="Equipamento 2" />
+                                    </MenuItem>
+                                </Select>
+                                {errors.equipmentIds && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.equipmentIds.message}</p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
+
+                    <Controller
+                        name="vehicleIds"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.vehicleIds} sx={{ width: '25%' }}>
+                                <InputLabel>Veículos*</InputLabel>
+                                <Select
+                                    multiple
+                                    label="Veículos*"
+                                    input={<OutlinedInput label="Veículos*" />}
+                                    value={field.value || []}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        field.onChange(Array.isArray(value) ? value : []);
+                                    }}
+                                    renderValue={(selected) => renderChips(
+                                        selected as number[],
+                                        'vehicleIds',
+                                        (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
+                                        epis
+                                    )}
+                                >
+                                    <MenuItem disabled>Adicione veículos</MenuItem>
+                                    <MenuItem value={1}>
+                                        <Checkbox checked={field.value.includes(1)} />
+                                        <ListItemText primary="Veículo 1" />
+                                    </MenuItem>
+                                    <MenuItem value={2}>
+                                        <Checkbox checked={field.value.includes(2)} />
+                                        <ListItemText primary="Veículo 2" />
+                                    </MenuItem>
+                                </Select>
+                                {errors.vehicleIds && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.vehicleIds.message}</p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
+
+                    <Controller
+                        name="productIds"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.productIds} sx={{ width: '25%' }}>
+                                <InputLabel>Produtos*</InputLabel>
+                                <Select
+                                    multiple
+                                    label="Produtos*"
+                                    input={<OutlinedInput label="Produtos*" />}
+                                    value={field.value || []}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        field.onChange(Array.isArray(value) ? value : []);
+                                    }}
+                                    renderValue={(selected) => renderChips(
+                                        selected as number[],
+                                        'productIds',
+                                        (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
+                                        epis
+                                    )}
+                                >
+                                    <MenuItem disabled>Adicione produtos</MenuItem>
+                                    <MenuItem value={1}>
+                                        <Checkbox checked={field.value.includes(1)} />
+                                        <ListItemText primary="Produto 1" />
+                                    </MenuItem>
+                                    <MenuItem value={2}>
+                                        <Checkbox checked={field.value.includes(2)} />
+                                        <ListItemText primary="Produto 2" />
+                                    </MenuItem>
+                                </Select>
+                                {errors.productIds && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.productIds.message}</p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
+                </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5 justify-end">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
@@ -247,8 +772,10 @@ export default function CadastroPessoas() {
                         type="submit"
                         variant="outlined"
                         sx={[buttonTheme, { alignSelf: "end" }]}
+                    // disabled={!isValid || loading}
                     >
-                        {loading ? <CircularProgress color="inherit" size={24} /> : "Cadastrar"}
+                        Cadastrar
+                        {/* {loading ? <CircularProgress color="inherit" size={24} /> : "Cadastrar"} */}
                     </Button>
                 </Box>
             </form>
