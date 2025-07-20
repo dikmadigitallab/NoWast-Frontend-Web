@@ -8,7 +8,7 @@ export const useGetPessoa = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<any>(null);
+    const [persons, setPersons] = useState<any>(null);
 
     const getPessoa = async () => {
         setError(null);
@@ -24,14 +24,14 @@ export const useGetPessoa = () => {
         }
 
         try {
-            const response = await api.get<any>("/person", {
+            const response = await api.get<any>("/person?pageNumber=1&pageSize=100", {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setData(response.data);
+            setPersons(response.data);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
@@ -50,7 +50,7 @@ export const useGetPessoa = () => {
         getPessoa,
         loading,
         error,
-        data,
-        setData
+        persons,
+        setPersons
     };
 };

@@ -34,7 +34,7 @@ export const useCreatePessoa = () => {
             });
 
             setData(response.data.data);
-            toast.success("Pessoa Empresarial criado com sucesso");
+            toast.success("Pessoa criada com sucesso");
             setLoading(false);
             setTimeout(() => {
                 router.push('/pessoas/listagem');

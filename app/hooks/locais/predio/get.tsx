@@ -8,7 +8,7 @@ export const useGetPredio = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<any>(null);
+    const [predio, setPredio] = useState<any>(null);
 
     const getPredio = async () => {
         setError(null);
@@ -31,7 +31,7 @@ export const useGetPredio = () => {
                 },
             });
 
-            setData(response.data);
+            setPredio(response.data);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
@@ -50,7 +50,7 @@ export const useGetPredio = () => {
         getPredio,
         loading,
         error,
-        data,
-        setData
+        predio,
+        setPredio
     };
 };

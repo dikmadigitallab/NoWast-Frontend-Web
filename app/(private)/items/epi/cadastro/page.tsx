@@ -1,9 +1,11 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { Controller } from "react-hook-form";
+import {
+    TextField, MenuItem, InputLabel, Select,
+    FormControl, Button, Box, Modal
+} from "@mui/material";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
@@ -11,55 +13,50 @@ import { IoMdClose } from "react-icons/io";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useGetPessoa } from "@/app/hooks/pessoa/get";
+import { useGetPredio } from "@/app/hooks/locais/predio/get";
 
 const epiSchema = z.object({
-    id: z.string().min(1, "ID é obrigatório"),
-    nomeEpi: z.string().min(1, "Nome do EPI é obrigatório"),
-    localSelect: z.string().min(1, "Local é obrigatório"),
-    gestorResponsavel: z.string().min(1, "Gestor responsável é obrigatório"),
-    fotoEpi: z.any(),
-    descricao: z.string().min(1, "Descrição é obrigatória")
+    name: z.string().min(1, "Nome do EPI é obrigatório"),
+    description: z.string().min(1, "Descrição é obrigatória"),
+    responsibleManager: z.object({
+        connect: z.object({
+            id: z.number().int().min(1, "ID do gestor é obrigatório"),
+            document: z.string().regex(/^\d{11}|\d{14}$/, "CPF ou CNPJ inválido")
+        })
+    }),
+    buildingId: z.number().int().min(-999999999, "ID do prédio é obrigatório")
 });
 
 type EpiFormValues = z.infer<typeof epiSchema>;
 
 export default function CadastroEPI() {
-    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<EpiFormValues>({
+    const router = useRouter();
+    const { persons } = useGetPessoa();
+    const { predio } = useGetPredio();
+
+    const [openDisableModal, setOpenDisableModal] = useState(false);
+
+    const { control, handleSubmit, setValue, formState: { errors, isValid } } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
         defaultValues: {
-            id: "",
-            nomeEpi: "",
-            localSelect: "",
-            gestorResponsavel: "",
-            fotoEpi: null,
-            descricao: ""
+            name: "",
+            description: "",
+            buildingId: 0,
+            responsibleManager: {
+                connect: {
+                    id: 0,
+                    document: ""
+                }
+            }
         },
         mode: "onChange"
     });
 
-    const router = useRouter();
-    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const handleOpenDisableModal = () => setOpenDisableModal(true);
+    const handleCloseDisableModal = () => setOpenDisableModal(false);
+    const handleDisableConfirm = () => router.push('/items/epi/listagem');
 
-    // Options for Local Select
-    const localOptions = [
-        "Almoxarifado",
-        "Obra 1 - Centro",
-        "Obra 2 - Zona Norte",
-        "Oficina",
-        "Depósito"
-    ];
-
-    const handleOpenDisableModal = () => {
-        setOpenDisableModal(true);
-    };
-
-    const handleCloseDisableModal = () => {
-        setOpenDisableModal(false);
-    };
-
-    const handleDisableConfirm = () => {
-        router.push('/items/epi/listagem');
-    };
 
     return (
         <StyledMainContainer>
@@ -70,161 +67,110 @@ export default function CadastroEPI() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <Box className="w-[100%] flex flex-row gap-2">
-
-                    <Box className="w-[50%] flex flex-row gap-2">
-                        <Controller
-                            name="id"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    variant="outlined"
-                                    label="ID#"
-                                    {...field}
-                                    error={!!errors.id}
-                                    helperText={errors.id?.message}
-                                    className="w-[30%]"
-                                    sx={{
-                                        ...formTheme,
-                                        "& .MuiOutlinedInput-root": {
-                                            backgroundColor: "#00000012",
-                                            borderRadius: "5px"
-                                        }
-                                    }}
-                                />
-                            )}
-                        />
-                        <Controller
-                            name="nomeEpi"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    variant="outlined"
-                                    label="Nome do EPI"
-                                    {...field}
-                                    error={!!errors.nomeEpi}
-                                    helperText={errors.nomeEpi?.message}
-                                    className="w-[70%]"
-                                    sx={formTheme}
-                                />
-                            )}
-                        />
-                    </Box>
-                    <FormControl sx={formTheme} className="w-[50%]" error={!!errors.localSelect}>
-                        <InputLabel>Local</InputLabel>
-                        <Controller
-                            name="localSelect"
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    label="Local"
-                                    {...field}
-                                    error={!!errors.localSelect}
-                                >
-                                    {localOptions.map((local) => (
-                                        <MenuItem key={local} value={local}>
-                                            {local}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            )}
-                        />
-                        {errors.localSelect && (
-                            <p className="text-red-500 text-xs mt-1">{errors.localSelect.message}</p>
-                        )}
-                    </FormControl>
-                </Box>
-                <Box className="w-[100%] flex flex-row gap-2">
-                    <Box className="w-[100%] flex flex-row gap-2">
-                        <Controller
-                            name="gestorResponsavel"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    variant="outlined"
-                                    label="Gestor Responsável"
-                                    {...field}
-                                    error={!!errors.gestorResponsavel}
-                                    helperText={errors.gestorResponsavel?.message}
-                                    className="w-[50%]"
-                                    sx={formTheme}
-                                />
-                            )}
-                        />
-                        <Controller
-                            name="fotoEpi"
-                            control={control}
-                            render={({ field }) => (
-                                <Box className="w-[50%] flex items-center" sx={[formTheme, { border: '1px solid #ccc', borderRadius: '10px', position: 'relative' }]}>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => field.onChange(e.target.files?.[0])}
-                                        className="mt-2"
-                                        style={{ display: 'none' }}
-                                        id="upload-file"
-                                    />
-                                    <label htmlFor="upload-file" className="w-[100%]">
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            <Box className="ml-2">{field.value?.name || "Selecionar foto do EPI"}</Box>
-                                            {field.value && (
-                                                <Box className="mr-2">
-                                                    <IoMdClose
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            field.onChange(null);
-                                                        }}
-                                                        style={{
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    />
-                                                </Box>
-                                            )}
-                                        </Box>
-                                    </label>
-                                </Box>
-                            )}
-                        />
-                    </Box>
-                </Box>
-                <Box className="w-[100%] flex flex-row justify-between">
+                <Box className="w-full flex flex-col gap-5">
                     <Controller
-                        name="descricao"
+                        name="name"
                         control={control}
                         render={({ field }) => (
                             <TextField
+                                label="Nome do EPI"
                                 variant="outlined"
-                                label="Descrição"
-                                multiline
-                                rows={10}
                                 {...field}
-                                error={!!errors.descricao}
-                                helperText={errors.descricao?.message}
-                                className="w-[100%]"
+                                error={!!errors.name}
+                                helperText={errors.name?.message}
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+
+                    <Controller
+                        name="responsibleManager.connect.id"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl sx={formTheme} fullWidth error={!!errors.responsibleManager?.connect?.id}>
+                                <InputLabel id="responsible-label">Gestor Responsável</InputLabel>
+                                <Select
+                                    labelId="responsible-label"
+                                    label="Gestor Responsável"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {persons?.data.items.map((person: any) => (
+                                        <MenuItem key={person.id} value={person.id}>
+                                            {person.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.responsibleManager?.connect?.id && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.responsibleManager.connect.id.message}
+                                    </p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
+
+                    <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl sx={formTheme} fullWidth error={!!errors.buildingId}>
+                                <InputLabel>Local (ID do Prédio)</InputLabel>
+                                <Select
+                                    label="Local (ID do Prédio)"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {predio?.data.items.map((building: any) => (
+                                        <MenuItem key={building.id} value={building.id}>
+                                            {building.description}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.buildingId && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.buildingId.message}</p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
+
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                label="Descrição"
+                                variant="outlined"
+                                multiline
+                                rows={6}
+                                {...field}
+                                error={!!errors.description}
+                                helperText={errors.description?.message}
                                 sx={formTheme}
                             />
                         )}
                     />
                 </Box>
-                <Box className="w-[100%] flex flex-row gap-5 justify-end">
+
+                <Box className="flex flex-row justify-end gap-4">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                    <Button variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>Cadastrar</Button>
+                    <Button variant="outlined" sx={buttonTheme} disabled={!isValid}>Cadastrar</Button>
                 </Box>
             </Box>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+            {/* Modal de cancelamento */}
+            <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
-                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
-                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
                             <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
                             <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
                         </Box>
@@ -232,5 +178,5 @@ export default function CadastroEPI() {
                 </Box>
             </Modal>
         </StyledMainContainer>
-    )
+    );
 }

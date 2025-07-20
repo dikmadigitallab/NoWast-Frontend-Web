@@ -1,15 +1,11 @@
 "use client";
 
-import Link from 'next/link';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import React, { useState } from 'react';
 import { Button, IconButton, TextField } from '@mui/material';
 import { ptBR } from '@mui/x-data-grid/locales';
 import { FiPlus, FiUser } from 'react-icons/fi';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import ModalUserEditModal from './component/modalPessoaEdit';
-import ModalVisualizeDetail from './component/modalPessoaDetail';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
@@ -19,23 +15,13 @@ import { useGetPessoa } from '@/app/hooks/pessoa/get';
 
 export default function DataGridUsuarios() {
 
-    const { data, loading } = useGetPessoa()
-    const [edit, setEdit] = useState<any>(null);
-    const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
-    const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
-
-    const handleChangeModalEdit = (data: any) => {
-        setEdit(data);
-        setModalEdit(!modalEdit);
-    }
+    const { persons } = useGetPessoa();
 
     const handleChangeModalVisualize = (data: any) => {
-        setVisualize(data);
         setModalVisualize(!modalVisualize);
     }
-
 
     const columns: GridColDef<User>[] = [
         {
@@ -50,7 +36,7 @@ export default function DataGridUsuarios() {
                     <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalVisualize(params.row)}>
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
-                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                    <IconButton aria-label="editar" size="small" >
                         <MdOutlineModeEditOutline color='#635D77' />
                     </IconButton>
                 </Box>
@@ -107,13 +93,10 @@ export default function DataGridUsuarios() {
         }
     ];
 
-    console.log(data?.data.items);
-
     return (
         <StyledMainContainer>
-            {/* <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} /> */}
-            {/* <ModalUserEditModal edit={edit} modalEdit={modalEdit} handleChangeModalEdit={handleChangeModalEdit} /> */}
 
+            {/* <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} /> */}
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
@@ -156,17 +139,17 @@ export default function DataGridUsuarios() {
                 }
 
                 <DataGrid
-                    rows={data?.data.items}
+                    rows={persons?.data.items}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
                         pagination: {
                             paginationModel: {
-                                pageSize: 10,
+                                pageSize: 15,
                             },
                         },
                     }}
-                    pageSizeOptions={[5, 10, 25]}
+                    pageSizeOptions={[10, 15, 35]}
                     checkboxSelection
                     disableRowSelectionOnClick
                     sx={{

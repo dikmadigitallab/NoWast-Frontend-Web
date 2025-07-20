@@ -18,7 +18,7 @@ export default function ListagemPredios() {
     const [edit, setEdit] = useState<any | null>(null);
     const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
-    const { loading, error, data } = useGetPredio();
+    const { loading, error, predio } = useGetPredio();
 
 
     const columns: GridColDef<any>[] = [
@@ -105,7 +105,7 @@ export default function ListagemPredios() {
                     )
                 }
                 <DataGrid
-                    rows={data?.data.items || []}
+                    rows={predio?.data.items || []}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
