@@ -24,14 +24,23 @@ export const useGetPessoa = () => {
         }
 
         try {
-            const response = await api.get<any>("/person?disablePagination=true", {
+            const response = await api.get<any>("/users?disablePagination=true", {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setPersons(response.data);
+            const refactory = response.data.data.items?.map((item: any) => ({
+                id: item.id,
+                name: item.person?.name,
+                email: item.email,
+                status: item.status,
+                role: item.role?.name,
+                position: item.position?.name
+            })) || [];
+
+            setPersons(refactory);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {

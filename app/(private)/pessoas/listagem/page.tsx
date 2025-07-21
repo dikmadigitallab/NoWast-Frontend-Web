@@ -2,7 +2,7 @@
 
 import Box from '@mui/material/Box';
 import React, { useState } from 'react';
-import { Button, IconButton, TextField } from '@mui/material';
+import { Button, Chip, IconButton, TextField } from '@mui/material';
 import { ptBR } from '@mui/x-data-grid/locales';
 import { FiPlus, FiUser } from 'react-icons/fi';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -12,15 +12,18 @@ import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/t
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { useGetPessoa } from '@/app/hooks/pessoa/get';
+import DetailModal from './component/modalPessoaDetail';
 
 export default function DataGridUsuarios() {
 
     const [isFilter, setIsFilter] = useState(false);
-    const [modalVisualize, setModalVisualize] = useState(false);
+    const [modalDetail, setModalDetail] = useState(false);
     const { persons } = useGetPessoa();
+    const [detail, setDetail] = useState<any | null>(null);
 
-    const handleChangeModalVisualize = (data: any) => {
-        setModalVisualize(!modalVisualize);
+    const handleChangeModalDetail = (data: any) => {
+        setDetail(data);
+        setModalDetail(!modalDetail);
     }
 
     const columns: GridColDef<User>[] = [
@@ -33,7 +36,7 @@ export default function DataGridUsuarios() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalVisualize(params.row)}>
+                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalDetail(params.row)}>
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
                     <IconButton aria-label="editar" size="small" >
@@ -48,6 +51,19 @@ export default function DataGridUsuarios() {
             width: 80
         },
         {
+            field: 'status',
+            headerName: 'Status',
+            width: 120,
+            renderCell: (params) => (
+                <Chip
+                    label={params.value}
+                    color={params.value === 'ativo' ? 'success' : 'error'}
+                    size="small"
+                    variant="outlined"
+                />
+            ),
+        },
+        {
             field: 'name',
             headerName: 'Nome',
             width: 180,
@@ -58,45 +74,31 @@ export default function DataGridUsuarios() {
             ),
         },
         {
-            field: 'document',
-            headerName: 'CPF/CNPJ',
-            width: 120,
-        },
-        {
-            field: 'tradeName',
-            headerName: 'Razão Social',
-            width: 180,
-        },
-        {
-            field: 'birthDate',
-            headerName: 'Data de Nascimento',
-            width: 140,
-            renderCell: (params) => (
-                new Date(params.value).toLocaleString('pt-BR', { year: 'numeric', month: 'numeric', day: 'numeric' })
-            ),
-        },
-        {
-            field: 'gender',
-            headerName: 'Gênero',
-            width: 120,
-            renderCell: (params) => (
-                params.value === 'MALE' ? 'Masculino' : 'Feminino'
-            ),
-        },
-        {
             field: 'email',
             headerName: 'Email',
             width: 200,
-            renderCell: (params: any) => (
-                params.row.emails.find((email: any) => email.isDefault)?.email || '-'
-            ),
+        },
+        {
+            field: 'role',
+            headerName: 'Usuário',
+            width: 180,
+        },
+        {
+            field: 'position',
+            headerName: 'Cargo',
+            width: 180,
         }
     ];
 
     return (
         <StyledMainContainer>
 
-            {/* <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} /> */}
+
+            <DetailModal
+                handleChangeModalDetail={() => handleChangeModalDetail(null)}
+                modalDetail={detail}
+            />
+
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
@@ -139,7 +141,7 @@ export default function DataGridUsuarios() {
                 }
 
                 <DataGrid
-                    rows={persons?.data.items}
+                    rows={persons}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

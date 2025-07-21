@@ -1,75 +1,132 @@
-import { Box, Chip, IconButton, Modal } from "@mui/material";
+import { Box, IconButton, Modal, Chip } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 
-export default function ModalVisualizeDetail({ modalVisualize, handleChangeModalVisualize }: any) {
+export default function DetailModal({ modalDetail, handleChangeModalDetail }: any) {
+    if (!modalDetail) return null;
+
+    const {
+        id,
+        name,
+        tradeName,
+        document,
+        briefDescription,
+        birthDate,
+        gender,
+        personType,
+        createdAt,
+        updatedAt,
+        emails = [],
+        phones = [],
+        addresses = [],
+    } = modalDetail;
+
     return (
         <Modal
-            open={modalVisualize !== null}
-            onClose={() => handleChangeModalVisualize(null)}
+            open={!!modalDetail}
+            onClose={() => handleChangeModalDetail(null)}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >
-            <Box className="absolute top-0 right-0 w-[600px] h-full bg-white z-10 overflow-y-auto z-2">
+            <Box className="absolute top-0 right-0 w-[600px] h-full bg-white z-10 overflow-y-auto">
                 <Box className="px-5">
 
                     <Box className="flex justify-between items-center h-[45px] border-b border-[#E0E0E0]">
-                        <h2 className="text-[#6E6B7B] text-[1.2rem] font-semibold">Detalheres da Pessoas</h2>
-                        <IconButton aria-label="fechar" size="small" onClick={() => handleChangeModalVisualize(null)}>
+                        <h2 className="text-[#6E6B7B] text-[1.2rem] font-semibold">Detalhes da Empresa</h2>
+                        <IconButton aria-label="fechar" size="small" onClick={() => handleChangeModalDetail(null)}>
                             <IoMdClose />
                         </IconButton>
                     </Box>
 
                     <Box className="mt-3 flex flex-col gap-3">
-                        <Box className="w-[100%] h-[250px] bg-[#E0E0E0] rounded-md overflow-hidden border border-[#E0E0E0]">
-                            <img src={modalVisualize?.foto} alt={modalVisualize?.nome} className="w-[100%] h-full object-cover object-top" />
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.nome}</Box>
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Email:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.email}</Box>
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Usuário:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.usuario}</Box>
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Cargo:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.cargo}</Box>
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Encarregado Responsável:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.encarregado_responsavel}</Box>
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Gestor Responsável:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.gestor_responsavel}</Box>
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Localização de atuação:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.localizacao}</Box>
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Data de Início:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.data_inicio}</Box>
-                        </Box>
-                        <Box className="flex flex-col mt-1">
-                            <Box className="font-semibold text-[#6E6B7B]">Status:</Box>
-                            <Box>
-                                <Chip
-                                    label={modalVisualize?.status}
-                                    color={modalVisualize?.status === 'ativo' ? 'success' : 'error'}
-                                    size="small"
-                                    variant="outlined"
-                                />
+                        <Box className="flex flex-row gap-8">
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">ID#:</Box>
+                                <Box className="font-normal text-[#6E6B7B]">{id}</Box>
                             </Box>
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">Razão Social:</Box>
+                                <Box className="font-normal text-[#6E6B7B]">{name}</Box>
+                            </Box>
+                        </Box>
+
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">Nome Fantasia:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{tradeName}</Box>
+                        </Box>
+
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">CNPJ:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{document}</Box>
+                        </Box>
+
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">Descrição:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{briefDescription}</Box>
+                        </Box>
+
+                        <Box className="flex flex-row gap-8">
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">Data de Fundação:</Box>
+                                <Box className="font-normal text-[#6E6B7B]">
+                                    {birthDate ? new Date(birthDate).toLocaleDateString() : "--"}
+                                </Box>
+                            </Box>
+
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">Tipo de Pessoa:</Box>
+                                <Box className="font-normal text-[#6E6B7B]">{personType}</Box>
+                            </Box>
+                        </Box>
+
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">Gênero:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{gender}</Box>
+                        </Box>
+
+                        {emails.length > 0 && (
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">E-mails:</Box>
+                                <Box className="flex flex-wrap gap-2">
+                                    {emails.map((email: any) => (
+                                        <Chip
+                                            key={email.id}
+                                            label={email.email}
+                                            color={email.isDefault ? "primary" : "default"}
+                                            size="small"
+                                        />
+                                    ))}
+                                </Box>
+                            </Box>
+                        )}
+
+                        {phones.length > 0 && (
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">Telefones:</Box>
+                                <Box className="flex flex-wrap gap-2">
+                                    {phones.map((phone: any) => (
+                                        <Chip
+                                            key={phone.id}
+                                            label={phone.phoneNumber}
+                                            color={phone.isDefault ? "primary" : "default"}
+                                            size="small"
+                                        />
+                                    ))}
+                                </Box>
+                            </Box>
+                        )}
+
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">Criado em:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{new Date(createdAt).toLocaleString()}</Box>
+                        </Box>
+
+                        <Box className="flex flex-col mt-1 mb-4">
+                            <Box className="font-semibold text-[#6E6B7B]">Atualizado em:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{new Date(updatedAt).toLocaleString()}</Box>
                         </Box>
                     </Box>
                 </Box>
             </Box>
         </Modal>
     );
-
 }

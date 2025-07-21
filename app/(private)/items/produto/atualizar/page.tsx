@@ -63,7 +63,6 @@ export default function EditarProduto() {
     };
 
     const onSubmit = (formData: any) => {
-        console.log(formData);
         updateItem(data?.id, formData);
     };
 

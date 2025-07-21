@@ -11,13 +11,11 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
+import { useGetItems } from "@/app/hooks/items/get";
 
 const userSchema = z.object({
     password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres" }),
-    userType: z.enum(["DIKMA_DIRECTOR", "OTHER_TYPE"], {
-        required_error: "Tipo de usuário é obrigatório",
-        invalid_type_error: "Tipo de usuário inválido",
-    }),
+    userType: z.enum(["DIKMA_DIRECTOR", "OTHER_TYPE"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
     email: z.string().email({ message: "Email inválido" }),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     status: z.enum(["ACTIVE", "INACTIVE"], {
@@ -25,7 +23,7 @@ const userSchema = z.object({
         invalid_type_error: "Status inválido",
     }),
     source: z.string().optional(),
-    phone: z.string().min(10, { message: "Telefone inválido" }),
+    phone: z.string().min(7, { message: "Telefone inválido" }),
     person: z.object({
         create: z.object({
             name: z.string().min(1, { message: "O nome é obrigatório" }),
@@ -36,7 +34,7 @@ const userSchema = z.object({
             gender: z.enum(["MALE", "FEMALE", "OTHER"], { required_error: "Gênero é obrigatório", invalid_type_error: "Gênero inválido" }),
             personType: z.enum(["INDIVIDUAL", "COMPANY"], { required_error: "Tipo de pessoa é obrigatório", invalid_type_error: "Tipo de pessoa inválido" }),
             email: z.string().email({ message: "Email inválido" }),
-            phone: z.string().min(10, { message: "Telefone inválido" }),
+            phone: z.string().min(7, { message: "Telefone inválido" }),
         }),
     }),
     role: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do papel inválido", required_error: "Selecione um cargo" }).min(1, { message: "Selecione um cargo" }) }) }),
@@ -49,7 +47,6 @@ const userSchema = z.object({
     vehicleIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }), { required_error: "Selecione pelo menos um veículo" }).min(1, { message: "Selecione pelo menos um veículo" }),
     productIds: z.array(z.number({ invalid_type_error: "ID de produto inválido" }), { required_error: "Selecione pelo menos um produto" }).min(1, { message: "Selecione pelo menos um produto" }),
 });
-
 
 type UserFormValues = z.infer<typeof userSchema>;
 
@@ -90,6 +87,10 @@ export default function CadastroUsuario() {
         mode: "onChange"
     });
 
+    const { data: epis } = useGetItems('ppe');
+    const { data: equipamentos } = useGetItems('tools');
+    const { data: produtos } = useGetItems('product');
+    const { data: transportes } = useGetItems('transport');
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -110,8 +111,6 @@ export default function CadastroUsuario() {
         console.log(formData);
     };
 
-
-    //Relacionamentos
 
     const roles = [
         { id: 1, name: "Administrador" },
@@ -143,56 +142,38 @@ export default function CadastroUsuario() {
         { id: 3, name: "Fernanda Lima" },
     ];
 
-    // ITEMS
-
-    const epis = [
-        { id: 1, name: "EPI 1" },
-        { id: 2, name: "EPI 2" },
-    ];
-
-    const equipments = [
-        { id: 1, name: "Equipamento 1" },
-        { id: 2, name: "Equipamento 2" },
-    ];
-
-    const vehicles = [
-        { id: 1, name: "Veículo 1" },
-        { id: 2, name: "Veículo 2" },
-    ];
-
-    const products = [
-        { id: 1, name: "Produto 1" },
-        { id: 2, name: "Produto 2" },
-    ];
-
     const renderChips = (
         selected: number[],
         fieldName: string,
         onDelete: (value: number) => void,
-        items: { id: number, name: string }[]
-    ) => (
-        <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {selected.map((value) => {
-                const selectedItem = items.find(item => item.id === value);
-                return (
-                    <Chip
-                        key={value}
-                        label={selectedItem ? selectedItem.name : value}
-                        onDelete={() => onDelete(value)}
-                        deleteIcon={<IoMdClose onMouseDown={(event) => event.stopPropagation()} />}
-                        sx={{
-                            backgroundColor: '#00B288',
-                            color: 'white',
-                            borderRadius: '4px',
-                            '& .MuiChip-deleteIcon': {
+        items: { id: number, name: string }[] = []
+    ) => {
+        const safeItems = Array.isArray(items) ? items : [];
+
+        return (
+            <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {selected?.map((value) => {
+                    const selectedItem = safeItems.find(item => item.id === value);
+                    return (
+                        <Chip
+                            key={value}
+                            label={selectedItem ? selectedItem.name : `ID: ${value}`}
+                            onDelete={() => onDelete(value)}
+                            deleteIcon={<IoMdClose onMouseDown={(event) => event.stopPropagation()} />}
+                            sx={{
+                                backgroundColor: '#00B288',
                                 color: 'white',
-                            },
-                        }}
-                    />
-                );
-            })}
-        </Box>
-    );
+                                borderRadius: '4px',
+                                '& .MuiChip-deleteIcon': {
+                                    color: 'white',
+                                },
+                            }}
+                        />
+                    );
+                })}
+            </Box>
+        );
+    };
 
     return (
         <StyledMainContainer>
@@ -495,7 +476,7 @@ export default function CadastroUsuario() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um cargo...</MenuItem>
-                                    {roles.map((role) => (
+                                    {roles?.map((role) => (
                                         <MenuItem key={role.id} value={role.id}>
                                             {role.name}
                                         </MenuItem>
@@ -518,7 +499,7 @@ export default function CadastroUsuario() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um contrato...</MenuItem>
-                                    {contracts.map((contract) => (
+                                    {contracts?.map((contract) => (
                                         <MenuItem key={contract.id} value={contract.id}>
                                             {contract.name}
                                         </MenuItem>
@@ -544,7 +525,7 @@ export default function CadastroUsuario() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione uma posição...</MenuItem>
-                                    {positions.map((position) => (
+                                    {positions?.map((position) => (
                                         <MenuItem key={position.id} value={position.id}>
                                             {position.name}
                                         </MenuItem>
@@ -567,7 +548,7 @@ export default function CadastroUsuario() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
-                                    {supervisors.map((supervisor) => (
+                                    {supervisors?.map((supervisor) => (
                                         <MenuItem key={supervisor.id} value={supervisor.id}>
                                             {supervisor.name}
                                         </MenuItem>
@@ -584,7 +565,7 @@ export default function CadastroUsuario() {
                         name="manager.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.manager?.connect?.id}>
+                            <FormControl fullWidth error={!!errors?.manager?.connect?.id}>
                                 <InputLabel>Gerente*</InputLabel>
                                 <Select
                                     label="Gerente*"
@@ -593,13 +574,13 @@ export default function CadastroUsuario() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {managers.map((manager) => (
+                                    {managers?.map((manager) => (
                                         <MenuItem key={manager.id} value={manager.id}>
                                             {manager.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                <FormHelperText>{errors.manager?.connect?.id?.message}</FormHelperText>
+                                <FormHelperText>{errors?.manager?.connect?.id?.message}</FormHelperText>
                             </FormControl>
                         )}
                     />
@@ -632,14 +613,12 @@ export default function CadastroUsuario() {
                                     )}
                                 >
                                     <MenuItem disabled>Adicione EPIs</MenuItem>
-                                    <MenuItem value={1}>
-                                        <Checkbox checked={field.value.includes(1)} />
-                                        <ListItemText primary="EPI 1" />
-                                    </MenuItem>
-                                    <MenuItem value={2}>
-                                        <Checkbox checked={field.value.includes(2)} />
-                                        <ListItemText primary="EPI 2" />
-                                    </MenuItem>
+                                    {epis?.data.items.map((item: any) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            <Checkbox checked={field.value.includes(item.id)} />
+                                            <ListItemText primary={item.name} />
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                                 {errors.epiIds && (
                                     <p className="text-red-500 text-xs mt-1">{errors.epiIds.message}</p>
@@ -667,18 +646,16 @@ export default function CadastroUsuario() {
                                         selected as number[],
                                         'equipmentIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        epis
+                                        equipamentos
                                     )}
                                 >
                                     <MenuItem disabled>Adicione equipamentos</MenuItem>
-                                    <MenuItem value={1}>
-                                        <Checkbox checked={field.value.includes(1)} />
-                                        <ListItemText primary="Equipamento 1" />
-                                    </MenuItem>
-                                    <MenuItem value={2}>
-                                        <Checkbox checked={field.value.includes(2)} />
-                                        <ListItemText primary="Equipamento 2" />
-                                    </MenuItem>
+                                    {equipamentos?.data.items.map((item: any) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            <Checkbox checked={field.value.includes(item.id)} />
+                                            <ListItemText primary={item.name} />
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                                 {errors.equipmentIds && (
                                     <p className="text-red-500 text-xs mt-1">{errors.equipmentIds.message}</p>
@@ -686,7 +663,6 @@ export default function CadastroUsuario() {
                             </FormControl>
                         )}
                     />
-
                     <Controller
                         name="vehicleIds"
                         control={control}
@@ -706,18 +682,16 @@ export default function CadastroUsuario() {
                                         selected as number[],
                                         'vehicleIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        epis
+                                        transportes
                                     )}
                                 >
                                     <MenuItem disabled>Adicione veículos</MenuItem>
-                                    <MenuItem value={1}>
-                                        <Checkbox checked={field.value.includes(1)} />
-                                        <ListItemText primary="Veículo 1" />
-                                    </MenuItem>
-                                    <MenuItem value={2}>
-                                        <Checkbox checked={field.value.includes(2)} />
-                                        <ListItemText primary="Veículo 2" />
-                                    </MenuItem>
+                                    {transportes?.data.items.map((item: any) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            <Checkbox checked={field.value.includes(item.id)} />
+                                            <ListItemText primary={item.name} />
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                                 {errors.vehicleIds && (
                                     <p className="text-red-500 text-xs mt-1">{errors.vehicleIds.message}</p>
@@ -745,18 +719,16 @@ export default function CadastroUsuario() {
                                         selected as number[],
                                         'productIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        epis
+                                        produtos
                                     )}
                                 >
                                     <MenuItem disabled>Adicione produtos</MenuItem>
-                                    <MenuItem value={1}>
-                                        <Checkbox checked={field.value.includes(1)} />
-                                        <ListItemText primary="Produto 1" />
-                                    </MenuItem>
-                                    <MenuItem value={2}>
-                                        <Checkbox checked={field.value.includes(2)} />
-                                        <ListItemText primary="Produto 2" />
-                                    </MenuItem>
+                                    {produtos?.data.items.map((item: any) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            <Checkbox checked={field.value.includes(item.id)} />
+                                            <ListItemText primary={item.name} />
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                                 {errors.productIds && (
                                     <p className="text-red-500 text-xs mt-1">{errors.productIds.message}</p>

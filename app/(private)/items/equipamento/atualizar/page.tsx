@@ -63,7 +63,6 @@ export default function EditarEquipamento() {
     };
 
     const onSubmit = (formData: any) => {
-        console.log(formData);
         updateItem(data?.id, formData);
     };
 

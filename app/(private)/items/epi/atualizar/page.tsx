@@ -63,7 +63,6 @@ export default function EditarEPI() {
     };
 
     const onSubmit = (formData: any) => {
-        console.log(formData);
         updateItem(data?.id, formData);
     };
 
