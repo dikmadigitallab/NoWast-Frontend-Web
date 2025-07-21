@@ -1,9 +1,9 @@
 'use client';
-import api from "../../api";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Logout } from "@/app/utils/logout";
 import { useRouter } from "next/navigation";
+import api from "../api";
 
 export const useUpdatePredio = () => {
 

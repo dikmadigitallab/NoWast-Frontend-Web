@@ -1,8 +1,8 @@
 import { Logout } from "@/app/utils/logout";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import api from "../../api";
 import { useRouter } from "next/navigation";
+import api from "../api";
 
 export const useDeletePredio = () => {
 
