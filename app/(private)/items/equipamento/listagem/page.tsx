@@ -4,36 +4,38 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { ptBR } from '@mui/x-data-grid/locales';
-import { MdOutlineFilterAlt, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
-import { FiPlus, FiUser } from 'react-icons/fi';
+import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
+import { FiPlus } from 'react-icons/fi';
 import { Button, IconButton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { rows } from './data';
 import DetailModal from './component/modalEquipamentoDetail';
-import EditModal from './component/modalEquipamentoEdit';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { useGetItems } from '@/app/hooks/items/get';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import { useRouter } from 'next/navigation';
 
 
-export default function ListagemEquipamentos() {
+export default function ListagemEquipamento() {
 
-    const [edit, setEdit] = useState<any | null>(null);
-    const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
-    const { data: tools } = useGetItems('tools');
-
-    const handleChangeModalEdit = (data: any) => {
-        setEdit(data);
-        setModalEdit(!modalEdit);
-    }
+    const { data: equipamentos } = useGetItems('tools');
+    const { setId } = useGetIDStore()
+    const router = useRouter();
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
         setModalDetail(!modalDetail);
+    }
+
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/items/equipamento/atualizar`);
+        }, 500)
     }
 
     const columns: GridColDef<any>[] = [
@@ -46,10 +48,10 @@ export default function ListagemEquipamentos() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalDetail(params.row)}>
+                    <IconButton aria-label="visualizar" size="small" >
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
-                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
                         <MdOutlineModeEditOutline color='#635D77' />
                     </IconButton>
                 </Box>
@@ -63,12 +65,7 @@ export default function ListagemEquipamentos() {
         {
             field: 'name',
             headerName: 'Nome',
-            width: 180,
-            renderCell: (params) => (
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FiUser /> {params.value}
-                </Box>
-            ),
+            width: 220
         },
         {
             field: 'description',
@@ -79,11 +76,16 @@ export default function ListagemEquipamentos() {
             field: 'responsibleManagerId',
             headerName: 'Encarregado Responsável',
             width: 200,
-            renderCell: (params) => (
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FiUser /> {params.value}
-                </Box>
-            ),
+        },
+        {
+            field: 'createdAt',
+            headerName: 'Criado em',
+            width: 150,
+        },
+        {
+            field: 'updatedAt',
+            headerName: 'Atualizado em',
+            width: 150,
         }
     ];
 
@@ -104,7 +106,7 @@ export default function ListagemEquipamentos() {
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
-                            <MdOutlineFilterAlt size={25} color='#635D77' />
+                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#635D77' /> : <MdOutlineFilterAlt size={25} color='#635D77' />}
                         </Button>
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
                             <GoDownload size={25} color='#635D77' />
@@ -135,9 +137,8 @@ export default function ListagemEquipamentos() {
                         </Box>
                     )
                 }
-
                 <DataGrid
-                    rows={tools?.data.items}
+                    rows={equipamentos?.data.items}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

@@ -36,9 +36,7 @@ export const useDeleteItem = (url: string) => {
 
             toast.success(toastMessages.success);
             setLoading(false);
-            setTimeout(() => {
-                router.back();
-            }, 1000);
+            router.back();
         } catch (error) {
             setLoading(false);
             setError(toastMessages.error);

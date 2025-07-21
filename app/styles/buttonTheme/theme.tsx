@@ -38,3 +38,19 @@ export const buttonThemeNoBackground = {
     },
 }
 
+export const buttonThemeNoBackgroundError = {
+    width: "fit-content",
+    height: "45px",
+    borderColor: "red",
+    backgroundColor: "red",
+    color: "white",
+    borderRadius: "5px",
+    fontWeight: 500,
+    boxShadow: "none",
+    "&:disabled": {
+        backgroundColor: "#fff",
+        color: "#666",
+        cursor: "not-allowed"
+    },
+}
+

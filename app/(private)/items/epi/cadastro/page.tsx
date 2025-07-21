@@ -16,7 +16,7 @@ import { useCreateItem } from "@/app/hooks/items/create";
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
-    responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório"), document: z.string().regex(/^\d{11}|\d{14}$/, "CPF ou CNPJ inválido") }) }),
+    responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
     buildingId: z.number().int().min(-999999999, "ID do prédio é obrigatório")
 });
 
@@ -32,7 +32,7 @@ export default function CadastroEPI() {
 
     const { control, handleSubmit, setValue, formState: { errors } } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
-        defaultValues: { name: "", description: "", buildingId: 1, responsibleManager: { connect: { id: 0, document: "" } } },
+        defaultValues: { name: "", description: "", buildingId: 1, responsibleManager: { connect: { id: 0 } } },
         mode: "onChange"
     });
 
@@ -83,17 +83,6 @@ export default function CadastroEPI() {
                                     labelId="responsible-label"
                                     label="Gestor Responsável"
                                     {...field}
-                                    onChange={(e) => {
-                                        const selectedId = e.target.value;
-                                        const selectedUser = users?.data.items.find(
-                                            (user: any) => user.person.id === selectedId
-                                        );
-
-                                        field.onChange(selectedId);
-                                        if (selectedUser) {
-                                            setValue("responsibleManager.connect.document", selectedUser.person.document);
-                                        }
-                                    }}
                                     value={field.value || ""}
                                 >
                                     <MenuItem value="" disabled>
@@ -105,7 +94,6 @@ export default function CadastroEPI() {
                                         </MenuItem>
                                     ))}
                                 </Select>
-
                                 {errors.responsibleManager?.connect?.id && (
                                     <p className="text-red-500 text-xs mt-1">
                                         {errors.responsibleManager.connect.id.message}
@@ -114,8 +102,6 @@ export default function CadastroEPI() {
                             </FormControl>
                         )}
                     />
-
-
 
                     <Controller
                         name="buildingId"

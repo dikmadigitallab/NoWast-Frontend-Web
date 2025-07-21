@@ -13,32 +13,32 @@ import { useGetPredio } from "@/app/hooks/locais/predio/get";
 import { useGetUsers } from "@/app/hooks/usuarios/get";
 import { useCreateItem } from "@/app/hooks/items/create";
 
-const equipamentoSchema = z.object({
-    name: z.string().min(1, "Nome do Equipamento é obrigatório"),
+const produtoSchema = z.object({
+    name: z.string().min(1, "Nome do Produto é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
     buildingId: z.number().int().min(-999999999, "ID do prédio é obrigatório")
 });
 
-type EquipamentoFormValues = z.infer<typeof equipamentoSchema>;
+type ProdutoFormValues = z.infer<typeof produtoSchema>;
 
-export default function CadastroEquipamento() {
+export default function CadastroProduto() {
 
     const router = useRouter();
     const { users } = useGetUsers();
     const { predio } = useGetPredio();
-    const { createItem } = useCreateItem("tools");
+    const { createItem } = useCreateItem("transport");
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
-    const { control, handleSubmit, setValue, formState: { errors } } = useForm<EquipamentoFormValues>({
-        resolver: zodResolver(equipamentoSchema),
+    const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProdutoFormValues>({
+        resolver: zodResolver(produtoSchema),
         defaultValues: { name: "", description: "", buildingId: 1, responsibleManager: { connect: { id: 0 } } },
         mode: "onChange"
     });
 
     const handleOpenDisableModal = () => setOpenDisableModal(true);
     const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/equipamento/listagem');
+    const handleDisableConfirm = () => router.push('/items/produto/listagem');
 
     const onSubmit = (formData: any) => {
         createItem(formData);
@@ -48,7 +48,7 @@ export default function CadastroEquipamento() {
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
                 <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Equipamentos</h1>
+                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Transportes</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
@@ -59,7 +59,7 @@ export default function CadastroEquipamento() {
                         control={control}
                         render={({ field }) => (
                             <TextField
-                                label="Nome do Equipamento"
+                                label="Nome do Produto"
                                 variant="outlined"
                                 {...field}
                                 error={!!errors.name}

@@ -14,15 +14,15 @@ import { formTheme } from '@/app/styles/formTheme/theme';
 import { useGetItems } from '@/app/hooks/items/get';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
-import DetailModal from './component/modalProdutoDetail';
+import DetailModal from './component/modalTransportDetail';
 
 
-export default function ListagemProduto() {
+export default function ListagemTransporte() {
 
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
-    const { data: produtos } = useGetItems('product');
+    const { data: transportes } = useGetItems('product');
     const { setId } = useGetIDStore()
     const router = useRouter();
 
@@ -100,7 +100,7 @@ export default function ListagemProduto() {
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
-                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Produto</h1>
+                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Transporte</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                         <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
                     </Box>
@@ -113,7 +113,7 @@ export default function ListagemProduto() {
                         </Button>
                         <Button href="/items/produto/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
-                            Cadastrar Produto
+                            Cadastrar Transporte
                         </Button>
                     </Box>
                 </Box>
@@ -138,7 +138,7 @@ export default function ListagemProduto() {
                     )
                 }
                 <DataGrid
-                    rows={produtos?.data.items}
+                    rows={transportes?.data.items}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

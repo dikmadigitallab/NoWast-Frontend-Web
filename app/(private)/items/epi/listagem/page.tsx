@@ -100,7 +100,7 @@ export default function ListagemEpi() {
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
-                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">EPIs</h1>
+                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">EPI</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                         <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
                     </Box>
