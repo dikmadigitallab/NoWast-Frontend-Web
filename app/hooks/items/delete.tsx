@@ -1,18 +1,18 @@
-import { toast } from "react-toastify";
-import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import api from "../api";
 import { useRouter } from "next/navigation";
-import api from "../../api";
+import { useGetIDStore } from "@/app/store/getIDStore";
+import { getToastMessageRequest } from "@/app/utils/getToastMessageByType";
 
-export const useCreateEpi = () => {
-
+export const useDeleteItem = (url: string) => {
+    const { id } = useGetIDStore();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [epi, setEpi] = useState(null);
 
-    const createEpi = async (Epi: string) => {
-
+    const deleteItem = async () => {
         setError(null);
         setLoading(true);
 
@@ -20,35 +20,35 @@ export const useCreateEpi = () => {
 
         if (!authToken) {
             setError("Token de autenticação não encontrado");
-            Logout()
+            Logout();
             return;
         }
 
+        const toastMessages = getToastMessageRequest(url as any, "delete");
+
         try {
-            const response = await api.post("/ppe", Epi, {
+            await api.delete(`/${url}/${id}`, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setEpi(response.data.data);
-            toast.success("Epi criada com sucesso");
+            toast.success(toastMessages.success);
             setLoading(false);
             setTimeout(() => {
-                router.push('/Epis/listagem');
+                router.back();
             }, 1000);
         } catch (error) {
             setLoading(false);
-            setError("Erro ao criar Epi empresarial");
-            toast.error("Erro ao criar Epi empresarial");
+            setError(toastMessages.error);
+            toast.error(toastMessages.error);
         }
     };
 
     return {
-        createEpi,
+        deleteItem,
         loading,
         error,
-        epi
     };
 };

@@ -1,16 +1,19 @@
-import { Logout } from "@/app/utils/logout";
-import { useState } from "react";
 import { toast } from "react-toastify";
-import api from "../../api";
+import { useState } from "react";
+import { Logout } from "@/app/utils/logout";
 import { useRouter } from "next/navigation";
+import api from "../api";
+import { getToastMessageRequest } from "@/app/utils/getToastMessageByType";
 
-export const useDeletePredio = () => {
+export const useCreateItem = (url: string) => {
 
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [data, setData] = useState(null);
 
-    const deletePredio = async (id: number) => {
+    const createItem = async (Item: string) => {
+
         setError(null);
         setLoading(true);
 
@@ -22,29 +25,32 @@ export const useDeletePredio = () => {
             return;
         }
 
+        const toastMessages = getToastMessageRequest(url as any, "create");
+
         try {
-            await api.delete(`/building/${id}`, {
+            const response = await api.post(`/${url}`, Item, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            toast.success("Predio Empresarial excluído com sucesso");
+            toast.success(toastMessages.success);
+            setData(response.data.data);
             setLoading(false);
             setTimeout(() => {
-                router.push('/locais/predio/listagem');
+                router.back();
             }, 1000);
         } catch (error) {
             setLoading(false);
-            setError("Erro ao excluir predio empresarial");
-            toast.error("Erro ao excluir predio empresarial");
+            toast.success(toastMessages.error);
         }
     };
 
     return {
-        deletePredio,
+        createItem,
         loading,
-        error
+        error,
+        data
     };
 };

@@ -191,19 +191,18 @@ export default function EditarSetor() {
                 </Box>
             </Modal>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+            <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
-                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
-                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar está ação? Todos os dados serão perdidos.</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
+                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Desistir</Button>
+                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Comfirmar</Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
-
         </StyledMainContainer>
     )
 }

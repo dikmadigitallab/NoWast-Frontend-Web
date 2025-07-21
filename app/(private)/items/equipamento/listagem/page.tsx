@@ -14,6 +14,8 @@ import EditModal from './component/modalEquipamentoEdit';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
+import { useGetItems } from '@/app/hooks/items/get';
+
 
 export default function ListagemEquipamentos() {
 
@@ -22,6 +24,7 @@ export default function ListagemEquipamentos() {
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
+    const { data: tools } = useGetItems('tools');
 
     const handleChangeModalEdit = (data: any) => {
         setEdit(data);
@@ -58,7 +61,7 @@ export default function ListagemEquipamentos() {
             width: 80
         },
         {
-            field: 'nome',
+            field: 'name',
             headerName: 'Nome',
             width: 180,
             renderCell: (params) => (
@@ -68,19 +71,19 @@ export default function ListagemEquipamentos() {
             ),
         },
         {
-            field: 'encarregado_responsavel',
-            headerName: 'Encarregado Responsável',
-            width: 200,
-        },
-        {
-            field: 'local',
-            headerName: 'Local',
-            width: 150,
-        },
-        {
-            field: 'descricao',
+            field: 'description',
             headerName: 'Descrição',
             width: 300,
+        },
+        {
+            field: 'responsibleManagerId',
+            headerName: 'Encarregado Responsável',
+            width: 200,
+            renderCell: (params) => (
+                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <FiUser /> {params.value}
+                </Box>
+            ),
         }
     ];
 
@@ -90,11 +93,6 @@ export default function ListagemEquipamentos() {
             <DetailModal
                 handleChangeModalDetail={() => handleChangeModalDetail(null)}
                 modalDetail={detail}
-            />
-            <EditModal
-                edit={edit}
-                modalEdit={modalEdit}
-                handleChangeModalEdit={() => setModalEdit(!modalEdit)}
             />
 
             <Box className="flex flex-col gap-5">
@@ -139,7 +137,7 @@ export default function ListagemEquipamentos() {
                 }
 
                 <DataGrid
-                    rows={rows}
+                    rows={tools?.data.items}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

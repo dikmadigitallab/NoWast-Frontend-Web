@@ -20,7 +20,7 @@ export default function ListagemSetores() {
     const router = useRouter();
     const [isFilter, setIsFilter] = useState(false);
     const { loading, error, data } = useGetSetor();
-    const { id, setId } = useGetIDStore()
+    const { setId } = useGetIDStore()
 
     const handleChangeModalEdit = (id: any) => {
         setId(id)

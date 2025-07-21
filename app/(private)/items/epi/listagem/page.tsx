@@ -5,32 +5,37 @@ import Box from '@mui/material/Box';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { ptBR } from '@mui/x-data-grid/locales';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
-import { FiPlus, FiUser } from 'react-icons/fi';
+import { FiPlus } from 'react-icons/fi';
 import { Button, IconButton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { rows } from './data';
 import DetailModal from './component/modalEPIDetail';
-import EditModal from './component/modalEPIEdit';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
+import { useGetItems } from '@/app/hooks/items/get';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import { useRouter } from 'next/navigation';
 
-export default function ListagemPessoas() {
 
-    const [edit, setEdit] = useState<any | null>(null);
-    const [modalEdit, setModalEdit] = useState(false);
+export default function ListagemEpi() {
+
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
-
-    const handleChangeModalEdit = (data: any) => {
-        setEdit(data);
-        setModalEdit(!modalEdit);
-    }
+    const { data: epis } = useGetItems('ppe');
+    const { setId } = useGetIDStore()
+    const router = useRouter();
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
         setModalDetail(!modalDetail);
+    }
+
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/items/epi/atualizar`);
+        }, 500)
     }
 
     const columns: GridColDef<any>[] = [
@@ -43,10 +48,10 @@ export default function ListagemPessoas() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalDetail(params.row)}>
+                    <IconButton aria-label="visualizar" size="small" >
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
-                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
                         <MdOutlineModeEditOutline color='#635D77' />
                     </IconButton>
                 </Box>
@@ -58,47 +63,38 @@ export default function ListagemPessoas() {
             width: 80
         },
         {
-            field: 'epi',
-            headerName: 'EPI',
+            field: 'name',
+            headerName: 'Nome',
             width: 220
         },
         {
-            field: 'nome',
-            headerName: 'Nome',
-            width: 180,
-            renderCell: (params) => (
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FiUser /> {params.value}
-                </Box>
-            ),
+            field: 'description',
+            headerName: 'Descrição',
+            width: 300,
         },
         {
-            field: 'encarregado_responsavel',
+            field: 'responsibleManagerId',
             headerName: 'Encarregado Responsável',
             width: 200,
         },
         {
-            field: 'local',
-            headerName: 'Local',
+            field: 'createdAt',
+            headerName: 'Criado em',
             width: 150,
         },
         {
-            field: 'descricao',
-            headerName: 'Descrição',
-            width: 300,
+            field: 'updatedAt',
+            headerName: 'Atualizado em',
+            width: 150,
         }
     ];
 
     return (
         <StyledMainContainer>
+
             <DetailModal
                 handleChangeModalDetail={() => handleChangeModalDetail(null)}
                 modalDetail={detail}
-            />
-            <EditModal
-                edit={edit}
-                modalEdit={modalEdit}
-                handleChangeModalEdit={() => setModalEdit(!modalEdit)}
             />
 
             <Box className="flex flex-col gap-5">
@@ -142,7 +138,7 @@ export default function ListagemPessoas() {
                     )
                 }
                 <DataGrid
-                    rows={rows}
+                    rows={epis?.data.items}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

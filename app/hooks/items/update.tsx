@@ -1,18 +1,19 @@
 'use client';
-import api from "../../api";
+import api from "../api";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Logout } from "@/app/utils/logout";
 import { useRouter } from "next/navigation";
+import { getToastMessageRequest } from "@/app/utils/getToastMessageByType";
 
-export const useUpdatePredio = () => {
+export const useUpdateItem = (url: string) => {
 
     const router = useRouter();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const updatePredio = async (id: number, novoPredio: any) => {
+    const updateItem = async (id: number, novoItem: any) => {
 
         setError(null);
         setLoading(true);
@@ -25,29 +26,30 @@ export const useUpdatePredio = () => {
             return;
         }
 
+        const toastMessages = getToastMessageRequest(url as any, "update");
+
         try {
-            const response = await api.put(`/building/${id}`, novoPredio, {
+            const response = await api.put(`/${url}/${id}`, novoItem, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
+            toast.success(toastMessages.success);
             setData(response.data);
-            toast.success("Prédio Atualizado com sucesso");
             setLoading(false);
             setTimeout(() => {
-                router.push('/locais/predio/listagem');
+                router.back()
             }, 1000);
         } catch (error) {
             setLoading(false);
-            setError("Erro ao atualizar predio");
-            toast.error("Erro ao atualizar setor");
+            toast.success(toastMessages.error);
         }
     };
 
     return {
-        updatePredio,
+        updateItem,
         loading,
         error,
         data

@@ -14,6 +14,7 @@ import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import DetailModal from './component/modalTransporteDetail';
 import EditModal from './component/modalTransporteEdit';
+import { useGetItems } from '@/app/hooks/items/get';
 
 export default function ListagemPessoas() {
 
@@ -22,6 +23,9 @@ export default function ListagemPessoas() {
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
+    const { data: transporte } = useGetItems('transport');
+
+    console.log(transporte?.data.items)
 
     const handleChangeModalEdit = (data: any) => {
         setEdit(data);
@@ -34,6 +38,46 @@ export default function ListagemPessoas() {
     }
 
     const columns: GridColDef<any>[] = [
+        {
+            field: 'id',
+            headerName: '#ID',
+            width: 80
+        },
+        {
+            field: 'name',
+            headerName: 'Nome',
+            width: 180,
+            renderCell: (params) => (
+                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <FiUser /> {params.value}
+                </Box>
+            ),
+        },
+        {
+            field: 'description',
+            headerName: 'Descrição',
+            width: 200,
+        },
+        {
+            field: 'responsibleManagerId',
+            headerName: 'Encarregado Responsável',
+            width: 150,
+        },
+        {
+            field: 'createdAt',
+            headerName: 'Criado em',
+            width: 180,
+        },
+        {
+            field: 'updatedAt',
+            headerName: 'Atualizado em',
+            width: 180,
+        },
+        {
+            field: 'deletedAt',
+            headerName: 'Excluído em',
+            width: 180,
+        },
         {
             field: 'acoes',
             headerName: 'Ações',
@@ -52,36 +96,6 @@ export default function ListagemPessoas() {
                 </Box>
             ),
         },
-        {
-            field: 'id',
-            headerName: '#ID',
-            width: 80
-        },
-        {
-            field: 'nome',
-            headerName: 'Nome',
-            width: 180,
-            renderCell: (params) => (
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FiUser /> {params.value}
-                </Box>
-            ),
-        },
-        {
-            field: 'encarregado_responsavel',
-            headerName: 'Encarregado Responsável',
-            width: 200,
-        },
-        {
-            field: 'local',
-            headerName: 'Local',
-            width: 150,
-        },
-        {
-            field: 'descricao',
-            headerName: 'Descrição',
-            width: 300,
-        }
     ];
 
     return (
@@ -92,12 +106,7 @@ export default function ListagemPessoas() {
                     handleChangeModalDetail={() => handleChangeModalDetail(null)}
                     modalDetail={detail}
                 />
-                <EditModal
-                    edit={edit}
-                    modalEdit={modalEdit}
-                    handleChangeModalEdit={() => setModalEdit(!modalEdit)}
-                />
-
+        
                 <Box className="flex flex-col gap-5">
                     <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                         <Box className="flex gap-2">
@@ -140,7 +149,7 @@ export default function ListagemPessoas() {
                     }
 
                     <DataGrid
-                        rows={rows}
+                        rows={transporte?.data.items}
                         columns={columns}
                         localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                         initialState={{

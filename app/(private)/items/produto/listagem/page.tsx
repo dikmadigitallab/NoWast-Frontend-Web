@@ -8,12 +8,11 @@ import { MdOutlineFilterAlt, MdOutlineModeEditOutline, MdOutlineVisibility } fro
 import { FiPlus, FiUser } from 'react-icons/fi';
 import { Button, IconButton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { rows } from './data';
 import DetailModal from './component/modalProdutosDetail';
-import EditModal from './component/modalProdutosEdit';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
+import { useGetItems } from '@/app/hooks/items/get';
 
 export default function ListagemPessoas() {
 
@@ -22,6 +21,7 @@ export default function ListagemPessoas() {
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
+    const { data: products } = useGetItems('product');
 
     const handleChangeModalEdit = (data: any) => {
         setEdit(data);
@@ -58,7 +58,7 @@ export default function ListagemPessoas() {
             width: 80
         },
         {
-            field: 'nome',
+            field: 'name',
             headerName: 'Nome',
             width: 180,
             renderCell: (params) => (
@@ -68,20 +68,15 @@ export default function ListagemPessoas() {
             ),
         },
         {
-            field: 'encarregado_responsavel',
-            headerName: 'Encarregado Responsável',
-            width: 200,
-        },
-        {
-            field: 'local',
-            headerName: 'Local',
-            width: 150,
-        },
-        {
-            field: 'descricao',
+            field: 'description',
             headerName: 'Descrição',
             width: 300,
-        }
+        },
+        {
+            field: 'responsibleManagerId',
+            headerName: 'Encarregado Responsável',
+            width: 150,
+        },
     ];
 
     return (
@@ -92,12 +87,7 @@ export default function ListagemPessoas() {
                     handleChangeModalDetail={() => handleChangeModalDetail(null)}
                     modalDetail={detail}
                 />
-                <EditModal
-                    edit={edit}
-                    modalEdit={modalEdit}
-                    handleChangeModalEdit={() => setModalEdit(!modalEdit)}
-                />
-
+              
                 <Box className="flex flex-col gap-5">
                     <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                         <Box className="flex gap-2">
@@ -140,7 +130,7 @@ export default function ListagemPessoas() {
                     }
 
                     <DataGrid
-                        rows={rows}
+                        rows={products?.data.items}
                         columns={columns}
                         localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                         initialState={{
