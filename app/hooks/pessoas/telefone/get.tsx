@@ -4,13 +4,13 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../../api";
 
-export const useGetPredio = () => {
+export const useGetPessoa = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [predio, setPredio] = useState<any>(null);
+    const [data, setData] = useState<any>(null);
 
-    const getPredio = async () => {
+    const getPessoa = async () => {
         setError(null);
         setLoading(true);
 
@@ -24,14 +24,15 @@ export const useGetPredio = () => {
         }
 
         try {
-            const response = await api.get<any>("/building", {
+            const response = await api.get<any>("/person?disablePagination=true", {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setPredio(response.data.data.items);
+
+            setData(response.data);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
@@ -43,14 +44,14 @@ export const useGetPredio = () => {
     };
 
     useEffect(() => {
-        getPredio();
+        getPessoa();
     }, []);
 
     return {
-        getPredio,
+        getPessoa,
         loading,
         error,
-        predio,
-        setPredio
+        data,
+        setData
     };
 };

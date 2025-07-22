@@ -1,18 +1,19 @@
-'use client';
-import { useState } from "react";
 import { toast } from "react-toastify";
+import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
-import { useRouter } from "next/navigation";
-import api from "../api";
+import api from "../../api";
+import { useGetIDStore } from "@/app/store/getIDStore";
+import { useSectionStore } from "@/app/store/renderSection";
 
-export const useUpdatePredio = () => {
+export const useCreatePessoa = () => {
 
-    const router = useRouter();
-    const [data, setData] = useState(null);
+    const { setId } = useGetIDStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [data, setData] = useState(null);
+    const { setSection } = useSectionStore();
 
-    const updatePredio = async (id: number, novoPredio: any) => {
+    const createPessoa = async (pessoa: any) => {
 
         setError(null);
         setLoading(true);
@@ -26,28 +27,28 @@ export const useUpdatePredio = () => {
         }
 
         try {
-            const response = await api.put(`/building/${id}`, novoPredio, {
+            const response = await api.post("/person", pessoa, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setData(response.data);
-            toast.success("Prédio Atualizado com sucesso");
+            setId(response.data.data.id);
+            setData(response.data.data);
+            toast.success("Pessoa criada com sucesso");
             setLoading(false);
-            setTimeout(() => {
-                router.push('/locais/predio/listagem');
-            }, 1000);
+            setSection(2);
         } catch (error) {
             setLoading(false);
-            setError("Erro ao atualizar predio");
-            toast.error("Erro ao atualizar setor");
+            const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
+            setError(errorMessage);
+            toast.error(errorMessage);
         }
     };
 
     return {
-        updatePredio,
+        createPessoa,
         loading,
         error,
         data

@@ -11,19 +11,30 @@ import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, Md
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { useGetPessoa } from '@/app/hooks/pessoa/get';
 import DetailModal from './component/modalPessoaDetail';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import { useRouter } from 'next/navigation';
+import { useGetUsuario } from '@/app/hooks/usuario/get';
 
-export default function DataGridUsuarios() {
+export default function ListagemPessoa() {
 
     const [isFilter, setIsFilter] = useState(false);
     const [modalDetail, setModalDetail] = useState(false);
-    const { persons } = useGetPessoa();
+    const { data: usuarios } = useGetUsuario();
     const [detail, setDetail] = useState<any | null>(null);
+    const { setId } = useGetIDStore()
+    const router = useRouter();
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
         setModalDetail(!modalDetail);
+    }
+
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/usuario/atualizar`);
+        }, 500)
     }
 
     const columns: GridColDef<User>[] = [
@@ -39,7 +50,7 @@ export default function DataGridUsuarios() {
                     <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalDetail(params.row)}>
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
-                    <IconButton aria-label="editar" size="small" >
+                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)} >
                         <MdOutlineModeEditOutline color='#635D77' />
                     </IconButton>
                 </Box>
@@ -90,6 +101,7 @@ export default function DataGridUsuarios() {
         }
     ];
 
+    console.log(usuarios)
     return (
         <StyledMainContainer>
 
@@ -102,7 +114,7 @@ export default function DataGridUsuarios() {
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
-                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Pessoas</h1>
+                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Usuários</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                         <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
                     </Box>
@@ -141,7 +153,7 @@ export default function DataGridUsuarios() {
                 }
 
                 <DataGrid
-                    rows={persons}
+                    rows={usuarios}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
@@ -152,7 +164,6 @@ export default function DataGridUsuarios() {
                         },
                     }}
                     pageSizeOptions={[10, 15, 35]}
-                    checkboxSelection
                     disableRowSelectionOnClick
                     sx={{
                         '& .MuiDataGrid-columnHeaders': {

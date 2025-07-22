@@ -14,12 +14,12 @@ import { useGetUsers } from "@/app/hooks/usuarios/get";
 import { useGetOneItem } from "@/app/hooks/items/getOneById";
 import { useUpdateItem } from "@/app/hooks/items/update";
 import { useDeleteItem } from "@/app/hooks/items/delete";
+import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Transport é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
-    buildingId: z.number().int().min(-999999999, "ID do prédio é obrigatório")
 });
 
 type TransportFormValues = z.infer<typeof epiSchema>;
@@ -27,7 +27,7 @@ type TransportFormValues = z.infer<typeof epiSchema>;
 export default function EditarTransport() {
 
     const router = useRouter();
-    const { users } = useGetUsers();
+    const { data: pessoas } = useGetPessoa();
     const { predio } = useGetPredio();
     const { data } = useGetOneItem("transport");
     const { updateItem, loading } = useUpdateItem("transport");
@@ -40,7 +40,6 @@ export default function EditarTransport() {
         defaultValues: {
             name: "",
             description: "",
-            buildingId: 1,
             responsibleManager: {
                 connect: {
                     id: 0,
@@ -114,9 +113,9 @@ export default function EditarTransport() {
                                     <MenuItem value="" disabled>
                                         Clique e selecione...
                                     </MenuItem>
-                                    {users?.data.items.map((person: any) => (
-                                        <MenuItem key={person.person.id} value={person.person.id}>
-                                            {person.person.name}
+                                    {pessoas?.data.items.map((person: any) => (
+                                        <MenuItem key={person.id} value={person.id}>
+                                            {person.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -125,35 +124,6 @@ export default function EditarTransport() {
                                     <p className="text-red-500 text-xs mt-1">
                                         {errors.responsibleManager.connect.id.message}
                                     </p>
-                                )}
-                            </FormControl>
-                        )}
-                    />
-
-
-
-                    <Controller
-                        name="buildingId"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl sx={formTheme} fullWidth error={!!errors.buildingId}>
-                                <InputLabel>Local (ID do Prédio)</InputLabel>
-                                <Select
-                                    label="Local (ID do Prédio)"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>
-                                        Clique e selecione...
-                                    </MenuItem>
-                                    {predio?.data.items.map((building: any) => (
-                                        <MenuItem key={building.id} value={building.id}>
-                                            {building.description}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {errors.buildingId && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.buildingId.message}</p>
                                 )}
                             </FormControl>
                         )}

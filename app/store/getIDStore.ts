@@ -1,29 +1,22 @@
 "use client";
 
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface GetIDStore {
-    id: number | string | null;
+    id: string | number | null;
     setId: (id: number | string) => void;
 }
 
-export const useGetIDStore = create<GetIDStore>((set) => {
-    let storedId: string | number | null = null;
-
-    if (typeof window !== "undefined") {
-        const stored = localStorage.getItem("id");
-        if (stored) {
-            storedId = stored;
+export const useGetIDStore = create<GetIDStore>()(
+    persist(
+        (set) => ({
+            id: null,
+            setId: (id) => set({ id }),
+        }),
+        {
+            name: "id-storage",
+            storage: createJSONStorage(() => localStorage),
         }
-    }
-
-    return {
-        id: storedId,
-        setId: (id: number | string) => {
-            if (typeof window !== "undefined") {
-                localStorage.setItem("id", String(id));
-            }
-            set({ id });
-        },
-    };
-});
+    )
+);

@@ -1,16 +1,16 @@
 'use client';
 
 import { Logout } from "@/app/utils/logout";
-import { useEffect, useState } from "react";
-import api from "../../api";
+import { useState } from "react";
+import api from "../api";
 
-export const useGetPredio = () => {
+export const useGetOneUsuario = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [predio, setPredio] = useState<any>(null);
+    const [data, setData] = useState<any>(null);
 
-    const getPredio = async () => {
+    const getOneUsuario = async (id: string | number) => {
         setError(null);
         setLoading(true);
 
@@ -24,33 +24,29 @@ export const useGetPredio = () => {
         }
 
         try {
-            const response = await api.get<any>("/building", {
+            const response = await api.get<any>(`/building/${id}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
-
-            setPredio(response.data.data.items);
+            setData(response.data.data);
         } catch (error) {
-            setError("Erro ao buscar setores empresariais");
+            setError("Erro ao buscar usuarios");
             if (error instanceof Error) {
-                console.error("Error fetching business sectors:", error.message);
+                console.error(error.message);
             }
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        getPredio();
-    }, []);
 
     return {
-        getPredio,
+        getOneUsuario,
         loading,
         error,
-        predio,
-        setPredio
+        data,
+        setData
     };
 };

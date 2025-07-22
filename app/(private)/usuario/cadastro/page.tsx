@@ -12,6 +12,9 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetItems } from "@/app/hooks/items/get";
+import { useCreatePessoa } from "@/app/hooks/pessoas/pessoa/create";
+import { useGetContrato } from "@/app/hooks/contrato/get";
+import { useGetCargo } from "@/app/hooks/positions/get";
 
 const userSchema = z.object({
     password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres" }),
@@ -50,7 +53,7 @@ const userSchema = z.object({
 
 type UserFormValues = z.infer<typeof userSchema>;
 
-export default function CadastroUsuario() {
+export default function CadastroPessoa() {
 
     const { control, handleSubmit, formState: { errors, isValid }, watch, setValue } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
@@ -91,6 +94,11 @@ export default function CadastroUsuario() {
     const { data: equipamentos } = useGetItems('tools');
     const { data: produtos } = useGetItems('product');
     const { data: transportes } = useGetItems('transport');
+    const { data: contratos } = useGetContrato();
+    const { data: cargos } = useGetCargo();
+    const { createPessoa } = useCreatePessoa();
+
+    console.log(cargos);
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -104,42 +112,46 @@ export default function CadastroUsuario() {
     };
 
     const handleDisableConfirm = () => {
-        router.push('/usuarios/listagem');
+        router.push('/pessoas/listagem');
     };
 
     const onSubmit = (formData: UserFormValues) => {
-        console.log(formData);
+        const newData = { ...formData, person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
+        console.log(newData);
+        createPessoa(newData);
     };
 
-
     const roles = [
-        { id: 1, name: "Administrador" },
+        { id: 1, name: "CEO" },
         { id: 2, name: "Gerente" },
         { id: 3, name: "Supervisor" },
     ];
 
     const contracts = [
-        { id: 1, name: "CLT" },
-        { id: 2, name: "PJ" },
-        { id: 3, name: "Estágio" },
+        { id: 4, name: "Adcos" },
+        { id: 5, name: "ArcelorMittal" },
+        { id: 6, name: "Nemak" },
     ];
 
     const positions = [
-        { id: 1, name: "Desenvolvedor" },
-        { id: 2, name: "Designer" },
-        { id: 3, name: "Analista" },
+        { id: 2, name: "CEO" },
+        { id: 3, name: "Designer" },
+        { id: 4, name: "Analista" },
+        { id: 5, name: "Desenvolvedor" }
     ];
 
     const supervisors = [
-        { id: 1, name: "João Silva" },
-        { id: 2, name: "Maria Souza" },
-        { id: 3, name: "Carlos Oliveira" },
+        { id: 1, name: "Sem Supervisor" },
+        { id: 2, name: "João Silva" },
+        { id: 3, name: "Maria Souza" },
+        { id: 4, name: "Carlos Oliveira" },
     ];
 
     const managers = [
-        { id: 1, name: "Ana Paula" },
-        { id: 2, name: "Roberto Santos" },
-        { id: 3, name: "Fernanda Lima" },
+        { id: 1, name: "Sem Gerente" },
+        { id: 2, name: "Ana Paula" },
+        { id: 3, name: "Roberto Santos" },
+        { id: 4, name: "Fernanda Lima" },
     ];
 
     const renderChips = (
@@ -151,7 +163,7 @@ export default function CadastroUsuario() {
         const safeItems = Array.isArray(items) ? items : [];
 
         return (
-            <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {selected?.map((value) => {
                     const selectedItem = safeItems.find(item => item.id === value);
                     return (
@@ -175,6 +187,7 @@ export default function CadastroUsuario() {
         );
     };
 
+
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
@@ -192,7 +205,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Email do usuário*"
+                                label="Email do usuário"
                                 {...field}
                                 error={!!errors.email}
                                 helperText={errors.email?.message}
@@ -207,7 +220,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Senha*"
+                                label="Senha"
                                 type="password"
                                 {...field}
                                 error={!!errors.password}
@@ -225,9 +238,9 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.userType}>
-                                <InputLabel>Tipo de Usuário*</InputLabel>
+                                <InputLabel>Tipo de Usuário</InputLabel>
                                 <Select
-                                    label="Tipo de Usuário*"
+                                    label="Tipo de Usuário"
                                     {...field}
                                     value={field.value || ""}
                                 >
@@ -265,7 +278,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Telefone*"
+                                label="Telefone"
                                 {...field}
                                 error={!!errors.phone}
                                 helperText={errors.phone?.message}
@@ -304,7 +317,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Nome completo*"
+                                label="Nome completo"
                                 {...field}
                                 error={!!errors.person?.create?.name}
                                 helperText={errors.person?.create?.name?.message}
@@ -319,7 +332,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Nome Fantasia*"
+                                label="Nome Fantasia"
                                 {...field}
                                 error={!!errors.person?.create?.tradeName}
                                 helperText={errors.person?.create?.tradeName?.message}
@@ -337,7 +350,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Documento*"
+                                label="Documento"
                                 {...field}
                                 error={!!errors.person?.create?.document}
                                 helperText={errors.person?.create?.document?.message}
@@ -352,7 +365,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Data de Nascimento*"
+                                label="Data de Nascimento"
                                 type="date"
                                 InputLabelProps={{ shrink: true }}
                                 {...field}
@@ -371,9 +384,9 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.person?.create?.gender}>
-                                <InputLabel>Gênero*</InputLabel>
+                                <InputLabel>Gênero</InputLabel>
                                 <Select
-                                    label="Gênero*"
+                                    label="Gênero"
                                     {...field}
                                     value={field.value || ""}
                                 >
@@ -414,7 +427,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Email da Pessoa*"
+                                label="Email da Pessoa"
                                 type="email"
                                 {...field}
                                 error={!!errors.person?.create?.email}
@@ -430,7 +443,7 @@ export default function CadastroUsuario() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Telefone da Pessoa*"
+                                label="Telefone da Pessoa"
                                 {...field}
                                 error={!!errors.person?.create?.phone}
                                 helperText={errors.person?.create?.phone?.message}
@@ -447,7 +460,7 @@ export default function CadastroUsuario() {
                     render={({ field }) => (
                         <TextField
                             variant="outlined"
-                            label="Descrição*"
+                            label="Descrição"
                             multiline
                             rows={4}
                             {...field}
@@ -459,7 +472,7 @@ export default function CadastroUsuario() {
                 />
 
                 {/* Relations Section */}
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relacionamentos</h2>
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Vínculo de Pessoa</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
@@ -467,9 +480,9 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.role?.connect?.id}>
-                                <InputLabel>Cargo*</InputLabel>
+                                <InputLabel>Cargo</InputLabel>
                                 <Select
-                                    label="Cargo*"
+                                    label="Cargo"
                                     {...field}
                                     error={!!errors.role?.connect?.id}
                                     value={field.value ?? ""}
@@ -491,9 +504,9 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.contract?.connect?.id}>
-                                <InputLabel>Contrato*</InputLabel>
+                                <InputLabel>Contrato</InputLabel>
                                 <Select
-                                    label="Contrato*"
+                                    label="Contrato"
                                     {...field}
                                     value={field.value || ""}
                                     onChange={(e) => field.onChange(Number(e.target.value))}
@@ -517,9 +530,9 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.position?.connect?.id}>
-                                <InputLabel>Posição*</InputLabel>
+                                <InputLabel>Posição</InputLabel>
                                 <Select
-                                    label="Posição*"
+                                    label="Posição"
                                     {...field}
                                     value={field.value || ""}
                                     onChange={(e) => field.onChange(Number(e.target.value))}
@@ -540,9 +553,9 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.supervisor?.connect?.id}>
-                                <InputLabel>Supervisor*</InputLabel>
+                                <InputLabel>Supervisor</InputLabel>
                                 <Select
-                                    label="Supervisor*"
+                                    label="Supervisor"
                                     {...field}
                                     value={field.value || ""}
                                     onChange={(e) => field.onChange(Number(e.target.value))}
@@ -566,9 +579,9 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors?.manager?.connect?.id}>
-                                <InputLabel>Gerente*</InputLabel>
+                                <InputLabel>Gerente</InputLabel>
                                 <Select
-                                    label="Gerente*"
+                                    label="Gerente"
                                     {...field}
                                     value={field.value || ""}
                                     onChange={(e) => field.onChange(Number(e.target.value))}
@@ -587,7 +600,7 @@ export default function CadastroUsuario() {
                 </Box>
 
 
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Items</h2>
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Vínculo de Itens</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
@@ -595,11 +608,11 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.epiIds} sx={{ width: '25%' }}>
-                                <InputLabel>EPIs*</InputLabel>
+                                <InputLabel>EPIs</InputLabel>
                                 <Select
                                     multiple
-                                    label="EPIs*"
-                                    input={<OutlinedInput label="EPIs*" />}
+                                    label="EPIs"
+                                    input={<OutlinedInput label="EPIs" />}
                                     value={field.value || []}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -609,11 +622,11 @@ export default function CadastroUsuario() {
                                         selected as number[],
                                         'epiIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        epis
+                                        epis?.data?.items || []
                                     )}
                                 >
                                     <MenuItem disabled>Adicione EPIs</MenuItem>
-                                    {epis?.data.items.map((item: any) => (
+                                    {(epis?.data?.items || []).map((item: any) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />
@@ -626,17 +639,16 @@ export default function CadastroUsuario() {
                             </FormControl>
                         )}
                     />
-
                     <Controller
                         name="equipmentIds"
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.equipmentIds} sx={{ width: '25%' }}>
-                                <InputLabel>Equipamentos*</InputLabel>
+                                <InputLabel>Equipamentos</InputLabel>
                                 <Select
                                     multiple
-                                    label="Equipamentos*"
-                                    input={<OutlinedInput label="Equipamentos*" />}
+                                    label="Equipamentos"
+                                    input={<OutlinedInput label="Equipamentos" />}
                                     value={field.value || []}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -646,11 +658,11 @@ export default function CadastroUsuario() {
                                         selected as number[],
                                         'equipmentIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        equipamentos
+                                        equipamentos?.data?.items || []
                                     )}
                                 >
                                     <MenuItem disabled>Adicione equipamentos</MenuItem>
-                                    {equipamentos?.data.items.map((item: any) => (
+                                    {(equipamentos?.data?.items || []).map((item: any) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />
@@ -663,16 +675,17 @@ export default function CadastroUsuario() {
                             </FormControl>
                         )}
                     />
+
                     <Controller
                         name="vehicleIds"
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.vehicleIds} sx={{ width: '25%' }}>
-                                <InputLabel>Veículos*</InputLabel>
+                                <InputLabel>Veículos</InputLabel>
                                 <Select
                                     multiple
-                                    label="Veículos*"
-                                    input={<OutlinedInput label="Veículos*" />}
+                                    label="Veículos"
+                                    input={<OutlinedInput label="Veículos" />}
                                     value={field.value || []}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -682,11 +695,11 @@ export default function CadastroUsuario() {
                                         selected as number[],
                                         'vehicleIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        transportes
+                                        transportes?.data?.items || []
                                     )}
                                 >
                                     <MenuItem disabled>Adicione veículos</MenuItem>
-                                    {transportes?.data.items.map((item: any) => (
+                                    {(transportes?.data?.items || []).map((item: any) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />
@@ -705,11 +718,11 @@ export default function CadastroUsuario() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.productIds} sx={{ width: '25%' }}>
-                                <InputLabel>Produtos*</InputLabel>
+                                <InputLabel>Produtos</InputLabel>
                                 <Select
                                     multiple
-                                    label="Produtos*"
-                                    input={<OutlinedInput label="Produtos*" />}
+                                    label="Produtos"
+                                    input={<OutlinedInput label="Produtos" />}
                                     value={field.value || []}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -719,11 +732,11 @@ export default function CadastroUsuario() {
                                         selected as number[],
                                         'productIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        produtos
+                                        produtos?.data?.items || []
                                     )}
                                 >
                                     <MenuItem disabled>Adicione produtos</MenuItem>
-                                    {produtos?.data.items.map((item: any) => (
+                                    {(produtos?.data?.items || []).map((item: any) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />
@@ -736,6 +749,7 @@ export default function CadastroUsuario() {
                             </FormControl>
                         )}
                     />
+
                 </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5 justify-end">

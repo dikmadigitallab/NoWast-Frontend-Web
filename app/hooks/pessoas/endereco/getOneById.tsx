@@ -2,17 +2,21 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../api";
+import api from "../../api";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
-export const useGetPessoa = () => {
+export const useGetOnePessoa = () => {
 
+    const { id } = useGetIDStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [persons, setPersons] = useState<any>(null);
+    const [data, setData] = useState<any>(null);
 
-    const getPessoa = async () => {
+    const getOnePessoa = async () => {
+
         setError(null);
         setLoading(true);
+        console.log(id)
 
         const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
 
@@ -24,27 +28,18 @@ export const useGetPessoa = () => {
         }
 
         try {
-            const response = await api.get<any>("/users?disablePagination=true", {
+            const response = await api.get<any>(`/person/${id}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
-
-            const refactory = response.data.data.items?.map((item: any) => ({
-                id: item.id,
-                name: item.person?.name,
-                email: item.email,
-                status: item.status,
-                role: item.role?.name,
-                position: item.position?.name
-            })) || [];
-
-            setPersons(refactory);
+            console.log(response)
+            setData(response.data.data);
         } catch (error) {
-            setError("Erro ao buscar setores empresariais");
+            setError("Erro ao buscar pessoas");
             if (error instanceof Error) {
-                console.error("Error fetching business sectors:", error.message);
+                console.error(error.message);
             }
         } finally {
             setLoading(false);
@@ -52,14 +47,15 @@ export const useGetPessoa = () => {
     };
 
     useEffect(() => {
-        getPessoa();
-    }, []);
+        if (id) getOnePessoa();
+    }, [id]);
+
 
     return {
-        getPessoa,
+        getOnePessoa,
         loading,
         error,
-        persons,
-        setPersons
+        data,
+        setData
     };
 };

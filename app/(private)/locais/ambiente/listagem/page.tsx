@@ -102,7 +102,7 @@ export default function DataGridUsuarios() {
             flex: 1,
         },
     ];
-    
+
     return (
         <StyledMainContainer>
 
@@ -161,7 +161,6 @@ export default function DataGridUsuarios() {
                         },
                     }}
                     pageSizeOptions={[5, 10, 25]}
-                    checkboxSelection
                     disableRowSelectionOnClick
                     sx={{
                         '& .MuiDataGrid-columnHeaders': {
