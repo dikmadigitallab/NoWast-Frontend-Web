@@ -13,7 +13,7 @@ import FormEmails from "./forms/emails";
 import { useSectionStore } from "@/app/store/renderSection";
 
 
-export default function Locais() {
+export default function CadastroPessoa() {
 
 
     const router = useRouter();

@@ -9,14 +9,8 @@ interface SectionStore {
 }
 
 export const useSectionStore = create<SectionStore>()(
-    persist(
-        (set) => ({
-            section: 1,
-            setSection: (section) => set({ section }),
-        }),
-        {
-            name: "section-storage",
-            storage: createJSONStorage(() => localStorage),
-        }
-    )
+    (set) => ({
+        section: 1,
+        setSection: (section) => set({ section }),
+    }),
 );

@@ -88,6 +88,31 @@ export default function ListagemPessoa() {
                     </Box>
                 )
             },
+        },
+        {
+            field: 'emails',
+            headerName: 'Email',
+            width: 280,
+            renderCell: (params) => (
+                <Box>
+                    {params.value[0]?.email || 'Não informado'}
+                </Box>
+            ),
+        },
+        {
+            field: 'phones',
+            headerName: 'Telefone',
+            width: 150,
+            renderCell: (params) => {
+                const phoneNumber = params.value[0]?.phoneNumber;
+                return (
+                    <Box>
+                        {phoneNumber ?
+                            `${phoneNumber.substring(0, 2)} ${phoneNumber.substring(2, 7)}-${phoneNumber.substring(7)}`
+                            : 'Não informado'}
+                    </Box>
+                );
+            },
         }
     ];
 
