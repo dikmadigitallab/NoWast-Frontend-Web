@@ -24,7 +24,8 @@ export const useGetContratos = (withoutBuildings?: boolean) => {
         }
 
         try {
-            const response = await api.get<any>(`/contract?disablePagination=true&withoutBuildings=${withoutBuildings}`, {
+            const url = withoutBuildings ? '/contract?disablePagination=true&withoutBuildings=true' : '/contract?disablePagination=true';
+            const response = await api.get<any>(url, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",

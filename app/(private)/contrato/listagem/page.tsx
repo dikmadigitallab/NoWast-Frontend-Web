@@ -22,6 +22,8 @@ export default function ListagemEmpresas() {
     const { setId } = useGetIDStore()
     const router = useRouter();
 
+    console.log(contratos)
+
     const handleChangeModalEdit = (id: any) => {
         setId(id)
         setTimeout(() => {

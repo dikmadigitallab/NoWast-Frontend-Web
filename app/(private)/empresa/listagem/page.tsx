@@ -12,12 +12,15 @@ import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/t
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import EditModal from './component/modalPredioEdit';
+import { useGetEmpresa } from '@/app/hooks/empresa/get';
 
 export default function ListagemEmpresas() {
 
     const [edit, setEdit] = useState<any | null>(null);
     const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
+    const { data: empresas } = useGetEmpresa("company");
+
 
     const handleChangeModalEdit = (data: any) => {
         setEdit(data);
@@ -44,22 +47,17 @@ export default function ListagemEmpresas() {
             width: 80
         },
         {
-            field: 'nome',
-            headerName: 'Nome do Empresa',
+            field: 'acronym',
+            headerName: 'Sigla',
             width: 180,
         },
         {
-            field: 'raio',
-            headerName: 'Raio',
+            field: 'person.name',
+            headerName: 'Nome do Contato',
             width: 240,
-            renderCell: (params) => (
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    Lat: {params.row.latitude}, Long: {params.row.longitude}
-                </Box>
-            ),
         },
         {
-            field: 'descricao',
+            field: 'description',
             headerName: 'Descrição',
             width: 300,
         }
@@ -110,8 +108,8 @@ export default function ListagemEmpresas() {
                         </Box>
                     )
                 }
-                {/* <DataGrid
-                    rows={rows}
+                <DataGrid
+                    rows={empresas}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
@@ -135,7 +133,7 @@ export default function ListagemEmpresas() {
                             backgroundColor: '#f0f0f0',
                         },
                     }}
-                /> */}
+                />
             </Box>
         </StyledMainContainer>
     );
