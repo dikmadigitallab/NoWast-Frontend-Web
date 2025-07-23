@@ -6,12 +6,11 @@ import { useSectionStore } from "@/app/store/renderSection";
 
 export const useCreateEndereco = () => {
 
+    const { setSection } = useSectionStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { setSection } = useSectionStore();
 
     const createEndereco = async (endereco: any) => {
-
         setError(null);
         setLoading(true);
 
@@ -25,14 +24,17 @@ export const useCreateEndereco = () => {
 
         try {
 
-            const enderecos = endereco.addresses.map((endereco: any) =>
-                typeof endereco === "object" ? endereco : {}
-            );
+            const enderecos = endereco.addresses ? endereco.addresses : [endereco];
+            const enderecosValidos = enderecos.filter((e: any) => typeof e === "object" && Object.keys(e).length > 0);
 
-            const promises = enderecos.map((endereco: any) =>
+            if (enderecosValidos.length === 0) {
+                throw new Error("Nenhum endereço válido fornecido");
+            }
+
+            const promises = enderecosValidos.map((endereco: any) =>
                 api.post("/address", endereco, {
                     headers: {
-                        Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                        Authorization: `Bearer ${authToken.split("=")[1]}`,
                         "Content-Type": "application/json",
                     },
                 })
@@ -40,7 +42,7 @@ export const useCreateEndereco = () => {
 
             await Promise.all(promises);
 
-            toast.success("Endereço criado com sucesso");
+            toast.success(enderecosValidos.length > 1 ? "Endereços criados com sucesso" : "Endereço criado com sucesso");
             setLoading(false);
             setSection(3);
         } catch (error) {

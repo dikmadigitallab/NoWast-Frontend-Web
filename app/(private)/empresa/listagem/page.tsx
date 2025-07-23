@@ -1,59 +1,41 @@
 "use client";
 
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import React, { useState } from 'react';
-import { Button, Chip, IconButton, TextField } from '@mui/material';
-import { ptBR } from '@mui/x-data-grid/locales';
-import { FiPlus, FiUser } from 'react-icons/fi';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { ptBR } from '@mui/x-data-grid/locales';
+import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline } from 'react-icons/md';
+import { FiPlus } from 'react-icons/fi';
+import { Button, IconButton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
-import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { useGetPessoa } from '@/app/hooks/pessoas/pessoa/get';
-import DetailModal from './component/modalPessoaDetail';
-import { useGetIDStore } from '@/app/store/getIDStore';
-import { useRouter } from 'next/navigation';
+import { GoDownload } from 'react-icons/go';
+import EditModal from './component/modalPredioEdit';
 
-export default function ListagemPessoa() {
+export default function ListagemEmpresas() {
 
+    const [edit, setEdit] = useState<any | null>(null);
+    const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
-    const [modalDetail, setModalDetail] = useState(false);
-    const { data: pessoas } = useGetPessoa();
-    const [detail, setDetail] = useState<any | null>(null);
-    const { setId } = useGetIDStore()
-    const router = useRouter();
 
-    const handleChangeModalDetail = (data: any) => {
-        setDetail(data);
-        setModalDetail(!modalDetail);
-    }
-
-    const handleChangeModalEdit = (id: any) => {
-        setId(id)
-        setTimeout(() => {
-            router.push(`/pessoa/atualizar`);
-        }, 500)
+    const handleChangeModalEdit = (data: any) => {
+        setEdit(data);
+        setModalEdit(!modalEdit);
     }
 
     const columns: GridColDef<any>[] = [
         {
             field: 'acoes',
             headerName: 'Ações',
-            width: 90,
+            width: 80,
             sortable: false,
             filterable: false,
             disableColumnMenu: true,
             renderCell: (params) => (
-                <Box>
-                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalDetail(params.row)}>
-                        <MdOutlineVisibility color='#635D77' />
-                    </IconButton>
-                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)} >
-                        <MdOutlineModeEditOutline color='#635D77' />
-                    </IconButton>
-                </Box>
+                <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                    <MdOutlineModeEditOutline color='#635D77' />
+                </IconButton>
             ),
         },
         {
@@ -62,73 +44,36 @@ export default function ListagemPessoa() {
             width: 80
         },
         {
-            field: 'name',
-            headerName: 'Nome',
+            field: 'nome',
+            headerName: 'Nome do Empresa',
             width: 180,
         },
         {
-            field: 'tradeName',
-            headerName: 'Nome Fantasia',
-            width: 180,
-        },
-        {
-            field: 'document',
-            headerName: 'CPF/CNPJ',
-            width: 180,
-        },
-        {
-            field: 'birthDate',
-            headerName: 'Data de Nascimento',
-            width: 180,
-            renderCell: (params) => {
-                const date = new Date(params.value)
-                return (
-                    <Box>
-                        {date.toLocaleDateString('pt-BR')}
-                    </Box>
-                )
-            },
-        },
-        {
-            field: 'emails',
-            headerName: 'Email',
-            width: 280,
+            field: 'raio',
+            headerName: 'Raio',
+            width: 240,
             renderCell: (params) => (
-                <Box>
-                    {params.value[0]?.email || 'Não informado'}
+                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    Lat: {params.row.latitude}, Long: {params.row.longitude}
                 </Box>
             ),
         },
         {
-            field: 'phones',
-            headerName: 'Telefone',
-            width: 150,
-            renderCell: (params) => {
-                const phoneNumber = params.value[0]?.phoneNumber;
-                return (
-                    <Box>
-                        {phoneNumber ?
-                            `${phoneNumber.substring(0, 2)} ${phoneNumber.substring(2, 7)}-${phoneNumber.substring(7)}`
-                            : 'Não informado'}
-                    </Box>
-                );
-            },
+            field: 'descricao',
+            headerName: 'Descrição',
+            width: 300,
         }
     ];
 
+
+
     return (
         <StyledMainContainer>
-
-
-            <DetailModal
-                handleChangeModalDetail={() => handleChangeModalDetail(null)}
-                modalDetail={detail}
-            />
-
+            <EditModal edit={edit} modalEdit={modalEdit} handleChangeModalEdit={() => setModalEdit(!modalEdit)} />
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
-                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Pessoas</h1>
+                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Empresas</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                         <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
                     </Box>
@@ -139,9 +84,9 @@ export default function ListagemPessoa() {
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
                             <GoDownload size={25} color='#635D77' />
                         </Button>
-                        <Button href="/pessoa/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
+                        <Button href="/empresa/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
-                            Cadastrar Pessoa
+                            Cadastrar Empresa
                         </Button>
                     </Box>
                 </Box>
@@ -165,19 +110,18 @@ export default function ListagemPessoa() {
                         </Box>
                     )
                 }
-
-                <DataGrid
-                    rows={pessoas}
+                {/* <DataGrid
+                    rows={rows}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
                         pagination: {
                             paginationModel: {
-                                pageSize: 15,
+                                pageSize: 10,
                             },
                         },
                     }}
-                    pageSizeOptions={[10, 15, 35]}
+                    pageSizeOptions={[5, 10, 25]}
                     disableRowSelectionOnClick
                     sx={{
                         '& .MuiDataGrid-columnHeaders': {
@@ -191,8 +135,8 @@ export default function ListagemPessoa() {
                             backgroundColor: '#f0f0f0',
                         },
                     }}
-                />
+                /> */}
             </Box>
-        </StyledMainContainer >
+        </StyledMainContainer>
     );
 }

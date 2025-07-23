@@ -71,7 +71,6 @@ export default function FormPessoas() {
                             helperText={errors.name?.message}
                             className="w-[70%]"
                             sx={formTheme}
-                            required
                         />
                     )}
                 />
@@ -107,7 +106,6 @@ export default function FormPessoas() {
                             helperText={errors.email?.message}
                             className="w-[50%]"
                             sx={formTheme}
-                            required
                         />
                     )}
                 />
@@ -124,7 +122,6 @@ export default function FormPessoas() {
                             helperText={errors.phone?.message}
                             className="w-[50%]"
                             sx={formTheme}
-                            required
                         />
                     )}
                 />
@@ -144,7 +141,6 @@ export default function FormPessoas() {
                             helperText={errors.document?.message}
                             className="w-[50%]"
                             sx={formTheme}
-                            required
                         />
                     )}
                 />

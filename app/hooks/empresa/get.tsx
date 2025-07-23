@@ -2,15 +2,15 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../../api";
+import api from "../api";
 
-export const useGetPessoa = () => {
+export const useGetEmpresa = (url: string) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
-    const getPessoa = async () => {
+    const getEmpresa = async () => {
         setError(null);
         setLoading(true);
 
@@ -24,13 +24,12 @@ export const useGetPessoa = () => {
         }
 
         try {
-            const response = await api.get<any>("/person?disablePagination=true", {
+            const response = await api.get<any>(`/${url}?disablePagination=true`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
-
 
             setData(response.data.data.items);
         } catch (error) {
@@ -44,11 +43,11 @@ export const useGetPessoa = () => {
     };
 
     useEffect(() => {
-        getPessoa();
+        getEmpresa();
     }, []);
 
     return {
-        getPessoa,
+        getEmpresa,
         loading,
         error,
         data,

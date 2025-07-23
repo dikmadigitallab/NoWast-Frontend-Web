@@ -50,9 +50,12 @@ export const ADM_DIKMA: NavItem[] = [
         ]
     },
     {
-        name: 'Empresa',
-        href: '/locais/empresa/listagem',
+        name: 'Negócios',
         icon: FaRegBuilding,
+        subItems: [
+            { icon: FaRegCircle, name: 'Empresa', href: '/empresa/listagem' },
+            { icon: FaRegCircle, name: 'Contrato', href: '/contrato/listagem' },
+        ]
     },
     {
         name: 'Itens',

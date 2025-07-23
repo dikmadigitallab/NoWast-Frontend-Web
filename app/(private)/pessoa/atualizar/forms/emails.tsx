@@ -91,7 +91,6 @@ export default function FormEmails() {
                                 helperText={errors.emails?.[index]?.email?.message}
                                 className="w-[100%]"
                                 sx={formTheme}
-                                required
                             />
                         )}
                     />

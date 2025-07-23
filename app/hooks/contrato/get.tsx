@@ -4,7 +4,7 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetContrato = () => {
+export const useGetContratos = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,16 +31,7 @@ export const useGetContrato = () => {
                 },
             });
 
-            const refactory = response.data.data.items?.map((item: any) => ({
-                id: item.id,
-                name: item.person?.name,
-                email: item.email,
-                status: item.status,
-                role: item.role?.name,
-                position: item.position?.name
-            })) || [];
-
-            setData(refactory);
+            setData(response.data.data.items);
         } catch (error) {
             setError("Erro ao buscar contratos");
         } finally {

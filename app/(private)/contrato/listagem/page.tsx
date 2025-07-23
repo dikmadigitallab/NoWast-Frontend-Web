@@ -1,24 +1,24 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { ptBR } from '@mui/x-data-grid/locales';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline } from 'react-icons/md';
 import { FiPlus } from 'react-icons/fi';
 import { Button, IconButton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { rows } from './data';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
-import EditModal from './component/modalPredioEdit';
+import { useGetContratos } from '@/app/hooks/contrato/get';
+import { ptBR } from '@mui/x-data-grid/locales';
 
 export default function ListagemEmpresas() {
 
     const [edit, setEdit] = useState<any | null>(null);
     const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
+    const { data: contratos } = useGetContratos();
 
     const handleChangeModalEdit = (data: any) => {
         setEdit(data);
@@ -45,36 +45,63 @@ export default function ListagemEmpresas() {
             width: 80
         },
         {
-            field: 'nome',
-            headerName: 'Nome do Empresa',
-            width: 180,
+            field: 'name',
+            headerName: 'Nome do Contrato',
+            width: 200,
         },
         {
-            field: 'raio',
-            headerName: 'Raio',
+            field: 'startDate',
+            headerName: 'Data de Início',
             width: 240,
             renderCell: (params) => (
                 <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    Lat: {params.row.latitude}, Long: {params.row.longitude}
+                    {new Date(params.row.startDate).toLocaleDateString('pt-BR')}
                 </Box>
             ),
         },
         {
-            field: 'descricao',
-            headerName: 'Descrição',
+            field: 'endDate',
+            headerName: 'Data de Término',
+            width: 240,
+            renderCell: (params) => (
+                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {new Date(params.row.endDate).toLocaleDateString('pt-BR')}
+                </Box>
+            ),
+        },
+        {
+            field: 'building',
+            headerName: 'Nome do Prédio',
             width: 300,
+            renderCell: (params) => {
+                if (params.row.building) {
+                    return (
+                        <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {params.row.building.name}
+                        </Box>
+                    );
+                } else {
+                    return (
+                        <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            Sem Vínculo
+                        </Box>
+                    )
+                }
+
+                return null;
+            }
         }
     ];
 
 
+    console.log(contratos)
 
     return (
         <StyledMainContainer>
-            <EditModal edit={edit} modalEdit={modalEdit} handleChangeModalEdit={() => setModalEdit(!modalEdit)} />
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
-                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Empresas</h1>
+                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Contrato</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                         <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
                     </Box>
@@ -85,9 +112,9 @@ export default function ListagemEmpresas() {
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
                             <GoDownload size={25} color='#635D77' />
                         </Button>
-                        <Button href="/locais/empresa/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
+                        <Button href="/contrato/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
-                            Cadastrar Empresa
+                            Cadastrar Contrato
                         </Button>
                     </Box>
                 </Box>
@@ -112,7 +139,7 @@ export default function ListagemEmpresas() {
                     )
                 }
                 <DataGrid
-                    rows={rows}
+                    rows={contratos}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

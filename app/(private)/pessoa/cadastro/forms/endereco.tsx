@@ -112,7 +112,6 @@ export default function FormEndereco() {
                                     helperText={errors.addresses?.[index]?.postalCode?.message}
                                     className="w-[33%]"
                                     sx={formTheme}
-                                    required
                                 />
                             )}
                         />
@@ -145,7 +144,6 @@ export default function FormEndereco() {
                                     helperText={errors.addresses?.[index]?.address?.message}
                                     className="w-[33%]"
                                     sx={formTheme}
-                                    required
                                 />
                             )}
                         />
@@ -161,7 +159,6 @@ export default function FormEndereco() {
                                     helperText={errors.addresses?.[index]?.number?.message}
                                     className="w-[33%]"
                                     sx={formTheme}
-                                    required
                                 />
                             )}
                         />
@@ -196,7 +193,6 @@ export default function FormEndereco() {
                                     helperText={errors.addresses?.[index]?.district?.message}
                                     className="w-[40%]"
                                     sx={formTheme}
-                                    required
                                 />
                             )}
                         />
@@ -212,7 +208,6 @@ export default function FormEndereco() {
                                     helperText={errors.addresses?.[index]?.city?.message}
                                     className="w-[40%]"
                                     sx={formTheme}
-                                    required
                                 />
                             )}
                         />
@@ -228,7 +223,6 @@ export default function FormEndereco() {
                                     helperText={errors.addresses?.[index]?.state?.message}
                                     className="w-[20%]"
                                     sx={formTheme}
-                                    required
                                 />
                             )}
                         />

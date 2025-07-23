@@ -85,7 +85,6 @@ export default function FormTelefones() {
                                 helperText={errors.phones?.[index]?.phoneNumber?.message}
                                 className="w-full"
                                 sx={formTheme}
-                                required
                             />
                         )}
                     />

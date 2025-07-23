@@ -101,7 +101,6 @@ export default function ListagemPessoa() {
         }
     ];
 
-    console.log(usuarios)
     return (
         <StyledMainContainer>
 

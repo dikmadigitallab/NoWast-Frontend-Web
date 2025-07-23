@@ -5,13 +5,11 @@ import api from "../../api";
 import { useSectionStore } from "@/app/store/renderSection";
 
 export const useCreateTelefone = () => {
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { setSection } = useSectionStore();
 
     const createTelefone = async (telefone: any) => {
-
         setError(null);
         setLoading(true);
 
@@ -19,20 +17,22 @@ export const useCreateTelefone = () => {
 
         if (!authToken) {
             setError("Token de autenticação não encontrado");
-            Logout()
+            Logout();
             return;
         }
 
         try {
+            const telefones = telefone.phones ? telefone.phones : [telefone];
+            const telefonesValidos = telefones.filter((t: any) => typeof t === "object" && Object.keys(t).length > 0);
 
-            const telefones = telefone.phones.map((telefone: any) =>
-                typeof telefone === "object" ? telefone : {}
-            );
+            if (telefonesValidos.length === 0) {
+                throw new Error("Nenhum telefone válido fornecido");
+            }
 
-            const promises = telefones.map((telefone: any) =>
+            const promises = telefonesValidos.map((telefone: any) =>
                 api.post("/phone", telefone, {
                     headers: {
-                        Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                        Authorization: `Bearer ${authToken.split("=")[1]}`,
                         "Content-Type": "application/json",
                     },
                 })
@@ -40,7 +40,7 @@ export const useCreateTelefone = () => {
 
             await Promise.all(promises);
 
-            toast.success("Telefone criado com sucesso");
+            toast.success(telefonesValidos.length > 1 ? "Telefones criados com sucesso" : "Telefone criado com sucesso");
             setLoading(false);
             setSection(4);
         } catch (error) {

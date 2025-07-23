@@ -3,15 +3,15 @@ import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
 import api from "../../api";
 import { useRouter } from "next/navigation";
+import { useSectionStore } from "@/app/store/renderSection";
 
 export const useCreateEmail = () => {
-
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { setSection } = useSectionStore();
 
     const createEmail = async (email: any) => {
-
         setError(null);
         setLoading(true);
 
@@ -19,20 +19,25 @@ export const useCreateEmail = () => {
 
         if (!authToken) {
             setError("Token de autenticação não encontrado");
-            Logout()
+            Logout();
             return;
         }
 
         try {
+            // Verifica se email tem a propriedade emails (para compatibilidade)
+            const emails = email.emails ? email.emails : [email];
 
-            const emails = email.emails.map((email: any) =>
-                typeof email === "object" ? email : {}
-            );
+            // Filtra apenas objetos válidos
+            const emailsValidos = emails.filter((e: any) => typeof e === "object" && Object.keys(e).length > 0);
 
-            const promises = emails.map((email: any) =>
+            if (emailsValidos.length === 0) {
+                throw new Error("Nenhum e-mail válido fornecido");
+            }
+
+            const promises = emailsValidos.map((email: any) =>
                 api.post("/email", email, {
                     headers: {
-                        Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                        Authorization: `Bearer ${authToken.split("=")[1]}`,
                         "Content-Type": "application/json",
                     },
                 })
@@ -40,10 +45,12 @@ export const useCreateEmail = () => {
 
             await Promise.all(promises);
 
-            toast.success("Endereço criado com sucesso");
+            toast.success(emailsValidos.length > 1 ? "E-mails criados com sucesso" : "E-mail criado com sucesso");
             setLoading(false);
+
             setTimeout(() => {
-                router.back();
+                setSection(1);
+                router.push("/pessoa/listagem");
             }, 1000);
 
         } catch (error) {

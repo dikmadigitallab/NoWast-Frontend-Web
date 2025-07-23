@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 interface GetIDStore {
-    id: string | number | null;
+    id: string | number | null | any;
     setId: (id: number | string) => void;
 }
 
