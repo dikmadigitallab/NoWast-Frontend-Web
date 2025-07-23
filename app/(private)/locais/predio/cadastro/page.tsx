@@ -37,7 +37,8 @@ export default function CadastroPredio() {
     });
 
     const { createPredio, loading } = useCreatePredio();
-    const { data: contratos } = useGetContratos();
+    const { data: contratos } = useGetContratos(true);
+    console.log(contratos)
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -140,14 +141,14 @@ export default function CadastroPredio() {
                 </Box>
 
                 <FormControl fullWidth error={!!errors.contract}>
-                    <InputLabel id="contract-label">Empresa</InputLabel>
+                    <InputLabel id="contract-label">Contrato</InputLabel>
                     <Controller
                         name="contract.connect.id"
                         control={control}
                         render={({ field }) => (
                             <Select
                                 labelId="contract-label"
-                                label="Empresa"
+                                label="Contrato"
                                 value={field.value || ""}
                                 onChange={handleCompanyChange}
                                 error={!!errors.contract}

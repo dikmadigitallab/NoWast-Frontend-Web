@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetItems } from "@/app/hooks/items/get";
 import { useCreatePessoa } from "@/app/hooks/pessoas/pessoa/create";
-import { useGetContrato } from "@/app/hooks/contrato/get";
+import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetCargo } from "@/app/hooks/positions/get";
 
 const userSchema = z.object({
@@ -94,7 +94,7 @@ export default function EditarPessoa() {
     const { data: equipamentos } = useGetItems('tools');
     const { data: produtos } = useGetItems('product');
     const { data: transportes } = useGetItems('transport');
-    const { data: contratos } = useGetContrato();
+    const { data: contratos } = useGetContratos();
     const { data: cargos } = useGetCargo();
     const { createPessoa } = useCreatePessoa();
 

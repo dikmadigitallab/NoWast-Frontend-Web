@@ -3,14 +3,16 @@
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
-export const useGetContratos = (withoutBuildings?: boolean) => {
+export const useGetOne = (url: string) => {
 
+    const { id } = useGetIDStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
-    const getContrato = async () => {
+    const getOne = async () => {
         setError(null);
         setLoading(true);
 
@@ -24,29 +26,34 @@ export const useGetContratos = (withoutBuildings?: boolean) => {
         }
 
         try {
-            const response = await api.get<any>(`/contract?disablePagination=true&withoutBuildings=${withoutBuildings}`, {
+            const response = await api.get<any>(`/${url}/${id}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setData(response.data.data.items);
+            console.log(response.data.data);
+            setData(response.data.data);
         } catch (error) {
-            setError("Erro ao buscar contratos");
+            setError("Erro na busca");
+            if (error instanceof Error) {
+                console.error(error.message);
+            }
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        getContrato();
-    }, []);
+        if (id) getOne();
+    }, [id]);
 
     return {
-        getContrato,
+        getOne,
         loading,
         error,
-        data
+        data,
+        setData
     };
 };

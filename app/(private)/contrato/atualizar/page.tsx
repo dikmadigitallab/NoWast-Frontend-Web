@@ -9,39 +9,42 @@ import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetEmpresa } from "@/app/hooks/empresa/get";
-import { useCreateContrato } from "@/app/hooks/contrato/create";
+import { useGetOne } from "@/app/hooks/global/getOneById";
 
 const contractSchema = z.object({
     name: z.string().min(1, "Nome do contrato é obrigatório"),
     startDate: z.string().min(1, "Data de início é obrigatória"),
     endDate: z.string().min(1, "Data de término é obrigatória"),
-    company: z.object({
-        connect: z.object({
-            id: z.number().min(1, "Selecione uma empresa"),
-        }),
-    })
+    companyId: z.number().min(1, "Selecione uma empresa"),
+    building: z.object({
+        id: z.number().optional(),
+        name: z.string().min(1, "Nome do edifício é obrigatório"),
+        description: z.string().min(1, "Descrição é obrigatória"),
+        radius: z.number().min(1, "Raio é obrigatório"),
+        latitude: z.string().min(1, "Latitude é obrigatória"),
+        longitude: z.string().min(1, "Longitude é obrigatória"),
+    }).optional(),
     // users: z.array(
     //     z.object({
     //         connect: z.object({
     //             id: z.number().min(1, "Selecione pelo menos um usuário"),
     //         }),
-    //     })
-    // ).min(1, "Selecione pelo menos um usuário"),
+    //     })).min(1, "Selecione pelo menos um usuário").optional()
 });
 
 type ContractFormValues = z.infer<typeof contractSchema>;
 
-export default function CadastroContrato() {
-
-    const { control, handleSubmit, formState: { errors, isValid }, watch, setValue } = useForm<ContractFormValues>({
+export default function EditContrato() {
+    const { control, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<ContractFormValues>({
         resolver: zodResolver(contractSchema),
         defaultValues: {
             name: "",
             startDate: "",
             endDate: "",
-            company: { connect: { id: 0 } },
+            companyId: 0,
+            building: undefined,
             // users: [],
         },
         mode: "onChange",
@@ -50,8 +53,8 @@ export default function CadastroContrato() {
     const router = useRouter();
     // const { users: usuarios } = useGetUsers();
     const { data: empresas } = useGetEmpresa("company");
-    const { create, loading } = useCreateContrato()
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { data, loading } = useGetOne('contract');
 
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
@@ -66,32 +69,42 @@ export default function CadastroContrato() {
     };
 
     const handleCompanyChange = (event: any) => {
-        setValue("company.connect.id", event.target.value, { shouldValidate: true });
+        setValue("companyId", event.target.value, { shouldValidate: true });
     };
 
-    // const handleUsersChange = (event: any) => {
-    //     const selectedIds = event.target.value;
-    //     const idsArray = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
-    //     setValue(
-    //         "users",
-    //         idsArray.map(id => ({ connect: { id } })),
-    //         { shouldValidate: true }
-    //     );
-    // };
+    const handleUsersChange = (event: any) => {
+        console.log(event.target.value);
+        // const selectedIds = event.target.value;
+        // const idsArray = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
+        // setValue("users", idsArray, { shouldValidate: true });
+    };
 
-    // const selectedUserIds = watch("users")?.map(user => user.connect.id) || [];
+
+    // const selectedUserIds = watch("users") || [];
 
     const onSubmit = (data: ContractFormValues) => {
-        const startDateFormated = new Date(data.startDate).toISOString();
-        const endDateFormated = new Date(data.endDate).toISOString();
-
-        create({
-            ...data,
-            startDate: startDateFormated,
-            endDate: endDateFormated,
-        });
+        console.log(data)
     };
 
+    useEffect(() => {
+        if (data) {
+            console.log('Dados recebidos:', data);
+            const startDate = data.startDate ? data.startDate.split('T')[0] : '';
+            const endDate = data.endDate ? data.endDate.split('T')[0] : '';
+
+            const formData = {
+                name: data.name,
+                startDate,
+                endDate,
+                companyId: data.companyId,
+                building: data.building || undefined,
+                // users: data.users?.map((user: any) => user.id) || [],
+            };
+
+            console.log('Dados do formulário a serem resetados:', formData);
+            reset(formData);
+        }
+    }, [data, reset]);
 
     return (
         <StyledMainContainer>
@@ -99,7 +112,7 @@ export default function CadastroContrato() {
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Contrato</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
+                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Edição</h1>
                 </Box>
 
                 <Box className="w-[100%] flex flex-col gap-5">
@@ -156,18 +169,21 @@ export default function CadastroContrato() {
                         />
                     </Box>
 
-                    <FormControl fullWidth error={!!errors.company}>
+                    <FormControl fullWidth error={!!errors.companyId}>
                         <InputLabel id="company-label">Empresa</InputLabel>
                         <Controller
-                            name="company.connect.id"
+                            name="companyId"
                             control={control}
                             render={({ field }) => (
                                 <Select
                                     labelId="company-label"
                                     label="Empresa"
                                     value={field.value || ""}
-                                    onChange={handleCompanyChange}
-                                    error={!!errors.company}
+                                    onChange={(e) => {
+                                        field.onChange(e.target.value);
+                                        handleCompanyChange(e);
+                                    }}
+                                    error={!!errors.companyId}
                                 >
                                     {empresas?.map((company: any) => (
                                         <MenuItem key={company.id} value={company.id}>
@@ -177,12 +193,98 @@ export default function CadastroContrato() {
                                 </Select>
                             )}
                         />
-                        {errors.company && (
+                        {errors.companyId && (
                             <p className="text-red-500 text-xs mt-1">
-                                {errors.company.connect?.id?.message}
+                                {errors.companyId.message}
                             </p>
                         )}
                     </FormControl>
+
+                    {watch("building") && (
+                        <>
+                            <Controller
+                                name="building.name"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField
+                                        variant="outlined"
+                                        label="Nome do Edifício"
+                                        {...field}
+                                        error={!!errors.building?.name}
+                                        helperText={errors.building?.name?.message}
+                                        sx={formTheme}
+                                    />
+                                )}
+                            />
+
+                            <Controller
+                                name="building.description"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField
+                                        variant="outlined"
+                                        label="Descrição do Edifício"
+                                        {...field}
+                                        error={!!errors.building?.description}
+                                        helperText={errors.building?.description?.message}
+                                        sx={formTheme}
+                                    />
+                                )}
+                            />
+
+                            <Box className="flex gap-5">
+                                <Controller
+                                    name="building.radius"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField
+                                            variant="outlined"
+                                            label="Raio (metros)"
+                                            type="number"
+                                            {...field}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                            error={!!errors.building?.radius}
+                                            helperText={errors.building?.radius?.message}
+                                            sx={formTheme}
+                                            className="w-full"
+                                        />
+                                    )}
+                                />
+
+                                <Controller
+                                    name="building.latitude"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField
+                                            variant="outlined"
+                                            label="Latitude"
+                                            {...field}
+                                            error={!!errors.building?.latitude}
+                                            helperText={errors.building?.latitude?.message}
+                                            sx={formTheme}
+                                            className="w-full"
+                                        />
+                                    )}
+                                />
+
+                                <Controller
+                                    name="building.longitude"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField
+                                            variant="outlined"
+                                            label="Longitude"
+                                            {...field}
+                                            error={!!errors.building?.longitude}
+                                            helperText={errors.building?.longitude?.message}
+                                            sx={formTheme}
+                                            className="w-full"
+                                        />
+                                    )}
+                                />
+                            </Box>
+                        </>
+                    )}
 
                     {/* <FormControl fullWidth error={!!errors.users}>
                         <InputLabel id="users-label">Usuários</InputLabel>
@@ -198,7 +300,7 @@ export default function CadastroContrato() {
                                     onChange={handleUsersChange}
                                     renderValue={(selected) => (
                                         <div className="flex flex-wrap gap-1">
-                                            {(selected as number[]).map((id) => (
+                                            {(selected as any[]).map((id) => (
                                                 <span key={id} className="bg-gray-100 px-2 py-1 rounded">
                                                     {usuarios?.data?.items.find((user: any) => user.id === id)?.person.name}
                                                 </span>
@@ -232,7 +334,7 @@ export default function CadastroContrato() {
                         sx={[buttonTheme, { alignSelf: "end" }]}
                         disabled={loading}
                     >
-                        {loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}
+                        {loading ? <CircularProgress size={24} color="inherit" /> : "Atualizar"}
                     </Button>
                 </Box>
             </form>
@@ -247,7 +349,7 @@ export default function CadastroContrato() {
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">
-                            Deseja realmente cancelar esse cadastro? Todos os dados serão perdidos.
+                            Deseja realmente cancelar a edição? Todas as alterações serão perdidas.
                         </p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>

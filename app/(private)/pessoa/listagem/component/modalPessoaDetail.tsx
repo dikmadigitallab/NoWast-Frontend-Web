@@ -3,7 +3,6 @@ import { IoMdClose } from "react-icons/io";
 
 export default function DetailModal({ modalDetail, handleChangeModalDetail }: any) {
 
-    console.log('modalDetail', modalDetail)
     if (!modalDetail) return null;
 
     const {

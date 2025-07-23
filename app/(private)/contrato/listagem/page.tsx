@@ -12,17 +12,21 @@ import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { useGetContratos } from '@/app/hooks/contrato/get';
 import { ptBR } from '@mui/x-data-grid/locales';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import { useRouter } from 'next/navigation';
 
 export default function ListagemEmpresas() {
 
-    const [edit, setEdit] = useState<any | null>(null);
-    const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
     const { data: contratos } = useGetContratos();
+    const { setId } = useGetIDStore()
+    const router = useRouter();
 
-    const handleChangeModalEdit = (data: any) => {
-        setEdit(data);
-        setModalEdit(!modalEdit);
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/contrato/atualizar`);
+        }, 500)
     }
 
     const columns: GridColDef<any>[] = [
@@ -34,7 +38,7 @@ export default function ListagemEmpresas() {
             filterable: false,
             disableColumnMenu: true,
             renderCell: (params) => (
-                <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
                     <MdOutlineModeEditOutline color='#635D77' />
                 </IconButton>
             ),
@@ -93,8 +97,6 @@ export default function ListagemEmpresas() {
         }
     ];
 
-
-    console.log(contratos)
 
     return (
         <StyledMainContainer>
