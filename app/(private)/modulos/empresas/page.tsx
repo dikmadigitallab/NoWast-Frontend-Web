@@ -1,10 +1,10 @@
 "use client";
 
 import Header from "@/app/components/userHeader";
+import { useSelectModule } from "@/app/store/isSelectModule";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { Box, Button } from "@mui/material";
-import { IoIosCloseCircleOutline } from "react-icons/io";
 
 interface Empresa {
     id: number;
@@ -14,6 +14,13 @@ interface Empresa {
 }
 
 export default function Empresas() {
+
+    const { SetisSelectModule } = useSelectModule();
+
+    const redirect = () => {
+        window.location.href = 'dashboard/atividades';
+        SetisSelectModule(true);
+    }
 
     const empresas: Empresa[] = [
         {
@@ -61,6 +68,7 @@ export default function Empresas() {
                                 {empresa.name} é uma empresa parceira que busca excelência e inovação em seus processos. Clique para saber mais.
                             </span>
                             <Button
+                                onClick={redirect}
                                 disabled={empresa.status === "inativo"}
                                 sx={[buttonTheme, { width: "100%" }]}
                                 variant="contained"

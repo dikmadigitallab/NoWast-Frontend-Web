@@ -6,7 +6,12 @@ import { GrUserAdmin } from "react-icons/gr";
 import { FiBox, FiUser } from 'react-icons/fi';
 import { BsBuildings } from 'react-icons/bs';
 
-type SubItem = { icon?: React.ComponentType<{ className?: string; color?: string; size?: number }>; name: string; href: string };
+type SubItem = {
+    icon?: React.ComponentType<{ className?: string; color?: string; size?: number }>;
+    name: string;
+    href: string;
+    subItems?: SubItem[]; // permite subitens aninhados
+};
 
 type NavItem = {
     name: string;
@@ -14,6 +19,7 @@ type NavItem = {
     icon: React.ComponentType<{ className?: string; color?: string; size?: number }>;
     subItems?: SubItem[];
 };
+
 
 export const DEFAULT: NavItem[] = [
     {
@@ -47,14 +53,14 @@ export const ADM_DIKMA: NavItem[] = [
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
         ]
     },
-    {
-        name: 'Negócios',
-        icon: FaRegBuilding,
-        subItems: [
-            { icon: FaRegCircle, name: 'Empresa', href: '/empresa/listagem' },
-            { icon: FaRegCircle, name: 'Contrato', href: '/contrato/listagem' },
-        ]
-    },
+    // {
+    //     name: 'Negócios',
+    //     icon: FaRegBuilding,
+    //     subItems: [
+    //         { icon: FaRegCircle, name: 'Empresa', href: '/empresa/listagem' },
+    //         { icon: FaRegCircle, name: 'Contrato', href: '/contrato/listagem' },
+    //     ]
+    // },
     {
         name: 'Itens',
         icon: FiBox,
@@ -169,13 +175,20 @@ export const GESTAO: NavItem[] = [
     },
 ];
 
-export const DIKMA_DIRETORIA: NavItem[] = [
+export const DIKMA_DIRECTOR: NavItem[] = [
     {
         name: 'Início', href: '/',
         icon: IoHomeOutline,
         subItems: [
-            { icon: FaRegCircle, name: 'Módulos', href: '/' },
+            { icon: FaRegCircle, name: 'Módulos', href: '/' }
+        ]
+    },
+    {
+        name: "Unidades",
+        icon: FaRegBuilding,
+        subItems: [
             { icon: FaRegCircle, name: 'Empresas', href: '/modulos/empresas' },
+            { icon: FaRegCircle, name: 'Prédios', href: '/modulos/predios' },
         ]
     },
     {

@@ -91,7 +91,7 @@ export default function Atividades() {
     "todos",
     "Coqueria",
     "Sinterização",
-    "Auto Forno"
+    "Alto Forno"
   ];
 
   const [isClient, setIsClient] = useState(false);

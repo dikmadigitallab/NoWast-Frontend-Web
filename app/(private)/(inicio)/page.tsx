@@ -1,6 +1,7 @@
 "use client";
 
 import UserHeader from "@/app/components/userHeader";
+import { useSelectModule } from "@/app/store/isSelectModule";
 import { useAuthStore } from "@/app/store/storeApp";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
@@ -16,15 +17,18 @@ interface Module {
 export default function Home() {
 
   const { userType } = useAuthStore();
+  const { SetisSelectModule } = useSelectModule();
 
   const redirect = (module: number) => {
     if (module === 1) {
       if (userType === 'GESTAO') {
         window.location.href = 'modulos/predios';
-      } else if (userType === 'DIKMA_DIRETORIA') {
+        SetisSelectModule(true);
+      } else if (userType === 'DIKMA_DIRECTOR') {
         window.location.href = 'modulos/empresas';
       } else if (userType === 'Admin') {
         window.location.href = 'dashboard/atividades';
+        SetisSelectModule(true);
       }
     }
   }
@@ -40,7 +44,7 @@ export default function Home() {
       id: 2,
       name: "SDO",
       image: "https://images.pexels.com/photos/247763/pexels-photo-247763.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      status: "ativo"
+      status: "inativo"
     },
     {
       id: 3,

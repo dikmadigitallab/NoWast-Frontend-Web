@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/app/components/userHeader";
+import { useSelectModule } from "@/app/store/isSelectModule";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { Box, Button } from "@mui/material";
@@ -13,6 +14,13 @@ interface Predio {
 }
 
 export default function Predios() {
+
+    const { SetisSelectModule } = useSelectModule();
+
+    const redirect = () => {
+        window.location.href = 'dashboard/atividades';
+        SetisSelectModule(true);
+    }
 
     const predios: Predio[] = [
         {
@@ -29,7 +37,7 @@ export default function Predios() {
         },
         {
             id: 3,
-            name: "Auto Forno",
+            name: "Alto-Forno",
             image: "https://images.pexels.com/photos/3730670/pexels-photo-3730670.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
             status: "ativo"
         }
@@ -59,6 +67,7 @@ export default function Predios() {
                                 O prédio {predio.name} é fundamental no processo industrial. Clique para saber mais e acessar detalhes operacionais.
                             </span>
                             <Button
+                                onClick={redirect}
                                 disabled={predio.status === "inativo"}
                                 sx={[buttonTheme, { width: "100%" }]}
                                 variant="contained"

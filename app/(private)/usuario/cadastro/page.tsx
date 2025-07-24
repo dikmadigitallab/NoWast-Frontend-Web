@@ -18,7 +18,10 @@ import { useGetCargo } from "@/app/hooks/positions/get";
 
 const userSchema = z.object({
     password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres" }),
-    userType: z.enum(["DIRETORIA_DIKMA", "GESTAO_DIKMA", "ADM_DIKMA", "ADM_CLIENTE", "OPERACAO"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
+    userType: z.enum(
+        ["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"],
+        { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }
+    ),
     email: z.string().email({ message: "Email inválido" }),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     status: z.enum(["ACTIVE", "INACTIVE"], {
@@ -245,11 +248,11 @@ export default function CadastroPessoa() {
                                     value={field.value || ""}
                                 >
                                     <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="DIRETORIA_DIKMA">Diretoria Dikma</MenuItem>
-                                    <MenuItem value="GESTAO_DIKMA">Gestão Dikma</MenuItem>
-                                    <MenuItem value="ADM_DIKMA">Adm Dikma</MenuItem>
-                                    <MenuItem value="ADM_CLIENTE">Adm Cliente</MenuItem>
-                                    <MenuItem value="OPERACAO">Operação</MenuItem>
+                                    <MenuItem value="DIKMA_ADMINISTRATOR">Administrador Dikma</MenuItem>
+                                    <MenuItem value="CONTRACT_MANAGER">Gestor de Contrato</MenuItem>
+                                    <MenuItem value="DIKMA_DIRECTOR">Diretor Dikma</MenuItem>
+                                    <MenuItem value="CLIENT_ADMINISTRATOR">Administrador de Cliente</MenuItem>
+                                    <MenuItem value="OPERATIONAL">Operacional</MenuItem>
                                 </Select>
                                 <FormHelperText>{errors.userType?.message}</FormHelperText>
                             </FormControl>
