@@ -21,10 +21,9 @@ export const useLogin = () => {
             const response = await api.post('/auth', { email, password });
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
 
-            // setUserType(response.data.data.user.person.name);
-            setUserType("GESTAO");
             setId(response.data.data.user.id);
             setEmail(response.data.data.user.email);
+            setUserType(response.data.data.user.person.name);
             setDocumento(response.data.data.user.person.document);
 
             toast.success("Login realizado com sucesso!");
