@@ -16,7 +16,7 @@ const pessoaSchema = z.object({
     birthDate: z.string().nullable().refine(val => !val || !isNaN(Date.parse(val)), {
         message: "Por favor, insira uma data válida"
     }),
-    gender: z.string().nullable().refine(val => !val || ["MASCULINO", "FEMININO", "OUTRO", "PREFIRO_NÃO_INFORMAR"].includes(val), {
+    gender: z.string().nullable().refine(val => !val || ["MALE", "FEMALE", "OUTRO", "PREFIRO_NÃO_INFORMAR"].includes(val), {
         message: "Por favor, selecione um gênero válido"
     }),
     personType: z.string().min(1, "Por favor, selecione o tipo de pessoa").nullable()
@@ -52,7 +52,12 @@ export default function FormPessoas() {
     const { createPessoa, loading } = useCreatePessoa();
 
     const onSubmit = (data: UserFormValues) => {
-        createPessoa(data);
+        const formattedData = {
+            ...data,
+            birthDate: data.birthDate ? new Date(data.birthDate).toISOString() : null
+        };
+        createPessoa(formattedData);
+
     }
 
     return (
@@ -195,10 +200,9 @@ export default function FormPessoas() {
                                 value={field.value ?? ""}
                                 error={!!errors.gender}
                             >
-                                <MenuItem value="MASCULINO">Masculino</MenuItem>
-                                <MenuItem value="FEMININO">Feminino</MenuItem>
+                                <MenuItem value="MALE">Masculino</MenuItem>
+                                <MenuItem value="FEMALE">Feminino</MenuItem>
                                 <MenuItem value="OUTRO">Outro</MenuItem>
-                                <MenuItem value="PREFIRO_NÃO_INFORMAR">Prefiro não informar</MenuItem>
                             </Select>
                             {errors.gender && (
                                 <FormHelperText>Por favor, selecione um gênero válido</FormHelperText>

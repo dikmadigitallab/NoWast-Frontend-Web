@@ -9,7 +9,7 @@ import { useGetEmpresa } from "@/app/hooks/empresa/get";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 
 const empresaSchema = z.object({
-    acronym: z.string().min(1, "Sigla é obrigatória").max(10, "Sigla muito longa"),
+    acronym: z.string().min(1, "Sigla é obrigatória"),
     description: z.string().min(1, "Descrição é obrigatória"),
     person: z.object({ connect: z.object({ id: z.number().int().min(1, "ID da pessoa é obrigatório") }) }),
     businessSector: z.object({
@@ -63,7 +63,7 @@ export default function FormEmpresa() {
                     render={({ field }) => (
                         <TextField
                             variant="outlined"
-                            label="Sigla"
+                            label="Nome completo/Razão Social"
                             {...field}
                             error={!!errors.acronym}
                             helperText={errors.acronym?.message}

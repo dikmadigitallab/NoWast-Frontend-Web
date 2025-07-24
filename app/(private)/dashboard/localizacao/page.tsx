@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
+import { MdKeyboardDoubleArrowDown, MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
 import ReverceChart from '../components/reverseBar';
 import { useAuthStore } from '@/app/store/storeApp';
 
@@ -137,24 +137,21 @@ export default function Atividades() {
             </Select>
           </FormControl>
 
-          {
-            isClient && userType === 'DIKMA_DIRETORIA' &&
-            <FormControl sx={formTheme} className="w-[23%]">
-              <InputLabel>Empresa</InputLabel>
-              <Select
-                label="Empresa"
-                name="empresa"
-                value={filters?.empresa}
-                onChange={handleFilterChange}
-              >
-                {empresaOptions?.map(option => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          }
+          <FormControl sx={formTheme} className="w-[23%]">
+            <InputLabel>Empresa</InputLabel>
+            <Select
+              label="Empresa"
+              name="empresa"
+              value={filters?.empresa}
+              onChange={handleFilterChange}
+            >
+              {empresaOptions?.map(option => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
           <FormControl sx={formTheme} className="w-[23%]">
             <InputLabel>Prédio</InputLabel>
@@ -206,7 +203,7 @@ export default function Atividades() {
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
               <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#FFF3E8] rounded-full">
-                <MdOutlineKeyboardDoubleArrowUp size={30} color='#FF9F43' />
+                <MdKeyboardDoubleArrowDown size={30} color='#FF9F43' />
               </Box>
               <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
             </Box>
@@ -256,7 +253,7 @@ export default function Atividades() {
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
               <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#FFF3E8] rounded-full">
-                <MdOutlineKeyboardDoubleArrowUp size={30} color='#FF9F43' />
+                <MdKeyboardDoubleArrowDown size={30} color='#FF9F43' />
               </Box>
               <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
             </Box>
@@ -306,7 +303,7 @@ export default function Atividades() {
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
               <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#FFF3E8] rounded-full">
-                <MdOutlineKeyboardDoubleArrowUp size={30} color='#FF9F43' />
+                <MdKeyboardDoubleArrowDown size={30} color='#FF9F43' />
               </Box>
               <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
             </Box>

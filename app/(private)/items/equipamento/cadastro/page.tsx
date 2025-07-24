@@ -9,7 +9,6 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useGetPredio } from "@/app/hooks/locais/predio/get";
 import { useCreateItem } from "@/app/hooks/items/create";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 
@@ -25,7 +24,6 @@ export default function CadastroEquipamento() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
-    const { predio } = useGetPredio();
     const { createItem } = useCreateItem("tools");
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -87,7 +85,7 @@ export default function CadastroEquipamento() {
                                     <MenuItem value="" disabled>
                                         Clique e selecione...
                                     </MenuItem>
-                                    {pessoas?.data.items.map((person: any) => (
+                                    {pessoas?.map((person: any) => (
                                         <MenuItem key={person.id} value={person.id}>
                                             {person.name}
                                         </MenuItem>
