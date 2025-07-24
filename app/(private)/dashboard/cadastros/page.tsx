@@ -92,6 +92,7 @@ export default function Atividades() {
     useEffect(() => {
         setIsClient(true);
     }, []);
+    
     return (
         <StyledMainContainer style={{ background: "#f8f8f8" }}>
 
@@ -129,24 +130,21 @@ export default function Atividades() {
                         </Select>
                     </FormControl>
 
-                    {
-                        isClient && userType === 'DIKMA_DIRETORIA' &&
-                        <FormControl sx={formTheme} className="w-[16%]">
-                            <InputLabel>Empresa</InputLabel>
-                            <Select
-                                label="Empresa"
-                                name="empresa"
-                                value={filters.empresa}
-                                onChange={handleFilterChange}
-                            >
-                                {empresaOptions.map(option => (
-                                    <MenuItem key={option} value={option}>
-                                        {option}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    }
+                    <FormControl sx={formTheme} className="w-[16%]">
+                        <InputLabel>Empresa</InputLabel>
+                        <Select
+                            label="Empresa"
+                            name="empresa"
+                            value={filters.empresa}
+                            onChange={handleFilterChange}
+                        >
+                            {empresaOptions.map(option => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
                     <FormControl sx={formTheme} className='w-[16%]'>
                         <InputLabel>Setor</InputLabel>

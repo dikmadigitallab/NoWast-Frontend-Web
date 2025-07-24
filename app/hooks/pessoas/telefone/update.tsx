@@ -37,7 +37,7 @@ export const useUpdatePessoa = () => {
             toast.success("Prédio Atualizado com sucesso");
             setLoading(false);
             setTimeout(() => {
-                router.push('/locais/pessoa/listagem');
+                router.push('/pessoa/listagem');
             }, 1000);
         } catch (error) {
             setLoading(false);

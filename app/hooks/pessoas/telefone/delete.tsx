@@ -33,7 +33,7 @@ export const useDeletePessoa = () => {
             toast.success("Pessoa Empresarial excluído com sucesso");
             setLoading(false);
             setTimeout(() => {
-                router.push('/locais/pessoa/listagem');
+                router.push('/pessoa/listagem');
             }, 1000);
         } catch (error) {
             setLoading(false);

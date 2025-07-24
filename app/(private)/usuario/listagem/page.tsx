@@ -124,9 +124,9 @@ export default function ListagemPessoa() {
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
                             <GoDownload size={25} color='#635D77' />
                         </Button>
-                        <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
+                        <Button href="/usuario/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
-                            Cadastrar Pessoa
+                            Cadastrar Usuário
                         </Button>
                     </Box>
                 </Box>

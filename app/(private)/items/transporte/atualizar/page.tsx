@@ -9,8 +9,6 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useGetPredio } from "@/app/hooks/locais/predio/get";
-import { useGetUsers } from "@/app/hooks/usuarios/get";
 import { useGetOneItem } from "@/app/hooks/items/getOneById";
 import { useUpdateItem } from "@/app/hooks/items/update";
 import { useDeleteItem } from "@/app/hooks/items/delete";
@@ -28,7 +26,6 @@ export default function EditarTransport() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
-    const { predio } = useGetPredio();
     const { data } = useGetOneItem("transport");
     const { updateItem, loading } = useUpdateItem("transport");
     const { deleteItem } = useDeleteItem("transport");
@@ -113,7 +110,7 @@ export default function EditarTransport() {
                                     <MenuItem value="" disabled>
                                         Clique e selecione...
                                     </MenuItem>
-                                    {pessoas?.data.items.map((person: any) => (
+                                    {pessoas?.map((person: any) => (
                                         <MenuItem key={person.id} value={person.id}>
                                             {person.name}
                                         </MenuItem>
