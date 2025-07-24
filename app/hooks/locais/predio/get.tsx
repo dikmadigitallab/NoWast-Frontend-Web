@@ -24,14 +24,14 @@ export const useGetPredio = () => {
         }
 
         try {
-            const response = await api.get<any>("/building", {
+            const response = await api.get<any>("/building?disablePagination=true", {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setPredio(response.data);
+            setPredio(response.data.data.items);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {

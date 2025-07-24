@@ -105,7 +105,7 @@ export default function ListagemPredios() {
                     )
                 }
                 <DataGrid
-                    rows={predio?.data.items || []}
+                    rows={predio || []}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
@@ -116,7 +116,6 @@ export default function ListagemPredios() {
                         },
                     }}
                     pageSizeOptions={[5, 10, 25]}
-                    checkboxSelection
                     disableRowSelectionOnClick
                     sx={{
                         '& .MuiDataGrid-columnHeaders': {

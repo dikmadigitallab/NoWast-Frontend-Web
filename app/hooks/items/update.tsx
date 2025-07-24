@@ -39,7 +39,9 @@ export const useUpdateItem = (url: string) => {
             toast.success(toastMessages.success);
             setData(response.data);
             setLoading(false);
-            router.back()
+            setTimeout(() => {
+                router.back();
+            }, 1000);
         } catch (error) {
             setLoading(false);
             toast.success(toastMessages.error);

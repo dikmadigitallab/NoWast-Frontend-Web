@@ -34,15 +34,16 @@ export const useCreatePredio = () => {
             });
 
             setData(response.data.data);
-            toast.success("Predio Empresarial criado com sucesso");
+            toast.success("Predio criado com sucesso");
             setLoading(false);
             setTimeout(() => {
                 router.push('/locais/predio/listagem');
             }, 1000);
         } catch (error) {
             setLoading(false);
-            setError("Erro ao criar predio empresarial");
-            toast.error("Erro ao criar predio empresarial");
+            const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
+            setError(errorMessage);
+            toast.error(errorMessage);
         }
     };
 

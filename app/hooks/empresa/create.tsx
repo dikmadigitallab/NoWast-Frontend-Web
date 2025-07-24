@@ -1,14 +1,19 @@
 import { toast } from "react-toastify";
 import { useState } from "react";
-import api from "../api";
 import { Logout } from "@/app/utils/logout";
 
-export const useCreateEmpresa = () => {
+import { useSectionStore } from "@/app/store/renderSection";
+import api from "../api";
+import { useRouter } from "next/navigation";
 
+export const useCreateEmpresa = (url: string) => {
+
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { setSection } = useSectionStore();
 
-  const createEmpresa = async (EmpresaData: any) => {
+  const create = async (data: any) => {
 
     setError(null);
     setLoading(true);
@@ -22,19 +27,33 @@ export const useCreateEmpresa = () => {
     }
 
     try {
-      const response = await api.post<any>("/Company", EmpresaData, {
+
+
+      const response = api.post(`/${url}`, data, {
         headers: {
           Authorization: `Bearer ${authToken?.split("=")[1]}`,
           "Content-Type": "application/json",
         },
-      });
+      })
+      console.log(url)
 
-      toast.success("Empresa criada com sucesso");
+      if (url === 'businessSector') {
+        toast.success("BusinessSector criado com sucesso");
+        setSection(2);
+        return
+      } else {
+        toast.success("Empresa criada com sucesso");
+        setTimeout(() => {
+          setSection(1);
+          router.push("/empresa/listagem");
+        }, 1000);
+
+      }
+
       setLoading(false);
-
+      setSection(2);
     } catch (error) {
       setLoading(false);
-      
       const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
       setError(errorMessage);
       toast.error(errorMessage);
@@ -42,7 +61,7 @@ export const useCreateEmpresa = () => {
   };
 
   return {
-    createEmpresa,
+    create,
     loading,
     error,
   };

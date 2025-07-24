@@ -2,6 +2,7 @@ import { MdOutlinePlace } from 'react-icons/md';
 import { RxDashboard } from 'react-icons/rx';
 import { IoHomeOutline, IoNotificationsCircleOutline } from "react-icons/io5";
 import { FaRegBuilding, FaRegCalendar, FaRegCircle } from 'react-icons/fa';
+import { GrUserAdmin } from "react-icons/gr";
 import { FiBox, FiUser } from 'react-icons/fi';
 import { BsBuildings } from 'react-icons/bs';
 
@@ -49,16 +50,11 @@ export const ADM_DIKMA: NavItem[] = [
         ]
     },
     {
-        name: 'Empresa',
-        href: '/locais/empresa/listagem',
+        name: 'Negócios',
         icon: FaRegBuilding,
-    },
-    {
-        name: 'Pessoas',
-        icon: FiUser,
         subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/pessoas/listagem' },
-            { icon: FaRegCircle, name: 'Cadastro', href: '/pessoas/cadastro' }
+            { icon: FaRegCircle, name: 'Empresa', href: '/empresa/listagem' },
+            { icon: FaRegCircle, name: 'Contrato', href: '/contrato/listagem' },
         ]
     },
     {
@@ -90,6 +86,22 @@ export const ADM_DIKMA: NavItem[] = [
     {
         name: 'Notificações', href: '/notificacoes',
         icon: IoNotificationsCircleOutline,
+    },
+    {
+        name: 'Usuário',
+        icon: GrUserAdmin,
+        subItems: [
+            { icon: FaRegCircle, name: 'Listagem', href: '/usuario/listagem' },
+            { icon: FaRegCircle, name: 'Cadastro', href: '/usuario/cadastro' }
+        ]
+    },
+    {
+        name: 'Pessoa',
+        icon: FiUser,
+        subItems: [
+            { icon: FaRegCircle, name: 'Listagem', href: '/pessoa/listagem' },
+            { icon: FaRegCircle, name: 'Cadastro', href: '/pessoa/cadastro' }
+        ]
     },
 ];
 

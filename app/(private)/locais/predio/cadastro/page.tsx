@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Box, Button, Modal, CircularProgress } from "@mui/material";
+import { TextField, Box, Button, Modal, CircularProgress, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,13 +11,14 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreatePredio } from "@/app/hooks/locais/predio/create";
+import { useGetContratos } from "@/app/hooks/contrato/get";
 
 const predioSchema = z.object({
-    id: z.string().min(1, "ID é obrigatório"),
-    nome_predio: z.string().min(1, "Nome do Predio é obrigatório"),
+    name: z.string().min(1, "Nome do Predio é obrigatório"),
     latitude: z.string().min(1, "Latitude é obrigatória"),
     longitude: z.string().min(1, "Longitude é obrigatória"),
-    descricao: z.string().min(1, "Descrição é obrigatória"),
+    description: z.string().min(1, "Descrição é obrigatória"),
+    radius: z.number().int().min(1, "Raio é obrigatório"),
     contract: z.object({
         connect: z.object({
             id: z.number().int().min(1, "ID do contrato é obrigatório")
@@ -29,13 +30,15 @@ type PredioFormValues = z.infer<typeof predioSchema>;
 
 export default function CadastroPredio() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<PredioFormValues>({
+    const { control, handleSubmit, formState: { errors, }, setValue } = useForm<PredioFormValues>({
         resolver: zodResolver(predioSchema),
-        defaultValues: { id: "", nome_predio: "", latitude: "", longitude: "", descricao: "" },
+        defaultValues: { name: "", latitude: "", longitude: "", description: "" },
         mode: "onChange"
     });
 
     const { createPredio, loading } = useCreatePredio();
+    const { data: contratos } = useGetContratos(true);
+    console.log(contratos)
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -52,9 +55,13 @@ export default function CadastroPredio() {
     };
 
     const onSubmit = (data: any) => {
-        console.log(data)
-        // createPredio(data);
+        createPredio(data);
     };
+
+    const handleCompanyChange = (event: any) => {
+        setValue("contract.connect.id", event.target.value, { shouldValidate: true });
+    };
+
 
     return (
         <StyledMainContainer>
@@ -68,42 +75,38 @@ export default function CadastroPredio() {
 
                 <Box className="w-[100%] flex flex-row justify-between gap-2">
                     <Controller
-                        name="id"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="ID#"
-                                {...field}
-                                error={!!errors.id}
-                                helperText={errors.id?.message}
-                                className="w-[10%]"
-                                sx={{
-                                    ...formTheme,
-                                    "& .MuiOutlinedInput-root": {
-                                        backgroundColor: "#00000012",
-                                        borderRadius: "5px"
-                                    }
-                                }}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="nome_predio"
+                        name="name"
                         control={control}
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
                                 label="Nome do Prédio"
                                 {...field}
-                                error={!!errors.nome_predio}
-                                helperText={errors.nome_predio?.message}
+                                error={!!errors.name}
+                                helperText={errors.name?.message}
                                 className="w-[70%]"
                                 sx={formTheme}
                             />
                         )}
                     />
-                    <Box className="w-[20%] flex flex-row justify-between gap-2 ">
+                    <Box className="w-[30%] flex flex-row justify-between gap-2 ">
+                        <Controller
+                            name="radius"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <TextField
+                                    variant="outlined"
+                                    label="Raio m²"
+                                    type="number"
+                                    value={value ?? 0}
+                                    onChange={e => onChange(parseInt(e.target.value, 10))}
+                                    error={!!errors.radius}
+                                    helperText={errors.radius?.message}
+                                    className="w-[50%]"
+                                    sx={formTheme}
+                                />
+                            )}
+                        />
                         <Controller
                             name="latitude"
                             control={control}
@@ -136,9 +139,38 @@ export default function CadastroPredio() {
                         />
                     </Box>
                 </Box>
+
+                <FormControl fullWidth error={!!errors.contract}>
+                    <InputLabel id="contract-label">Contrato</InputLabel>
+                    <Controller
+                        name="contract.connect.id"
+                        control={control}
+                        render={({ field }) => (
+                            <Select
+                                labelId="contract-label"
+                                label="Contrato"
+                                value={field.value || ""}
+                                onChange={handleCompanyChange}
+                                error={!!errors.contract}
+                            >
+                                {contratos?.map((contract: any) => (
+                                    <MenuItem key={contract.id} value={contract.id}>
+                                        {contract.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                    {errors.contract && (
+                        <p className="text-red-500 text-xs mt-1">
+                            {errors.contract.connect?.id?.message}
+                        </p>
+                    )}
+                </FormControl>
+
                 <Box className="w-[100%] flex flex-row justify-between">
                     <Controller
-                        name="descricao"
+                        name="description"
                         control={control}
                         render={({ field }) => (
                             <TextField
@@ -147,8 +179,8 @@ export default function CadastroPredio() {
                                 multiline
                                 rows={10}
                                 {...field}
-                                error={!!errors.descricao}
-                                helperText={errors.descricao?.message}
+                                error={!!errors.description}
+                                helperText={errors.description?.message}
                                 className="w-[100%]"
                                 sx={formTheme}
                             />

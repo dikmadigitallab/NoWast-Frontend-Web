@@ -73,7 +73,6 @@ export default function EditarPredio() {
     };
 
     const onSubmit = (data: any) => {
-        console.log(data)
         // updatePredio(data);
     };
 

@@ -48,7 +48,7 @@ export default function ListagemEquipamento() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="visualizar" size="small" >
+                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalDetail(params.row)} >
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
                     <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
@@ -149,7 +149,6 @@ export default function ListagemEquipamento() {
                         },
                     }}
                     pageSizeOptions={[5, 10, 25]}
-                    checkboxSelection
                     disableRowSelectionOnClick
                     sx={{
                         '& .MuiDataGrid-columnHeaders': {

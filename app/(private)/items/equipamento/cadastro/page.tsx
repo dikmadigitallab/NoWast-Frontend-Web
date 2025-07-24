@@ -10,14 +10,13 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useGetPredio } from "@/app/hooks/locais/predio/get";
-import { useGetUsers } from "@/app/hooks/usuarios/get";
 import { useCreateItem } from "@/app/hooks/items/create";
+import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 
 const equipamentoSchema = z.object({
     name: z.string().min(1, "Nome do Equipamento é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
-    buildingId: z.number().int().min(-999999999, "ID do prédio é obrigatório")
 });
 
 type EquipamentoFormValues = z.infer<typeof equipamentoSchema>;
@@ -25,14 +24,14 @@ type EquipamentoFormValues = z.infer<typeof equipamentoSchema>;
 export default function CadastroEquipamento() {
 
     const router = useRouter();
-    const { users } = useGetUsers();
+    const { data: pessoas } = useGetPessoa();
     const { predio } = useGetPredio();
     const { createItem } = useCreateItem("tools");
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const { control, handleSubmit, setValue, formState: { errors } } = useForm<EquipamentoFormValues>({
         resolver: zodResolver(equipamentoSchema),
-        defaultValues: { name: "", description: "", buildingId: 1, responsibleManager: { connect: { id: 0 } } },
+        defaultValues: { name: "", description: "", responsibleManager: { connect: { id: 0 } } },
         mode: "onChange"
     });
 
@@ -88,9 +87,9 @@ export default function CadastroEquipamento() {
                                     <MenuItem value="" disabled>
                                         Clique e selecione...
                                     </MenuItem>
-                                    {users?.data.items.map((person: any) => (
-                                        <MenuItem key={person.person.id} value={person.person.id}>
-                                            {person.person.name}
+                                    {pessoas?.data.items.map((person: any) => (
+                                        <MenuItem key={person.id} value={person.id}>
+                                            {person.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -99,33 +98,6 @@ export default function CadastroEquipamento() {
                                     <p className="text-red-500 text-xs mt-1">
                                         {errors.responsibleManager.connect.id.message}
                                     </p>
-                                )}
-                            </FormControl>
-                        )}
-                    />
-
-                    <Controller
-                        name="buildingId"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl sx={formTheme} fullWidth error={!!errors.buildingId}>
-                                <InputLabel>Local (ID do Prédio)</InputLabel>
-                                <Select
-                                    label="Local (ID do Prédio)"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>
-                                        Clique e selecione...
-                                    </MenuItem>
-                                    {predio?.data.items.map((building: any) => (
-                                        <MenuItem key={building.id} value={building.id}>
-                                            {building.description}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {errors.buildingId && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.buildingId.message}</p>
                                 )}
                             </FormControl>
                         )}
