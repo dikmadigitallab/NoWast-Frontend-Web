@@ -1,0 +1,27 @@
+# Remove links simbólicos quebrados
+sudo rm -f /etc/nginx/sites-enabled/nowastev2.api.dikmadigital.com.br*
+
+# Cria o arquivo de configuração do Nginx
+sudo bash -c 'cat > /etc/nginx/sites-available/nowastev2.api.dikmadigital.com.br.conf <<EOF
+server {
+    listen 9001;
+    server_name nowastev2.api.dikmadigital.com.br;
+
+    location / {
+        proxy_pass http://189.50.3.3:3308;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF'
+
+# Cria o link simbólico correto
+sudo ln -s /etc/nginx/sites-available/nowastev2.api.dikmadigital.com.br.conf /etc/nginx/sites-enabled/
+
+# Testa a configuração
+sudo nginx -t
+
+# Reinicia o Nginx
+sudo systemctl restart nginx
