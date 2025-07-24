@@ -30,7 +30,7 @@ export const useLogin = () => {
             setDocumento(response.data.data.user.person.document);
 
             toast.success("Login realizado com sucesso!");
-
+            console.log(response.data.data.user)
             if (response.data.data.user.person.name === "Admin") {
                 setTimeout(() => {
                     redirect("/dashboard/atividades");

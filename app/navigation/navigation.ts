@@ -29,7 +29,6 @@ export const ADM_CLIENTE: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
-            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
         ]
     },
 ];
@@ -46,7 +45,6 @@ export const ADM_DIKMA: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
-            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
         ]
     },
     {
@@ -88,19 +86,10 @@ export const ADM_DIKMA: NavItem[] = [
         icon: IoNotificationsCircleOutline,
     },
     {
-        name: 'Usuário',
+        name: 'Pessoas',
         icon: GrUserAdmin,
         subItems: [
             { icon: FaRegCircle, name: 'Listagem', href: '/usuario/listagem' },
-            { icon: FaRegCircle, name: 'Cadastro', href: '/usuario/cadastro' }
-        ]
-    },
-    {
-        name: 'Pessoa',
-        icon: FiUser,
-        subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/pessoa/listagem' },
-            { icon: FaRegCircle, name: 'Cadastro', href: '/pessoa/cadastro' }
         ]
     },
 ];
@@ -116,7 +105,6 @@ export const CLIENTE_DIKMA: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
-            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
         ]
     },
     {
@@ -169,7 +157,6 @@ export const GESTAO: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
-            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
         ]
     },
     {
@@ -197,7 +184,6 @@ export const DIKMA_DIRETORIA: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
-            { icon: FaRegCircle, name: 'Cadastros', href: '/dashboard/cadastros' },
         ]
     },
     {

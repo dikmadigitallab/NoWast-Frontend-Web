@@ -41,13 +41,23 @@ export default function ListagemPredios() {
             width: 80
         },
         {
-            field: 'description',
+            field: 'name',
             headerName: 'Nome do Prédio',
             width: 180,
         },
         {
-            field: 'raio',
+            field: 'radius',
             headerName: 'Raio',
+            width: 180,
+              renderCell: (params) => (
+                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {params.row.radius} m
+                </Box>
+            ),
+        },
+        {
+            field: 'raio',
+            headerName: 'Latitude / Longitude',
             width: 240,
             renderCell: (params) => (
                 <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -56,7 +66,7 @@ export default function ListagemPredios() {
             ),
         },
         {
-            field: 'descricao',
+            field: 'description',
             headerName: 'Descrição',
             width: 300,
         }

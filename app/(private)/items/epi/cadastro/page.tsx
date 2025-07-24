@@ -86,7 +86,7 @@ export default function CadastroEPI() {
                                     <MenuItem value="" disabled>
                                         Clique e selecione...
                                     </MenuItem>
-                                    {pessoas?.data.items.map((person: any) => (
+                                    {pessoas?.map((person: any) => (
                                         <MenuItem key={person.id} value={person.id}>
                                             {person.name}
                                         </MenuItem>

@@ -9,7 +9,6 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useGetPredio } from "@/app/hooks/locais/predio/get";
 import { useGetOneItem } from "@/app/hooks/items/getOneById";
 import { useUpdateItem } from "@/app/hooks/items/update";
 import { useDeleteItem } from "@/app/hooks/items/delete";
@@ -27,7 +26,6 @@ export default function EditarEPI() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
-    const { predio } = useGetPredio();
     const { data } = useGetOneItem("ppe");
     const { updateItem, loading } = useUpdateItem("ppe");
     const { deleteItem } = useDeleteItem("ppe");
@@ -112,7 +110,7 @@ export default function EditarEPI() {
                                     <MenuItem value="" disabled>
                                         Clique e selecione...
                                     </MenuItem>
-                                    {pessoas?.data.items.map((person: any) => (
+                                    {pessoas?.map((person: any) => (
                                         <MenuItem key={person.id} value={person.id}>
                                             {person.name}
                                         </MenuItem>
