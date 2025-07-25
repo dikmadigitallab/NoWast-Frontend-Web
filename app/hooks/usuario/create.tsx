@@ -1,21 +1,20 @@
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
-import { useRouter } from "next/navigation";
 import api from "../api";
+import { useRouter } from "next/navigation";
 
-export const useCreateUsuario = () => {
+export const useCreatePessoa = () => {
 
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState(null);
+    const router = useRouter();
 
-    const createUsuario = async (usuario: any) => {
+    const createPessoa = async (pessoa: any) => {
 
         setError(null);
         setLoading(true);
-
 
         const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
 
@@ -26,7 +25,7 @@ export const useCreateUsuario = () => {
         }
 
         try {
-            const response = await api.post("/users", usuario, {
+            const response = await api.post("/users", pessoa, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
@@ -34,20 +33,22 @@ export const useCreateUsuario = () => {
             });
 
             setData(response.data.data);
-            toast.success("Usuario criada com sucesso");
+            toast.success("Pessoa criada com sucesso");
             setLoading(false);
+
             setTimeout(() => {
-                router.push('/usuarios/listagem');
-            }, 1000);
+                router.push("/usuario/listagem");
+            })
         } catch (error) {
             setLoading(false);
-            setError("Erro ao criar usuario empresarial");
-            toast.error("Erro ao criar usuario empresarial");
+            const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
+            setError(errorMessage);
+            toast.error(errorMessage);
         }
     };
 
     return {
-        createUsuario,
+        createPessoa,
         loading,
         error,
         data

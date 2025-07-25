@@ -53,7 +53,7 @@ export default function Predios() {
 
             <Header />
 
-            <Box className="w-full flex flex-col mt-8">
+            <Box className="w-full flex flex-col">
                 <Box className="w-full flex flex-wrap flex-row justify-between">
                     {predios.map(predio => (
                         <Box key={predio.id} className="md:w-[100%] lg:w-[32%] flex flex-col items-center justify-between overflow-hidden gap-2 p-4 rounded-sm h-[400px] border-1 border-[#5e58731f]">

@@ -7,9 +7,9 @@ const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
 export default function ReverseBar() {
 
-    const [chartData] = React.useState<{series: ApexAxisChartSeries;options: ApexOptions}>({
+    const [chartData] = React.useState<{ series: ApexAxisChartSeries; options: ApexOptions }>({
         series: [{
-            data: [400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380]
+            data: [400, 430, 448, 470, 540, 580, 690, 1100]
         }],
         options: {
             chart: {
@@ -34,7 +34,7 @@ export default function ReverseBar() {
             dataLabels: {
                 enabled: false
             },
-             tooltip: {
+            tooltip: {
                 theme: 'dark',
                 style: {
                     fontSize: '16px',

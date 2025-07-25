@@ -1,11 +1,9 @@
 'use client';
 
 import { Box } from "@mui/material";
-import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useAuthStore } from "../store/storeApp";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ADM_DIKMA } from "../navigation/navigation";
 
 export default function UserHeader() {
 
@@ -36,7 +34,6 @@ export default function UserHeader() {
                     <p className="text-[#00b288] text-[1.2rem] font-semibold animate-pulse">{userTypes[userType!]}</p>
                     <p className="text-[#5E5873] text-[1rem]">Escolha uma das empresas para iniciar sua jornada com a Dikma.</p>
                 </Box>
-                {pathname !== '/' && <a href="/"><IoIosCloseCircleOutline size={40} className="text-[#5E5873] text-[2rem] cursor-pointer" /></a>}
             </Box>
         </Box>
     )

@@ -53,7 +53,7 @@ export default function Empresas() {
 
             <Header />
 
-            <Box className="w-full flex flex-col mt-3">
+            <Box className="w-full flex flex-col">
 
                 <Box className="w-full flex flex-wrap flex-row justify-between">
                     {empresas.map(empresa => (

@@ -1,16 +1,19 @@
 'use client';
 
 import { Logout } from "@/app/utils/logout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
 export const useGetOneUsuario = () => {
 
+    const { id } = useGetIDStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
-    const getOneUsuario = async (id: string | number) => {
+    const getOneUsuario = async () => {
+
         setError(null);
         setLoading(true);
 
@@ -24,7 +27,7 @@ export const useGetOneUsuario = () => {
         }
 
         try {
-            const response = await api.get<any>(`/building/${id}`, {
+            const response = await api.get<any>(`/users/${id}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
@@ -40,6 +43,10 @@ export const useGetOneUsuario = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        getOneUsuario();
+    }, [id]);
 
 
     return {

@@ -12,29 +12,24 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetItems } from "@/app/hooks/items/get";
-import { useCreatePessoa } from "@/app/hooks/pessoas/pessoa/create";
 import { useGetContratos } from "@/app/hooks/contrato/get";
-import { useGetCargo } from "@/app/hooks/positions/get";
+import { useGetPosicao } from "@/app/hooks/posicao/get";
+import { useCreatePessoa } from "@/app/hooks/usuario/create";
+import { useGetUsuario } from "@/app/hooks/usuario/get";
+import { useGetFuncoes } from "@/app/hooks/funcoes/get";
 
 const userSchema = z.object({
-    password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres" }),
-    userType: z.enum(
-        ["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"],
-        { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }
-    ),
-    email: z.string().email({ message: "Email inválido" }),
-    firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
-    status: z.enum(["ACTIVE", "INACTIVE"], {
-        required_error: "Status é obrigatório",
-        invalid_type_error: "Status inválido",
-    }),
+    password: z.string().min(6, { message: "A senha deve ter pelo menos 8 caracteres" }),
+    userType: z.string({ required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
+    status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
     phone: z.string().min(7, { message: "Telefone inválido" }),
+    firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     person: z.object({
         create: z.object({
             name: z.string().min(1, { message: "O nome é obrigatório" }),
             tradeName: z.string().min(1, { message: "Nome Fantasia é obrigatório" }),
-            document: z.string().min(11, { message: "Documento deve ter pelo menos 11 caracteres" }),
+            document: z.string().refine((val) => /^\d{11}$/.test(val) || /^\d{14}$/.test(val), { message: "Documento deve ter 11 (CPF) ou 14 (CNPJ) números", }),
             briefDescription: z.string().min(1, { message: "Descrição é obrigatória" }),
             birthDate: z.string().min(1, { message: "Data de nascimento é obrigatória" }),
             gender: z.enum(["MALE", "FEMALE", "OTHER"], { required_error: "Gênero é obrigatório", invalid_type_error: "Gênero inválido" }),
@@ -46,8 +41,8 @@ const userSchema = z.object({
     role: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do papel inválido", required_error: "Selecione um cargo" }).min(1, { message: "Selecione um cargo" }) }) }),
     contract: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do contrato inválido", required_error: "Selecione um contrato" }).min(1, { message: "Selecione um contrato" }) }) }),
     position: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do cargo inválido", required_error: "Selecione uma posição" }).min(1, { message: "Selecione uma posição" }) }) }),
-    supervisor: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do supervisor inválido", required_error: "Selecione um supervisor" }).min(1, { message: "Selecione um supervisor" }) }) }),
-    manager: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do gerente inválido", required_error: "Selecione um gerente" }).min(1, { message: "Selecione um gerente" }) }) }),
+    supervisor: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do supervisor inválido", required_error: "Selecione um supervisor" }).min(1, { message: "Selecione um supervisor" }).optional() }) }).optional(),
+    manager: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do gerente inválido", required_error: "Selecione um gerente" }).min(1, { message: "Selecione um gerente" }).optional() }) }).optional(),
     epiIds: z.array(z.number({ invalid_type_error: "ID de EPI inválido" }), { required_error: "Selecione pelo menos um EPI" }).min(1, { message: "Selecione pelo menos um EPI" }),
     equipmentIds: z.array(z.number({ invalid_type_error: "ID de equipamento inválido" }), { required_error: "Selecione pelo menos um equipamento" }).min(1, { message: "Selecione pelo menos um equipamento" }),
     vehicleIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }), { required_error: "Selecione pelo menos um veículo" }).min(1, { message: "Selecione pelo menos um veículo" }),
@@ -63,7 +58,6 @@ export default function CadastroPessoa() {
         defaultValues: {
             password: "",
             userType: undefined,
-            email: "",
             firstLogin: true,
             status: "ACTIVE",
             phone: "",
@@ -97,11 +91,11 @@ export default function CadastroPessoa() {
     const { data: equipamentos } = useGetItems('tools');
     const { data: produtos } = useGetItems('product');
     const { data: transportes } = useGetItems('transport');
-    const { data: contratos } = useGetContratos();
-    const { data: cargos } = useGetCargo();
+    const { users } = useGetUsuario();
+    const { data: roles } = useGetFuncoes();
+    const { data: contrato } = useGetContratos();
+    const { data: cargos } = useGetPosicao();
     const { createPessoa } = useCreatePessoa();
-
-    console.log(cargos);
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -115,7 +109,7 @@ export default function CadastroPessoa() {
     };
 
     const handleDisableConfirm = () => {
-        router.push('/pessoas/listagem');
+        router.push('/usuario/listagem');
     };
 
     const onSubmit = (formData: UserFormValues) => {
@@ -124,38 +118,25 @@ export default function CadastroPessoa() {
         createPessoa(newData);
     };
 
-    const roles = [
-        { id: 1, name: "CEO" },
-        { id: 2, name: "Gerente" },
-        { id: 3, name: "Supervisor" },
-    ];
+    const formatCpfOrCnpj = (value: string) => {
+        const type = watch('person.create.personType');
+        const digits = value.replace(/\D/g, '');
 
-    const contracts = [
-        { id: 4, name: "Adcos" },
-        { id: 5, name: "ArcelorMittal" },
-        { id: 6, name: "Nemak" },
-    ];
+        if (type === 'INDIVIDUAL') {
+            return digits
+                .replace(/^(\d{3})(\d)/, '$1.$2')
+                .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+                .replace(/\.(\d{3})\.(\d{3})(\d{1,2}).*/, '.$1.$2-$3');
+        } else {
+            return digits
+                .replace(/^(\d{2})(\d)/, '$1.$2')
+                .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+                .replace(/\.(\d{3})\.(\d{3})(\d)/, '.$1/$2-$3')
+                .replace(/(\d{4})(\d{2}).*/, '$1-$2');
+        }
+    };
 
-    const positions = [
-        { id: 2, name: "CEO" },
-        { id: 3, name: "Designer" },
-        { id: 4, name: "Analista" },
-        { id: 5, name: "Desenvolvedor" }
-    ];
 
-    const supervisors = [
-        { id: 1, name: "Sem Supervisor" },
-        { id: 2, name: "João Silva" },
-        { id: 3, name: "Maria Souza" },
-        { id: 4, name: "Carlos Oliveira" },
-    ];
-
-    const managers = [
-        { id: 1, name: "Sem Gerente" },
-        { id: 2, name: "Ana Paula" },
-        { id: 3, name: "Roberto Santos" },
-        { id: 4, name: "Fernanda Lima" },
-    ];
 
     const renderChips = (
         selected: number[],
@@ -191,6 +172,7 @@ export default function CadastroPessoa() {
     };
 
 
+
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
@@ -200,18 +182,171 @@ export default function CadastroPessoa() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                {/* User Information Section */}
+
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
+
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="email"
+                        name="person.create.name"
                         control={control}
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Email do usuário"
+                                label="Nome completo"
                                 {...field}
-                                error={!!errors.email}
-                                helperText={errors.email?.message}
+                                error={!!errors.person?.create?.name}
+                                helperText={errors.person?.create?.name?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.tradeName"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Nome Fantasia"
+                                {...field}
+                                error={!!errors.person?.create?.tradeName}
+                                helperText={errors.person?.create?.tradeName?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+
+                    <Controller
+                        disabled={!watch('person.create.personType')}
+                        name="person.create.document"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Documento"
+                                {...field}
+                                onChange={(e) => {
+                                    const formatted = formatCpfOrCnpj(e.target.value);
+                                    field.onChange(formatted);
+                                }}
+                                value={field.value}
+                                error={!!errors.person?.create?.document}
+                                helperText={errors.person?.create?.document?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+
+                    <Controller
+                        name="person.create.birthDate"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Data de Nascimento"
+                                type="date"
+                                InputLabelProps={{ shrink: true }}
+                                {...field}
+                                error={!!errors.person?.create?.birthDate}
+                                helperText={errors.person?.create?.birthDate?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.gender"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.person?.create?.gender}>
+                                <InputLabel>Gênero</InputLabel>
+                                <Select label="Gênero" {...field} value={field.value || ""}>
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="MALE">Masculino</MenuItem>
+                                    <MenuItem value="FEMALE">Feminino</MenuItem>
+                                    <MenuItem value="OTHER">Outro</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.person?.create?.gender?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
+                        name="person.create.personType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.person?.create?.personType}>
+                                <InputLabel>Tipo de Pessoa</InputLabel>
+                                <Select
+                                    label="Tipo de Pessoa"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
+                                    <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.person?.create?.personType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.phone"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Telefone da Pessoa"
+                                {...field}
+                                error={!!errors.person?.create?.phone}
+                                helperText={errors.person?.create?.phone?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
+                <Controller
+                    name="person.create.briefDescription"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Descrição"
+                            multiline
+                            rows={4}
+                            {...field}
+                            error={!!errors.person?.create?.briefDescription}
+                            helperText={errors.person?.create?.briefDescription?.message}
+                            sx={formTheme}
+                        />
+                    )}
+                />
+
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações do Usuário</h2>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.email"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Email da Pessoa"
+                                type="email"
+                                {...field}
+                                error={!!errors.person?.create?.email}
+                                helperText={errors.person?.create?.email?.message}
                                 className="w-full"
                                 sx={formTheme}
                             />
@@ -247,12 +382,12 @@ export default function CadastroPessoa() {
                                     {...field}
                                     value={field.value || ""}
                                 >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="DIKMA_ADMINISTRATOR">Administrador Dikma</MenuItem>
-                                    <MenuItem value="CONTRACT_MANAGER">Gestor de Contrato</MenuItem>
-                                    <MenuItem value="DIKMA_DIRECTOR">Diretor Dikma</MenuItem>
-                                    <MenuItem value="CLIENT_ADMINISTRATOR">Administrador de Cliente</MenuItem>
-                                    <MenuItem value="OPERATIONAL">Operacional</MenuItem>
+                                    <MenuItem value="" disabled>Selecione uma posição...</MenuItem>
+                                    {roles?.map((position: any) => (
+                                        <MenuItem key={position.id} value={position.name}>
+                                            {position.name}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                                 <FormHelperText>{errors.userType?.message}</FormHelperText>
                             </FormControl>
@@ -313,172 +448,8 @@ export default function CadastroPessoa() {
                     />
                 </Box>
 
-                {/* Person Information Section */}
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="person.create.name"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Nome completo"
-                                {...field}
-                                error={!!errors.person?.create?.name}
-                                helperText={errors.person?.create?.name?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="person.create.tradeName"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Nome Fantasia"
-                                {...field}
-                                error={!!errors.person?.create?.tradeName}
-                                helperText={errors.person?.create?.tradeName?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="person.create.document"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Documento"
-                                {...field}
-                                error={!!errors.person?.create?.document}
-                                helperText={errors.person?.create?.document?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="person.create.birthDate"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Data de Nascimento"
-                                type="date"
-                                InputLabelProps={{ shrink: true }}
-                                {...field}
-                                error={!!errors.person?.create?.birthDate}
-                                helperText={errors.person?.create?.birthDate?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="person.create.gender"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.person?.create?.gender}>
-                                <InputLabel>Gênero</InputLabel>
-                                <Select
-                                    label="Gênero"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="MALE">Masculino</MenuItem>
-                                    <MenuItem value="FEMALE">Feminino</MenuItem>
-                                    <MenuItem value="OTHER">Outro</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.person?.create?.gender?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
-                        name="person.create.personType"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.person?.create?.personType}>
-                                <InputLabel>Tipo de Pessoa</InputLabel>
-                                <Select
-                                    label="Tipo de Pessoa"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
-                                    <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.person?.create?.personType?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="person.create.email"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Email da Pessoa"
-                                type="email"
-                                {...field}
-                                error={!!errors.person?.create?.email}
-                                helperText={errors.person?.create?.email?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="person.create.phone"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Telefone da Pessoa"
-                                {...field}
-                                error={!!errors.person?.create?.phone}
-                                helperText={errors.person?.create?.phone?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                </Box>
-
-                <Controller
-                    name="person.create.briefDescription"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField
-                            variant="outlined"
-                            label="Descrição"
-                            multiline
-                            rows={4}
-                            {...field}
-                            error={!!errors.person?.create?.briefDescription}
-                            helperText={errors.person?.create?.briefDescription?.message}
-                            sx={formTheme}
-                        />
-                    )}
-                />
-
                 {/* Relations Section */}
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Vínculo de Pessoa</h2>
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
@@ -495,7 +466,7 @@ export default function CadastroPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um cargo...</MenuItem>
-                                    {roles?.map((role) => (
+                                    {cargos?.map((role: any) => (
                                         <MenuItem key={role.id} value={role.id}>
                                             {role.name}
                                         </MenuItem>
@@ -518,7 +489,7 @@ export default function CadastroPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um contrato...</MenuItem>
-                                    {contracts?.map((contract) => (
+                                    {contrato?.map((contract: any) => (
                                         <MenuItem key={contract.id} value={contract.id}>
                                             {contract.name}
                                         </MenuItem>
@@ -532,29 +503,6 @@ export default function CadastroPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="position.connect.id"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
-                                <InputLabel>Posição</InputLabel>
-                                <Select
-                                    label="Posição"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione uma posição...</MenuItem>
-                                    {positions?.map((position) => (
-                                        <MenuItem key={position.id} value={position.id}>
-                                            {position.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
                         name="supervisor.connect.id"
                         control={control}
                         render={({ field }) => (
@@ -567,9 +515,9 @@ export default function CadastroPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
-                                    {supervisors?.map((supervisor) => (
-                                        <MenuItem key={supervisor.id} value={supervisor.id}>
-                                            {supervisor.name}
+                                    {Array.isArray(users) && users.map((pessoa) => (
+                                        <MenuItem key={pessoa.id} value={pessoa.id}>
+                                            {pessoa.person.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -577,9 +525,6 @@ export default function CadastroPessoa() {
                             </FormControl>
                         )}
                     />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
                         name="manager.connect.id"
                         control={control}
@@ -593,9 +538,9 @@ export default function CadastroPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {managers?.map((manager) => (
-                                        <MenuItem key={manager.id} value={manager.id}>
-                                            {manager.name}
+                                    {Array.isArray(users) && users.map((pessoa) => (
+                                        <MenuItem key={pessoa.id} value={pessoa.id}>
+                                            {pessoa.person.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -604,6 +549,8 @@ export default function CadastroPessoa() {
                         )}
                     />
                 </Box>
+
+
 
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Vínculo de Itens</h2>

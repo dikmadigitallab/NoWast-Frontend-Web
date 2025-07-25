@@ -98,9 +98,18 @@ export default function DetalharPessoa() {
             field: 'position',
             headerName: 'Cargo',
             width: 180,
+        },
+        {
+            field: 'supervisor',
+            headerName: 'Encarregado Responsável',
+            width: 200,
+        },
+        {
+            field: 'manager',
+            headerName: 'Gerente Responsável',
+            width: 200,
         }
     ];
-
 
     return (
         <StyledMainContainer>

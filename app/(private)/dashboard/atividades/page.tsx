@@ -28,18 +28,18 @@ export default function Atividades() {
 
   const dataSpilines = [
     { name: 'Total', icon: <MdOutlineChecklist size={24} color='#fff' />, data: [61, 31, 61, 131, 31, 71, 131], color: '#e74c3c', tension: 0.9 },
-    { name: 'Concluídas', icon: <CiCircleCheck size={27} color='#fff' />, data: [11, 32, 45, 32, 34, 52, 41], color: '#2ecc71', tension: 0.9 },
-    { name: 'Em Aberto', icon: <BsExclamationSquare size={24} color='#fff' />, data: [50, 90, 40, 60, 80, 75, 55], color: '#f39c12', tension: 0.9 },
-    { name: 'Pendentes', icon: <BsExclamationDiamond size={24} color='#fff' />, data: [25, 50, 75, 25, 50, 75, 25], color: '#e67e22', tension: 0.9 },
+    { name: 'Concluídas', icon: <CiCircleCheck size={27} color='#fff' />, data: [11, 32, 45, 32, 34, 52, 41], color: '#00CB65', tension: 0.9 },
+    { name: 'Em Aberto', icon: <BsExclamationSquare size={24} color='#fff' />, data: [50, 90, 40, 60, 80, 75, 55], color: '#2090FF', tension: 0.9 },
+    { name: 'Pendentes', icon: <BsExclamationDiamond size={24} color='#fff' />, data: [25, 50, 75, 25, 50, 75, 25], color: '#FF9920', tension: 0.9 },
   ];
 
   const dataDonuts = [
     {
       title: "Atividades",
       data: [
-        { name: 'Concluídas', total: 80, data: [11, 32, 45], color: '#2ecc71' },
-        { name: 'Em Aberto', total: 150, data: [31, 40, 28], color: '#f39c12' },
-        { name: 'Aprovações', total: 120, data: [50, 90, 40], color: '#e74c3c' },
+        { name: 'Concluídas', total: 80, data: [11, 32, 45], color: '#00CB65' },
+        { name: 'Em Aberto', total: 150, data: [31, 40, 28], color: '#2090FF' },
+        { name: 'Pendentes', total: 120, data: [50, 90, 40], color: '#FF9920' },
         { name: 'Justificativas Internas', total: 70, data: [50, 90, 40], color: '#d35400' },
         { name: 'Justificativas Externas', total: 80, data: [50, 90, 40], color: '#27ae60' },
       ]
@@ -47,16 +47,16 @@ export default function Atividades() {
     {
       title: "Execuções",
       data: [
-        { name: 'No Prazo', total: 250, data: [31, 40, 28], color: '#2ecc71' },
-        { name: 'Fora do Prazo', total: 140, data: [11, 32, 45], color: '#e74c3c' },
+        { name: 'No Prazo', total: 250, data: [31, 40, 28], color: '#00CB65' },
+        { name: 'Fora do Prazo', total: 140, data: [11, 32, 45], color: '#2090FF' },
       ]
     },
     {
       title: "Aprovações",
       data: [
-        { name: 'Aprovadas', total: 180, data: [11, 32, 45], color: '#2ecc71' },
-        { name: 'Não Aprovadas', total: 250, data: [31, 40, 28], color: '#e74c3c' },
-        { name: 'Reprovadas', total: 120, data: [50, 90, 40], color: '#f39c12' },
+        { name: 'Aprovadas', total: 180, data: [11, 32, 45], color: '#00CB65' },
+        { name: 'Não Aprovadas', total: 250, data: [31, 40, 28], color: '#2090FF' },
+        { name: 'Reprovadas', total: 120, data: [50, 90, 40], color: '#FF9920' },
       ]
     }
   ];
@@ -170,7 +170,7 @@ export default function Atividades() {
           }
 
           {
-            userType === "DIKMA_DIRECTOR" || userType === "GESTAO" || userType === "ADM_CLIENTE" ? (
+            userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
               <FormControl sx={formTheme} className="w-[12%]">
                 <InputLabel>Prédio</InputLabel>
                 <Select

@@ -3,14 +3,14 @@ import { RxDashboard } from 'react-icons/rx';
 import { IoHomeOutline, IoNotificationsCircleOutline } from "react-icons/io5";
 import { FaRegBuilding, FaRegCalendar, FaRegCircle } from 'react-icons/fa';
 import { GrUserAdmin } from "react-icons/gr";
-import { FiBox, FiUser } from 'react-icons/fi';
+import { FiBox } from 'react-icons/fi';
 import { BsBuildings } from 'react-icons/bs';
 
 type SubItem = {
     icon?: React.ComponentType<{ className?: string; color?: string; size?: number }>;
     name: string;
     href: string;
-    subItems?: SubItem[]; // permite subitens aninhados
+    subItems?: SubItem[];
 };
 
 type NavItem = {
@@ -84,9 +84,7 @@ export const ADM_DIKMA: NavItem[] = [
     {
         name: 'Pessoas',
         icon: GrUserAdmin,
-        subItems: [
-            { icon: FaRegCircle, name: 'Detalhar', href: '/usuario/listagem' },
-        ]
+        href: '/usuario/listagem'
     },
 ];
 
@@ -95,10 +93,6 @@ export const ADM_CLIENTE: NavItem[] = [
         name: 'Início',
         href: '/',
         icon: IoHomeOutline,
-    },
-    {
-        name: 'Prédios', href: '/modulos/predios',
-        icon: BsBuildings,
     },
     {
         name: 'Dashboard',

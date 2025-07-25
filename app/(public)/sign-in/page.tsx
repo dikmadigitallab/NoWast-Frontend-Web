@@ -13,11 +13,11 @@ export default function SignIn() {
 
   const { login, isLoading } = useLogin();
   const [isVisible, setIsVisible] = useState(false);
-  const [user, setUser] = useState({ email: "admin@dikma.com.br", password: "123456" });
+  const [user, setUser] = useState({ document: "", password: "" });
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    login(user.email, user.password);
+    login(user.document, user.password);
   };
 
   return (
@@ -43,14 +43,14 @@ export default function SignIn() {
           <TextField
             required
             type="text"
-            name="email"
+            name="cpf_cnpj"
             variant="outlined"
-            placeholder="Email"
-            value={user.email}
-            onChange={(e) => setUser({ ...user, email: e.target.value })}
+            placeholder="CPF/CNPJ"
+            value={user.document}
+            onChange={(e) => setUser({ ...user, document: e.target.value })}
             fullWidth
-            error={Boolean(user.email && user.email.length < 5)}
-            helperText={user.email && user.email.length < 5 ? "Insira um e-mail válido" : ""}
+            error={Boolean(user.document && user.document.length < 5)}
+            helperText={user.document && user.document.length < 5 ? "Insira um e-mail válido" : ""}
           />
 
           <TextField

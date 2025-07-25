@@ -36,7 +36,7 @@ export default function ColumnChart() {
                 toolbar: { show: true },
                 zoom: { enabled: true }
             },
-            colors: ['#e74c3c', '#f39c12', '#2ecc71'],
+            colors: ['#EA5455', '#FDE802', '#768B95'],
             responsive: [
                 {
                     breakpoint: 480,
@@ -86,10 +86,10 @@ export default function ColumnChart() {
 
     return (
         <ReactApexChart
-            options={chartData.options}
-            series={chartData.series}
             type="bar"
             height={550}
+            series={chartData.series}
+            options={chartData.options}
         />
     );
 }

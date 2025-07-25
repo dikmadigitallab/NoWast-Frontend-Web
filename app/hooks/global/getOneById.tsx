@@ -33,7 +33,6 @@ export const useGetOne = (url: string) => {
                 },
             });
 
-            console.log(response.data.data);
             setData(response.data.data);
         } catch (error) {
             setError("Erro na busca");

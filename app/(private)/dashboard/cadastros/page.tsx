@@ -145,7 +145,7 @@ export default function Atividades() {
                     }
 
                     {
-                        userType === "DIKMA_DIRECTOR" || userType === "GESTAO" || userType === "ADM_CLIENTE" ? (
+                        userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
                             <FormControl sx={formTheme} className='w-[16%]'>
                                 <InputLabel>Setor</InputLabel>
                                 <Select

@@ -9,6 +9,7 @@ export const useGetUsuario = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
+    const [users, setUsers] = useState<any>(null);
 
     const getUsuario = async () => {
         setError(null);
@@ -31,17 +32,24 @@ export const useGetUsuario = () => {
                 },
             });
 
-            console.log(response.data.data.items)
 
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
                 name: item.person?.name,
+                supervisor: item.supervisor?.email,
+                manager: item.manager?.email,
                 email: item.email,
                 status: item.status,
                 role: item.role?.name,
-                position: item.position?.name
+                position: item.position?.name,
+                endDate: item.contract?.endDate,
+                startDate: item.contract?.startDate,
+                epis: item.ppes,
+                transports: item.transports,
+                products: item.products
             })) || [];
 
+            setUsers(response.data.data.items);
             setData(refactory);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
@@ -61,6 +69,7 @@ export const useGetUsuario = () => {
         getUsuario,
         loading,
         error,
-        data,
+        users,
+        data
     };
 };
