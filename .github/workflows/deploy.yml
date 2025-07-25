@@ -1,4 +1,4 @@
-name: Deploy Front-End
+name: Deploy Front-End Docker
 
 on:
   push:
@@ -6,44 +6,31 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        run: |
-          docker build -t nowaste-front-end:${{ github.sha }} .
-
-      - name: Save and compress Docker image
-        run: |
-          docker save nowaste-front-end:${{ github.sha }} | gzip > nowaste-front-end.tar.gz
-
-      - name: Upload image to server
+      - name: Copiar arquivos para o servidor
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: 10.3.22.206
-          username: dikma
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "nowaste-front-end.tar.gz"
-          target: "~/"
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          source: "."
+          target: "${{ secrets.REMOTE_APP_PATH }}"
 
-      - name: SSH and deploy container
-        uses: appleboy/ssh-action@v1.0.0
+      - name: SSH e construir container Docker no servidor
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: 10.3.22.206
-          username: dikma
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
           script: |
-            docker rm -f nowaste-front-end || true
-            docker rmi nowaste-front-end:${{ github.sha }} || true
-            gunzip -c ~/nowaste-front-end.tar.gz | docker load
-            docker run -d \
-              -p 9003:9003 \
-              --name nowaste-front-end \
-              nowaste-front-end:${{ github.sha }}
+            cd ${{ secrets.REMOTE_APP_PATH }}
+            docker stop frontend || true
+            docker rm frontend || true
+            docker build -t frontend .
+            docker run -d --name frontend -p 3000:3000 frontend
