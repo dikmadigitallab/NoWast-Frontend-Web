@@ -16,7 +16,7 @@ import { useAuthStore } from '@/app/store/storeApp';
 export default function Atividades() {
 
   const { userType } = useAuthStore();
-  const [filters, setFilters] = useState({ data: '', colaborador: 'todos', setor: 'todos', ambiente: 'todos' });
+  const [filters, setFilters] = useState({ data: '', colaborador: '', setor: '', ambiente: '' });
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
@@ -30,18 +30,18 @@ export default function Atividades() {
     { name: 'Total', icon: <MdOutlineChecklist size={24} color='#fff' />, data: [61, 31, 61, 131, 31, 71, 131], color: '#e74c3c', tension: 0.9 },
     { name: 'Concluídas', icon: <CiCircleCheck size={27} color='#fff' />, data: [11, 32, 45, 32, 34, 52, 41], color: '#2ecc71', tension: 0.9 },
     { name: 'Em Aberto', icon: <BsExclamationSquare size={24} color='#fff' />, data: [50, 90, 40, 60, 80, 75, 55], color: '#f39c12', tension: 0.9 },
-    { name: 'Pendentes', icon: <BsExclamationDiamond size={24} color='#fff' />, data: [25, 50, 75, 25, 50, 75, 25], color: '#e67e22', tension: 0.9 }, // tom de laranja mais escuro
+    { name: 'Pendentes', icon: <BsExclamationDiamond size={24} color='#fff' />, data: [25, 50, 75, 25, 50, 75, 25], color: '#e67e22', tension: 0.9 },
   ];
 
   const dataDonuts = [
     {
       title: "Atividades",
       data: [
-        { name: 'Concluídas', total: 80, data: [11, 32, 45], color: '#2ecc71' }, // verde
-        { name: 'Em Aberto', total: 150, data: [31, 40, 28], color: '#f39c12' }, // laranja
-        { name: 'Aprovações', total: 120, data: [50, 90, 40], color: '#e74c3c' }, // vermelho
-        { name: 'Justificativas Internas', total: 70, data: [50, 90, 40], color: '#d35400' }, // laranja escuro
-        { name: 'Justificativas Externas', total: 80, data: [50, 90, 40], color: '#27ae60' }, // verde escuro
+        { name: 'Concluídas', total: 80, data: [11, 32, 45], color: '#2ecc71' },
+        { name: 'Em Aberto', total: 150, data: [31, 40, 28], color: '#f39c12' },
+        { name: 'Aprovações', total: 120, data: [50, 90, 40], color: '#e74c3c' },
+        { name: 'Justificativas Internas', total: 70, data: [50, 90, 40], color: '#d35400' },
+        { name: 'Justificativas Externas', total: 80, data: [50, 90, 40], color: '#27ae60' },
       ]
     },
     {
@@ -63,7 +63,6 @@ export default function Atividades() {
 
 
   const sectorOptions = [
-    "todos",
     "Administrativo",
     "Operacional",
     "Financeiro",
@@ -72,7 +71,6 @@ export default function Atividades() {
   ];
 
   const environmentOptions = [
-    "todos",
     "Produção",
     "Desenvolvimento",
     "Testes",
@@ -81,13 +79,29 @@ export default function Atividades() {
   ];
 
   const collaboratorOptions = [
-    "todos",
     "Todos os colaboradores",
     "João Paulo",
     "Maria Silva",
     "Pedro Henrique",
     "Ana Luiza"
   ];
+
+
+  const empresaOptions = [
+    "todas",
+    "Adcos",
+    "Acelormittal",
+    "Nemak"
+  ];
+
+  const predioOptions = [
+    "todos",
+    "Coqueria",
+    "Sinterização",
+    "Alto Forno"
+  ];
+
+
 
   const [mount, setMount] = useState(false);
 
@@ -136,16 +150,35 @@ export default function Atividades() {
           </FormControl>
 
           {
-            userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
+            userType === "DIKMA_DIRECTOR" ? (
               <FormControl sx={formTheme} className="w-[12%]">
-                <InputLabel>Prédios</InputLabel>
+                <InputLabel>Empresa</InputLabel>
                 <Select
-                  label="Prédios"
-                  name="predio"
-                  value={filters.colaborador}
+                  label="Empresa"
+                  name="empresa"
                   onChange={handleFilterChange}
                 >
-                  {collaboratorOptions.map((option) => (
+                  {empresaOptions?.map(option => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) :
+              null
+          }
+
+          {
+            userType === "DIKMA_DIRECTOR" || userType === "GESTAO" || userType === "ADM_CLIENTE" ? (
+              <FormControl sx={formTheme} className="w-[12%]">
+                <InputLabel>Prédio</InputLabel>
+                <Select
+                  label="Prédio"
+                  name="predio"
+                  onChange={handleFilterChange}
+                >
+                  {predioOptions.map(option => (
                     <MenuItem key={option} value={option}>
                       {option}
                     </MenuItem>

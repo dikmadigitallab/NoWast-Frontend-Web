@@ -7,8 +7,8 @@ import { redirect } from 'next/navigation';
 export const useLogin = () => {
 
     const [error, setError] = useState(null);
-    const { userType, setId, setEmail, setDocumento, setUserType } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
+    const { setId, setEmail, setDocumento, setUserType } = useAuthStore();
 
     const login = async (email: string, password: string) => {
 

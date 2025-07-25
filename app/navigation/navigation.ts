@@ -28,17 +28,6 @@ export const DEFAULT: NavItem[] = [
     }
 ];
 
-export const ADM_CLIENTE: NavItem[] = [
-    {
-        name: 'Dashboard',
-        icon: RxDashboard,
-        subItems: [
-            { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
-            { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
-        ]
-    },
-];
-
 export const ADM_DIKMA: NavItem[] = [
     {
         name: 'Início',
@@ -51,6 +40,7 @@ export const ADM_DIKMA: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
+            { icon: FaRegCircle, name: 'Cadastro', href: '/dashboard/cadastros' },
         ]
     },
     // {
@@ -84,7 +74,7 @@ export const ADM_DIKMA: NavItem[] = [
         name: 'Atividades',
         icon: FaRegCalendar,
         subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/atividade/listagem' }
+            { icon: FaRegCircle, name: 'Detalhar', href: '/atividade/listagem' }
         ]
     },
     {
@@ -95,15 +85,20 @@ export const ADM_DIKMA: NavItem[] = [
         name: 'Pessoas',
         icon: GrUserAdmin,
         subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/usuario/listagem' },
+            { icon: FaRegCircle, name: 'Detalhar', href: '/usuario/listagem' },
         ]
     },
 ];
 
-export const CLIENTE_DIKMA: NavItem[] = [
+export const ADM_CLIENTE: NavItem[] = [
     {
-        name: 'Início', href: '/',
+        name: 'Início',
+        href: '/',
         icon: IoHomeOutline,
+    },
+    {
+        name: 'Prédios', href: '/modulos/predios',
+        icon: BsBuildings,
     },
     {
         name: 'Dashboard',
@@ -111,41 +106,9 @@ export const CLIENTE_DIKMA: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
+            { icon: FaRegCircle, name: 'Cadastro', href: '/dashboard/cadastros' },
         ]
     },
-    {
-        name: 'Pessoas',
-        icon: FiUser,
-        subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/pessoas/listagem' }
-        ]
-    },
-    {
-        name: 'Itens',
-        icon: FiBox,
-        subItems: [
-            { icon: FaRegCircle, name: 'EPI', href: '/items/epi/listagem' },
-            { icon: FaRegCircle, name: 'Equipamento', href: '/items/equipamento/listagem' },
-            { icon: FaRegCircle, name: 'Produto', href: '/items/produto/listagem' },
-            { icon: FaRegCircle, name: 'Transporte', href: '/items/transporte/listagem' },
-        ]
-    },
-    {
-        name: 'Locais',
-        icon: MdOutlinePlace,
-        subItems: [
-            { icon: FaRegCircle, name: 'Prédio', href: '/locais/predio/listagem' },
-            { icon: FaRegCircle, name: 'Setor', href: '/locais/setor/listagem' },
-            { icon: FaRegCircle, name: 'Ambiente', href: '/locais/ambiente/listagem' }
-        ]
-    },
-    {
-        name: 'Atividades',
-        icon: FaRegCalendar,
-        subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: '/atividade/listagem' }
-        ]
-    }
 ];
 
 export const GESTAO: NavItem[] = [
@@ -163,6 +126,7 @@ export const GESTAO: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
+            { icon: FaRegCircle, name: 'Cadastro', href: '/dashboard/cadastros' },
         ]
     },
     {

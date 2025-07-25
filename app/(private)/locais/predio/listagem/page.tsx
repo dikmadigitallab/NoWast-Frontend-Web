@@ -13,7 +13,7 @@ import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { useGetPredio } from '@/app/hooks/locais/predio/get';
 
-export default function ListagemPredios() {
+export default function DetalharPredios() {
 
     const [edit, setEdit] = useState<any | null>(null);
     const [modalEdit, setModalEdit] = useState(false);
@@ -49,7 +49,7 @@ export default function ListagemPredios() {
             field: 'radius',
             headerName: 'Raio',
             width: 180,
-              renderCell: (params) => (
+            renderCell: (params) => (
                 <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.row.radius} m
                 </Box>
@@ -79,7 +79,7 @@ export default function ListagemPredios() {
                     <Box className="flex gap-2">
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Prédios</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
+                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Detalhar</h1>
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>

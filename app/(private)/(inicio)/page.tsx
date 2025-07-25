@@ -30,6 +30,9 @@ export default function Home() {
       } else if (userType === 'ADM_DIKMA') {
         window.location.href = 'dashboard/atividades';
         SetisSelectModule(true);
+      } else if (userType === 'ADM_CLIENTE') {
+        window.location.href = 'dashboard/atividades';
+        SetisSelectModule(true);
       }
     }
   }

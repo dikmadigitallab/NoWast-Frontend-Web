@@ -15,7 +15,7 @@ import { ptBR } from '@mui/x-data-grid/locales';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
 
-export default function ListagemEmpresas() {
+export default function DetalharEmpresas() {
 
     const [isFilter, setIsFilter] = useState(false);
     const { data: contratos } = useGetContratos();
@@ -107,7 +107,7 @@ export default function ListagemEmpresas() {
                     <Box className="flex gap-2">
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Contrato</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
+                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Detalhar</h1>
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>

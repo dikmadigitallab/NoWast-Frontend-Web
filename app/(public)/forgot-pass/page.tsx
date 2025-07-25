@@ -1,13 +1,13 @@
 "use client";
 
-import { Box, Button, CircularProgress, IconButton, TextField } from "@mui/material";
-import Logo from "../../assets/pr_logo.png";
+import { Box, Button, CircularProgress, TextField } from "@mui/material";
+import Logo from "../../assets/logo-1.png";
 import { useState } from "react";
 import { redirect } from "next/navigation";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import "./style.scss";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 
 export default function ForgotPass() {
 

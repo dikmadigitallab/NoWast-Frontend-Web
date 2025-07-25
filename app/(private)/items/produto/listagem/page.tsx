@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import DetailModal from './component/modalProdutoDetail';
 
 
-export default function ListagemProduto() {
+export default function DetalharProduto() {
 
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
@@ -102,7 +102,7 @@ export default function ListagemProduto() {
                     <Box className="flex gap-2">
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Produto</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
+                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Detalhar</h1>
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>

@@ -28,8 +28,8 @@ export default function SignIn() {
       >
         <Box className="flex flex-col gap-5">
           <Box className="flex items-center flex-row gap-2">
-              <Image src={Logo} alt="Logo" className="w-[40%] h-full" />
-          
+            <Image src={Logo} alt="Logo" className="w-[40%] h-full" />
+
           </Box>
           <Box className="flex flex-col gap-3">
             <Box className="font-bold text-[#6E6B7B]">Bem-vindo!</Box>

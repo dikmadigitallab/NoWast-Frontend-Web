@@ -124,37 +124,45 @@ export default function Atividades() {
                         </Select>
                     </FormControl>
 
-                    <FormControl sx={formTheme} className="w-[16%]">
-                        <InputLabel>Empresa</InputLabel>
-                        <Select
-                            label="Empresa"
-                            name="empresa"
-                            value={filters.empresa}
-                            onChange={handleFilterChange}
-                        >
-                            {empresaOptions.map(option => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    {
+                        userType === "DIKMA_DIRECTOR" ? (
+                            <FormControl sx={formTheme} className="w-[16%]">
+                                <InputLabel>Empresa</InputLabel>
+                                <Select
+                                    label="Empresa"
+                                    name="empresa"
+                                    value={filters.empresa}
+                                    onChange={handleFilterChange}
+                                >
+                                    {empresaOptions.map(option => (
+                                        <MenuItem key={option} value={option}>
+                                            {option}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        ) : null
+                    }
 
-                    <FormControl sx={formTheme} className='w-[16%]'>
-                        <InputLabel>Setor</InputLabel>
-                        <Select
-                            label="Setor"
-                            name="setor"
-                            value={filters.setor}
-                            onChange={handleFilterChange}
-                        >
-                            {setorOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    {
+                        userType === "DIKMA_DIRECTOR" || userType === "GESTAO" || userType === "ADM_CLIENTE" ? (
+                            <FormControl sx={formTheme} className='w-[16%]'>
+                                <InputLabel>Setor</InputLabel>
+                                <Select
+                                    label="Setor"
+                                    name="setor"
+                                    value={filters.setor}
+                                    onChange={handleFilterChange}
+                                >
+                                    {setorOptions.map((option) => (
+                                        <MenuItem key={option} value={option}>
+                                            {option}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        ) : null
+                    }
 
                     <FormControl sx={formTheme} className='w-[16%]'>
                         <InputLabel>Ambiente</InputLabel>
@@ -201,7 +209,7 @@ export default function Atividades() {
                 <ReverceChart chart={data3} />
             </Box>
 
-        </StyledMainContainer>
+        </StyledMainContainer >
     );
 }
 

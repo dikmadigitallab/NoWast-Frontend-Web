@@ -71,7 +71,7 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                         <Box className="mt-4 border-t border-[#E0E0E0] pt-3">
                             <Box className="font-semibold text-[#6E6B7B] mb-2">Pessoas:</Box>
                             <Box className="flex flex-col gap-5">
-                                {modalVisualize?.pessoas?..map((pessoa: any, index: any) => (
+                                {modalVisualize?.pessoas?.map((pessoa: any, index: any) => (
                                     <Box key={index} className="border-b border-[#E0E0E0] pb-2">
                                         <Box><span className="font-semibold">Status:</span> {pessoa.status}</Box>
                                         <Box><span className="font-semibold">Encarregado:</span> {pessoa.encarregado}</Box>

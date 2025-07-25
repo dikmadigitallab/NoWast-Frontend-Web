@@ -14,9 +14,9 @@ export default function Atividades() {
 
   const [filters, setFilters] = useState({
     data: '',
-    colaborador: 'todos',
-    empresa: 'todas',
-    predio: 'todos',
+    colaborador: '',
+    empresa: '',
+    predio: '',
   });
 
   const handleFilterChange = (event: any) => {
@@ -140,24 +140,29 @@ export default function Atividades() {
             </Select>
           </FormControl>
 
-          <FormControl sx={formTheme} className="w-[23%]">
-            <InputLabel>Empresa</InputLabel>
-            <Select
-              label="Empresa"
-              name="empresa"
-              value={filters?.empresa}
-              onChange={handleFilterChange}
-            >
-              {empresaOptions?.map(option => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {
+            userType === "DIKMA_DIRECTOR" ? (
+              <FormControl sx={formTheme} className="w-[23%]">
+                <InputLabel>Empresa</InputLabel>
+                <Select
+                  label="Empresa"
+                  name="empresa"
+                  value={filters?.empresa}
+                  onChange={handleFilterChange}
+                >
+                  {empresaOptions?.map(option => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) :
+              null
+          }
 
           {
-            userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
+            userType === "DIKMA_DIRECTOR" || userType === "GESTAO" || userType === "ADM_CLIENTE" ? (
               <FormControl sx={formTheme} className="w-[23%]">
                 <InputLabel>Prédio</InputLabel>
                 <Select

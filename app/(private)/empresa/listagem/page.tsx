@@ -14,7 +14,7 @@ import { GoDownload } from 'react-icons/go';
 import EditModal from './component/modalPredioEdit';
 import { useGetEmpresa } from '@/app/hooks/empresa/get';
 
-export default function ListagemEmpresas() {
+export default function DetalharEmpresas() {
 
     const [edit, setEdit] = useState<any | null>(null);
     const [modalEdit, setModalEdit] = useState(false);
@@ -73,7 +73,7 @@ export default function ListagemEmpresas() {
                     <Box className="flex gap-2">
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Empresas</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
+                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Detalhar</h1>
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>

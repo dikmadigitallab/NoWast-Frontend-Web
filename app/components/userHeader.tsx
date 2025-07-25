@@ -5,6 +5,7 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useAuthStore } from "../store/storeApp";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { ADM_DIKMA } from "../navigation/navigation";
 
 export default function UserHeader() {
 
@@ -13,9 +14,9 @@ export default function UserHeader() {
 
     const userTypes = {
         DEFAULT: '',
-        Admin: 'Administrador Dikma',
+        ADM_DIKMA: 'Administrador Dikma',
         GESTAO: 'Gestão',
-        CLIENTE_DIKMA: 'Cliente Dikma',
+        ADM_CLIENTE: 'Cliente Dikma',
         DIKMA_DIRECTOR: 'Diretoria Dikma',
     }
 

@@ -31,6 +31,8 @@ export const useGetUsuario = () => {
                 },
             });
 
+            console.log(response.data.data.items)
+
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
                 name: item.person?.name,

@@ -7,7 +7,7 @@ import Logo from "@/app/assets/logo-1.png";
 import { usePathname } from 'next/navigation';
 import { Box, Collapse } from '@mui/material';
 import { FiChevronDown } from 'react-icons/fi';
-import { ADM_DIKMA, CLIENTE_DIKMA, GESTAO, DIKMA_DIRECTOR, DEFAULT } from '../navigation/navigation';
+import { ADM_DIKMA, ADM_CLIENTE, GESTAO, DIKMA_DIRECTOR, DEFAULT } from '../navigation/navigation';
 import { FaCircle } from 'react-icons/fa';
 import { useAuthStore } from '../store/storeApp';
 import UserFooter from './userFooter';
@@ -38,8 +38,8 @@ export default function Sidebar() {
                 return DEFAULT;
             case 'ADM_DIKMA':
                 return ADM_DIKMA;
-            case 'CLIENTE_DIKMA':
-                return CLIENTE_DIKMA;
+            case 'ADM_CLIENTE':
+                return ADM_CLIENTE;
             case 'GESTAO':
                 return GESTAO;
             case 'DIKMA_DIRECTOR':
