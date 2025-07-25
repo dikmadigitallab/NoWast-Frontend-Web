@@ -19,6 +19,7 @@ import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGetFuncoes } from "@/app/hooks/funcoes/get";
 
 const userSchema = z.object({
+    userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
     password: z.string().min(6, { message: "A senha deve ter pelo menos 8 caracteres" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
@@ -55,6 +56,7 @@ export default function CadastroPessoa() {
     const { control, handleSubmit, formState: { errors, isValid }, watch, setValue } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
+            userType: undefined,
             password: "",
             firstLogin: true,
             status: "ACTIVE",
@@ -109,13 +111,12 @@ export default function CadastroPessoa() {
     const handleDisableConfirm = () => {
         router.push('/usuario/listagem');
     };
-
     const onSubmit = (formData: UserFormValues) => {
         const newData = {
             ...formData,
-            userType: roles?.find((role: any) => role.id === formData.position.connect.id).name,
             person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } }
         };
+        console.log(newData);
         createPessoa(newData);
     };
     const formatCpfOrCnpj = (value: string) => {
@@ -164,7 +165,6 @@ export default function CadastroPessoa() {
         );
     };
 
-    console.log(watch('role.connect.id'));
 
 
 
@@ -364,6 +364,28 @@ export default function CadastroPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
+                        name="userType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.userType}>
+                                <InputLabel>Tipo de Usuário</InputLabel>
+                                <Select
+                                    label="Tipo de Usuário"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value={field.value || []} disabled>Selecione uma posição...</MenuItem>
+                                    <MenuItem value="DIKMA_ADMINISTRATOR">Administrador Dikma</MenuItem>
+                                    <MenuItem value="CONTRACT_MANAGER">Gestor de Contratos</MenuItem>
+                                    <MenuItem value="DIKMA_DIRECTOR">Diretor Dikma</MenuItem>
+                                    <MenuItem value="CLIENT_ADMINISTRATOR">Administrador de Clientes</MenuItem>
+                                    <MenuItem value="OPERATIONAL">Operacional</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.userType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
                         name="position.connect.id"
                         control={control}
                         render={({ field }) => (
@@ -540,9 +562,6 @@ export default function CadastroPessoa() {
                         )}
                     />
                 </Box>
-
-
-
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Vínculo de Itens</h2>
 
