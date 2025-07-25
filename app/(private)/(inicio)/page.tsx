@@ -26,7 +26,8 @@ export default function Home() {
         SetisSelectModule(true);
       } else if (userType === 'DIKMA_DIRECTOR') {
         window.location.href = 'modulos/empresas';
-      } else if (userType === 'Admin') {
+        SetisSelectModule(true);
+      } else if (userType === 'ADM_DIKMA') {
         window.location.href = 'dashboard/atividades';
         SetisSelectModule(true);
       }

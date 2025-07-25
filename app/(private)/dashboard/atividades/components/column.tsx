@@ -7,91 +7,89 @@ import { ApexOptions } from 'apexcharts';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function ColumnChart() {
-   
-    const [chartData] = React.useState<{ series: Array<{ name: string, data: number[] }>; options: ApexOptions }>({
+
+    const daysInMonth = Array.from({ length: 31 }, (_, i) => `${String(i + 1).padStart(2, '0')}/07`);
+
+    const [chartData] = React.useState<{
+        series: Array<{ name: string; data: number[] }>;
+        options: ApexOptions;
+    }>({
         series: [
             {
-                name: 'Ocorrências',
-                data: [55, 58, 32, 70, 25, 100, 70, 63, 62, 11, 29, 37, 44, 122, 45, 67, 89, 23, 56, 78, 90, 21, 43, 65, 87, 32, 54, 76, 98, 12, 34]
+                name: 'Grave',
+                data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 10))
+            },
+            {
+                name: 'Leve',
+                data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 20))
+            },
+            {
+                name: 'Nenhum',
+                data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 30))
             }
         ],
         options: {
             chart: {
-                type: 'bar' as const,
+                type: 'bar',
                 height: 350,
-                toolbar: {
-                    show: false
-                }
+                stacked: true,
+                toolbar: { show: true },
+                zoom: { enabled: true }
             },
+            colors: ['#e74c3c', '#f39c12', '#2ecc71'],
+            responsive: [
+                {
+                    breakpoint: 480,
+                    options: {
+                        legend: {
+                            position: 'bottom',
+                            offsetX: -10,
+                            offsetY: 0
+                        }
+                    }
+                }
+            ],
             plotOptions: {
                 bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
                     borderRadius: 5,
-                    borderRadiusApplication: 'end'
+                    horizontal: false,
+                    borderRadiusApplication: 'end',
+                    borderRadiusWhenStacked: 'last',
+                    dataLabels: {
+                        total: {
+                            enabled: true,
+                            style: {
+                                fontSize: '13px',
+                                fontWeight: 900
+                            }
+                        }
+                    }
                 }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                show: true,
-                width: 2,
-                colors: ['#08bdb4']
             },
             xaxis: {
-                categories: Array.from({ length: 31 }, (_, i) => (i + 1).toString()),
-                axisTicks: {
-                    show: false
-                },
-                axisBorder: {
-                    show: false
-                },
+                type: 'category',
+                categories: daysInMonth,
                 labels: {
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        colors: ['#000']
-                    }
+                    rotate: -45,
+                    hideOverlappingLabels: true
                 }
             },
-            yaxis: {
-                title: {
-                    text: 'Ocorrências',
-                    style: {
-                        color: '#08bdb4',
-                        fontSize: '16px',
-                        fontWeight: 600
-                    }
-                },
-                labels: {
-                    style: {
-                        colors: ['#000'],
-                        fontSize: '14px',
-                        fontWeight: 600
-                    }
-                }
+            legend: {
+                position: 'bottom',
+                offsetY: 40
             },
             fill: {
-                opacity: 1,
-                colors: ['#08bdb4']
-            },
-            tooltip: {
-                theme: 'dark',
-                style: {
-                    fontSize: '16px',
-                },
-                y: {
-                    formatter: function (val: number) {
-                        return val + " ocorrências";
-                    }
-                }
+                opacity: 1
             }
         }
     });
 
     return (
-        <ReactApexChart options={chartData.options} series={chartData.series} type="bar" height={550} />
+        <ReactApexChart
+            options={chartData.options}
+            series={chartData.series}
+            type="bar"
+            height={550}
+        />
     );
-};
-
+}

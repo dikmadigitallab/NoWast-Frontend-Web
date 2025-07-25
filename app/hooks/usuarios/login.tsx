@@ -3,14 +3,12 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import api from '../api';
 import { redirect } from 'next/navigation';
-import { useSelectModule } from '@/app/store/isSelectModule';
 
 export const useLogin = () => {
 
     const [error, setError] = useState(null);
-    const { SetisSelectModule } = useSelectModule();
+    const { userType, setId, setEmail, setDocumento, setUserType } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
-    const { setId, setEmail, setDocumento, setUserType } = useAuthStore();
 
     const login = async (email: string, password: string) => {
 
@@ -21,14 +19,12 @@ export const useLogin = () => {
             const response = await api.post('/auth', { email, password });
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
 
+            setUserType(response.data.data.user.person.name === "Admin" ? "ADM_DIKMA" : response.data.data.user.person.name);
             setId(response.data.data.user.id);
             setEmail(response.data.data.user.email);
-            setUserType(response.data.data.user.person.name);
             setDocumento(response.data.data.user.person.document);
-
             toast.success("Login realizado com sucesso!");
-            SetisSelectModule(false);
-            
+
             setTimeout(() => {
                 redirect("/");
             }, 1000);

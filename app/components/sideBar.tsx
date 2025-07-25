@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import Logo from "@/app/assets/logo-1.png";
 import { usePathname } from 'next/navigation';
-import { Box, Collapse, Skeleton } from '@mui/material';
+import { Box, Collapse } from '@mui/material';
 import { FiChevronDown } from 'react-icons/fi';
 import { ADM_DIKMA, CLIENTE_DIKMA, GESTAO, DIKMA_DIRECTOR, DEFAULT } from '../navigation/navigation';
 import { FaCircle } from 'react-icons/fa';
@@ -28,7 +28,7 @@ export default function Sidebar() {
     const [openAccordion, setOpenAccordion] = useState<OpenAccordionState>({});
 
     const getNavItems = () => {
-        
+
         if (!isSelectModule) {
             return DEFAULT
         }
@@ -36,7 +36,7 @@ export default function Sidebar() {
         switch (userType) {
             case 'DEFAULT':
                 return DEFAULT;
-            case 'Admin':
+            case 'ADM_DIKMA':
                 return ADM_DIKMA;
             case 'CLIENTE_DIKMA':
                 return CLIENTE_DIKMA;

@@ -5,17 +5,17 @@ import { ApexOptions } from 'apexcharts';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const CadastroColumnChart = () => {
-    
+
     const [state, setState] = React.useState<{
         series: ApexAxisChartSeries;
         options: ApexOptions;
     }>({
         series: [{
-            name: 'Pessoas Inicio',
+            name: 'Inicio de Contrato',
             data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
             type: 'column'
         }, {
-            name: 'Pessoas Fim',
+            name: 'Fim de Contrato',
             data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
             type: 'area'
         }, {
@@ -49,6 +49,7 @@ const CadastroColumnChart = () => {
                 }],
                 defaultLocale: 'pt-BR'
             },
+            colors: ['#2ecc71', '#e74c3c', '#f39c12'],
             stroke: {
                 width: [0, 2, 5],
                 curve: 'smooth'
@@ -82,7 +83,7 @@ const CadastroColumnChart = () => {
                 y: {
                     formatter: function (y: number) {
                         if (typeof y !== "undefined") {
-                            return y.toFixed(0) + " ocorr ncias";
+                            return y.toFixed(0) + " Contratos";
                         }
                         return y;
                     }

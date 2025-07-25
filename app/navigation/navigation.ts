@@ -166,7 +166,7 @@ export const GESTAO: NavItem[] = [
         ]
     },
     {
-        name: 'Prédios', href: '/predio/listagem',
+        name: 'Prédios', href: '/modulos/predios',
         icon: BsBuildings,
     },
     {
@@ -197,6 +197,7 @@ export const DIKMA_DIRECTOR: NavItem[] = [
         subItems: [
             { icon: FaRegCircle, name: 'Atividades', href: '/dashboard/atividades' },
             { icon: FaRegCircle, name: 'Localização', href: '/dashboard/localizacao' },
+            { icon: FaRegCircle, name: 'Cadastro', href: '/dashboard/cadastros' },
         ]
     },
     {
