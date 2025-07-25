@@ -8,6 +8,7 @@ export const Logout = (auth?: boolean) => {
     localStorage.removeItem("user");
     localStorage.removeItem("meeting-storage");
     localStorage.removeItem("permissions");
+    localStorage.removeItem("is-module-storage");
 
     if (auth) {
         toast.info("Token de autenticação não encontrado!");

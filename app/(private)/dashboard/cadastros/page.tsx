@@ -41,7 +41,7 @@ export default function Atividades() {
     ];
 
     const data3 = {
-        data: [2200, 2000, 1800, 1600, 1400, 1200, 1000, 800, 600, 400],
+        data: [2200, 2000, 1800, 1600, 1400, 1200, 1000, 800],
         categories: [
             "ADM",
             "Operador",
@@ -52,7 +52,7 @@ export default function Atividades() {
             "Operador 3",
             "Operador 4"
         ],
-        color: '#7367F0'
+        color: '#e74c3c'
     }
 
     const predioOptions = [
@@ -87,12 +87,6 @@ export default function Atividades() {
         "Nemak"
     ];
 
-    const [isClient, setIsClient] = useState(false);
-
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-    
     return (
         <StyledMainContainer style={{ background: "#f8f8f8" }}>
 

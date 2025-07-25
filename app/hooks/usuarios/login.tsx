@@ -7,12 +7,7 @@ import { redirect } from 'next/navigation';
 export const useLogin = () => {
 
     const [error, setError] = useState(null);
-    const {
-        userType,
-        setId,
-        setEmail,
-        setDocumento,
-        setUserType } = useAuthStore();
+    const { userType, setId, setEmail, setDocumento, setUserType } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
 
     const login = async (email: string, password: string) => {
@@ -24,18 +19,15 @@ export const useLogin = () => {
             const response = await api.post('/auth', { email, password });
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
 
-            setUserType(response.data.data.user.person.name);
+            setUserType(response.data.data.user.person.name === "Admin" ? "ADM_DIKMA" : response.data.data.user.person.name);
             setId(response.data.data.user.id);
             setEmail(response.data.data.user.email);
             setDocumento(response.data.data.user.person.document);
-
             toast.success("Login realizado com sucesso!");
-            console.log(response.data.data.user)
-            if (response.data.data.user.person.name === "Admin") {
-                setTimeout(() => {
-                    redirect("/dashboard/atividades");
-                }, 1000);
-            }
+
+            setTimeout(() => {
+                redirect("/");
+            }, 1000);
 
         } catch (error) {
             toast.error("Usuário ou senha inválidos!");

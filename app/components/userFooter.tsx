@@ -4,8 +4,17 @@ import { Box } from "@mui/material";
 import { IoMdSettings } from "react-icons/io";
 import { IoLogOutOutline } from "react-icons/io5";
 import { Logout } from "../utils/logout";
+import { useSelectModule } from "../store/isSelectModule";
 
 export default function UserFooter() {
+
+    const { SetisSelectModule } = useSelectModule();
+
+    const logOut = () => {
+        SetisSelectModule(false);
+        Logout();
+    }
+
     return (
         <Box className="flex flex-row items-center justify-between w-[100%]">
             <Box className="flex flex-row gap-3 items-center">
@@ -20,7 +29,7 @@ export default function UserFooter() {
                     <Box className="text-[#B9B9C3] text-[.7rem]">Admin</Box>
                 </Box>
             </Box>
-            <Box onClick={() => Logout()} component="div">
+            <Box onClick={() => logOut()} component="div">
                 <IoLogOutOutline color='#5E5873' size={30} className='cursor-pointer' />
             </Box>
         </Box>

@@ -47,8 +47,12 @@ export default function SpilinesRow({ data }: SpilinesRowProps) {
               {data.icon}
             </Box>
             <Box className="flex flex-col ">
-              <span className='text-[#5E5873] text-[1.5rem] font-bold'>925</span>
-              <span className='text-[#5E5873] text-[1.1rem] font-normal mt-[-5px]'>Total</span>
+              <span className='text-[#5E5873] text-[1.5rem] font-bold'>
+                {data.series[0]?.data[data.series[0]?.data.length - 1]}
+              </span>
+              <span className='text-[#5E5873] text-[1rem] font-medium mt-[-5px]'>
+                 {data.series[0]?.name}
+              </span>
             </Box>
           </Box>
 

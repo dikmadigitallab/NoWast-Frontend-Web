@@ -39,7 +39,7 @@ export default function Atividades() {
       'Manutenção',
       'Outro'
     ],
-    color: '#FF5733'
+    color: '#e74c3c'
   }
 
   const data2 = {
@@ -53,7 +53,7 @@ export default function Atividades() {
       "Exemplo de nome",
       "Exemplo de nome"
     ],
-    color: '#33FF57'
+    color: '#2ecc71'
   }
 
   const data3 = {
@@ -68,7 +68,7 @@ export default function Atividades() {
       "Manutenção",
       "Outros"
     ],
-    color: '#3357FF'
+    color: '#f39c12'
   }
 
   const collaboratorOptions = [
@@ -91,14 +91,17 @@ export default function Atividades() {
     "todos",
     "Coqueria",
     "Sinterização",
-    "Auto Forno"
+    "Alto Forno"
   ];
 
-  const [isClient, setIsClient] = useState(false);
+
+  const [mount, setMount] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    setMount(true);
   }, []);
+
+  if (!mount) return
 
   return (
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
@@ -153,23 +156,28 @@ export default function Atividades() {
             </Select>
           </FormControl>
 
-          <FormControl sx={formTheme} className="w-[23%]">
-            <InputLabel>Prédio</InputLabel>
-            <Select
-              label="Prédio"
-              name="predio"
-              value={filters.predio}
-              onChange={handleFilterChange}
-            >
-              {predioOptions.map(option => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+          {
+            userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
+              <FormControl sx={formTheme} className="w-[23%]">
+                <InputLabel>Prédio</InputLabel>
+                <Select
+                  label="Prédio"
+                  name="predio"
+                  value={filters.predio}
+                  onChange={handleFilterChange}
+                >
+                  {predioOptions.map(option => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) :
+              null
+          }
 
+        </Box>
       </Box>
 
       <Box className="flex flex-row gap-5 w-[100%] mb-5">
