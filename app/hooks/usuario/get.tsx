@@ -40,6 +40,7 @@ export const useGetUsuario = () => {
                 manager: item.manager?.email,
                 email: item.email,
                 status: item.status,
+                userType: item.userType,
                 role: item.role?.name,
                 position: item.position?.name,
                 endDate: item.contract?.endDate,

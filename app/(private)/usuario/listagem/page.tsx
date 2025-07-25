@@ -90,7 +90,7 @@ export default function DetalharPessoa() {
             width: 200,
         },
         {
-            field: 'role',
+            field: 'userType',
             headerName: 'Usuário',
             width: 180,
         },
