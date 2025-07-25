@@ -20,7 +20,6 @@ import { useGetFuncoes } from "@/app/hooks/funcoes/get";
 
 const userSchema = z.object({
     password: z.string().min(6, { message: "A senha deve ter pelo menos 8 caracteres" }),
-    userType: z.string({ required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
     phone: z.string().min(7, { message: "Telefone inválido" }),
@@ -28,8 +27,8 @@ const userSchema = z.object({
     person: z.object({
         create: z.object({
             name: z.string().min(1, { message: "O nome é obrigatório" }),
-            tradeName: z.string().min(1, { message: "Nome Fantasia é obrigatório" }),
-            document: z.string().refine((val) => /^\d{11}$/.test(val) || /^\d{14}$/.test(val), { message: "Documento deve ter 11 (CPF) ou 14 (CNPJ) números", }),
+            tradeName: z.string({ message: "Nome Fantasia é obrigatório" }),
+            document: z.string().min(11, { message: "Documento deve ter 11 (CPF) ou 14 (CNPJ) números", }),
             briefDescription: z.string().min(1, { message: "Descrição é obrigatória" }),
             birthDate: z.string().min(1, { message: "Data de nascimento é obrigatória" }),
             gender: z.enum(["MALE", "FEMALE", "OTHER"], { required_error: "Gênero é obrigatório", invalid_type_error: "Gênero inválido" }),
@@ -57,7 +56,6 @@ export default function CadastroPessoa() {
         resolver: zodResolver(userSchema),
         defaultValues: {
             password: "",
-            userType: undefined,
             firstLogin: true,
             status: "ACTIVE",
             phone: "",
@@ -113,11 +111,13 @@ export default function CadastroPessoa() {
     };
 
     const onSubmit = (formData: UserFormValues) => {
-        const newData = { ...formData, person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
-        console.log(newData);
+        const newData = {
+            ...formData,
+            userType: roles?.find((role: any) => role.id === formData.position.connect.id).name,
+            person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } }
+        };
         createPessoa(newData);
     };
-
     const formatCpfOrCnpj = (value: string) => {
         const type = watch('person.create.personType');
         const digits = value.replace(/\D/g, '');
@@ -136,14 +136,7 @@ export default function CadastroPessoa() {
         }
     };
 
-
-
-    const renderChips = (
-        selected: number[],
-        fieldName: string,
-        onDelete: (value: number) => void,
-        items: { id: number, name: string }[] = []
-    ) => {
+    const renderChips = (selected: number[], fieldName: string, onDelete: (value: number) => void, items: { id: number, name: string }[] = []) => {
         const safeItems = Array.isArray(items) ? items : [];
 
         return (
@@ -171,6 +164,8 @@ export default function CadastroPessoa() {
         );
     };
 
+    console.log(watch('role.connect.id'));
+
 
 
     return (
@@ -181,7 +176,6 @@ export default function CadastroPessoa() {
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
-
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
 
@@ -219,7 +213,25 @@ export default function CadastroPessoa() {
                 </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5">
-
+                    <Controller
+                        name="person.create.personType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.person?.create?.personType}>
+                                <InputLabel>Tipo de Pessoa</InputLabel>
+                                <Select
+                                    label="Tipo de Pessoa"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
+                                    <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.person?.create?.personType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
                     <Controller
                         disabled={!watch('person.create.personType')}
                         name="person.create.document"
@@ -227,7 +239,7 @@ export default function CadastroPessoa() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Documento"
+                                label={watch('person.create.personType') === "INDIVIDUAL" ? "CPF" : "CNPJ"}
                                 {...field}
                                 onChange={(e) => {
                                     const formatted = formatCpfOrCnpj(e.target.value);
@@ -236,24 +248,6 @@ export default function CadastroPessoa() {
                                 value={field.value}
                                 error={!!errors.person?.create?.document}
                                 helperText={errors.person?.create?.document?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-
-                    <Controller
-                        name="person.create.birthDate"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Data de Nascimento"
-                                type="date"
-                                InputLabelProps={{ shrink: true }}
-                                {...field}
-                                error={!!errors.person?.create?.birthDate}
-                                helperText={errors.person?.create?.birthDate?.message}
                                 className="w-full"
                                 sx={formTheme}
                             />
@@ -279,22 +273,20 @@ export default function CadastroPessoa() {
                         )}
                     />
                     <Controller
-                        name="person.create.personType"
+                        name="person.create.birthDate"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.person?.create?.personType}>
-                                <InputLabel>Tipo de Pessoa</InputLabel>
-                                <Select
-                                    label="Tipo de Pessoa"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
-                                    <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.person?.create?.personType?.message}</FormHelperText>
-                            </FormControl>
+                            <TextField
+                                variant="outlined"
+                                label="Data de Nascimento"
+                                type="date"
+                                InputLabelProps={{ shrink: true }}
+                                {...field}
+                                error={!!errors.person?.create?.birthDate}
+                                helperText={errors.person?.create?.birthDate?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
                         )}
                     />
                 </Box>
@@ -372,24 +364,24 @@ export default function CadastroPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="userType"
+                        name="position.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.userType}>
+                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
                                 <InputLabel>Tipo de Usuário</InputLabel>
                                 <Select
                                     label="Tipo de Usuário"
                                     {...field}
                                     value={field.value || ""}
                                 >
-                                    <MenuItem value="" disabled>Selecione uma posição...</MenuItem>
+                                    <MenuItem value={field.value || []} disabled>Selecione uma posição...</MenuItem>
                                     {roles?.map((position: any) => (
-                                        <MenuItem key={position.id} value={position.name}>
+                                        <MenuItem key={position.id} value={position.id}>
                                             {position.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                <FormHelperText>{errors.userType?.message}</FormHelperText>
+                                <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
                             </FormControl>
                         )}
                     />
@@ -448,9 +440,7 @@ export default function CadastroPessoa() {
                     />
                 </Box>
 
-                {/* Relations Section */}
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
-
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
                         name="role.connect.id"
@@ -476,6 +466,7 @@ export default function CadastroPessoa() {
                             </FormControl>
                         )}
                     />
+
                     <Controller
                         name="contract.connect.id"
                         control={control}
