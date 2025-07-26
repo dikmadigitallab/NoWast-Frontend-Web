@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
+      - name: Checkout do código
         uses: actions/checkout@v4
 
       - name: Copiar arquivos para o servidor
@@ -19,6 +19,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
+          port: 22206
           source: "."
           target: "${{ secrets.REMOTE_APP_PATH }}"
 
@@ -28,9 +29,11 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
+          port: 22206
           script: |
             cd ${{ secrets.REMOTE_APP_PATH }}
             docker stop frontend || true
             docker rm frontend || true
             docker build -t frontend .
             docker run -d --name frontend -p 3000:3000 frontend
+
