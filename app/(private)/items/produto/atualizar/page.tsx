@@ -10,7 +10,6 @@ import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } fr
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGetPredio } from "@/app/hooks/locais/predio/get";
-import { useGetUsers } from "@/app/hooks/usuarios/get";
 import { useGetOneItem } from "@/app/hooks/items/getOneById";
 import { useUpdateItem } from "@/app/hooks/items/update";
 import { useDeleteItem } from "@/app/hooks/items/delete";
@@ -28,7 +27,6 @@ export default function EditarProduto() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
-    const { predio } = useGetPredio();
     const { data } = useGetOneItem("product");
     const { updateItem, loading } = useUpdateItem("product");
     const { deleteItem } = useDeleteItem("product");
@@ -113,7 +111,7 @@ export default function EditarProduto() {
                                     <MenuItem value="" disabled>
                                         Clique e selecione...
                                     </MenuItem>
-                                    {pessoas?.data.items.map((person: any) => (
+                                    {pessoas?.map((person: any) => (
                                         <MenuItem key={person.id} value={person.id}>
                                             {person.name}
                                         </MenuItem>

@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/app/components/userHeader";
+import { useSelectModule } from "@/app/store/isSelectModule";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { Box, Button } from "@mui/material";
@@ -13,6 +14,13 @@ interface Predio {
 }
 
 export default function Predios() {
+
+    const { SetisSelectModule } = useSelectModule();
+
+    const redirect = () => {
+        window.location.href = 'dashboard/atividades';
+        SetisSelectModule(true);
+    }
 
     const predios: Predio[] = [
         {
@@ -29,7 +37,7 @@ export default function Predios() {
         },
         {
             id: 3,
-            name: "Auto Forno",
+            name: "Alto-Forno",
             image: "https://images.pexels.com/photos/3730670/pexels-photo-3730670.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
             status: "ativo"
         }
@@ -40,12 +48,12 @@ export default function Predios() {
             <Box className="flex gap-2 mb-8">
                 <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Prédios</h1>
                 <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
+                <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Detalhar</h1>
             </Box>
 
             <Header />
 
-            <Box className="w-full flex flex-col mt-8">
+            <Box className="w-full flex flex-col">
                 <Box className="w-full flex flex-wrap flex-row justify-between">
                     {predios.map(predio => (
                         <Box key={predio.id} className="md:w-[100%] lg:w-[32%] flex flex-col items-center justify-between overflow-hidden gap-2 p-4 rounded-sm h-[400px] border-1 border-[#5e58731f]">
@@ -59,6 +67,7 @@ export default function Predios() {
                                 O prédio {predio.name} é fundamental no processo industrial. Clique para saber mais e acessar detalhes operacionais.
                             </span>
                             <Button
+                                onClick={redirect}
                                 disabled={predio.status === "inativo"}
                                 sx={[buttonTheme, { width: "100%" }]}
                                 variant="contained"

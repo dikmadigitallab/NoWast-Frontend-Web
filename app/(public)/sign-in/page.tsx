@@ -2,7 +2,7 @@
 
 import { Box, Button, CircularProgress, IconButton, TextField } from "@mui/material";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import Logo from "../../assets/pr_logo.png";
+import Logo from "../../assets/logo-1.png";
 import { useState } from "react";
 import Image from "next/image";
 import "./style.scss";
@@ -13,11 +13,11 @@ export default function SignIn() {
 
   const { login, isLoading } = useLogin();
   const [isVisible, setIsVisible] = useState(false);
-  const [user, setUser] = useState({ email: "admin@dikma.com.br", password: "123456" });
+  const [user, setUser] = useState({ document: "", password: "" });
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    login(user.email, user.password);
+    login(user.document, user.password);
   };
 
   return (
@@ -28,18 +28,13 @@ export default function SignIn() {
       >
         <Box className="flex flex-col gap-5">
           <Box className="flex items-center flex-row gap-2">
-            <Box className="w-[60px] h-[60px] ">
-              <Image src={Logo} alt="Logo" className="w-[100%] h-full" />
-            </Box>
-            <Box>
-              <Box className="text-[#f5ac40] text-[1.6rem] font-normal mb-[-13px]">Grupo</Box>
-              <Box className="text-[#2a5163] text-[1.6rem] font-black">Dikma</Box>
-            </Box>
+            <Image src={Logo} alt="Logo" className="w-[40%] h-full" />
+
           </Box>
           <Box className="flex flex-col gap-3">
-            <Box className="font-bold text-[#6E6B7B]">Bem Vindo</Box>
+            <Box className="font-bold text-[#6E6B7B]">Bem-vindo!</Box>
             <Box className="font-normal text-[#6E6B7B] text-[0.9rem]">
-              Preencha as informações abaixo para acessar o sistema
+              Preencha as informações abaixo para acessar o sistema.
             </Box>
           </Box>
         </Box>
@@ -48,14 +43,14 @@ export default function SignIn() {
           <TextField
             required
             type="text"
-            name="email"
+            name="cpf_cnpj"
             variant="outlined"
-            placeholder="Email"
-            value={user.email}
-            onChange={(e) => setUser({ ...user, email: e.target.value })}
+            placeholder="CPF/CNPJ"
+            value={user.document}
+            onChange={(e) => setUser({ ...user, document: e.target.value })}
             fullWidth
-            error={Boolean(user.email && user.email.length < 5)}
-            helperText={user.email && user.email.length < 5 ? "Insira um e-mail válido" : ""}
+            error={Boolean(user.document && user.document.length < 5)}
+            helperText={user.document && user.document.length < 5 ? "Insira um e-mail válido" : ""}
           />
 
           <TextField
@@ -84,7 +79,7 @@ export default function SignIn() {
         </Box>
 
         <Box className="w-[100%] flex flex-col gap-3">
-          <Button type="submit" variant="outlined" sx={[buttonTheme, { width: "100%" }]}>
+          <Button disabled={isLoading} type="submit" variant="outlined" sx={[buttonTheme, { width: "100%" }]}>
             {isLoading ? (
               <CircularProgress size={30} color="inherit" className="text-[#fff]" />
             ) : (

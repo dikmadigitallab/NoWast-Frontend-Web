@@ -30,7 +30,7 @@ export default function FormBusinessSector() {
                     render={({ field }) => (
                         <TextField
                             variant="outlined"
-                            label="Nome completo/Razão Social"
+                            label="Setor de Negócio"
                             {...field}
                             value={field.value ?? ""}
                             error={!!errors.description}

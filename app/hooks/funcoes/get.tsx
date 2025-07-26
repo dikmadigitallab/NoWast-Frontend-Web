@@ -4,13 +4,13 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetUsers = () => {
+export const useGetFuncoes = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [users, setUsers] = useState<any>(null);
+    const [data, setData] = useState<any>(null);
 
-    const getUser = async () => {
+    const getFuncoes = async () => {
         setError(null);
         setLoading(true);
 
@@ -24,33 +24,28 @@ export const useGetUsers = () => {
         }
 
         try {
-            const response = await api.get<any>("/users?disablePagination=true", {
+            const response = await api.get<any>("/roles?disablePagination=true", {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setUsers(response.data);
+            setData(response.data.data.items);
         } catch (error) {
-            setError("Erro ao buscar setores empresariais");
-            if (error instanceof Error) {
-                console.error("Error fetching business sectors:", error.message);
-            }
+            setError("Erro ao buscar Roless");
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        getUser();
+        getFuncoes();
     }, []);
 
     return {
-        getUser,
         loading,
         error,
-        users,
-        setUsers
+        data
     };
 };

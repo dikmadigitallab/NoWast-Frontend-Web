@@ -1,14 +1,14 @@
 "use client";
 
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { Box, Button, CircularProgress, IconButton, TextField } from "@mui/material";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import Logo from "../../assets/pr_logo.png";
-import { useState } from "react";
+import Logo from "../../assets/logo-1.png";
 import { redirect } from "next/navigation";
 import { toast } from "react-toastify";
+import { useState } from "react";
 import Image from "next/image";
 import "./style.scss";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 
 export default function RecoverPass() {
 

@@ -4,13 +4,13 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetCargo = () => {
+export const useGetPosicao = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
-    const getCargo = async () => {
+    const getPosicao = async () => {
         setError(null);
         setLoading(true);
 
@@ -24,38 +24,33 @@ export const useGetCargo = () => {
         }
 
         try {
-            const response = await api.get<any>("/position?disablePagination=true", {
+            const response = await api.get<any>(`/position?disablePagination=true`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            const refactory = response.data.data.items?.map((item: any) => ({
-                id: item.id,
-                name: item.person?.name,
-                email: item.email,
-                status: item.status,
-                role: item.role?.name,
-                position: item.position?.name
-            })) || [];
-
-            setData(refactory);
+            setData(response.data.data.items);
         } catch (error) {
-            setError("Erro ao buscar cargos");
+            setError("Erro ao buscar setores posição");
+            if (error instanceof Error) {
+                console.error("Error fetching business sectors:", error.message);
+            }
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        getCargo();
+        getPosicao();
     }, []);
 
     return {
-        getCargo,
+        getPosicao,
         loading,
         error,
-        data
+        data,
+        setData
     };
 };

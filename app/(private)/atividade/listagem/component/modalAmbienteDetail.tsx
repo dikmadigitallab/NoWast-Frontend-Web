@@ -68,7 +68,7 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                             <Box className="text-[#6E6B7B]">{modalVisualize?.Tipo}</Box>
                         </Box>
 
-                        <Box className="mt-4 border-t border-[#E0E0E0] pt-3">
+                       {/*  <Box className="mt-4 border-t border-[#E0E0E0] pt-3">
                             <Box className="font-semibold text-[#6E6B7B] mb-2">Pessoas:</Box>
                             <Box className="flex flex-col gap-5">
                                 {modalVisualize?.pessoas?.map((pessoa: any, index: any) => (
@@ -81,7 +81,7 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                                     </Box>
                                 ))}
                             </Box>
-                        </Box>
+                        </Box> */}
                     </Box>
                 </Box>
             </Box>

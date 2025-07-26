@@ -38,7 +38,6 @@ export default function CadastroPredio() {
 
     const { createPredio, loading } = useCreatePredio();
     const { data: contratos } = useGetContratos(true);
-    console.log(contratos)
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 

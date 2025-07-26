@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
+import { MdKeyboardDoubleArrowDown, MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
 import ReverceChart from '../components/reverseBar';
 import { useAuthStore } from '@/app/store/storeApp';
 
@@ -14,9 +14,9 @@ export default function Atividades() {
 
   const [filters, setFilters] = useState({
     data: '',
-    colaborador: 'todos',
-    empresa: 'todas',
-    predio: 'todos',
+    colaborador: '',
+    empresa: '',
+    predio: '',
   });
 
   const handleFilterChange = (event: any) => {
@@ -39,7 +39,7 @@ export default function Atividades() {
       'Manutenção',
       'Outro'
     ],
-    color: '#FF5733'
+    color: '#e74c3c'
   }
 
   const data2 = {
@@ -53,7 +53,7 @@ export default function Atividades() {
       "Exemplo de nome",
       "Exemplo de nome"
     ],
-    color: '#33FF57'
+    color: '#2ecc71'
   }
 
   const data3 = {
@@ -68,7 +68,7 @@ export default function Atividades() {
       "Manutenção",
       "Outros"
     ],
-    color: '#3357FF'
+    color: '#f39c12'
   }
 
   const collaboratorOptions = [
@@ -91,14 +91,17 @@ export default function Atividades() {
     "todos",
     "Coqueria",
     "Sinterização",
-    "Auto Forno"
+    "Alto Forno"
   ];
 
-  const [isClient, setIsClient] = useState(false);
+
+  const [mount, setMount] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    setMount(true);
   }, []);
+
+  if (!mount) return
 
   return (
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
@@ -138,41 +141,48 @@ export default function Atividades() {
           </FormControl>
 
           {
-            isClient && userType === 'DIKMA_DIRETORIA' &&
-            <FormControl sx={formTheme} className="w-[23%]">
-              <InputLabel>Empresa</InputLabel>
-              <Select
-                label="Empresa"
-                name="empresa"
-                value={filters?.empresa}
-                onChange={handleFilterChange}
-              >
-                {empresaOptions?.map(option => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            userType === "DIKMA_DIRECTOR" ? (
+              <FormControl sx={formTheme} className="w-[23%]">
+                <InputLabel>Empresa</InputLabel>
+                <Select
+                  label="Empresa"
+                  name="empresa"
+                  value={filters?.empresa}
+                  onChange={handleFilterChange}
+                >
+                  {empresaOptions?.map(option => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) :
+              null
           }
 
-          <FormControl sx={formTheme} className="w-[23%]">
-            <InputLabel>Prédio</InputLabel>
-            <Select
-              label="Prédio"
-              name="predio"
-              value={filters.predio}
-              onChange={handleFilterChange}
-            >
-              {predioOptions.map(option => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+          {
+            userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
+              <FormControl sx={formTheme} className="w-[23%]">
+                <InputLabel>Prédio</InputLabel>
+                <Select
+                  label="Prédio"
+                  name="predio"
+                  value={filters.predio}
+                  onChange={handleFilterChange}
+                >
+                  {predioOptions.map(option => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) :
+              null
+          }
 
+        </Box>
       </Box>
 
       <Box className="flex flex-row gap-5 w-[100%] mb-5">
@@ -206,7 +216,7 @@ export default function Atividades() {
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
               <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#FFF3E8] rounded-full">
-                <MdOutlineKeyboardDoubleArrowUp size={30} color='#FF9F43' />
+                <MdKeyboardDoubleArrowDown size={30} color='#FF9F43' />
               </Box>
               <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
             </Box>
@@ -256,7 +266,7 @@ export default function Atividades() {
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
               <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#FFF3E8] rounded-full">
-                <MdOutlineKeyboardDoubleArrowUp size={30} color='#FF9F43' />
+                <MdKeyboardDoubleArrowDown size={30} color='#FF9F43' />
               </Box>
               <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
             </Box>
@@ -306,7 +316,7 @@ export default function Atividades() {
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
               <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#FFF3E8] rounded-full">
-                <MdOutlineKeyboardDoubleArrowUp size={30} color='#FF9F43' />
+                <MdKeyboardDoubleArrowDown size={30} color='#FF9F43' />
               </Box>
               <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
             </Box>

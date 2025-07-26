@@ -5,20 +5,21 @@ import { ApexOptions } from 'apexcharts';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const CadastroColumnChart = () => {
+
     const [state, setState] = React.useState<{
         series: ApexAxisChartSeries;
         options: ApexOptions;
     }>({
         series: [{
-            name: 'Pessoas',
+            name: 'Inicio de Contrato',
             data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
             type: 'column'
         }, {
-            name: 'Inicio',
+            name: 'Fim de Contrato',
             data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
             type: 'area'
         }, {
-            name: 'Fim',
+            name: 'Pessoas Ativas',
             data: [35, 41, 36, 26, 45, 48, 52, 53, 41],
             type: 'line'
         }],
@@ -30,10 +31,10 @@ const CadastroColumnChart = () => {
                 locales: [{
                     name: 'pt-BR',
                     options: {
-                        months: ['Janeiro', 'Fevereiro', 'Mar o', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+                        months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
                         shortMonths: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                        days: ['Domingo', 'Segunda-feira', 'Ter a-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'S bado'],
-                        shortDays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S b'],
+                        days: ['Domingo', 'Segunda-feira', 'Ter a-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+                        shortDays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
                         toolbar: {
                             exportToCSV: 'Exportar para CSV',
                             exportToSVG: 'Exportar para SVG',
@@ -48,6 +49,7 @@ const CadastroColumnChart = () => {
                 }],
                 defaultLocale: 'pt-BR'
             },
+            colors: ['#2ecc71', '#e74c3c', '#f39c12'],
             stroke: {
                 width: [0, 2, 5],
                 curve: 'smooth'
@@ -75,19 +77,13 @@ const CadastroColumnChart = () => {
             xaxis: {
                 type: 'datetime'
             },
-            yaxis: {
-                title: {
-                    text: 'Início e Fim de Contrato'
-                },
-                min: 0
-            },
             tooltip: {
                 shared: true,
                 intersect: false,
                 y: {
                     formatter: function (y: number) {
                         if (typeof y !== "undefined") {
-                            return y.toFixed(0) + " ocorr ncias";
+                            return y.toFixed(0) + " Contratos";
                         }
                         return y;
                     }

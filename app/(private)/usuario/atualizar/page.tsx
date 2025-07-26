@@ -8,25 +8,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetItems } from "@/app/hooks/items/get";
-import { useCreatePessoa } from "@/app/hooks/pessoas/pessoa/create";
 import { useGetContratos } from "@/app/hooks/contrato/get";
-import { useGetCargo } from "@/app/hooks/positions/get";
+import { useGetCargo } from "@/app/hooks/funcoes/get";
+import { useGetPosicao } from "@/app/hooks/posicao/get";
+import { useGetUsuario } from "@/app/hooks/usuario/get";
+import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
 
 const userSchema = z.object({
-    password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres" }),
-    userType: z.enum(["DIKMA_DIRECTOR", "OTHER_TYPE"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
-    email: z.string().email({ message: "Email inválido" }),
-    firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
-    status: z.enum(["ACTIVE", "INACTIVE"], {
-        required_error: "Status é obrigatório",
-        invalid_type_error: "Status inválido",
-    }),
+    id: z.number({ required_error: "ID é obrigatório", invalid_type_error: "ID inválido" }),
+    userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
+    status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
     phone: z.string().min(7, { message: "Telefone inválido" }),
+    firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     person: z.object({
         create: z.object({
             name: z.string().min(1, { message: "O nome é obrigatório" }),
@@ -53,17 +51,17 @@ const userSchema = z.object({
 
 type UserFormValues = z.infer<typeof userSchema>;
 
-export default function EditarPessoa() {
+export default function AtualizarPessoa() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch, setValue } = useForm<UserFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
-            password: "",
+            id: undefined,
             userType: undefined,
-            email: "",
-            firstLogin: true,
             status: "ACTIVE",
+            source: "",
             phone: "",
+            firstLogin: true,
             person: {
                 create: {
                     name: "",
@@ -90,15 +88,15 @@ export default function EditarPessoa() {
         mode: "onChange"
     });
 
-    const { data: epis } = useGetItems('ppe');
-    const { data: equipamentos } = useGetItems('tools');
-    const { data: produtos } = useGetItems('product');
-    const { data: transportes } = useGetItems('transport');
-    const { data: contratos } = useGetContratos();
+    const { users } = useGetUsuario();
+    const { data } = useGetOneUsuario();
     const { data: cargos } = useGetCargo();
-    const { createPessoa } = useCreatePessoa();
-
-    console.log(cargos);
+    const { data: posicao } = useGetPosicao();
+    const { data: epis } = useGetItems('ppe');
+    const { data: contrato } = useGetContratos();
+    const { data: produtos } = useGetItems('product');
+    const { data: equipamentos } = useGetItems('tools');
+    const { data: transportes } = useGetItems('transport');
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -112,47 +110,68 @@ export default function EditarPessoa() {
     };
 
     const handleDisableConfirm = () => {
-        router.push('/pessoas/listagem');
+        router.push('/usuario/listagem');
     };
 
     const onSubmit = (formData: UserFormValues) => {
-        const newData = { ...formData, person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
-        console.log(newData);
-        createPessoa(newData);
+        console.log(formData)
+        // const newData = { ...formData, person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
+        // console.log(newData);
+        // createPessoa(newData);
     };
 
-    const roles = [
-        { id: 1, name: "CEO" },
-        { id: 2, name: "Gerente" },
-        { id: 3, name: "Supervisor" },
-    ];
+    const formatDateForInput = (dateString: string | undefined): string => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
 
-    const contracts = [
-        { id: 4, name: "Adcos" },
-        { id: 5, name: "ArcelorMittal" },
-        { id: 6, name: "Nemak" },
-    ];
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
 
-    const positions = [
-        { id: 2, name: "CEO" },
-        { id: 3, name: "Designer" },
-        { id: 4, name: "Analista" },
-        { id: 5, name: "Desenvolvedor" }
-    ];
+        return `${year}-${month}-${day}`;
+    };
 
-    const supervisors = [
-        { id: 1, name: "Sem Supervisor" },
-        { id: 2, name: "João Silva" },
-        { id: 3, name: "Maria Souza" },
-        { id: 4, name: "Carlos Oliveira" },
-    ];
+    const mapApiDataToFormValues = (apiData: any): UserFormValues => {
+        return {
+            id: apiData.id,
+            userType: apiData.userType,
+            status: apiData.status,
+            source: apiData.source || "",
+            phone: apiData.person.phones[0]?.phoneNumber || "",
+            firstLogin: apiData.firstLogin,
+            person: {
+                create: {
+                    name: apiData.person.name,
+                    tradeName: apiData.person.tradeName,
+                    document: apiData.person.document,
+                    briefDescription: apiData.person.briefDescription,
+                    birthDate: formatDateForInput(apiData.person.birthDate),
+                    gender: apiData.person.gender,
+                    personType: apiData.person.personType,
+                    email: apiData.person.emails[0]?.email || "",
+                    phone: apiData.person.phones[0]?.phoneNumber || ""
+                }
+            },
+            role: { connect: { id: apiData.role?.id || "" } },
+            contract: { connect: { id: apiData.contract?.id } },
+            position: { connect: { id: apiData.position?.id } },
+            supervisor: { connect: { id: apiData.supervisor?.id } },
+            manager: { connect: { id: apiData.manager?.id } },
+            epiIds: apiData.epis?.map((epi: any) => epi.id) || [],
+            equipmentIds: apiData.equipments?.map((eq: any) => eq.id) || [],
+            vehicleIds: apiData.vehicles?.map((v: any) => v.id) || [],
+            productIds: apiData.products?.map((p: any) => p.id) || []
+        };
+    };
 
-    const managers = [
-        { id: 1, name: "Sem Gerente" },
-        { id: 2, name: "Ana Paula" },
-        { id: 3, name: "Roberto Santos" },
-        { id: 4, name: "Fernanda Lima" },
-    ];
+    useEffect(() => {
+        if (data) {
+            const formData = mapApiDataToFormValues(data);
+            console.log(data)
+            reset(formData);
+        }
+    }, [data, reset]);
 
 
     const renderChips = (
@@ -198,117 +217,7 @@ export default function EditarPessoa() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                {/* User Information Section */}
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="email"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Email do usuário"
-                                {...field}
-                                error={!!errors.email}
-                                helperText={errors.email?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="password"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Senha"
-                                type="password"
-                                {...field}
-                                error={!!errors.password}
-                                helperText={errors.password?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                </Box>
 
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="userType"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.userType}>
-                                <InputLabel>Tipo de Usuário</InputLabel>
-                                <Select
-                                    label="Tipo de Usuário"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="DIKMA_DIRECTOR">Diretor DIKMA</MenuItem>
-                                    <MenuItem value="OTHER_TYPE">Outro Tipo</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.userType?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
-                        name="status"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth>
-                                <InputLabel>Status</InputLabel>
-                                <Select
-                                    label="Status"
-                                    {...field}
-                                    value={field.value || "ACTIVE"}
-                                >
-                                    <MenuItem value="ACTIVE">Ativo</MenuItem>
-                                    <MenuItem value="INACTIVE">Inativo</MenuItem>
-                                </Select>
-                            </FormControl>
-                        )}
-                    />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="phone"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Telefone"
-                                {...field}
-                                error={!!errors.phone}
-                                helperText={errors.phone?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="firstLogin"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth>
-                                <InputLabel>Primeiro Login</InputLabel>
-                                <Select
-                                    label="Primeiro Login"
-                                    {...field}
-                                    value={field.value ? "true" : "false"}
-                                    onChange={(e) => field.onChange(e.target.value === "true")}
-                                >
-                                    <MenuItem value="true">Sim</MenuItem>
-                                    <MenuItem value="false">Não</MenuItem>
-                                </Select>
-                            </FormControl>
-                        )}
-                    />
-                </Box>
-
-                {/* Person Information Section */}
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
@@ -423,22 +332,6 @@ export default function EditarPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="person.create.email"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Email da Pessoa"
-                                type="email"
-                                {...field}
-                                error={!!errors.person?.create?.email}
-                                helperText={errors.person?.create?.email?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
                         name="person.create.phone"
                         control={control}
                         render={({ field }) => (
@@ -472,10 +365,105 @@ export default function EditarPessoa() {
                     )}
                 />
 
-                {/* Relations Section */}
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Vínculo de Pessoa</h2>
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações do Usuário</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.email"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Email da Pessoa"
+                                type="email"
+                                {...field}
+                                error={!!errors.person?.create?.email}
+                                helperText={errors.person?.create?.email?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="userType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.userType}>
+                                <InputLabel>Tipo de Usuário</InputLabel>
+                                <Select
+                                    label="Tipo de Usuário"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="DIKMA_ADMINISTRATOR">Administrador Dikma</MenuItem>
+                                    <MenuItem value="CONTRACT_MANAGER">Gestor de Contrato</MenuItem>
+                                    <MenuItem value="DIKMA_DIRECTOR">Diretor Dikma</MenuItem>
+                                    <MenuItem value="CLIENT_ADMINISTRATOR">Administrador de Cliente</MenuItem>
+                                    <MenuItem value="OPERATIONAL">Operacional</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.userType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
+                        name="status"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth>
+                                <InputLabel>Status</InputLabel>
+                                <Select
+                                    label="Status"
+                                    {...field}
+                                    value={field.value || "ACTIVE"}
+                                >
+                                    <MenuItem value="ACTIVE">Ativo</MenuItem>
+                                    <MenuItem value="INACTIVE">Inativo</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="phone"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Telefone"
+                                {...field}
+                                error={!!errors.phone}
+                                helperText={errors.phone?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="firstLogin"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth>
+                                <InputLabel>Primeiro Login</InputLabel>
+                                <Select
+                                    label="Primeiro Login"
+                                    {...field}
+                                    value={field.value ? "true" : "false"}
+                                    onChange={(e) => field.onChange(e.target.value === "true")}
+                                >
+                                    <MenuItem value="true">Sim</MenuItem>
+                                    <MenuItem value="false">Não</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
+                <Box className="w-[100%] flex flex-row gap-5">
+
                     <Controller
                         name="role.connect.id"
                         control={control}
@@ -490,7 +478,7 @@ export default function EditarPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um cargo...</MenuItem>
-                                    {roles?.map((role) => (
+                                    {cargos?.map((role: any) => (
                                         <MenuItem key={role.id} value={role.id}>
                                             {role.name}
                                         </MenuItem>
@@ -513,7 +501,7 @@ export default function EditarPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um contrato...</MenuItem>
-                                    {contracts?.map((contract) => (
+                                    {contrato?.map((contract: any) => (
                                         <MenuItem key={contract.id} value={contract.id}>
                                             {contract.name}
                                         </MenuItem>
@@ -539,7 +527,7 @@ export default function EditarPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione uma posição...</MenuItem>
-                                    {positions?.map((position) => (
+                                    {posicao?.map((position: any) => (
                                         <MenuItem key={position.id} value={position.id}>
                                             {position.name}
                                         </MenuItem>
@@ -562,9 +550,9 @@ export default function EditarPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
-                                    {supervisors?.map((supervisor) => (
-                                        <MenuItem key={supervisor.id} value={supervisor.id}>
-                                            {supervisor.name}
+                                    {Array.isArray(users) && users.map((pessoa) => (
+                                        <MenuItem key={pessoa.id} value={pessoa.id}>
+                                            {pessoa.person.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -588,9 +576,9 @@ export default function EditarPessoa() {
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {managers?.map((manager) => (
-                                        <MenuItem key={manager.id} value={manager.id}>
-                                            {manager.name}
+                                    {Array.isArray(users) && users.map((pessoa) => (
+                                        <MenuItem key={pessoa.id} value={pessoa.id}>
+                                            {pessoa.person.name}
                                         </MenuItem>
                                     ))}
                                 </Select>

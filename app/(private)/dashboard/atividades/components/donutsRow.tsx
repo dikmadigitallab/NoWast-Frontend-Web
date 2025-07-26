@@ -2,7 +2,6 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 import { Box } from '@mui/material';
-import { MdOutlineChecklist } from 'react-icons/md';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -60,10 +59,10 @@ export default function DonutsRow({ data }: DonutChartProps) {
                 width={380}
             />
 
-            <Box className="flex flex-row gap-5 mt-5">
+            <Box className="flex flex-row gap-5 mt-5 flex-wrap  justify-center">
                 {data.map((item, index) => (
-                    <Box key={index} className="flex flex-col items-center gap-2">
-                        <Box style={{ color: item.color }} className="text-[1rem] font-semibold">{item.name}</Box>
+                    <Box key={index} className="flex flex-col items-center justify-center  gap-2">
+                        <Box style={{ color: item.color }} className="text-[.8rem] font-semibold  text-center">{item.name}</Box>
                         <Box className="text-[1.5rem] text-[#5E5873] font-semibold">{item.total}</Box>
                     </Box>
                 ))}

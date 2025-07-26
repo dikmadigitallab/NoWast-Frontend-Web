@@ -36,7 +36,7 @@ export default function CadastroPessoa() {
     };
 
     const handleDisableConfirm = () => {
-        router.push('/locais/pessoa/listagem');
+        router.push('/pessoa/listagem');
     };
 
 

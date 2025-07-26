@@ -16,7 +16,6 @@ export const useGetOnePessoa = () => {
 
         setError(null);
         setLoading(true);
-        console.log(id)
 
         const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
 
@@ -34,7 +33,6 @@ export const useGetOnePessoa = () => {
                     "Content-Type": "application/json",
                 },
             });
-            console.log(response)
             setData(response.data.data);
         } catch (error) {
             setError("Erro ao buscar pessoas");

@@ -11,6 +11,7 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateSetor } from "@/app/hooks/locais/setor/create";
+import { useGetPredio } from "@/app/hooks/locais/predio/get";
 
 const setorSchema = z.object({
     name: z.string().min(1, "Nome do Setor é obrigatório"),
@@ -51,6 +52,7 @@ export default function CadastroSetor() {
 
     const router = useRouter();
     const { createSetor } = useCreateSetor();
+    const { predio } = useGetPredio();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const handleOpenDisableModal = () => {

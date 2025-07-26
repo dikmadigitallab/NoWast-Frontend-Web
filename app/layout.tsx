@@ -19,7 +19,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick={false} rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
-        <Box className="w-screen h-screen flex items-center overflow-hidden">
+        <Box className="w-screen h-screen flex items-center overflow-hidden bg-[#fff]">
           <Box className={`${pathname === "/sign-in" || pathname === "/forgot-pass" || pathname === "/recover-pass" ? "hidden" : "w-[280px] h-screen"} `}>
             <Sidebar />
           </Box>
