@@ -19,7 +19,10 @@ import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGetFuncoes } from "@/app/hooks/funcoes/get";
 
 const userSchema = z.object({
-    userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
+    userType: z.enum(
+        ["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"],
+        { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }
+    ).optional().nullable(),
     password: z.string().min(6, { message: "A senha deve ter pelo menos 8 caracteres" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
@@ -56,7 +59,7 @@ export default function CadastroPessoa() {
     const { control, handleSubmit, formState: { errors, isValid }, watch, setValue } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
-            userType: undefined,
+            userType: null,
             password: "",
             firstLogin: true,
             status: "ACTIVE",
@@ -95,7 +98,7 @@ export default function CadastroPessoa() {
     const { data: roles } = useGetFuncoes();
     const { data: contrato } = useGetContratos();
     const { data: cargos } = useGetPosicao();
-    const { createPessoa } = useCreatePessoa();
+    const { createPessoa, loading } = useCreatePessoa();
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -363,28 +366,6 @@ export default function CadastroPessoa() {
                 </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="userType"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.userType}>
-                                <InputLabel>Tipo de Usuário</InputLabel>
-                                <Select
-                                    label="Tipo de Usuário"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value={field.value || []} disabled>Selecione uma posição...</MenuItem>
-                                    <MenuItem value="DIKMA_ADMINISTRATOR">Administrador Dikma</MenuItem>
-                                    <MenuItem value="CONTRACT_MANAGER">Gestor de Contratos</MenuItem>
-                                    <MenuItem value="DIKMA_DIRECTOR">Diretor Dikma</MenuItem>
-                                    <MenuItem value="CLIENT_ADMINISTRATOR">Administrador de Clientes</MenuItem>
-                                    <MenuItem value="OPERATIONAL">Operacional</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.userType?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
                     <Controller
                         name="position.connect.id"
                         control={control}
@@ -721,10 +702,10 @@ export default function CadastroPessoa() {
                         type="submit"
                         variant="outlined"
                         sx={[buttonTheme, { alignSelf: "end" }]}
-                    // disabled={!isValid || loading}
+                        disabled={loading}
                     >
                         Cadastrar
-                        {/* {loading ? <CircularProgress color="inherit" size={24} /> : "Cadastrar"} */}
+                        {loading ? <CircularProgress color="inherit" size={24} /> : "Cadastrar"}
                     </Button>
                 </Box>
             </form>
