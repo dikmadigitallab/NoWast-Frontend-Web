@@ -7,6 +7,8 @@ export const Logout = (auth?: boolean) => {
     document.cookie = `authToken=; Path=/; Max-Age=0`;
     localStorage.removeItem("user");
     localStorage.removeItem("meeting-storage");
+    localStorage.removeItem("user-storage");
+    localStorage.removeItem("id-storage");
     localStorage.removeItem("permissions");
     localStorage.removeItem("is-module-storage");
 

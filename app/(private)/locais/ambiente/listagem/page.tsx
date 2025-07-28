@@ -1,6 +1,5 @@
 "use client";
 
-import { rows } from './data';
 import Box from '@mui/material/Box';
 import React, { useState } from 'react';
 import { Button, IconButton, TextField } from '@mui/material';
@@ -10,16 +9,17 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
-import ModalAmbienteEditModal from './component/AmbienteEdit/modalAmbienteEdit';
 import ModalVisualizeDetail from './component/modalAmbienteDetail';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
+import { useGet } from '@/app/hooks/crud/get/useGet';
 
-export default function DataGridUsuarios() {
+export default function DataGridAmbientes() {
 
-    const [edit, setEdit] = useState<any>(null);
+    const [setEdit] = useState<any>(null);
     const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
+    const { data: ambientes } = useGet("environment");
     const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
 
@@ -59,47 +59,25 @@ export default function DataGridUsuarios() {
             width: 80,
         },
         {
-            field: 'nome',
+            field: 'name',
             headerName: 'Nome do Ambiente',
             width: 200,
         },
         {
-            field: 'dimensao',
-            headerName: 'Dimensão',
-            width: 200,
+            field: 'description',
+            headerName: 'Descrição',
+            width: 100,
+            flex: 1,
         },
         {
-            field: 'predio',
-            headerName: 'Prédio',
-            width: 200,
-            renderCell: (params) => <span>{params.row.predio?.nome || '-'}</span>
-        },
-        {
-            field: 'setor',
-            headerName: 'Setor',
-            width: 200,
-            renderCell: (params) => <span>{params.row.setor?.nome || '-'}</span>
-        },
-        {
-            field: 'raio',
-            headerName: 'Raio',
+            field: 'areaM2',
+            headerName: 'Área em m²',
             width: 120,
         },
         {
-            field: 'servico',
-            headerName: 'Serviço',
+            field: 'sectorId',
+            headerName: 'ID do Setor',
             width: 150,
-        },
-        {
-            field: 'tipo',
-            headerName: 'Tipo',
-            width: 150,
-        },
-        {
-            field: 'descricao',
-            headerName: 'Descrição',
-            width: 300,
-            flex: 1,
         },
     ];
 
@@ -107,7 +85,6 @@ export default function DataGridUsuarios() {
         <StyledMainContainer>
 
             <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} />
-            <ModalAmbienteEditModal edit={edit} modalEdit={modalEdit} handleChangeModalEdit={handleChangeModalEdit} />
 
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
@@ -149,8 +126,9 @@ export default function DataGridUsuarios() {
                         </Box>
                     )
                 }
+
                 <DataGrid
-                    rows={rows}
+                    rows={ambientes}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
