@@ -11,10 +11,10 @@ import { StyledMainContainer } from '@/app/styles/container/container';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { useGetItems } from '@/app/hooks/items/get';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
 import DetailModal from './component/modalProdutoDetail';
+import { useGet } from '@/app/hooks/crud/get/useGet';
 
 
 export default function DetalharProduto() {
@@ -22,7 +22,7 @@ export default function DetalharProduto() {
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
-    const { data: produtos } = useGetItems('product');
+    const { data: produtos } = useGet('product');
     const { setId } = useGetIDStore()
     const router = useRouter();
 

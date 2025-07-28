@@ -11,11 +11,11 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
-import { useGetItems } from "@/app/hooks/items/get";
 import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetPosicao } from "@/app/hooks/posicao/get";
 import { useCreatePessoa } from "@/app/hooks/usuario/create";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const userSchema = z.object({
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }).optional().nullable(),
@@ -82,10 +82,10 @@ export default function CadastroPessoa() {
         mode: "onChange"
     });
 
-    const { data: epis } = useGetItems('ppe');
-    const { data: equipamentos } = useGetItems('tools');
-    const { data: produtos } = useGetItems('product');
-    const { data: transportes } = useGetItems('transport');
+    const { data: epis } = useGet('ppe');
+    const { data: equipamentos } = useGet('tools');
+    const { data: produtos } = useGet('product');
+    const { data: transportes } = useGet('transport');
     const { users } = useGetUsuario();
     const { data: contrato } = useGetContratos();
     const { data: cargos } = useGetPosicao();

@@ -9,12 +9,10 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useGetOneItem } from "@/app/hooks/items/getOneById";
-import { useUpdateItem } from "@/app/hooks/items/update";
-import { useDeleteItem } from "@/app/hooks/items/delete";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useUpdate } from "@/app/hooks/crud/update/update";
+import { useGetOne } from "@/app/hooks/global/getOneById";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Transport é obrigatório"),
@@ -28,7 +26,7 @@ export default function EditarTransport() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
-    const { data } = useGetOneItem("transport");
+    const { data } = useGetOne("transport");
     const { update, loading } = useUpdate("transport", "/items/transporte/listagem");
     const { handleDelete } = useDelete("transport", "/items/transporte/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);

@@ -12,9 +12,9 @@ import DetailModal from './component/modalEquipamentoDetail';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { useGetItems } from '@/app/hooks/items/get';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
+import { useGet } from '@/app/hooks/crud/get/useGet';
 
 
 export default function DetalharEquipamento() {
@@ -22,7 +22,7 @@ export default function DetalharEquipamento() {
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
-    const { data: equipamentos } = useGetItems('tools');
+    const { data: equipamentos } = useGet('tools');
     const { setId } = useGetIDStore()
     const router = useRouter();
 

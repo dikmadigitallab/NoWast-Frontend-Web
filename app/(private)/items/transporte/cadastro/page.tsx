@@ -9,7 +9,6 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useCreateItem } from "@/app/hooks/items/create";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 import { useCreate } from "@/app/hooks/crud/create/useCreate";
 

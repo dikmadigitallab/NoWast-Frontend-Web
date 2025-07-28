@@ -11,12 +11,12 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
-import { useGetItems } from "@/app/hooks/items/get";
 import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
 import { useGetFuncoes } from "@/app/hooks/funcoes/get";
 import { useUpdate } from "@/app/hooks/crud/update/update";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const userSchema = z.object({
     id: z.number({ required_error: "ID é obrigatório", invalid_type_error: "ID inválido" }),
@@ -92,11 +92,11 @@ export default function AtualizarPessoa() {
     const { users } = useGetUsuario();
     const { data } = useGetOneUsuario();
     const { data: cargos } = useGetFuncoes();
-    const { data: epis } = useGetItems('ppe');
+    const { data: epis } = useGet('ppe');
     const { data: contrato } = useGetContratos();
-    const { data: produtos } = useGetItems('product');
-    const { data: equipamentos } = useGetItems('tools');
-    const { data: transportes } = useGetItems('transport');
+    const { data: produtos } = useGet('product');
+    const { data: equipamentos } = useGet('tools');
+    const { data: transportes } = useGet('transport');
     const { update, loading } = useUpdate("users", '/usuario/listagem');
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const [openCancelModal, setCancelModal] = useState(false);
