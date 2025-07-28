@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateItem } from "@/app/hooks/items/create";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
+import { useCreate } from "@/app/hooks/crud/create/useCreate";
 
 const equipamentoSchema = z.object({
     name: z.string().min(1, "Nome do Equipamento é obrigatório"),
@@ -24,7 +25,8 @@ export default function CadastroEquipamento() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
-    const { createItem } = useCreateItem("tools");
+    const { create, loading } = useCreate("tools", "/items/equipamento/listagem");
+
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const { control, handleSubmit, setValue, formState: { errors } } = useForm<EquipamentoFormValues>({
@@ -38,7 +40,7 @@ export default function CadastroEquipamento() {
     const handleDisableConfirm = () => router.push('/items/equipamento/listagem');
 
     const onSubmit = (formData: any) => {
-        createItem(formData);
+        create(formData);
     };
 
     return (
@@ -121,11 +123,10 @@ export default function CadastroEquipamento() {
 
                 <Box className="flex flex-row justify-end gap-4">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                    <Button variant="outlined" type="submit" sx={buttonTheme}>Cadastrar</Button>
+                    <Button variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}</Button>
                 </Box>
             </form>
 
-            {/* Modal de cancelamento */}
             <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">

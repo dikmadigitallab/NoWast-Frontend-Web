@@ -2,16 +2,16 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../api";
+import api from "../../api";
 
-export const useGetUsuario = () => {
+
+export const useGet = (url: string) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
-    const [users, setUsers] = useState<any>(null);
 
-    const getUsuario = async () => {
+    const get = async () => {
         setError(null);
         setLoading(true);
 
@@ -25,32 +25,14 @@ export const useGetUsuario = () => {
         }
 
         try {
-            const response = await api.get<any>("/users?disablePagination=true", {
+            const response = await api.get<any>(`/${url}?disablePagination=true`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            const refactory = response.data.data.items?.map((item: any) => ({
-                id: item.id,
-                name: item.person?.name,
-                supervisor: item?.supervisor?.person?.name,
-                manager: item?.manager?.person?.name,
-                email: item?.person?.emails[0]?.email,
-                status: item.status,
-                userType: item.userType,
-                role: item.role?.name,
-                position: item.position?.name,
-                endDate: item.contract?.endDate,
-                startDate: item.contract?.startDate,
-                epis: item.ppes,
-                transports: item.transports,
-                products: item.products
-            })) || [];
-
-            setUsers(response.data.data.items);
-            setData(refactory);
+            setData(response.data.data.items);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
@@ -62,14 +44,12 @@ export const useGetUsuario = () => {
     };
 
     useEffect(() => {
-        getUsuario();
+        get();
     }, []);
 
     return {
-        getUsuario,
         loading,
         error,
-        users,
         data
     };
 };

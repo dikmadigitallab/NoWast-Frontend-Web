@@ -13,6 +13,8 @@ import { useGetOneItem } from "@/app/hooks/items/getOneById";
 import { useUpdateItem } from "@/app/hooks/items/update";
 import { useDeleteItem } from "@/app/hooks/items/delete";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
+import { useUpdate } from "@/app/hooks/crud/update/update";
+import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Equipamento é obrigatório"),
@@ -25,10 +27,10 @@ type EquipamentoFormValues = z.infer<typeof epiSchema>;
 export default function EditarEquipamento() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetPessoa();
     const { data } = useGetOneItem("tools");
-    const { updateItem, loading } = useUpdateItem("tools");
-    const { deleteItem } = useDeleteItem("tools");
+    const { data: pessoas } = useGetPessoa();
+    const { update, loading } = useUpdate("tools", '/items/equipamento/listagem');
+    const { handleDelete } = useDelete("tools", '/items/equipamento/listagem');
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -59,7 +61,7 @@ export default function EditarEquipamento() {
     };
 
     const onSubmit = (formData: any) => {
-        updateItem(data?.id, formData);
+        update(formData);
     };
 
     useEffect(() => {
@@ -147,7 +149,7 @@ export default function EditarEquipamento() {
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
                     <Box className="flex flex-row gap-5" >
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
+                        <Button type="submit" variant="outlined" disabled={loading} sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
                     </Box>
                 </Box>
             </form>
@@ -159,7 +161,7 @@ export default function EditarEquipamento() {
                         <p className="text-[#6E6B7B] text-center">Deseja realmente excluir este equipamento? Está ação não pode ser desfeita.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={() => deleteItem()} variant="outlined" sx={buttonThemeNoBackgroundError}>Confirmar</Button>
+                            <Button onClick={handleDelete} variant="outlined" sx={buttonThemeNoBackgroundError}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>

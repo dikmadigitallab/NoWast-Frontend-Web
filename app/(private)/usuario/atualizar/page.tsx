@@ -13,20 +13,20 @@ import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetItems } from "@/app/hooks/items/get";
 import { useGetContratos } from "@/app/hooks/contrato/get";
-import { useGetCargo } from "@/app/hooks/funcoes/get";
-import { useGetPosicao } from "@/app/hooks/posicao/get";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
+import { useGetFuncoes } from "@/app/hooks/funcoes/get";
+import { useUpdate } from "@/app/hooks/crud/update/update";
 
 const userSchema = z.object({
     id: z.number({ required_error: "ID é obrigatório", invalid_type_error: "ID inválido" }),
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
-    phone: z.string().min(7, { message: "Telefone inválido" }),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     person: z.object({
         create: z.object({
+            id: z.number(),
             name: z.string().min(1, { message: "O nome é obrigatório" }),
             tradeName: z.string().min(1, { message: "Nome Fantasia é obrigatório" }),
             document: z.string().min(11, { message: "Documento deve ter pelo menos 11 caracteres" }),
@@ -53,17 +53,17 @@ type UserFormValues = z.infer<typeof userSchema>;
 
 export default function AtualizarPessoa() {
 
-    const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<UserFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
             id: undefined,
             userType: undefined,
             status: "ACTIVE",
             source: "",
-            phone: "",
             firstLogin: true,
             person: {
                 create: {
+                    id: undefined,
                     name: "",
                     tradeName: "",
                     document: "",
@@ -88,98 +88,102 @@ export default function AtualizarPessoa() {
         mode: "onChange"
     });
 
+    const router = useRouter();
     const { users } = useGetUsuario();
     const { data } = useGetOneUsuario();
-    const { data: cargos } = useGetCargo();
-    const { data: posicao } = useGetPosicao();
+    const { data: cargos } = useGetFuncoes();
     const { data: epis } = useGetItems('ppe');
     const { data: contrato } = useGetContratos();
     const { data: produtos } = useGetItems('product');
     const { data: equipamentos } = useGetItems('tools');
     const { data: transportes } = useGetItems('transport');
-
-    const router = useRouter();
+    const { update, loading } = useUpdate("users", '/usuario/listagem');
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openCancelModal, setCancelModal] = useState(false);
 
-    const handleOpenDisableModal = () => {
-        setOpenDisableModal(true);
+    const handleOpenModal = (field: string) => {
+        if (field === "cancelar") {
+            setCancelModal(true);
+        } else {
+            setOpenDisableModal(true);
+        }
     };
 
-    const handleCloseDisableModal = () => {
-        setOpenDisableModal(false);
+    const handleCloseModal = (field: string) => {
+        if (field === "cancelar") {
+            setCancelModal(false);
+        } else {
+            setOpenDisableModal(false);
+        }
     };
 
-    const handleDisableConfirm = () => {
+    const handleCancelConfirm = () => {
         router.push('/usuario/listagem');
     };
 
     const onSubmit = (formData: UserFormValues) => {
-        console.log(formData)
-        // const newData = { ...formData, person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
-        // console.log(newData);
-        // createPessoa(newData);
+        const newData = { ...formData, person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
+        update(newData);
     };
 
+    const onDesabled = () => {
+        const newData = { ...data, status: "INACTIVE" };
+        update(newData);
+    }
     const formatDateForInput = (dateString: string | undefined): string => {
         if (!dateString) return "";
         const date = new Date(dateString);
         date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
-
         return `${year}-${month}-${day}`;
     };
 
-    const mapApiDataToFormValues = (apiData: any): UserFormValues => {
-        return {
-            id: apiData.id,
-            userType: apiData.userType,
-            status: apiData.status,
-            source: apiData.source || "",
-            phone: apiData.person.phones[0]?.phoneNumber || "",
-            firstLogin: apiData.firstLogin,
-            person: {
-                create: {
-                    name: apiData.person.name,
-                    tradeName: apiData.person.tradeName,
-                    document: apiData.person.document,
-                    briefDescription: apiData.person.briefDescription,
-                    birthDate: formatDateForInput(apiData.person.birthDate),
-                    gender: apiData.person.gender,
-                    personType: apiData.person.personType,
-                    email: apiData.person.emails[0]?.email || "",
-                    phone: apiData.person.phones[0]?.phoneNumber || ""
-                }
-            },
-            role: { connect: { id: apiData.role?.id || "" } },
-            contract: { connect: { id: apiData.contract?.id } },
-            position: { connect: { id: apiData.position?.id } },
-            supervisor: { connect: { id: apiData.supervisor?.id } },
-            manager: { connect: { id: apiData.manager?.id } },
-            epiIds: apiData.epis?.map((epi: any) => epi.id) || [],
-            equipmentIds: apiData.equipments?.map((eq: any) => eq.id) || [],
-            vehicleIds: apiData.vehicles?.map((v: any) => v.id) || [],
-            productIds: apiData.products?.map((p: any) => p.id) || []
-        };
+    const formatCpfOrCnpj = (value: string) => {
+        const type = watch('person.create.personType');
+        const digits = value?.replace(/\D/g, '');
+
+        if (type === 'INDIVIDUAL') {
+            return digits
+                .replace(/^(\d{3})(\d)/, '$1.$2')
+                .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+                .replace(/\.(\d{3})\.(\d{3})(\d{1,2}).*/, '.$1.$2-$3');
+        } else {
+            return digits
+                .replace(/^(\d{2})(\d)/, '$1.$2')
+                .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+                .replace(/\.(\d{3})\.(\d{3})(\d)/, '.$1/$2-$3')
+                .replace(/(\d{4})(\d{2}).*/, '$1-$2');
+        }
     };
 
     useEffect(() => {
         if (data) {
-            const formData = mapApiDataToFormValues(data);
-            console.log(data)
-            reset(formData);
+            const { id, personId, status, person, role, firstLogin } = data;
+            const { name, tradeName, document, briefDescription, birthDate, gender, personType } = person;
+            const phones = person.phones.map((phone: any) => phone.phoneNumber);
+            const emails = person.emails.map((email: any) => email.email);
+
+            setValue('id', id);
+            setValue('status', status);
+            setValue('person.create.name', name);
+            setValue('person.create.tradeName', tradeName);
+            setValue('person.create.document', document);
+            setValue('person.create.briefDescription', briefDescription);
+            setValue('person.create.birthDate', formatDateForInput(birthDate));
+            setValue('person.create.gender', gender);
+            setValue('person.create.personType', personType);
+            setValue('role.connect.id', role.id);
+            setValue('firstLogin', firstLogin);
+            setValue('person.create.email', emails[0]);
+            setValue('person.create.phone', phones[0]);
+
         }
     }, [data, reset]);
 
 
-    const renderChips = (
-        selected: number[],
-        fieldName: string,
-        onDelete: (value: number) => void,
-        items: { id: number, name: string }[] = []
-    ) => {
+    const renderChips = (selected: number[], fieldName: string, onDelete: (value: number) => void, items: { id: number, name: string }[] = []) => {
         const safeItems = Array.isArray(items) ? items : [];
 
         return (
@@ -216,7 +220,6 @@ export default function AtualizarPessoa() {
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
-
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
 
@@ -255,18 +258,62 @@ export default function AtualizarPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
+                        name="person.create.personType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.person?.create?.personType}>
+                                <InputLabel>Tipo de Pessoa</InputLabel>
+                                <Select
+                                    label="Tipo de Pessoa"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
+                                    <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.person?.create?.personType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
+                        disabled={!watch('person.create.personType')}
                         name="person.create.document"
                         control={control}
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Documento"
+                                label={watch('person.create.personType') === "INDIVIDUAL" ? "CPF" : "CNPJ"}
                                 {...field}
+                                onChange={(e) => {
+                                    const formatted = formatCpfOrCnpj(e.target.value);
+                                    field.onChange(formatted);
+                                }}
+                                value={field.value}
                                 error={!!errors.person?.create?.document}
                                 helperText={errors.person?.create?.document?.message}
                                 className="w-full"
                                 sx={formTheme}
                             />
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.gender"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.person?.create?.gender}>
+                                <InputLabel>Gênero</InputLabel>
+                                <Select label="Gênero" {...field} value={field.value || ""}>
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="MALE">Masculino</MenuItem>
+                                    <MenuItem value="FEMALE">Feminino</MenuItem>
+                                    <MenuItem value="OTHER">Outro</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.person?.create?.gender?.message}</FormHelperText>
+                            </FormControl>
                         )}
                     />
                     <Controller
@@ -287,49 +334,6 @@ export default function AtualizarPessoa() {
                         )}
                     />
                 </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="person.create.gender"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.person?.create?.gender}>
-                                <InputLabel>Gênero</InputLabel>
-                                <Select
-                                    label="Gênero"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="MALE">Masculino</MenuItem>
-                                    <MenuItem value="FEMALE">Feminino</MenuItem>
-                                    <MenuItem value="OTHER">Outro</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.person?.create?.gender?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
-                        name="person.create.personType"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.person?.create?.personType}>
-                                <InputLabel>Tipo de Pessoa</InputLabel>
-                                <Select
-                                    label="Tipo de Pessoa"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
-                                    <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.person?.create?.personType?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                </Box>
-
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
                         name="person.create.phone"
@@ -384,28 +388,9 @@ export default function AtualizarPessoa() {
                             />
                         )}
                     />
-                    <Controller
-                        name="userType"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.userType}>
-                                <InputLabel>Tipo de Usuário</InputLabel>
-                                <Select
-                                    label="Tipo de Usuário"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>Selecione...</MenuItem>
-                                    <MenuItem value="DIKMA_ADMINISTRATOR">Administrador Dikma</MenuItem>
-                                    <MenuItem value="CONTRACT_MANAGER">Gestor de Contrato</MenuItem>
-                                    <MenuItem value="DIKMA_DIRECTOR">Diretor Dikma</MenuItem>
-                                    <MenuItem value="CLIENT_ADMINISTRATOR">Administrador de Cliente</MenuItem>
-                                    <MenuItem value="OPERATIONAL">Operacional</MenuItem>
-                                </Select>
-                                <FormHelperText>{errors.userType?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
                         name="status"
                         control={control}
@@ -421,24 +406,6 @@ export default function AtualizarPessoa() {
                                     <MenuItem value="INACTIVE">Inativo</MenuItem>
                                 </Select>
                             </FormControl>
-                        )}
-                    />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="phone"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Telefone"
-                                {...field}
-                                error={!!errors.phone}
-                                helperText={errors.phone?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
                         )}
                     />
                     <Controller
@@ -463,28 +430,47 @@ export default function AtualizarPessoa() {
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
                 <Box className="w-[100%] flex flex-row gap-5">
-
                     <Controller
-                        name="role.connect.id"
+                        name="position.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.role?.connect?.id}>
+                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
                                 <InputLabel>Cargo</InputLabel>
                                 <Select
                                     label="Cargo"
                                     {...field}
-                                    error={!!errors.role?.connect?.id}
-                                    value={field.value ?? ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                    value={field.value || ""}
                                 >
-                                    <MenuItem value="" disabled>Selecione um cargo...</MenuItem>
-                                    {cargos?.map((role: any) => (
-                                        <MenuItem key={role.id} value={role.id}>
-                                            {role.name}
+                                    <MenuItem value={field.value || []} disabled>Selecione uma posição...</MenuItem>
+                                    {cargos?.map((position: any) => (
+                                        <MenuItem key={position.id} value={position.id}>
+                                            {position.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                <FormHelperText>{errors.role?.connect?.id?.message}</FormHelperText>
+                                <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+                    <Controller
+                        name="userType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.userType}>
+                                <InputLabel>Tipo de Usuário</InputLabel>
+                                <Select
+                                    label="Tipo de Usuário"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="DIKMA_ADMINISTRATOR">Administrador Dikma</MenuItem>
+                                    <MenuItem value="CONTRACT_MANAGER">Gestor de Contrato</MenuItem>
+                                    <MenuItem value="DIKMA_DIRECTOR">Diretor Dikma</MenuItem>
+                                    <MenuItem value="CLIENT_ADMINISTRATOR">Administrador de Cliente</MenuItem>
+                                    <MenuItem value="OPERATIONAL">Operacional</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.userType?.message}</FormHelperText>
                             </FormControl>
                         )}
                     />
@@ -515,29 +501,6 @@ export default function AtualizarPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="position.connect.id"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
-                                <InputLabel>Posição</InputLabel>
-                                <Select
-                                    label="Posição"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione uma posição...</MenuItem>
-                                    {posicao?.map((position: any) => (
-                                        <MenuItem key={position.id} value={position.id}>
-                                            {position.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
                         name="supervisor.connect.id"
                         control={control}
                         render={({ field }) => (
@@ -560,9 +523,6 @@ export default function AtualizarPessoa() {
                             </FormControl>
                         )}
                     />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
                         name="manager.connect.id"
                         control={control}
@@ -587,7 +547,6 @@ export default function AtualizarPessoa() {
                         )}
                     />
                 </Box>
-
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Vínculo de Itens</h2>
 
@@ -729,6 +688,7 @@ export default function AtualizarPessoa() {
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />
+
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -741,32 +701,43 @@ export default function AtualizarPessoa() {
 
                 </Box>
 
-                <Box className="w-[100%] flex flex-row gap-5 justify-end">
-                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                    <Button
-                        type="submit"
-                        variant="outlined"
-                        sx={[buttonTheme, { alignSelf: "end" }]}
-                    // disabled={!isValid || loading}
-                    >
-                        Cadastrar
-                        {/* {loading ? <CircularProgress color="inherit" size={24} /> : "Cadastrar"} */}
-                    </Button>
+                <Box className="w-[100%] flex flex-row gap-5 justify-between">
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => handleOpenModal("desabilitar")}>Desabilitar</Button>
+                    <Box className="flex flex-row gap-5">
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => handleOpenModal("cancelar")}>Cancelar</Button>
+                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]} disabled={loading}>
+                            {loading ? <CircularProgress color="inherit" size={24} /> : "Salvar"}
+                        </Button>
+                    </Box>
+
                 </Box>
             </form>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+            <Modal open={openCancelModal} onClose={() => handleCloseModal("cancelar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                            <Button onClick={() => handleCloseModal("cancelar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Comfirmar</Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
-        </StyledMainContainer>
+
+            <Modal open={openDisableModal} onClose={() => handleCloseModal("desabilitar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Desabilitar Usuário</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse usuário?</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                            <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button variant="outlined" onClick={onDesabled} disabled={loading} sx={buttonTheme}>Desabilitar</Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
+        </StyledMainContainer >
     )
 }

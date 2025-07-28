@@ -12,14 +12,23 @@ import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/t
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { useGetPredio } from '@/app/hooks/locais/predio/get';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import { useRouter } from 'next/navigation';
 
 export default function DetalharPredios() {
 
-    const [edit, setEdit] = useState<any | null>(null);
-    const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
-    const { loading, error, predio } = useGetPredio();
+    const { setId } = useGetIDStore();
+    const router = useRouter();
+    const { data: predio } = useGetPredio();
 
+
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/usuario/atualizar`);
+        }, 500)
+    }
 
     const columns: GridColDef<any>[] = [
         {
@@ -30,7 +39,7 @@ export default function DetalharPredios() {
             filterable: false,
             disableColumnMenu: true,
             renderCell: (params) => (
-                <IconButton aria-label="editar" size="small" href='/locais/predio/atualizar' >
+                <IconButton aria-label="editar" size="small" href='/locais/predio/atualizar' onClick={() => handleChangeModalEdit(params.row.id)} >
                     <MdOutlineModeEditOutline color='#635D77' />
                 </IconButton>
             ),

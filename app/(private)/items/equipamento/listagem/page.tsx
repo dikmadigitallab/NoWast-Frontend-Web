@@ -73,9 +73,12 @@ export default function DetalharEquipamento() {
             width: 300,
         },
         {
-            field: 'responsibleManagerId',
+            field: 'responsibleManager',
             headerName: 'Encarregado Responsável',
             width: 200,
+            renderCell: (params) => {
+                return params.row ? params.row.responsibleManager.name : '';
+            }
         },
         {
             field: 'createdAt',

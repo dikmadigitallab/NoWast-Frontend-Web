@@ -27,6 +27,8 @@ export const useGetOneUsuario = () => {
         }
 
         try {
+            if(!id) return;
+            
             const response = await api.get<any>(`/users/${id}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
@@ -47,7 +49,6 @@ export const useGetOneUsuario = () => {
     useEffect(() => {
         getOneUsuario();
     }, [id]);
-
 
     return {
         getOneUsuario,

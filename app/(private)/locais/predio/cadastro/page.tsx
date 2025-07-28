@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreatePredio } from "@/app/hooks/locais/predio/create";
 import { useGetContratos } from "@/app/hooks/contrato/get";
+import { useCreate } from "@/app/hooks/crud/create/useCreate";
 
 const predioSchema = z.object({
     name: z.string().min(1, "Nome do Predio é obrigatório"),
@@ -32,11 +33,11 @@ export default function CadastroPredio() {
 
     const { control, handleSubmit, formState: { errors, }, setValue } = useForm<PredioFormValues>({
         resolver: zodResolver(predioSchema),
-        defaultValues: { name: "", latitude: "", longitude: "", description: "" },
+        defaultValues: { name: "", latitude: "", longitude: "", description: "", contract: { connect: { id: 0 } }, radius: 0 },
         mode: "onChange"
     });
 
-    const { createPredio, loading } = useCreatePredio();
+    const { create, loading } = useCreate("building", "/locais/predio/listagem");
     const { data: contratos } = useGetContratos(true);
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -54,13 +55,8 @@ export default function CadastroPredio() {
     };
 
     const onSubmit = (data: any) => {
-        createPredio(data);
+        create(data);
     };
-
-    const handleCompanyChange = (event: any) => {
-        setValue("contract.connect.id", event.target.value, { shouldValidate: true });
-    };
-
 
     return (
         <StyledMainContainer>
@@ -146,10 +142,10 @@ export default function CadastroPredio() {
                         control={control}
                         render={({ field }) => (
                             <Select
+                                {...field}
                                 labelId="contract-label"
                                 label="Contrato"
                                 value={field.value || ""}
-                                onChange={handleCompanyChange}
                                 error={!!errors.contract}
                             >
                                 {contratos?.map((contract: any) => (
@@ -201,7 +197,7 @@ export default function CadastroPredio() {
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>

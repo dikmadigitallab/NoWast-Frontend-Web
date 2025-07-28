@@ -23,9 +23,8 @@ export default function DetalharEpi() {
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
     const { data: epis } = useGetItems('ppe');
-    const { setId } = useGetIDStore()
+    const { setId } = useGetIDStore();
     const router = useRouter();
-
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
         setModalDetail(!modalDetail);
@@ -37,6 +36,7 @@ export default function DetalharEpi() {
             router.push(`/items/epi/atualizar`);
         }, 500)
     }
+
 
     const columns: GridColDef<any>[] = [
         {
@@ -73,9 +73,12 @@ export default function DetalharEpi() {
             width: 300,
         },
         {
-            field: 'responsibleManagerId',
+            field: 'responsibleManager',
             headerName: 'Encarregado Responsável',
             width: 200,
+            renderCell: (params) => {
+                return params.row ? params.row.responsibleManager.name : '';
+            }
         },
         {
             field: 'createdAt',
