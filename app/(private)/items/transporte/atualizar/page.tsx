@@ -81,7 +81,7 @@ export default function EditarTransport() {
                         control={control}
                         render={({ field }) => (
                             <TextField
-                                label="Nome do Transport"
+                                label="Nome do Transporte"
                                 variant="outlined"
                                 {...field}
                                 error={!!errors.name}

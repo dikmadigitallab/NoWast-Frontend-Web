@@ -51,7 +51,7 @@ export default function CadastroSetor() {
 
     const router = useRouter();
     const { create, loading } = useCreate("sector", "/locais/setor/listagem");
-     const { data: predios } = useGet("building");
+    const { data: predios } = useGet("building");
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const handleOpenDisableModal = () => {
@@ -86,7 +86,7 @@ export default function CadastroSetor() {
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Nome do Prédio"
+                                label="Nome do Setor"
                                 {...field}
                                 error={!!errors.name}
                                 helperText={errors.name?.message}

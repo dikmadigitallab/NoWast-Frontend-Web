@@ -114,7 +114,7 @@ export default function DetalharTransporte() {
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
                             <GoDownload size={25} color='#635D77' />
                         </Button>
-                        <Button href="/items/produto/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
+                        <Button href="/items/transporte/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
                             Cadastrar Transporte
                         </Button>

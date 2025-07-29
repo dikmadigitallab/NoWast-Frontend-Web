@@ -106,7 +106,18 @@ export default function CadastroPessoa() {
         router.push('/usuario/listagem');
     };
     const onSubmit = (formData: UserFormValues) => {
-        const newData = { ...formData, person: { create: { ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''), birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
+        const newData = {
+            ...formData,
+            email: formData.person.create.email?.toLowerCase(),
+
+            phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
+            person: {
+                create: {
+                    ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''),
+                    birthDate: new Date(formData.person.create.birthDate).toISOString()
+                }
+            }
+        };
         createPessoa(newData);
     };
 
@@ -531,11 +542,11 @@ export default function CadastroPessoa() {
                                         selected as number[],
                                         'epiIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        epis?.data?.items || []
+                                        epis || []
                                     )}
                                 >
                                     <MenuItem disabled>Adicione EPIs</MenuItem>
-                                    {(epis?.data?.items || []).map((item: any) => (
+                                    {(epis || []).map((item: any) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />
@@ -567,11 +578,11 @@ export default function CadastroPessoa() {
                                         selected as number[],
                                         'equipmentIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        equipamentos?.data?.items || []
+                                        equipamentos || []
                                     )}
                                 >
                                     <MenuItem disabled>Adicione equipamentos</MenuItem>
-                                    {(equipamentos?.data?.items || []).map((item: any) => (
+                                    {(equipamentos || []).map((item: any) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />
@@ -604,11 +615,11 @@ export default function CadastroPessoa() {
                                         selected as number[],
                                         'vehicleIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        transportes?.data?.items || []
+                                        transportes || []
                                     )}
                                 >
                                     <MenuItem disabled>Adicione veículos</MenuItem>
-                                    {(transportes?.data?.items || []).map((item: any) => (
+                                    {(transportes || []).map((item: any) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />
@@ -641,11 +652,11 @@ export default function CadastroPessoa() {
                                         selected as number[],
                                         'productIds',
                                         (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        produtos?.data?.items || []
+                                        produtos || []
                                     )}
                                 >
                                     <MenuItem disabled>Adicione produtos</MenuItem>
-                                    {(produtos?.data?.items || []).map((item: any) => (
+                                    {(produtos || []).map((item: any) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             <Checkbox checked={field.value.includes(item.id)} />
                                             <ListItemText primary={item.name} />

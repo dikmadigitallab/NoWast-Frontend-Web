@@ -56,7 +56,7 @@ export default function CadastroProduto() {
                         control={control}
                         render={({ field }) => (
                             <TextField
-                                label="Nome do Produto"
+                                label="Nome do Transporte"
                                 variant="outlined"
                                 {...field}
                                 error={!!errors.name}
