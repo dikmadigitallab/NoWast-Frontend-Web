@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 export const useUpdateAmbiente = (url: string, redirect?: string) => {
 
-    const { setId } = useGetIDStore();
+    const { setId, id } = useGetIDStore();
     const [loading, setLoading] = useState(false);
     const { setSection, section } = useSectionStore();
     const [error, setError] = useState<string | null>(null);
@@ -28,20 +28,21 @@ export const useUpdateAmbiente = (url: string, redirect?: string) => {
         }
 
         try {
-            const response = await api.put(`/${url}`, data, {
+            const response = await api.put(`/${url}/${id}`, data, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            toast.success("Cadastro feito com sucesso");
+            toast.success("Atualizaçãao feita com sucesso");
             setTimeout(() => {
                 if (section === 1) {
                     setId(response.data.data.id)
                     setSection(2);
                 } else {
                     if (redirect) {
+                        setSection(1);
                         localStorage.removeItem('id-storage');
                         router.push(redirect);
                     }

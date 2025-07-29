@@ -30,7 +30,7 @@ export default function EditarEPI() {
     const { update, loading } = useUpdate("ppe", "/items/epi/listagem");
     const { handleDelete } = useDelete("ppe", "/items/epi/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
 
     const { control, handleSubmit, setValue, formState: { errors }, reset, watch } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
@@ -46,9 +46,9 @@ export default function EditarEPI() {
         mode: "onChange"
     });
 
-    const handleOpenDisableModal = () => setOpenDisableModal(true);
-    const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/epi/listagem');
+    const handleOpenCancelModal = () => setOpenCancelModal(true);
+    const handleCloseCancelModal = () => setOpenCancelModal(false);
+    const handleCancelConfirm = () => router.push('/items/epi/listagem');
 
     const handleOpenDeleteModal = () => {
         setOpenDeleteModal(true);
@@ -68,7 +68,7 @@ export default function EditarEPI() {
 
     return (
         <StyledMainContainer>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">EPI</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
@@ -146,7 +146,7 @@ export default function EditarEPI() {
                 <Box className="w-[100%] flex flex-row gap-5 justify-between">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
                     <Box className="flex flex-row gap-5" >
-                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenCancelModal}>Cancelar</Button>
                         <Button type="submit" variant="outlined" disabled={loading} sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
                     </Box>
                 </Box>
@@ -165,18 +165,19 @@ export default function EditarEPI() {
                 </Box>
             </Modal>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar está ação? Todos os dados serão perdidos.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Desistir</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Comfirmar</Button>
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Desistir</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Comfirmar</Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
+
         </StyledMainContainer>
     );
 }

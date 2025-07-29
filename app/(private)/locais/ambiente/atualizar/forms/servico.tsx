@@ -8,16 +8,22 @@ import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetIDStore } from "@/app/store/getIDStore";
-import { useCreateAmbiente } from "@/app/hooks/locais/ambiente/create";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useSectionStore } from "@/app/store/renderSection";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { useUpdateAmbiente } from "@/app/hooks/locais/ambiente/update";
 
 const servicoSchema = z.object({
     name: z.string().min(1, "Nome do serviço é obrigatório"),
     environment: z.object({ connect: z.object({ id: z.number() }) }),
     serviceType: z.object({ connect: z.object({ id: z.number().nullable(), name: z.string().optional() }) }),
-    serviceItens: z.array(z.string()).min(1, "Pelo menos um item de serviço é obrigatório")
+    serviceItens: z.object({
+        create: z.array(z.object({
+            name: z.string().min(1, "Pelo menos um item de serviço é obrigatório")
+        }))
+    })
 });
 
 type ServicoFormValues = z.infer<typeof servicoSchema>;
@@ -26,50 +32,63 @@ export default function FormServicos() {
 
     const router = useRouter();
     const { id } = useGetIDStore();
-    const { data: tiposServicos } = useGet("serviceType");
-    const { create, loading } = useCreateAmbiente("service", "/locais/ambiente/listagem");
-    const [openDisableModal, setOpenDisableModal] = useState(false);
-    const [serviceItems, setServiceItems] = useState<string[]>([]);
+    const { setSection } = useSectionStore();
+    const { data } = useGetOneById("service");
     const [newItem, setNewItem] = useState("");
+    const { data: tiposServicos } = useGet("serviceType");
+    const { update, loading } = useUpdateAmbiente("service", "/locais/ambiente/listagem");
+    const [serviceItems, setServiceItems] = useState<{ name: string }[]>([]);
+    const [openDisableModal, setOpenDisableModal] = useState(false);
 
-    const { control, handleSubmit, formState: { errors }, setValue } = useForm<ServicoFormValues>({
+
+    const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<ServicoFormValues>({
         resolver: zodResolver(servicoSchema),
         defaultValues: {
             name: "",
             environment: { connect: { id: id } },
             serviceType: { connect: { id: null } },
-            serviceItens: []
+            serviceItens: { create: [] }
         },
         mode: "onChange"
     });
 
     const handleOpenDisableModal = () => setOpenDisableModal(true);
     const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/locais/ambiente/listagem');
+    const handleDisableConfirm = () => {
+        setSection(1);
+        router.push('/locais/ambiente/listagem');
+    }
 
     const addServiceItem = () => {
-        if (newItem.trim() && !serviceItems.includes(newItem.trim())) {
-            const updatedItems = [...serviceItems, newItem.trim()];
+        if (newItem.trim()) {
+            const newItemObj = { name: newItem.trim() };
+            const updatedItems = [...serviceItems, newItemObj];
             setServiceItems(updatedItems);
-            setValue("serviceItens", updatedItems);
+            setValue("serviceItens", { create: updatedItems });
             setNewItem("");
         }
     };
 
-    const removeServiceItem = (itemToRemove: string) => {
-        const updatedItems = serviceItems.filter(item => item !== itemToRemove);
+    const removeServiceItem = (indexToRemove: number) => {
+        const updatedItems = serviceItems.filter((_, index) => index !== indexToRemove);
         setServiceItems(updatedItems);
-        setValue("serviceItens", updatedItems);
+        setValue("serviceItens", { create: updatedItems });
     };
 
     const onSubmit = (formData: ServicoFormValues) => {
-        create(formData);
-        console.log("Form data enviado:", formData);
+        update(formData);
     };
+
+    useEffect(() => {
+        if (data) {
+            console.log(data)
+            reset({ ...data, environment: { connect: { id: data.environmentId } }, serviceType: { connect: { id: data.serviceTypeId } } });
+        }
+    }, [data])
 
     return (
         <StyledMainContainer>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Serviços</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
@@ -154,8 +173,8 @@ export default function FormServicos() {
                             {serviceItems.map((item, index) => (
                                 <Chip
                                     key={index}
-                                    label={item}
-                                    onDelete={() => removeServiceItem(item)}
+                                    label={item.name}
+                                    onDelete={() => removeServiceItem(index)}
                                     sx={{ backgroundColor: '#00b288', color: 'white' }}
                                 />
                             ))}
@@ -178,7 +197,7 @@ export default function FormServicos() {
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
                             <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>

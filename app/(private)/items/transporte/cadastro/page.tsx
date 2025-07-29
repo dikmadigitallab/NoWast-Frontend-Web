@@ -43,7 +43,7 @@ export default function CadastroProduto() {
 
     return (
         <StyledMainContainer>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Transportes</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>

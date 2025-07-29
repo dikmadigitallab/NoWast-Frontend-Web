@@ -6,14 +6,13 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { useCreateAmbiente } from "@/app/hooks/locais/ambiente/create";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
-import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useUpdateAmbiente } from "@/app/hooks/locais/ambiente/update";
+import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 
 const ambienteSchema = z.object({
     name: z.string().min(1, "Nome do Ambiente é obrigatório"),
@@ -27,25 +26,32 @@ type AmbienteFormValues = z.infer<typeof ambienteSchema>;
 export default function FormDadosGerais() {
 
     const router = useRouter();
-    const { update } = useUpdateAmbiente("environment");
     const { data } = useGetOneById("environment");
     const { data: setores } = useGet("sector");
-    const { create, loading } = useCreateAmbiente("environment");
-    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const { update, loading: updateLoading } = useUpdateAmbiente("environment");
+    const { handleDelete, loading: deleteLoading } = useDelete("environment", "/locais/ambiente/listagem");
 
+    const handleOpenDeleteModal = () => {
+        setOpenDeleteModal(true);
+    };
+
+    const handleCloseDeleteModal = () => {
+        setOpenDeleteModal(false);
+    };
     const { control, handleSubmit, formState: { errors }, reset } = useForm<AmbienteFormValues>({
         resolver: zodResolver(ambienteSchema),
         defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } },
         mode: "onChange"
     });
 
-    const handleOpenDisableModal = () => setOpenDisableModal(true);
-    const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/locais/ambiente/listagem');
+    const handleOpenCancelModal = () => setOpenCancelModal(true);
+    const handleCloseCancelModal = () => setOpenCancelModal(false);
+    const handleCancelConfirm = () => router.push('/locais/ambiente/listagem');
 
     const onSubmit = (formData: AmbienteFormValues) => {
-        console.log("Form data enviado:", formData);
-        // update(formData);
+        update(formData);
     };
 
     useEffect(() => {
@@ -54,10 +60,9 @@ export default function FormDadosGerais() {
         }
     }, [data])
 
-
     return (
         <StyledMainContainer>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Ambientes</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
@@ -152,24 +157,43 @@ export default function FormDadosGerais() {
                     />
                 </Box>
 
-                <Box className="flex flex-row justify-end gap-4">
-                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                    <Button variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}</Button>
+                <Box className="w-[100%] flex flex-row gap-5 justify-between">
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
+                    <Box className="flex flex-row gap-5" >
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenCancelModal}>Cancelar</Button>
+                        <Button type="submit" variant="outlined" disabled={deleteLoading || updateLoading} sx={[buttonTheme, { alignSelf: "end" }]}>{deleteLoading || updateLoading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
+                    </Box>
                 </Box>
             </form>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
+            <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar exclusão</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir este equipamento? Está ação não pode ser desfeita.</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                            <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleDelete} variant="outlined" sx={buttonThemeNoBackgroundError}>Confirmar</Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
+
+
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
+
+
         </StyledMainContainer>
     );
 }
