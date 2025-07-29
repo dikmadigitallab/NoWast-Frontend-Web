@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetItems } from "@/app/hooks/items/get";
 import { useGetContratos } from "@/app/hooks/contrato/get";
-/* import { useGetCargo } from "@/app/hooks/funcoes/get"; */
+ import { useGetFuncoes } from "@/app/hooks/funcoes/get"; 
 import { useGetPosicao } from "@/app/hooks/posicao/get";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
@@ -90,7 +90,7 @@ export default function AtualizarPessoa() {
 
     const { users } = useGetUsuario();
     const { data } = useGetOneUsuario();
-   /*  const { data: cargos } = useGetCargo(); */
+   const { data: cargos } = useGetFuncoes(); 
     const { data: posicao } = useGetPosicao();
     const { data: epis } = useGetItems('ppe');
     const { data: contrato } = useGetContratos();
@@ -477,12 +477,12 @@ export default function AtualizarPessoa() {
                                     value={field.value ?? ""}
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
-                                {/*     <MenuItem value="" disabled>Selecione um cargo...</MenuItem>
+                                   <MenuItem value="" disabled>Selecione um cargo...</MenuItem>
                                    {cargos?.map((role: any) => (
                                         <MenuItem key={role.id} value={role.id}>
                                             {role.name}
                                         </MenuItem>
-                                    ))}  */}
+                                    ))}  
                                 </Select>
                                 <FormHelperText>{errors.role?.connect?.id?.message}</FormHelperText>
                             </FormControl>
