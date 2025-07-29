@@ -1,18 +1,17 @@
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
+import api from "../../api";
 import { useRouter } from "next/navigation";
-import api from "../api";
-import { getToastMessageRequest } from "@/app/utils/getToastMessageByType";
 
-export const useCreateItem = (url: string) => {
+export const useCreate = (url: string, redirect: string) => {
 
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState(null);
+    const router = useRouter();
 
-    const createItem = async (Item: string) => {
+    const create = async (data: any) => {
 
         setError(null);
         setLoading(true);
@@ -25,30 +24,30 @@ export const useCreateItem = (url: string) => {
             return;
         }
 
-        const toastMessages = getToastMessageRequest(url as any, "create");
-
         try {
-            const response = await api.post(`/${url}`, Item, {
+            const response = await api.post(`/${url}`, data, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            toast.success(toastMessages.success);
             setData(response.data.data);
-            setLoading(false);
+            toast.success("Cadastro feito com sucesso");
+
             setTimeout(() => {
-                router.back();
-            }, 1000);
+                router.push(redirect);
+            })
         } catch (error) {
             setLoading(false);
-            toast.success(toastMessages.error);
+            const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
+            setError(errorMessage);
+            toast.error(errorMessage);
         }
     };
 
     return {
-        createItem,
+        create,
         loading,
         error,
         data

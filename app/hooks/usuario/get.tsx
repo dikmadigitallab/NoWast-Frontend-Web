@@ -32,14 +32,14 @@ export const useGetUsuario = () => {
                 },
             });
 
-
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
                 name: item.person?.name,
-                supervisor: item.supervisor?.email,
-                manager: item.manager?.email,
-                email: item.email,
+                supervisor: item?.supervisor?.person?.name,
+                manager: item?.manager?.person?.name,
+                email: item?.person?.emails[0]?.email,
                 status: item.status,
+                userType: item.userType,
                 role: item.role?.name,
                 position: item.position?.name,
                 endDate: item.contract?.endDate,

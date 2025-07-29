@@ -3,19 +3,18 @@
 import { Box } from "@mui/material";
 import { useAuthStore } from "../store/storeApp";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 
 export default function UserHeader() {
 
     const { userType } = useAuthStore();
-    const pathname = usePathname();
 
     const userTypes = {
         DEFAULT: '',
         ADM_DIKMA: 'Administrador Dikma',
         GESTAO: 'Gestão',
-        ADM_CLIENTE: 'Cliente Dikma',
+        ADM_CLIENTE: 'Administrador(a) Cliente Dikma',
         DIKMA_DIRECTOR: 'Diretoria Dikma',
+        OPERATIONAL: 'Operacional'
     }
 
     const [mounted, setMounted] = useState(false);

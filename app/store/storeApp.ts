@@ -5,11 +5,11 @@ interface AuthStore {
     id: number | null;
     email: string | null;
     documento: string | undefined | null;
-    userType: 'DEFAULT' | 'ADM_DIKMA' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null;
+    userType: 'DEFAULT' | 'ADM_DIKMA' | 'OPERATIONAL' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null;
     setId: (id: number | null) => void;
     setEmail: (email: string | null) => void;
     setDocumento: (documento: string | null) => void;
-    setUserType: (userType: 'DEFAULT' | 'ADM_DIKMA' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null) => void;
+    setUserType: (userType: 'DEFAULT' | 'OPERATIONAL' | 'ADM_DIKMA' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null) => void;
 }
 
 const encrypt = (data: string): string => {
@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthStore>((set, get) => {
     let storedId: number | null = null;
     let storedEmail: string | null = null;
     let storedDocumento: string | null = null;
-    let storedTipoUsuario: 'DEFAULT' | 'ADM_DIKMA' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null = null;
+    let storedTipoUsuario: 'DEFAULT' | 'OPERATIONAL' | 'ADM_DIKMA' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null = null;
 
     if (typeof window !== 'undefined') {
         const stored = localStorage.getItem('user');

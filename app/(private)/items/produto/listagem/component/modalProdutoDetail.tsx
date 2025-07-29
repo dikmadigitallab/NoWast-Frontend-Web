@@ -39,7 +39,7 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
                         </Box>
                         <Box className="flex flex-col mt-1">
                             <Box className="font-semibold text-[#6E6B7B]">Encarregado Responsável:</Box>
-                            <Box className="font-normal text-[#6E6B7B]">{modalDetail?.responsibleManagerId}</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{modalDetail?.responsibleManager.name}</Box>
                         </Box>
                         <Box className="flex flex-col mt-1">
                             <Box className="font-semibold text-[#6E6B7B]">Criado em:</Box>

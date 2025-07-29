@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
@@ -9,8 +9,8 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useCreateItem } from "@/app/hooks/items/create";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
+import { useCreate } from "@/app/hooks/crud/create/useCreate";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -24,7 +24,7 @@ export default function CadastroEPI() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
-    const { createItem } = useCreateItem("ppe");
+    const { create, loading } = useCreate("ppe", "/items/epi/listagem");
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const { control, handleSubmit, setValue, formState: { errors } } = useForm<EpiFormValues>({
@@ -38,7 +38,7 @@ export default function CadastroEPI() {
     const handleDisableConfirm = () => router.push('/items/epi/listagem');
 
     const onSubmit = (formData: any) => {
-        createItem(formData);
+        create(formData);
     };
 
 
@@ -101,33 +101,6 @@ export default function CadastroEPI() {
                         )}
                     />
 
-                    {/* <Controller
-                        name="buildingId"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl sx={formTheme} fullWidth error={!!errors.buildingId}>
-                                <InputLabel>Local (ID do Prédio)</InputLabel>
-                                <Select
-                                    label="Local (ID do Prédio)"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>
-                                        Clique e selecione...
-                                    </MenuItem>
-                                    {predio?.map((building: any) => (
-                                        <MenuItem key={building.id} value={building.id}>
-                                            {building.description}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {errors.buildingId && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.buildingId.message}</p>
-                                )}
-                            </FormControl>
-                        )}
-                    /> */}
-
                     <Controller
                         name="description"
                         control={control}
@@ -148,7 +121,7 @@ export default function CadastroEPI() {
 
                 <Box className="flex flex-row justify-end gap-4">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                    <Button variant="outlined" type="submit" sx={buttonTheme}>Cadastrar</Button>
+                    <Button variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}</Button>
                 </Box>
             </form>
 

@@ -2,15 +2,16 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../api";
+import api from "../../api";
 
-export const useGetItems = (url: string) => {
+
+export const useGet = (url: string) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
-    const getEpi = async () => {
+    const get = async () => {
         setError(null);
         setLoading(true);
 
@@ -24,14 +25,14 @@ export const useGetItems = (url: string) => {
         }
 
         try {
-            const response = await api.get<any>(`/${url}?pageNumber=1&pageSize=100`, {
+            const response = await api.get<any>(`/${url}?disablePagination=true`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setData(response.data);
+            setData(response.data.data.items);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
@@ -43,14 +44,12 @@ export const useGetItems = (url: string) => {
     };
 
     useEffect(() => {
-        getEpi();
+        get();
     }, []);
 
     return {
-        getEpi,
         loading,
         error,
-        data,
-        setData
+        data
     };
 };

@@ -11,18 +11,17 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
-import { useGetItems } from "@/app/hooks/items/get";
 import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetPosicao } from "@/app/hooks/posicao/get";
 import { useCreatePessoa } from "@/app/hooks/usuario/create";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
-import { useGetFuncoes } from "@/app/hooks/funcoes/get";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const userSchema = z.object({
+    userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }).optional().nullable(),
     password: z.string().min(6, { message: "A senha deve ter pelo menos 8 caracteres" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
-    phone: z.string().min(7, { message: "Telefone inválido" }),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     person: z.object({
         create: z.object({
@@ -37,7 +36,6 @@ const userSchema = z.object({
             phone: z.string().min(7, { message: "Telefone inválido" }),
         }),
     }),
-    role: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do papel inválido", required_error: "Selecione um cargo" }).min(1, { message: "Selecione um cargo" }) }) }),
     contract: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do contrato inválido", required_error: "Selecione um contrato" }).min(1, { message: "Selecione um contrato" }) }) }),
     position: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do cargo inválido", required_error: "Selecione uma posição" }).min(1, { message: "Selecione uma posição" }) }) }),
     supervisor: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do supervisor inválido", required_error: "Selecione um supervisor" }).min(1, { message: "Selecione um supervisor" }).optional() }) }).optional(),
@@ -55,10 +53,10 @@ export default function CadastroPessoa() {
     const { control, handleSubmit, formState: { errors, isValid }, watch, setValue } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
+            userType: null,
             password: "",
             firstLogin: true,
             status: "ACTIVE",
-            phone: "",
             person: {
                 create: {
                     name: "",
@@ -72,7 +70,6 @@ export default function CadastroPessoa() {
                     phone: ""
                 }
             },
-            role: { connect: { id: undefined } },
             contract: { connect: { id: undefined } },
             position: { connect: { id: undefined } },
             supervisor: { connect: { id: undefined } },
@@ -85,15 +82,14 @@ export default function CadastroPessoa() {
         mode: "onChange"
     });
 
-    const { data: epis } = useGetItems('ppe');
-    const { data: equipamentos } = useGetItems('tools');
-    const { data: produtos } = useGetItems('product');
-    const { data: transportes } = useGetItems('transport');
+    const { data: epis } = useGet('ppe');
+    const { data: equipamentos } = useGet('tools');
+    const { data: produtos } = useGet('product');
+    const { data: transportes } = useGet('transport');
     const { users } = useGetUsuario();
-    const { data: roles } = useGetFuncoes();
     const { data: contrato } = useGetContratos();
     const { data: cargos } = useGetPosicao();
-    const { createPessoa } = useCreatePessoa();
+    const { createPessoa, loading } = useCreatePessoa();
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -109,15 +105,11 @@ export default function CadastroPessoa() {
     const handleDisableConfirm = () => {
         router.push('/usuario/listagem');
     };
-
     const onSubmit = (formData: UserFormValues) => {
-        const newData = {
-            ...formData,
-            userType: roles?.find((role: any) => role.id === formData.position.connect.id).name,
-            person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } }
-        };
+        const newData = { ...formData, person: { create: { ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''), birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
         createPessoa(newData);
     };
+
     const formatCpfOrCnpj = (value: string) => {
         const type = watch('person.create.personType');
         const digits = value.replace(/\D/g, '');
@@ -163,10 +155,6 @@ export default function CadastroPessoa() {
             </Box>
         );
     };
-
-    console.log(watch('role.connect.id'));
-
-
 
     return (
         <StyledMainContainer>
@@ -364,28 +352,6 @@ export default function CadastroPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="position.connect.id"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
-                                <InputLabel>Tipo de Usuário</InputLabel>
-                                <Select
-                                    label="Tipo de Usuário"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value={field.value || []} disabled>Selecione uma posição...</MenuItem>
-                                    {roles?.map((position: any) => (
-                                        <MenuItem key={position.id} value={position.id}>
-                                            {position.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
                         name="status"
                         control={control}
                         render={({ field }) => (
@@ -400,24 +366,6 @@ export default function CadastroPessoa() {
                                     <MenuItem value="INACTIVE">Inativo</MenuItem>
                                 </Select>
                             </FormControl>
-                        )}
-                    />
-                </Box>
-
-                <Box className="w-[100%] flex flex-row gap-5">
-                    <Controller
-                        name="phone"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Telefone"
-                                {...field}
-                                error={!!errors.phone}
-                                helperText={errors.phone?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
                         )}
                     />
                     <Controller
@@ -440,33 +388,53 @@ export default function CadastroPessoa() {
                     />
                 </Box>
 
+
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="role.connect.id"
+                        name="position.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.role?.connect?.id}>
+                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
                                 <InputLabel>Cargo</InputLabel>
                                 <Select
                                     label="Cargo"
                                     {...field}
-                                    error={!!errors.role?.connect?.id}
-                                    value={field.value ?? ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                    value={field.value || ""}
                                 >
-                                    <MenuItem value="" disabled>Selecione um cargo...</MenuItem>
-                                    {cargos?.map((role: any) => (
-                                        <MenuItem key={role.id} value={role.id}>
-                                            {role.name}
+                                    <MenuItem value={field.value || []} disabled>Selecione uma posição...</MenuItem>
+                                    {cargos?.map((position: any) => (
+                                        <MenuItem key={position.id} value={position.id}>
+                                            {position.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                <FormHelperText>{errors.role?.connect?.id?.message}</FormHelperText>
+                                <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
                             </FormControl>
                         )}
                     />
-
+                    <Controller
+                        name="userType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.userType}>
+                                <InputLabel>Tipo de Usuário</InputLabel>
+                                <Select
+                                    label="Tipo de Usuário"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>Selecione...</MenuItem>
+                                    <MenuItem value="DIKMA_ADMINISTRATOR">Administrador Dikma</MenuItem>
+                                    <MenuItem value="CONTRACT_MANAGER">Gestor de Contrato</MenuItem>
+                                    <MenuItem value="DIKMA_DIRECTOR">Diretor Dikma</MenuItem>
+                                    <MenuItem value="CLIENT_ADMINISTRATOR">Administrador de Cliente</MenuItem>
+                                    <MenuItem value="OPERATIONAL">Operacional</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.userType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
                     <Controller
                         name="contract.connect.id"
                         control={control}
@@ -540,9 +508,6 @@ export default function CadastroPessoa() {
                         )}
                     />
                 </Box>
-
-
-
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Vínculo de Itens</h2>
 
@@ -702,10 +667,9 @@ export default function CadastroPessoa() {
                         type="submit"
                         variant="outlined"
                         sx={[buttonTheme, { alignSelf: "end" }]}
-                    // disabled={!isValid || loading}
+                        disabled={loading}
                     >
-                        Cadastrar
-                        {/* {loading ? <CircularProgress color="inherit" size={24} /> : "Cadastrar"} */}
+                        {loading ? <CircularProgress color="inherit" size={24} /> : "Cadastrar"}
                     </Button>
                 </Box>
             </form>

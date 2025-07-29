@@ -10,16 +10,30 @@ export const useLogin = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { setId, setEmail, setDocumento, setUserType } = useAuthStore();
 
-    const login = async (email: string, password: string) => {
+    const login = async (data: string, password: string) => {
 
         setIsLoading(true);
         setError(null);
 
         try {
-            const response = await api.post('/auth', { email, password });
+            const clearFormatedData = data?.replace(/[.\-]/g, '')
+            const response = await api.post('/auth', { document: clearFormatedData, password });
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
 
-            setUserType(response.data.data.user.person.name === "Admin" ? "ADM_DIKMA" : response.data.data.user.person.name);
+            // console.log(response.data.data.user.role.name)
+            console.log(response.data.data.user.role.name)
+            if (response.data.data.user.role.name === "Administrador Dikma") {
+                setUserType("ADM_DIKMA");
+            } else if (response.data.data.user.role.name === "Diretor Dikma") {
+                setUserType("DIKMA_DIRECTOR");
+            } else if (response.data.data.user.role.name === "Administrador Cliente") {
+                setUserType("ADM_CLIENTE");
+            } else if (response.data.data.user.role.name === "Gestor de Contrato") {
+                setUserType("GESTAO");
+            } else {
+                setUserType("OPERATIONAL");
+            }
+
             setId(response.data.data.user.id);
             setEmail(response.data.data.user.email);
             setDocumento(response.data.data.user.person.document);

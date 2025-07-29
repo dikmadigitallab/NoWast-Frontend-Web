@@ -8,44 +8,58 @@ import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
-import { useCreate } from "@/app/hooks/crud/create/useCreate";
+import { useEffect, useState } from "react";
+import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useCreateAmbiente } from "@/app/hooks/locais/ambiente/create";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { useUpdate } from "@/app/hooks/crud/update/update";
+import { useUpdateAmbiente } from "@/app/hooks/locais/ambiente/update";
 
-const produtoSchema = z.object({
-    name: z.string().min(1, "Nome do Produto é obrigatório"),
+const ambienteSchema = z.object({
+    name: z.string().min(1, "Nome do Ambiente é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
-    responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
+    areaM2: z.number().min(1, "Área em metros quadrados é obrigatória").nullable(),
+    sector: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do Setor é obrigatório").nullable() }) }),
 });
 
-type ProdutoFormValues = z.infer<typeof produtoSchema>;
+type AmbienteFormValues = z.infer<typeof ambienteSchema>;
 
-export default function CadastroProduto() {
+export default function FormDadosGerais() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetPessoa();
-    const { create, loading } = useCreate("product", "/items/produto/listagem");
+    const { update } = useUpdateAmbiente("environment");
+    const { data } = useGetOneById("environment");
+    const { data: setores } = useGet("sector");
+    const { create, loading } = useCreateAmbiente("environment");
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
-    const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProdutoFormValues>({
-        resolver: zodResolver(produtoSchema),
-        defaultValues: { name: "", description: "", responsibleManager: { connect: { id: 0 } } },
+    const { control, handleSubmit, formState: { errors }, reset } = useForm<AmbienteFormValues>({
+        resolver: zodResolver(ambienteSchema),
+        defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } },
         mode: "onChange"
     });
 
     const handleOpenDisableModal = () => setOpenDisableModal(true);
     const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/produto/listagem');
+    const handleDisableConfirm = () => router.push('/locais/ambiente/listagem');
 
-    const onSubmit = (formData: any) => {
-        create(formData);
+    const onSubmit = (formData: AmbienteFormValues) => {
+        console.log("Form data enviado:", formData);
+        // update(formData);
     };
+
+    useEffect(() => {
+        if (data) {
+            reset({ ...data, sector: { connect: { id: data.sectorId } } });
+        }
+    }, [data])
+
 
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
                 <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Produtos</h1>
+                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Ambientes</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
@@ -56,7 +70,7 @@ export default function CadastroProduto() {
                         control={control}
                         render={({ field }) => (
                             <TextField
-                                label="Nome do Produto"
+                                label="Nome do Ambiente"
                                 variant="outlined"
                                 {...field}
                                 error={!!errors.name}
@@ -67,40 +81,59 @@ export default function CadastroProduto() {
                     />
 
                     <Controller
-                        name="responsibleManager.connect.id"
+                        name="sector.connect.id"
                         control={control}
                         render={({ field }) => (
                             <FormControl
                                 sx={formTheme}
                                 fullWidth
-                                error={!!errors.responsibleManager?.connect?.id}
+                                error={!!errors.sector?.connect?.id}
                             >
-                                <InputLabel id="responsible-label">Gestor Responsável</InputLabel>
+                                <InputLabel id="sector-label">Setor</InputLabel>
                                 <Select
-                                    labelId="responsible-label"
-                                    label="Gestor Responsável"
+                                    labelId="sector-label"
+                                    label="Setor"
                                     {...field}
                                     value={field.value || ""}
                                 >
                                     <MenuItem value="" disabled>
                                         Clique e selecione...
                                     </MenuItem>
-                                    {pessoas?.map((person: any) => (
-                                        <MenuItem key={person.id} value={person.id}>
-                                            {person.name}
+                                    {setores?.map((setor: any) => (
+                                        <MenuItem key={setor.id} value={setor.id}>
+                                            {setor.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
-
-                                {errors.responsibleManager?.connect?.id && (
+                                {errors.sector?.connect?.id && (
                                     <p className="text-red-500 text-xs mt-1">
-                                        {errors.responsibleManager.connect.id.message}
+                                        {errors.sector.connect.id.message}
                                     </p>
                                 )}
                             </FormControl>
                         )}
                     />
 
+                    <Controller
+                        name="areaM2"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                label="Área (m²)"
+                                variant="outlined"
+                                type="number"
+                                {...field}
+                                value={field.value === null ? '' : field.value}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    field.onChange(value === '' ? null : Number(value));
+                                }}
+                                error={!!errors.areaM2}
+                                helperText={errors.areaM2?.message}
+                                sx={formTheme}
+                            />
+                        )}
+                    />
                     <Controller
                         name="description"
                         control={control}

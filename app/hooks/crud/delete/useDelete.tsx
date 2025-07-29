@@ -1,18 +1,19 @@
 import { Logout } from "@/app/utils/logout";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import api from "../api";
+import api from "../../api";
 import { useRouter } from "next/navigation";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import { getToastMessageRequest } from "@/app/utils/getToastMessageByType";
 
-export const useDeleteItem = (url: string) => {
+export const useDelete = (url: string, redirect?: string) => {
+
     const { id } = useGetIDStore();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const deleteItem = async () => {
+    const handleDelete = async () => {
         setError(null);
         setLoading(true);
 
@@ -24,7 +25,6 @@ export const useDeleteItem = (url: string) => {
             return;
         }
 
-        const toastMessages = getToastMessageRequest(url as any, "delete");
 
         try {
             await api.delete(`/${url}/${id}`, {
@@ -34,21 +34,26 @@ export const useDeleteItem = (url: string) => {
                 },
             });
 
-            toast.success(toastMessages.success);
-            setLoading(false);
+            toast.success("Item deletado com sucesso!");
             setTimeout(() => {
-                router.back();
+                if (redirect) {
+                    router.push(redirect)
+                } else {
+                    router.back();
+                }
             }, 1000);
         } catch (error) {
             setLoading(false);
-            setError(toastMessages.error);
-            toast.error(toastMessages.error);
+            const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
+            setError(errorMessage);
+            toast.error("Erro ao deletar item.");
         }
     };
 
     return {
-        deleteItem,
+        handleDelete,
         loading,
         error,
     };
 };
+

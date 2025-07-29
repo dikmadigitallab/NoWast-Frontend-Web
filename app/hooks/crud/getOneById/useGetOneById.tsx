@@ -2,17 +2,17 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../api";
+import api from "../../api";
 import { useGetIDStore } from "@/app/store/getIDStore";
 
-export const useGetOneItem = (url: string) => {
+export const useGetOneById = (url: string) => {
 
     const { id } = useGetIDStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
-    const getOneItem = async () => {
+    const getOneById = async () => {
         setError(null);
         setLoading(true);
 
@@ -35,7 +35,7 @@ export const useGetOneItem = (url: string) => {
 
             setData(response.data.data);
         } catch (error) {
-            setError("Erro ao buscar predios");
+            setError("Erro ao buscar dados");
             if (error instanceof Error) {
                 console.error(error.message);
             }
@@ -45,11 +45,11 @@ export const useGetOneItem = (url: string) => {
     };
 
     useEffect(() => {
-        if (id) getOneItem();
+        if (id) getOneById();
     }, [id]);
 
     return {
-        getOneItem,
+        getOneById,
         loading,
         error,
         data,

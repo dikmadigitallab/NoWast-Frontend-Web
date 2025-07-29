@@ -1,6 +1,5 @@
 "use client";
 
-import { rows } from './data';
 import Box from '@mui/material/Box';
 import React, { useState } from 'react';
 import { Button, IconButton, TextField } from '@mui/material';
@@ -10,29 +9,33 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
-import ModalAmbienteEditModal from './component/AmbienteEdit/modalAmbienteEdit';
 import ModalVisualizeDetail from './component/modalAmbienteDetail';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+import { useRouter } from 'next/navigation';
+import { useGetIDStore } from '@/app/store/getIDStore';
 
-export default function DataGridUsuarios() {
+export default function DataGridAmbientes() {
 
-    const [edit, setEdit] = useState<any>(null);
-    const [modalEdit, setModalEdit] = useState(false);
+    const router = useRouter();
+    const { setId } = useGetIDStore();
     const [isFilter, setIsFilter] = useState(false);
+    const { data: ambientes } = useGet("environment");
     const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
-
-    const handleChangeModalEdit = (data: any) => {
-        setEdit(data);
-        setModalEdit(!modalEdit);
-    }
 
     const handleChangeModalVisualize = (data: any) => {
         setVisualize(data);
         setModalVisualize(!modalVisualize);
     }
 
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/locais/ambiente/atualizar`);
+        }, 500);
+    }
 
     const columns: GridColDef[] = [
         {
@@ -44,10 +47,10 @@ export default function DataGridUsuarios() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalVisualize(params.row)}>
+                    <IconButton aria-label="visualizar" size="small">
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
-                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
                         <MdOutlineModeEditOutline color='#635D77' />
                     </IconButton>
                 </Box>
@@ -59,47 +62,24 @@ export default function DataGridUsuarios() {
             width: 80,
         },
         {
-            field: 'nome',
+            field: 'name',
             headerName: 'Nome do Ambiente',
             width: 200,
         },
         {
-            field: 'dimensao',
-            headerName: 'Dimensão',
+            field: 'description',
+            headerName: 'Descrição',
             width: 200,
         },
         {
-            field: 'predio',
-            headerName: 'Prédio',
-            width: 200,
-            renderCell: (params) => <span>{params.row.predio?.nome || '-'}</span>
-        },
-        {
-            field: 'setor',
-            headerName: 'Setor',
-            width: 200,
-            renderCell: (params) => <span>{params.row.setor?.nome || '-'}</span>
-        },
-        {
-            field: 'raio',
-            headerName: 'Raio',
+            field: 'areaM2',
+            headerName: 'Área em m²',
             width: 120,
         },
         {
-            field: 'servico',
-            headerName: 'Serviço',
+            field: 'sectorId',
+            headerName: 'ID do Setor',
             width: 150,
-        },
-        {
-            field: 'tipo',
-            headerName: 'Tipo',
-            width: 150,
-        },
-        {
-            field: 'descricao',
-            headerName: 'Descrição',
-            width: 300,
-            flex: 1,
         },
     ];
 
@@ -107,7 +87,6 @@ export default function DataGridUsuarios() {
         <StyledMainContainer>
 
             <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} />
-            <ModalAmbienteEditModal edit={edit} modalEdit={modalEdit} handleChangeModalEdit={handleChangeModalEdit} />
 
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
@@ -149,8 +128,9 @@ export default function DataGridUsuarios() {
                         </Box>
                     )
                 }
+
                 <DataGrid
-                    rows={rows}
+                    rows={ambientes}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

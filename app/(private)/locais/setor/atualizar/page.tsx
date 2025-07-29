@@ -1,22 +1,24 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Box, FormControl, InputLabel, Select, MenuItem, Button, Modal, CircularProgress } from "@mui/material";
+import { TextField, Box, FormControl, InputLabel, Select, MenuItem, Button, Modal, CircularProgress, FormHelperText } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useUpdateSetor } from "@/app/hooks/locais/setor/update";
 import { useGetOneSetor } from "@/app/hooks/locais/setor/getOneById";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import { useDeleteSetor } from "@/app/hooks/locais/setor/delete";
+import { useDelete } from "@/app/hooks/crud/delete/useDelete";
+import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useUpdate } from "@/app/hooks/crud/update/update";
 
 const setorSchema = z.object({
-    id: z.number().int().min(1, "ID é obrigatório"),
     name: z.string().min(1, "Nome do Setor é obrigatório"),
     radius: z.number().int().min(1, "Raio é obrigatório"),
     latitude: z.string().min(1, "Latitude é obrigatória"),
@@ -24,8 +26,7 @@ const setorSchema = z.object({
     description: z.string().min(1, "Descrição é obrigatória"),
     building: z.object({
         connect: z.object({
-            id: z.number().int().min(1, "ID do edifício é obrigatório"),
-            contractId: z.number().int().min(1, "ID do contrato é obrigatório")
+            id: z.number().int().min(1, "ID do edifício é obrigatório").nullable()
         })
     })
 });
@@ -34,7 +35,7 @@ type SetorFormValues = z.infer<typeof setorSchema>;
 
 export default function EditarSetor() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch, reset } = useForm<SetorFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset } = useForm<SetorFormValues>({
         resolver: zodResolver(setorSchema),
         defaultValues: {
             name: "",
@@ -44,8 +45,7 @@ export default function EditarSetor() {
             description: "",
             building: {
                 connect: {
-                    id: 0,
-                    contractId: 0
+                    id: null
                 }
             }
         },
@@ -54,11 +54,15 @@ export default function EditarSetor() {
 
     const router = useRouter();
     const { id } = useGetIDStore()
-    const { deleteSetor } = useDeleteSetor();
+    const { data: predios } = useGet("building");
     const { data: setor, getOneSetor } = useGetOneSetor();
+    const { update, loading } = useUpdate("sector", "/locais/setor/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const { loading, updateSetor } = useUpdateSetor();
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const handleOpenDisableModal = () => setOpenDisableModal(true);
+    const handleCloseDisableModal = () => setOpenDisableModal(false);
+    const { handleDelete } = useDelete("sector", "/locais/setor/listagem");
+    const handleDisableConfirm = () => router.push('/locais/setor/listagem");');
 
     const handleOpenDeleteModal = () => {
         setOpenDeleteModal(true);
@@ -68,21 +72,8 @@ export default function EditarSetor() {
         setOpenDeleteModal(false);
     };
 
-    const handleOpenDisableModal = () => {
-        setOpenDisableModal(true);
-    };
-
-    const handleCloseDisableModal = () => {
-        setOpenDisableModal(false);
-    };
-
-    const handleDisableConfirm = () => {
-        router.push('/locais/setor/listagem');
-    };
-
     const onSubmit = async (formData: SetorFormValues) => {
-        console.log(formData);
-        updateSetor(id as number, formData);
+        update(formData);
     };
 
 
@@ -91,7 +82,7 @@ export default function EditarSetor() {
     }, [id]);
 
     useEffect(() => {
-        if (setor) reset({ ...setor, id: setor.id, building: { connect: { id: 1, contractId: 1 } } });
+        if (setor) reset({ ...setor, id: setor.id, building: { connect: { id: setor.buildingId } } });
     }, [setor, reset]);
 
     return (
@@ -100,7 +91,7 @@ export default function EditarSetor() {
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Setor</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Editar</h1>
+                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
                 <Box className="w-[100%] flex flex-row justify-between gap-2">
                     <Controller
@@ -148,20 +139,18 @@ export default function EditarSetor() {
                             />
                         )}
                     />
-                </Box>
-                <Box className="w-[100%] flex flex-row justify-between">
                     <Controller
-                        name="description"
+                        name="radius"
                         control={control}
-                        render={({ field }) => (
+                        render={({ field: { onChange, ...field } }) => (
                             <TextField
+                                type="number"
                                 variant="outlined"
-                                label="Descrição"
-                                multiline
-                                rows={10}
+                                label="Raio (m²)"
                                 {...field}
-                                error={!!errors.description}
-                                helperText={errors.description?.message}
+                                onChange={(e) => onChange(parseInt(e.target.value, 10))}
+                                error={!!errors.radius}
+                                helperText={errors.radius?.message}
                                 className="w-[100%]"
                                 sx={formTheme}
                             />
@@ -169,11 +158,57 @@ export default function EditarSetor() {
                     />
                 </Box>
 
+                <FormControl fullWidth error={!!errors.building?.connect?.id}>
+                    <InputLabel id="building-label">Contrato</InputLabel>
+                    <Controller
+                        name="building.connect.id"
+                        control={control}
+                        render={({ field }) => (
+                            <Select
+                                {...field}
+                                labelId="building-label"
+                                label="Prédios"
+                                value={field.value || ""}
+                                error={!!errors.building?.connect?.id}
+                            >
+                                <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
+                                {predios?.map((building: any) => (
+                                    <MenuItem key={building.id} value={building.id}>
+                                        {building.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                    {errors.building?.connect?.id && (
+                        <p className="text-red-500 text-xs mt-1">
+                            {errors.building?.connect?.id.message}
+                        </p>
+                    )}
+                </FormControl>
+
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Descrição"
+                            multiline
+                            rows={10}
+                            {...field}
+                            error={!!errors.description}
+                            helperText={errors.description?.message}
+                            className="w-[100%]"
+                            sx={formTheme}
+                        />
+                    )}
+                />
                 <Box className="w-[100%] flex flex-row gap-5 justify-between">
-                    <Button variant="outlined" sx={buttonThemeNoBackground} disabled={loading} onClick={handleOpenDeleteModal}>Excluir</Button>
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
                     <Box className="flex flex-row gap-5" >
-                        <Button variant="outlined" sx={buttonThemeNoBackground} disabled={loading} onClick={handleOpenDisableModal}>Cancelar</Button>
-                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                        <Button type="submit" variant="outlined" disabled={loading} sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
                     </Box>
                 </Box>
             </form>
@@ -181,11 +216,11 @@ export default function EditarSetor() {
             <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
-                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Deletar exclusão de Setor</h2>
-                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar exclusão</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir este prédio? Está ação não pode ser desfeita.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={() => deleteSetor(id as number)} variant="outlined" sx={buttonTheme}>Confirmar</Button>
+                            <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleDelete} variant="outlined" sx={buttonThemeNoBackgroundError}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>
@@ -203,6 +238,7 @@ export default function EditarSetor() {
                     </Box>
                 </Box>
             </Modal>
+
         </StyledMainContainer>
     )
 }

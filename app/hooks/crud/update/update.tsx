@@ -1,19 +1,19 @@
-'use client';
-import api from "../api";
-import { useState } from "react";
 import { toast } from "react-toastify";
+import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
+import api from "../../api";
 import { useRouter } from "next/navigation";
-import { getToastMessageRequest } from "@/app/utils/getToastMessageByType";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
-export const useUpdateItem = (url: string) => {
+export const useUpdate = (url: string, redirect: string) => {
 
-    const router = useRouter();
-    const [data, setData] = useState(null);
+    const { id } = useGetIDStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [data, setData] = useState(null);
+    const router = useRouter();
 
-    const updateItem = async (id: number, novoItem: any) => {
+    const update = async (data: any) => {
 
         setError(null);
         setLoading(true);
@@ -26,30 +26,30 @@ export const useUpdateItem = (url: string) => {
             return;
         }
 
-        const toastMessages = getToastMessageRequest(url as any, "update");
-
         try {
-            const response = await api.put(`/${url}/${id}`, novoItem, {
+            const response = await api.put(`/${url}/${id}`, data, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            toast.success(toastMessages.success);
-            setData(response.data);
-            setLoading(false);
+            setData(response.data.data);
+            toast.success("Atualização feito com sucesso");
+
             setTimeout(() => {
-                router.back();
-            }, 1000);
+                router.push(redirect);
+            })
         } catch (error) {
             setLoading(false);
-            toast.success(toastMessages.error);
+            const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
+            setError(errorMessage);
+            toast.error(errorMessage);
         }
     };
 
     return {
-        updateItem,
+        update,
         loading,
         error,
         data

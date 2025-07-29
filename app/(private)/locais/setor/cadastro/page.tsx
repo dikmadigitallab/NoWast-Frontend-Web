@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Box, Button, Modal } from "@mui/material";
+import { TextField, Box, Button, Modal, FormControl, InputLabel, Select, MenuItem, FormHelperText, CircularProgress } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,8 +10,9 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useCreateSetor } from "@/app/hooks/locais/setor/create";
 import { useGetPredio } from "@/app/hooks/locais/predio/get";
+import { useCreate } from "@/app/hooks/crud/create/useCreate";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const setorSchema = z.object({
     name: z.string().min(1, "Nome do Setor é obrigatório"),
@@ -21,8 +22,7 @@ const setorSchema = z.object({
     description: z.string().min(1, "Descrição é obrigatória"),
     building: z.object({
         connect: z.object({
-            id: z.number().int().min(1, "ID do edifício é obrigatório"),
-            contractId: z.number().int().min(1, "ID do contrato é obrigatório")
+            id: z.number().int().min(1, "ID do edifício é obrigatório").nullable()
         })
     })
 });
@@ -41,8 +41,7 @@ export default function CadastroSetor() {
             description: "",
             building: {
                 connect: {
-                    id: 1,
-                    contractId: 1
+                    id: null
                 }
             }
         },
@@ -51,8 +50,8 @@ export default function CadastroSetor() {
 
 
     const router = useRouter();
-    const { createSetor } = useCreateSetor();
-    const { predio } = useGetPredio();
+    const { create, loading } = useCreate("sector", "/locais/setor/listagem");
+     const { data: predios } = useGet("building");
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const handleOpenDisableModal = () => {
@@ -69,7 +68,7 @@ export default function CadastroSetor() {
 
     const onSubmit = async (formData: any) => {
         console.log(formData);
-        createSetor(formData);
+        create(formData);
     };
 
     return (
@@ -145,29 +144,56 @@ export default function CadastroSetor() {
                     />
                 </Box>
 
-
-                <Box className="w-[100%] flex flex-row justify-between">
+                <FormControl fullWidth error={!!errors.building?.connect?.id}>
+                    <InputLabel id="building-label">Contrato</InputLabel>
                     <Controller
-                        name="description"
+                        name="building.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Descrição"
-                                multiline
-                                rows={10}
+                            <Select
                                 {...field}
-                                error={!!errors.description}
-                                helperText={errors.description?.message}
-                                className="w-[100%]"
-                                sx={formTheme}
-                            />
+                                labelId="building-label"
+                                label="Prédios"
+                                value={field.value || ""}
+                                error={!!errors.building?.connect?.id}
+                            >
+                                <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
+                                {predios?.map((building: any) => (
+                                    <MenuItem key={building.id} value={building.id}>
+                                        {building.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
                         )}
                     />
-                </Box>
+                    {errors.building?.connect?.id && (
+                        <p className="text-red-500 text-xs mt-1">
+                            {errors.building?.connect?.id.message}
+                        </p>
+                    )}
+
+                </FormControl>
+
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Descrição"
+                            multiline
+                            rows={10}
+                            {...field}
+                            error={!!errors.description}
+                            helperText={errors.description?.message}
+                            className="w-[100%]"
+                            sx={formTheme}
+                        />
+                    )}
+                />
                 <Box className="w-[100%] flex flex-row gap-5 justify-end">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                    <Button variant="outlined" type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>Cadastrar</Button>
+                    <Button variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}</Button>
                 </Box>
             </form>
 

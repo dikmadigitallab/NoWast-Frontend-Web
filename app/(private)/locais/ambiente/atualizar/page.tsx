@@ -24,7 +24,6 @@ export default function Ambiente() {
         router.push('/locais/ambiente/listagem');
     };
 
-
     return (
         <StyledMainContainer>
             <Box className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
