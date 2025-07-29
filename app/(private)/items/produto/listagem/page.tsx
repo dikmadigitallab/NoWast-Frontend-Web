@@ -72,7 +72,7 @@ export default function DetalharProduto() {
             headerName: 'Descrição',
             width: 300,
         },
-      {
+        {
             field: 'responsibleManager',
             headerName: 'Encarregado Responsável',
             width: 200,
@@ -141,7 +141,7 @@ export default function DetalharProduto() {
                     )
                 }
                 <DataGrid
-                    rows={produtos?.data.items}
+                    rows={produtos}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

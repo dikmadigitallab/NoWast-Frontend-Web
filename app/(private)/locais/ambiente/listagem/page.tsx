@@ -13,26 +13,29 @@ import ModalVisualizeDetail from './component/modalAmbienteDetail';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { useGet } from '@/app/hooks/crud/get/useGet';
+import { useRouter } from 'next/navigation';
+import { useGetIDStore } from '@/app/store/getIDStore';
 
 export default function DataGridAmbientes() {
 
-    const [setEdit] = useState<any>(null);
-    const [modalEdit, setModalEdit] = useState(false);
+    const router = useRouter();
+    const { setId } = useGetIDStore();
     const [isFilter, setIsFilter] = useState(false);
     const { data: ambientes } = useGet("environment");
     const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
-
-    const handleChangeModalEdit = (data: any) => {
-        setEdit(data);
-        setModalEdit(!modalEdit);
-    }
 
     const handleChangeModalVisualize = (data: any) => {
         setVisualize(data);
         setModalVisualize(!modalVisualize);
     }
 
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/locais/ambiente/atualizar`);
+        }, 500);
+    }
 
     const columns: GridColDef[] = [
         {
@@ -44,10 +47,10 @@ export default function DataGridAmbientes() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalVisualize(params.row)}>
+                    <IconButton aria-label="visualizar" size="small">
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
-                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
                         <MdOutlineModeEditOutline color='#635D77' />
                     </IconButton>
                 </Box>
@@ -66,8 +69,7 @@ export default function DataGridAmbientes() {
         {
             field: 'description',
             headerName: 'Descrição',
-            width: 100,
-            flex: 1,
+            width: 200,
         },
         {
             field: 'areaM2',

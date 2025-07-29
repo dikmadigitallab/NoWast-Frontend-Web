@@ -141,7 +141,7 @@ export default function DetalharTransporte() {
                     )
                 }
                 <DataGrid
-                    rows={transportes?.data.items}
+                    rows={transportes}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

@@ -25,6 +25,7 @@ export default function DetalharEpi() {
     const { data: epis } = useGet('ppe');
     const { setId } = useGetIDStore();
     const router = useRouter();
+
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
         setModalDetail(!modalDetail);
@@ -36,7 +37,6 @@ export default function DetalharEpi() {
             router.push(`/items/epi/atualizar`);
         }, 500)
     }
-
 
     const columns: GridColDef<any>[] = [
         {
@@ -141,7 +141,7 @@ export default function DetalharEpi() {
                     )
                 }
                 <DataGrid
-                    rows={epis?.data.items}
+                    rows={epis}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

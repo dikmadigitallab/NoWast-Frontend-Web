@@ -8,9 +8,12 @@ import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useCreateAmbiente } from "@/app/hooks/locais/ambiente/create";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { useUpdate } from "@/app/hooks/crud/update/update";
+import { useUpdateAmbiente } from "@/app/hooks/locais/ambiente/update";
 
 const ambienteSchema = z.object({
     name: z.string().min(1, "Nome do Ambiente é obrigatório"),
@@ -24,11 +27,13 @@ type AmbienteFormValues = z.infer<typeof ambienteSchema>;
 export default function FormDadosGerais() {
 
     const router = useRouter();
+    const { update } = useUpdateAmbiente("environment");
+    const { data } = useGetOneById("environment");
     const { data: setores } = useGet("sector");
     const { create, loading } = useCreateAmbiente("environment");
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
-    const { control, handleSubmit, formState: { errors } } = useForm<AmbienteFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset } = useForm<AmbienteFormValues>({
         resolver: zodResolver(ambienteSchema),
         defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } },
         mode: "onChange"
@@ -36,11 +41,18 @@ export default function FormDadosGerais() {
 
     const handleOpenDisableModal = () => setOpenDisableModal(true);
     const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/ambiente/listagem');
+    const handleDisableConfirm = () => router.push('/locais/ambiente/listagem');
 
     const onSubmit = (formData: AmbienteFormValues) => {
-        create(formData);
+        console.log("Form data enviado:", formData);
+        // update(formData);
     };
+
+    useEffect(() => {
+        if (data) {
+            reset({ ...data, sector: { connect: { id: data.sectorId } } });
+        }
+    }, [data])
 
 
     return (
@@ -146,7 +158,6 @@ export default function FormDadosGerais() {
                 </Box>
             </form>
 
-            {/* Modal de cancelamento */}
             <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">

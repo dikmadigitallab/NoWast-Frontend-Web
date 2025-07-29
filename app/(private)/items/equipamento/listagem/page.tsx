@@ -141,7 +141,7 @@ export default function DetalharEquipamento() {
                     )
                 }
                 <DataGrid
-                    rows={equipamentos?.data.items}
+                    rows={equipamentos}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
