@@ -65,14 +65,19 @@ export default function DetalharPessoa() {
             field: 'status',
             headerName: 'Status',
             width: 120,
-            renderCell: (params) => (
-                <Chip
-                    label={params.value}
-                    color={params.value === 'ativo' ? 'success' : 'error'}
-                    size="small"
-                    variant="outlined"
-                />
-            ),
+            renderCell: (params) => {
+                const status = params.value.toLowerCase() === 'active' ? 'Ativo' : 'Inativo';
+                const color = params.value.toLowerCase() === 'active' ? 'success' : 'error';
+
+                return (
+                    <Chip
+                        label={status}
+                        color={color}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            },
         },
         {
             field: 'name',

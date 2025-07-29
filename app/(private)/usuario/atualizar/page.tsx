@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress, Checkbox, ListItemText } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
@@ -17,6 +17,7 @@ import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
 import { useGetFuncoes } from "@/app/hooks/funcoes/get";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetPosicao } from "@/app/hooks/posicao/get";
 
 const userSchema = z.object({
     id: z.number({ required_error: "ID é obrigatório", invalid_type_error: "ID inválido" }),
@@ -26,7 +27,6 @@ const userSchema = z.object({
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     person: z.object({
         create: z.object({
-            id: z.number(),
             name: z.string().min(1, { message: "O nome é obrigatório" }),
             tradeName: z.string().min(1, { message: "Nome Fantasia é obrigatório" }),
             document: z.string().min(11, { message: "Documento deve ter pelo menos 11 caracteres" }),
@@ -63,7 +63,6 @@ export default function AtualizarPessoa() {
             firstLogin: true,
             person: {
                 create: {
-                    id: undefined,
                     name: "",
                     tradeName: "",
                     document: "",
@@ -91,15 +90,15 @@ export default function AtualizarPessoa() {
     const router = useRouter();
     const { users } = useGetUsuario();
     const { data } = useGetOneUsuario();
-    const { data: cargos } = useGetFuncoes();
     const { data: epis } = useGet('ppe');
+    const { data: cargos } = useGetPosicao();
     const { data: contrato } = useGetContratos();
     const { data: produtos } = useGet('product');
     const { data: equipamentos } = useGet('tools');
     const { data: transportes } = useGet('transport');
-    const { update, loading } = useUpdate("users", '/usuario/listagem');
-    const [openDisableModal, setOpenDisableModal] = useState(false);
     const [openCancelModal, setCancelModal] = useState(false);
+    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { update, loading } = useUpdate("users", '/usuario/listagem');
 
     const handleOpenModal = (field: string) => {
         if (field === "cancelar") {
@@ -122,12 +121,34 @@ export default function AtualizarPessoa() {
     };
 
     const onSubmit = (formData: UserFormValues) => {
-        const newData = { ...formData, person: { create: { ...formData.person.create, birthDate: new Date(formData.person.create.birthDate).toISOString() } } };
+        const newData = {
+            ...formData,
+            email: formData.person.create.email?.toLowerCase(),
+            phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
+            person: {
+                create: {
+                    ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''),
+                    birthDate: new Date(formData.person.create.birthDate).toISOString()
+                }
+            }
+        };
         update(newData);
     };
 
     const onDesabled = () => {
-        const newData = { ...data, status: "INACTIVE" };
+        const formValues = watch()
+        const newData = {
+            ...formValues,
+            email: formValues.person.create.email?.toLowerCase(),
+            phone: formValues.person.create.phone?.replace(/[.\-]/g, ''),
+            status: "ACTIVE",
+            person: {
+                create: {
+                    ...formValues.person.create, document: formValues.person.create.document?.replace(/[.\-]/g, ''),
+                    birthDate: new Date(formValues.person.create.birthDate).toISOString()
+                }
+            }
+        };
         update(newData);
     }
     const formatDateForInput = (dateString: string | undefined): string => {
@@ -160,10 +181,14 @@ export default function AtualizarPessoa() {
 
     useEffect(() => {
         if (data) {
-            const { id, personId, status, person, role, firstLogin } = data;
+            const { id, status, person, role, firstLogin, ppes, tools, transports, products, position, userType, contractId, supervisor, manager } = data;
             const { name, tradeName, document, briefDescription, birthDate, gender, personType } = person;
             const phones = person.phones.map((phone: any) => phone.phoneNumber);
             const emails = person.emails.map((email: any) => email.email);
+            const epis = ppes.map((epi: any) => epi.id)
+            const ferramentas = tools.map((ferramenta: any) => ferramenta.id)
+            const transportes = transports.map((transporte: any) => transporte.id)
+            const produtos = products.map((produto: any) => produto.id)
 
             setValue('id', id);
             setValue('status', status);
@@ -178,6 +203,16 @@ export default function AtualizarPessoa() {
             setValue('firstLogin', firstLogin);
             setValue('person.create.email', emails[0]);
             setValue('person.create.phone', phones[0]);
+            setValue('epiIds', epis)
+            setValue('equipmentIds', ferramentas)
+            setValue('vehicleIds', transportes)
+            setValue('productIds', produtos)
+            setValue('position.connect.id', position.id)
+            setValue('userType', userType)
+            setValue('contract.connect.id', contractId)
+            setValue('supervisor.connect.id', supervisor.id)
+            setValue('manager.connect.id', manager.id)
+
 
         }
     }, [data, reset]);
@@ -733,7 +768,7 @@ export default function AtualizarPessoa() {
                         <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse usuário?</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button variant="outlined" onClick={onDesabled} disabled={loading} sx={buttonTheme}>Desabilitar</Button>
+                            <Button variant="outlined" onClick={onDesabled} disabled={loading} sx={buttonTheme}>  {loading ? <CircularProgress color="inherit" size={24} /> : "Desabilitar"}</Button>
                         </Box>
                     </Box>
                 </Box>
