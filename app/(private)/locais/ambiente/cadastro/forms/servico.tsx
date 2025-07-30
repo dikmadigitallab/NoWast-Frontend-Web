@@ -43,6 +43,7 @@ export default function FormServicos() {
     const router = useRouter();
     const { id } = useGetIDStore();
     const [newItem, setNewItem] = useState("");
+    const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
     const { data: tiposServicos } = useGet("serviceType");
     const { data: servicos } = useGet("service-items");
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
@@ -57,21 +58,39 @@ export default function FormServicos() {
     const handleCloseDisableModal = () => setOpenDisableModal(false);
     const handleDisableConfirm = () => router.push('/locais/ambiente/listagem');
 
+    const handleEditItem = (item: ServiceItem) => {
+        setEditingItem(item);
+        setNewItem(item.name);
+    };
+
     const addServiceItem = () => {
-        const trimmed = newItem.trim();
-        if (trimmed && !serviceItems.some(item => item.name === trimmed)) {
-            const newItemObj = { id: Date.now(), name: trimmed };
-            const updatedItems = [...serviceItems, newItemObj];
+        const text = newItem.trim();
+        if (!text) return;
+
+        if (editingItem) {
+            const updatedItems = serviceItems.map(item => item.id === editingItem.id ? { ...item, name: text } : item);
             setServiceItems(updatedItems);
             setValue("serviceItens", updatedItems.map(item => item.name));
-            setNewItem("");
+            setEditingItem(null);
+        } else {
+            if (!serviceItems.some(item => item.name === text)) {
+                const newItemObj = { id: Date.now(), name: text };
+                const updatedItems = [...serviceItems, newItemObj];
+                setServiceItems(updatedItems);
+                setValue("serviceItens", updatedItems.map(item => item.name));
+            }
         }
+        setNewItem("");
     };
 
     const removeServiceItem = (name: string) => {
         const updatedItems = serviceItems.filter(item => item.name !== name);
         setServiceItems(updatedItems);
         setValue("serviceItens", updatedItems.map(item => item.name));
+        if (editingItem && editingItem.name === name) {
+            setEditingItem(null);
+            setNewItem("");
+        }
     };
 
     const onSubmit = (formData: ServicoFormValues) => {
@@ -90,6 +109,9 @@ export default function FormServicos() {
                 <Box>
                     <IconButton size="small" onClick={() => removeServiceItem(params.row.name)}>
                         <GoTrash color='#635D77' size={20} />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleEditItem(params.row)}>
+                        <MdOutlineModeEditOutline color='#635D77' size={20} />
                     </IconButton>
                 </Box>
             ),
@@ -166,7 +188,7 @@ export default function FormServicos() {
                     <Box className="flex flex-col gap-2">
                         <Box className="flex gap-2 h-[55px]">
                             <TextField
-                                label="Novo Item de Serviço"
+                                label={editingItem ? "Editar Item" : "Novo Item de Serviço"}
                                 variant="outlined"
                                 value={newItem}
                                 onChange={(e) => setNewItem(e.target.value)}
@@ -178,14 +200,25 @@ export default function FormServicos() {
                                 onClick={addServiceItem}
                                 sx={[buttonTheme, { height: "100%" }]}
                             >
-                                Adicionar
+                                {editingItem ? "Atualizar" : "Adicionar"}
                             </Button>
+                            {editingItem && (
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => {
+                                        setEditingItem(null);
+                                        setNewItem("");
+                                    }}
+                                    sx={[buttonThemeNoBackground, { height: "100%" }]}
+                                >
+                                    Cancelar
+                                </Button>
+                            )}
                         </Box>
 
                         {errors.serviceItens && (
                             <p className="text-red-500 text-sm">{errors.serviceItens.message}</p>
                         )}
-
                     </Box>
                 </Box>
 
