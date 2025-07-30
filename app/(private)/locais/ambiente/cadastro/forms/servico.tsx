@@ -49,6 +49,7 @@ export default function FormServicos() {
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreateAmbiente("service", "/locais/ambiente/listagem");
+
     const { control, handleSubmit, formState: { errors }, setValue } = useForm<ServicoFormValues>({
         resolver: zodResolver(servicoSchema),
         defaultValues: { name: "", environment: { connect: { id: id } }, serviceType: { connect: { id: null } }, serviceItens: [] }, mode: "onChange"

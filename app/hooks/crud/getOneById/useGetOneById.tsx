@@ -13,6 +13,7 @@ export const useGetOneById = (url: string) => {
     const [data, setData] = useState<any>(null);
 
     const getOneById = async () => {
+
         setError(null);
         setLoading(true);
 
@@ -32,6 +33,8 @@ export const useGetOneById = (url: string) => {
                     "Content-Type": "application/json",
                 },
             });
+
+            console.log(response.data.data);
 
             setData(response.data.data);
         } catch (error) {

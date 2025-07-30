@@ -35,10 +35,10 @@ export const useUpdateAmbiente = (url: string, redirect?: string) => {
                 },
             });
 
-            toast.success("Atualizaçãao feita com sucesso");
+            toast.success("Atualização feita com sucesso");
             setTimeout(() => {
                 if (section === 1) {
-                    setId(response.data.data.id)
+                    setId(response.data.data.services[0].id)
                     setSection(2);
                 } else {
                     if (redirect) {
