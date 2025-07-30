@@ -26,22 +26,15 @@ export default function FormDadosGerais() {
     const router = useRouter();
     const { data: setores } = useGet("sector");
     const { create, loading } = useCreateAmbiente("environment");
-    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
 
-    const { control, handleSubmit, formState: { errors } } = useForm<AmbienteFormValues>({
-        resolver: zodResolver(ambienteSchema),
-        defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } },
-        mode: "onChange"
-    });
+    const { control, handleSubmit, formState: { errors } } = useForm<AmbienteFormValues>({ resolver: zodResolver(ambienteSchema), defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } }, mode: "onChange" });
 
-    const handleOpenDisableModal = () => setOpenDisableModal(true);
-    const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/ambiente/listagem');
+    const handleOpenCancelModal = () => setOpenCancelModal(true);
+    const handleCloseCancelModal = () => setOpenCancelModal(false);
+    const handleCancelConfirm = () => router.push('/locais/ambiente/listagem');
 
-    const onSubmit = (formData: AmbienteFormValues) => {
-        create(formData);
-    };
-
+    const onSubmit = (formData: AmbienteFormValues) => create(formData);
 
     return (
         <StyledMainContainer>
@@ -141,20 +134,20 @@ export default function FormDadosGerais() {
                 </Box>
 
                 <Box className="flex flex-row justify-end gap-4">
-                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenCancelModal}>Cancelar</Button>
                     <Button variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}</Button>
                 </Box>
             </form>
 
             {/* Modal de cancelamento */}
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
                         </Box>
                     </Box>
                 </Box>

@@ -66,7 +66,7 @@ export const ADM_DIKMA: NavItem[] = [
         name: 'Atividades',
         icon: FaRegCalendar,
         subItems: [
-            { icon: FaRegCircle, name: 'Detalhar', href: ['/atividade/listagem'] }
+            { icon: FaRegCircle, name: 'Detalhar', href: ['/atividade/listagem', '/atividade/cadastro', '/atividade/atualizar'] }
         ]
     },
     {
@@ -116,11 +116,6 @@ export const GESTAO: NavItem[] = [
             { icon: FaRegCircle, name: 'Localização', href: ['/dashboard/localizacao'] },
             { icon: FaRegCircle, name: 'Cadastro', href: ['/dashboard/cadastros'] },
         ]
-    },
-    {
-        name: 'Prédios',
-        href: ['/modulos/predios'],
-        icon: BsBuildings,
     },
     {
         name: 'Notificações',

@@ -33,13 +33,9 @@ export default function FormDadosGerais() {
     const { update, loading: updateLoading } = useUpdateAmbiente("environment");
     const { handleDelete, loading: deleteLoading } = useDelete("environment", "/locais/ambiente/listagem");
 
-    const handleOpenDeleteModal = () => {
-        setOpenDeleteModal(true);
-    };
+    const handleOpenDeleteModal = () => setOpenDeleteModal(true);
+    const handleCloseDeleteModal = () => setOpenDeleteModal(false);
 
-    const handleCloseDeleteModal = () => {
-        setOpenDeleteModal(false);
-    };
     const { control, handleSubmit, formState: { errors }, reset } = useForm<AmbienteFormValues>({
         resolver: zodResolver(ambienteSchema),
         defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } },
@@ -50,9 +46,7 @@ export default function FormDadosGerais() {
     const handleCloseCancelModal = () => setOpenCancelModal(false);
     const handleCancelConfirm = () => router.push('/locais/ambiente/listagem');
 
-    const onSubmit = (formData: AmbienteFormValues) => {
-        update(formData);
-    };
+    const onSubmit = (formData: AmbienteFormValues) => update(formData);
 
     useEffect(() => {
         if (data) {

@@ -25,12 +25,14 @@ export const useCreatePessoa = () => {
         }
 
         try {
+
             const response = await api.post("/users", pessoa, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
+
 
             setData(response.data.data);
             toast.success("Pessoa criada com sucesso");
@@ -39,6 +41,7 @@ export const useCreatePessoa = () => {
             setTimeout(() => {
                 router.push("/usuario/listagem");
             })
+            setLoading(false);
         } catch (error) {
             setLoading(false);
             const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";

@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { useSectionStore } from "@/app/store/renderSection";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useUpdateAmbiente } from "@/app/hooks/locais/ambiente/update";
 
@@ -32,32 +31,22 @@ export default function FormServicos() {
 
     const router = useRouter();
     const { id } = useGetIDStore();
-    const { setSection } = useSectionStore();
     const { data } = useGetOneById("service");
     const [newItem, setNewItem] = useState("");
     const { data: tiposServicos } = useGet("serviceType");
-    const { update, loading } = useUpdateAmbiente("service", "/locais/ambiente/listagem");
+    const [openCancelModal, setOpenCancelModal] = useState(false);
     const [serviceItems, setServiceItems] = useState<{ name: string }[]>([]);
-    const [openDisableModal, setOpenDisableModal] = useState(false);
-
+    const { update, loading } = useUpdateAmbiente("service", "/locais/ambiente/listagem");
 
     const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<ServicoFormValues>({
         resolver: zodResolver(servicoSchema),
-        defaultValues: {
-            name: "",
-            environment: { connect: { id: id } },
-            serviceType: { connect: { id: null } },
-            serviceItens: { create: [] }
-        },
+        defaultValues: { name: "", environment: { connect: { id: id } }, serviceType: { connect: { id: null } }, serviceItens: { create: [] } },
         mode: "onChange"
     });
 
-    const handleOpenDisableModal = () => setOpenDisableModal(true);
-    const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => {
-        setSection(1);
-        router.push('/locais/ambiente/listagem');
-    }
+    const handleOpenCancelModal = () => setOpenCancelModal(true);
+    const handleCloseCancelModal = () => setOpenCancelModal(false);
+    const handleCancelConfirm = () => router.push('/locais/ambiente/listagem');
 
     const addServiceItem = () => {
         if (newItem.trim()) {
@@ -75,13 +64,10 @@ export default function FormServicos() {
         setValue("serviceItens", { create: updatedItems });
     };
 
-    const onSubmit = (formData: ServicoFormValues) => {
-        update(formData);
-    };
+    const onSubmit = (formData: ServicoFormValues) => update(formData);
 
     useEffect(() => {
         if (data) {
-            console.log(data)
             reset({ ...data, environment: { connect: { id: data.environmentId } }, serviceType: { connect: { id: data.serviceTypeId } } });
         }
     }, [data])
@@ -183,21 +169,21 @@ export default function FormServicos() {
                 </Box>
 
                 <Box className="flex flex-row justify-end gap-4">
-                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenCancelModal}>Cancelar</Button>
                     <Button variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>
                         {loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}
                     </Button>
                 </Box>
             </form>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>

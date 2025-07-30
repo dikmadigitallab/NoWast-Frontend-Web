@@ -14,7 +14,6 @@ import { IoMdClose } from "react-icons/io";
 import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
-import { useGetFuncoes } from "@/app/hooks/funcoes/get";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useGetPosicao } from "@/app/hooks/posicao/get";
@@ -36,6 +35,22 @@ const userSchema = z.object({
             personType: z.enum(["INDIVIDUAL", "COMPANY"], { required_error: "Tipo de pessoa é obrigatório", invalid_type_error: "Tipo de pessoa inválido" }),
             email: z.string().email({ message: "Email inválido" }),
             phone: z.string().min(7, { message: "Telefone inválido" }),
+            address: z.object({
+                address: z.string().min(9, { message: "Endereço é obrigatório" }),
+                number: z.string().min(1, { message: "Número é obrigatório" }),
+                complement: z.string(),
+                district: z.string().min(1, { message: "Bairro é obrigatório" }),
+                city: z.string().min(1, { message: "Cidade é obrigatória" }),
+                state: z.string().min(1, { message: "Estado é obrigatório" }),
+                postalCode: z.string().min(1, { message: "CEP é obrigatório" }),
+                addressType: z.enum(["HOME", "WORK", "OTHER"], { required_error: "Tipo de endereço é obrigatório", invalid_type_error: "Tipo de endereço inválido" }),
+                stateAbbreviation: z.string(),
+                country: z.string(),
+                isDefault: z.boolean({ required_error: "Indicação de endereço padrão é obrigatória" }).optional(),
+                isOptIn: z.boolean({ required_error: "Indicação de endereço opt-in é obrigatória" }).optional(),
+                latitude: z.string(),
+                longitude: z.string()
+            }),
         }),
     }),
     role: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do papel inválido", required_error: "Selecione um cargo" }).min(1, { message: "Selecione um cargo" }) }) }),
@@ -71,7 +86,23 @@ export default function AtualizarPessoa() {
                     gender: undefined,
                     personType: undefined,
                     email: "",
-                    phone: ""
+                    phone: "",
+                    address: {
+                        address: "",
+                        number: "",
+                        complement: "",
+                        district: "",
+                        city: "",
+                        state: "",
+                        postalCode: "",
+                        addressType: "HOME",
+                        stateAbbreviation: "",
+                        country: "",
+                        isDefault: true,
+                        isOptIn: true,
+                        latitude: "",
+                        longitude: ""
+                    },
                 }
             },
             role: { connect: { id: undefined } },
@@ -95,6 +126,7 @@ export default function AtualizarPessoa() {
     const { data: contrato } = useGetContratos();
     const { data: produtos } = useGet('product');
     const { data: equipamentos } = useGet('tools');
+    const [dataFim, setDataFim] = useState<Date | null>(new Date());
     const { data: transportes } = useGet('transport');
     const [openCancelModal, setCancelModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -141,7 +173,7 @@ export default function AtualizarPessoa() {
             ...formValues,
             email: formValues.person.create.email?.toLowerCase(),
             phone: formValues.person.create.phone?.replace(/[.\-]/g, ''),
-            status: "ACTIVE",
+            status: "INACTIVE",
             person: {
                 create: {
                     ...formValues.person.create, document: formValues.person.create.document?.replace(/[.\-]/g, ''),
@@ -179,8 +211,57 @@ export default function AtualizarPessoa() {
         }
     };
 
+
+    const getCepAddress = async (cep: string) => {
+        if (cep.length < 9) return;
+
+        try {
+            const cleanedCep = cep.replace(/\D/g, '');
+            const viaCepResponse = await fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`);
+            const viaCepData = await viaCepResponse.json();
+
+            if (viaCepData.erro) return;
+
+            const fullAddress = `${viaCepData.logradouro}, ${viaCepData.bairro}, ${viaCepData.localidade}-${viaCepData.uf}, Brasil`;
+
+            const geocodeResponse = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&countrycodes=br`
+            );
+            const geocodeData = await geocodeResponse.json();
+
+            let latitude = '';
+            let longitude = '';
+
+            if (geocodeData.length > 0) {
+                latitude = geocodeData[0].lat;
+                longitude = geocodeData[0].lon;
+            }
+
+            const address = {
+                addressType: watch()?.person.create.address.addressType,
+                isDefault: true,
+                isOptIn: true,
+                address: viaCepData.logradouro,
+                number: watch()?.person.create.address.number,
+                complement: viaCepData.complemento || '',
+                district: viaCepData.bairro,
+                city: viaCepData.localidade,
+                state: viaCepData.uf,
+                postalCode: viaCepData.cep.replace(/\D/g, ''),
+                stateAbbreviation: viaCepData.uf,
+                country: "Brasil",
+                latitude: latitude,
+                longitude: longitude
+            };
+
+            setValue('person.create.address', address as any);
+        } catch (error) {
+            console.error('Erro ao buscar CEP:', error);
+        }
+    }
     useEffect(() => {
         if (data) {
+
             const { id, status, person, role, firstLogin, ppes, tools, transports, products, position, userType, contractId, supervisor, manager } = data;
             const { name, tradeName, document, briefDescription, birthDate, gender, personType } = person;
             const phones = person.phones.map((phone: any) => phone.phoneNumber);
@@ -212,6 +293,20 @@ export default function AtualizarPessoa() {
             setValue('contract.connect.id', contractId)
             setValue('supervisor.connect.id', supervisor.id)
             setValue('manager.connect.id', manager.id)
+
+            if (data.person.addresses.length > 0) {
+                setValue('person.create.address.address', data.person.addresses[0].address)
+                setValue('person.create.address.city', data.person.addresses[0].city)
+                setValue('person.create.address.state', data.person.addresses[0].state)
+                setValue('person.create.address.number', data.person.addresses[0].number)
+                setValue('person.create.address.complement', data.person.addresses[0].complement)
+                setValue('person.create.address.district', data.person.addresses[0].district)
+                setValue('person.create.address.postalCode', data.person.addresses[0].postalCode)
+                setValue('person.create.address.stateAbbreviation', data.person.addresses[0].stateAbbreviation)
+                setValue('person.create.address.country', data.person.addresses[0].country)
+                setValue('person.create.address.latitude', data.person.addresses[0].latitude)
+                setValue('person.create.address.longitude', data.person.addresses[0].longitude)
+            }
 
 
         }
@@ -463,7 +558,153 @@ export default function AtualizarPessoa() {
                     />
                 </Box>
 
+
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Endereço</h2>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.address.postalCode"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="CEP"
+                                {...field}
+                                error={!!errors.person?.create?.address?.postalCode}
+                                helperText={errors.person?.create?.address?.postalCode?.message}
+                                className="w-full"
+                                sx={formTheme}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, '');
+                                    const formatted = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                                    if (formatted.length === 9) {
+                                        getCepAddress(formatted);
+                                    }
+                                    field.onChange(formatted);
+                                }}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.address.address"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Endereço"
+                                {...field}
+                                error={!!errors.person?.create?.address?.address}
+                                helperText={errors.person?.create?.address?.address?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.address.number"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Número"
+                                {...field}
+                                error={!!errors.person?.create?.address?.number}
+                                helperText={errors.person?.create?.address?.number?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.address.complement"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Complemento"
+                                {...field}
+                                error={!!errors.person?.create?.address?.complement}
+                                helperText={errors.person?.create?.address?.complement?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.address.district"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Bairro"
+                                {...field}
+                                error={!!errors.person?.create?.address?.district}
+                                helperText={errors.person?.create?.address?.district?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.address.addressType"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.person?.create?.address?.addressType}>
+                                <InputLabel>Tipo de Endereço</InputLabel>
+                                <Select
+                                    label="Tipo de Endereço"
+                                    {...field}
+                                    value={field.value || "HOME"}
+                                >
+                                    <MenuItem value="HOME">Residencial</MenuItem>
+                                    <MenuItem value="WORK">Comercial</MenuItem>
+                                    <MenuItem value="OTHER">Outro</MenuItem>
+                                </Select>
+                                <FormHelperText>{errors.person?.create?.address?.addressType?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
+
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="person.create.address.city"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Cidade"
+                                {...field}
+                                error={!!errors.person?.create?.address?.city}
+                                helperText={errors.person?.create?.address?.city?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="person.create.address.state"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Estado"
+                                {...field}
+                                error={!!errors.person?.create?.address?.state}
+                                helperText={errors.person?.create?.address?.state?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
+
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
                         name="position.connect.id"
@@ -766,9 +1007,31 @@ export default function AtualizarPessoa() {
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Desabilitar Usuário</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse usuário?</p>
+
+                        <TextField
+                            variant="outlined"
+                            label="Data de fim"
+                            type="date"
+                            value={dataFim ? dataFim.toISOString().split('T')[0] : ''}
+                            onChange={(e) => setDataFim(new Date(e.target.value))}
+                            InputLabelProps={{ shrink: true }}
+                            className="w-full"
+                            sx={formTheme}
+                        />
+
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button variant="outlined" onClick={onDesabled} disabled={loading} sx={buttonTheme}>  {loading ? <CircularProgress color="inherit" size={24} /> : "Desabilitar"}</Button>
+                            <Button
+                                variant="outlined"
+                                onClick={onDesabled}
+                                disabled={loading === true || dataFim === null ? true : false}
+                                sx={buttonTheme}>
+                                {loading
+                                    ?
+                                    <CircularProgress color="inherit" size={24} />
+                                    :
+                                    "Desabilitar"}
+                            </Button>
                         </Box>
                     </Box>
                 </Box>

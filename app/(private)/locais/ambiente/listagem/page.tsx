@@ -1,7 +1,7 @@
 "use client";
 
 import Box from '@mui/material/Box';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, IconButton, TextField } from '@mui/material';
 import { ptBR } from '@mui/x-data-grid/locales';
 import { FiPlus } from 'react-icons/fi';
@@ -15,12 +15,14 @@ import { GoDownload } from 'react-icons/go';
 import { useGet } from '@/app/hooks/crud/get/useGet';
 import { useRouter } from 'next/navigation';
 import { useGetIDStore } from '@/app/store/getIDStore';
+import { useSectionStore } from '@/app/store/renderSection';
 
 export default function DataGridAmbientes() {
 
     const router = useRouter();
     const { setId } = useGetIDStore();
     const [isFilter, setIsFilter] = useState(false);
+    const { setSection } = useSectionStore();
     const { data: ambientes } = useGet("environment");
     const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
@@ -82,6 +84,10 @@ export default function DataGridAmbientes() {
             width: 150,
         },
     ];
+
+    useEffect(() => {
+        setSection(1);
+    }, [])
 
     return (
         <StyledMainContainer>
