@@ -51,7 +51,6 @@ export default function FormServicos() {
     const [newItem, setNewItem] = useState("");
     const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
     const { data: tiposServicos } = useGet("serviceType");
-    const { data: servicos } = useGet("service-items");
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
     const { update, loading } = useUpdateAmbiente("service", "/locais/ambiente/listagem");
@@ -143,18 +142,6 @@ export default function FormServicos() {
             });
         }
     }, [data, reset]);
-
-    useEffect(() => {
-        if (servicos?.length) {
-            const mappedItems = servicos.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-            }));
-            setServiceItems(mappedItems);
-            setValue("serviceItens", mappedItems.map((item: any) => item.name));
-        }
-    }, [servicos, setValue]);
-
 
     return (
         <StyledMainContainer>

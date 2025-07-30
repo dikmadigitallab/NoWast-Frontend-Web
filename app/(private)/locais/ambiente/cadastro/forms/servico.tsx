@@ -11,7 +11,7 @@ import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import { useCreateAmbiente } from "@/app/hooks/locais/ambiente/create";
 import { useGet } from "@/app/hooks/crud/get/useGet";
@@ -45,7 +45,6 @@ export default function FormServicos() {
     const [newItem, setNewItem] = useState("");
     const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
     const { data: tiposServicos } = useGet("serviceType");
-    const { data: servicos } = useGet("service-items");
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreateAmbiente("service", "/locais/ambiente/listagem");
@@ -119,17 +118,6 @@ export default function FormServicos() {
         },
         { field: 'name', headerName: 'Descrição', width: 320 },
     ];
-
-    useEffect(() => {
-        if (servicos?.length) {
-            const mappedItems = servicos.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-            }));
-            setServiceItems(mappedItems);
-            setValue("serviceItens", mappedItems.map((item: any) => item.name));
-        }
-    }, [servicos, setValue]);
 
     return (
         <StyledMainContainer>
