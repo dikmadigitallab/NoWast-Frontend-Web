@@ -17,7 +17,7 @@ import DetailModal from './component/modalProdutoDetail';
 import { useGet } from '@/app/hooks/crud/get/useGet';
 
 
-export default function DetalharProduto() {
+export default function ListagemProduto() {
 
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
@@ -105,7 +105,7 @@ export default function DetalharProduto() {
                     <Box className="flex gap-2">
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Produto</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Detalhar</h1>
+                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>

@@ -151,7 +151,6 @@ export default function CadastroPredio() {
                 </Box>
 
                 <Box className="w-full flex gap-2">
-
                     <FormControl fullWidth error={!!errors.contract}>
                         <InputLabel id="contract-label">Contrato</InputLabel>
                         <Controller

@@ -48,7 +48,7 @@ export default function EditarTransport() {
 
     const handleOpenDisableModal = () => setOpenDisableModal(true);
     const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/epi/listagem');
+    const handleDisableConfirm = () => router.push('/items/transporte/listagem');
 
     const handleOpenDeleteModal = () => {
         setOpenDeleteModal(true);
@@ -70,7 +70,7 @@ export default function EditarTransport() {
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Transport</h1>
+                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Transporte</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Editar</h1>
                 </Box>

@@ -16,7 +16,7 @@ import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
 import { useGetUsuario } from '@/app/hooks/usuario/get';
 
-export default function DetalharPessoa() {
+export default function ListagemPessoa() {
 
     const [isFilter, setIsFilter] = useState(false);
     const [modalDetail, setModalDetail] = useState(false);
@@ -128,9 +128,9 @@ export default function DetalharPessoa() {
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
-                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Usuários</h1>
+                        <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Pessoas</h1>
                         <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Detalhar</h1>
+                        <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>

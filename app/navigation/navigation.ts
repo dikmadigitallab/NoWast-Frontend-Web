@@ -50,7 +50,7 @@ export const ADM_DIKMA: NavItem[] = [
             { icon: FaRegCircle, name: 'EPI', href: ['/items/epi/listagem', '/items/epi/cadastro', '/items/epi/atualizar'] },
             { icon: FaRegCircle, name: 'Equipamento', href: ['/items/equipamento/listagem', '/items/equipamento/cadastro', '/items/equipamento/atualizar'] },
             { icon: FaRegCircle, name: 'Produto', href: ['/items/produto/listagem', '/items/produto/cadastro', '/items/produto/atualizar'] },
-            { icon: FaRegCircle, name: 'Transporte', href: ['/items/transporte/listagem', '/items/transporte/cadastro', '/items/produto/atualizar'] },
+            { icon: FaRegCircle, name: 'Transporte', href: ['/items/transporte/listagem', '/items/transporte/cadastro', '/items/transporte/atualizar'] },
         ]
     },
     {
@@ -66,7 +66,7 @@ export const ADM_DIKMA: NavItem[] = [
         name: 'Atividades',
         icon: FaRegCalendar,
         subItems: [
-            { icon: FaRegCircle, name: 'Detalhar', href: ['/atividade/listagem', '/atividade/cadastro', '/atividade/atualizar'] }
+            { icon: FaRegCircle, name: 'Listagem', href: ['/atividade/listagem', '/atividade/cadastro', '/atividade/atualizar'] }
         ]
     },
     {

@@ -185,14 +185,14 @@ export default function CadastroContrato() {
                     </FormControl>
 
                     {/* <FormControl fullWidth error={!!errors.users}>
-                        <InputLabel id="users-label">Usuários</InputLabel>
+                        <InputLabel id="users-label">Pessoa</InputLabel>
                         <Controller
                             name="users"
                             control={control}
                             render={({ field }) => (
                                 <Select
                                     labelId="users-label"
-                                    label="Usuários"
+                                    label="Pessoa"
                                     multiple
                                     value={selectedUserIds}
                                     onChange={handleUsersChange}

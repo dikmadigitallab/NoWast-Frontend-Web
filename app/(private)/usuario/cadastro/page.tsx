@@ -17,6 +17,7 @@ import { useCreatePessoa } from "@/app/hooks/usuario/create";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
+import api from "@/app/hooks/api";
 
 const userSchema = z.object({
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }).nullable(),
@@ -24,10 +25,12 @@ const userSchema = z.object({
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
+    startDate: z.string().min(1, { message: "Data de admissão é obrigatória" }).optional(),
+    endDate: z.string().min(1, { message: "Data de demissão é obrigatória" }).optional(),
     person: z.object({
         create: z.object({
             name: z.string().min(1, { message: "O nome é obrigatório" }),
-            tradeName: z.string({ message: "Nome Fantasia é obrigatório" }),
+            tradeName: z.string({ message: "Nome Fantasia é obrigatório" }).optional(),
             document: z.string().min(11, { message: "Documento deve ter 11 (CPF) ou 14 (CNPJ) números", }),
             briefDescription: z.string().min(1, { message: "Descrição é obrigatória" }),
             birthDate: z.string().min(1, { message: "Data de nascimento é obrigatória" }),
@@ -124,12 +127,7 @@ export default function CadastroPessoa() {
     const { data: equipamentos } = useGet('tools');
     const { data: transportes } = useGet('transport');
     const { createPessoa, loading } = useCreatePessoa();
-     const [imageInfo, setImageInfo] = useState<{
-        name: string;
-        type: string;
-        size: number;
-        previewUrl: string;
-    } | null>(null);
+    const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -255,7 +253,8 @@ export default function CadastroPessoa() {
         );
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -266,20 +265,36 @@ export default function CadastroPessoa() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+
+        const formData = new FormData();
+        formData.append('file', file); 
+
+        try {
+            const response = await api.post('/users/52/upload-profile-image', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log('Upload com sucesso:', response.data);
+        } catch (error) {
+            console.error('Erro no upload:', error);
+        }
     };
+
+
 
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Usuários</h1>
+                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Pessoa</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
                 <Box className="w-[100%] flex flex-row gap-5">
-                  
                     <Box className="w-full  h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
                         <input
                             type="file"
@@ -303,7 +318,7 @@ export default function CadastroPessoa() {
                             :
                             <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
                                 <IoImagesOutline color="#5E5873" size={25} />
-                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto sua</p>
+                                <p className="text-[.8rem] text-[#000000]">Selecione uma imagem</p>
                             </Box>
                         }
                     </Box>
@@ -318,21 +333,6 @@ export default function CadastroPessoa() {
                                 {...field}
                                 error={!!errors.person?.create?.name}
                                 helperText={errors.person?.create?.name?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="person.create.tradeName"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Nome Fantasia"
-                                {...field}
-                                error={!!errors.person?.create?.tradeName}
-                                helperText={errors.person?.create?.tradeName?.message}
                                 className="w-full"
                                 sx={formTheme}
                             />
@@ -673,7 +673,6 @@ export default function CadastroPessoa() {
                     />
                 </Box>
 
-
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
@@ -944,7 +943,6 @@ export default function CadastroPessoa() {
                             </FormControl>
                         )}
                     />
-
                 </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5 justify-end">

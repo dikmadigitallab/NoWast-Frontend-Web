@@ -15,6 +15,8 @@ import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useUpdate } from "@/app/hooks/crud/update/update";
+import { IoMdClose } from "react-icons/io";
+import { IoImagesOutline } from "react-icons/io5";
 
 const predioSchema = z.object({
     id: z.number().int().min(1, "ID do Predio é obrigatório"),
@@ -45,12 +47,12 @@ export default function AtualizarPredio() {
     const { data: predio } = useGetOneById('building');
     const { data: contratos } = useGetContratos(false);
     const router = useRouter();
-
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const handleOpenDisableModal = () => setOpenDisableModal(true);
     const handleCloseDisableModal = () => setOpenDisableModal(false);
     const handleDisableConfirm = () => router.push('/locais/predio/listagem');
+    const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenDeleteModal = () => {
         setOpenDeleteModal(true);
@@ -74,6 +76,21 @@ export default function AtualizarPredio() {
             });
         }
     }, [predio, reset]);
+
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const imageData = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            previewUrl: URL.createObjectURL(file),
+        };
+        setImageInfo(imageData);
+    };
+
 
     return (
         <StyledMainContainer>
@@ -152,42 +169,64 @@ export default function AtualizarPredio() {
                     </Box>
                 </Box>
 
-                <Controller
-                    name="contract.connect.id"
-                    control={control}
-                    render={({ field }) => (
-                        <FormControl
-                            sx={formTheme}
-                            fullWidth
-                            error={!!errors.contract?.connect?.id}
-                        >
-                            <InputLabel id="contract-label">Contrato</InputLabel>
-                            <Select
-                                labelId="contract-label"
-                                label="Contrato"
-                                {...field}
-                                value={field.value || ""}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
-                                disabled={!contratos}
-                            >
-                                <MenuItem value="" disabled>
-                                    Clique e selecione...
-                                </MenuItem>
-                                {contratos?.map((contract: any) => (
-                                    <MenuItem key={contract.id} value={contract.id}>
-                                        {contract.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-
-                            {errors.contract?.connect?.id && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.contract.connect.id.message}
-                                </p>
+                <Box className="w-full flex gap-2">
+                    <FormControl fullWidth error={!!errors.contract}>
+                        <InputLabel id="contract-label">Contrato</InputLabel>
+                        <Controller
+                            name="contract.connect.id"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    {...field}
+                                    labelId="contract-label"
+                                    label="Contrato"
+                                    fullWidth
+                                    value={field.value || ""}
+                                    error={!!errors.contract}
+                                >
+                                    {contratos?.map((contract: any) => (
+                                        <MenuItem key={contract.id} value={contract.id}>
+                                            {contract.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
                             )}
-                        </FormControl>
-                    )}
-                />
+                        />
+                        {errors.contract && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.contract.connect?.id?.message}
+                            </p>
+                        )}
+                    </FormControl>
+
+                    <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+                            onChange={handleFileChange}
+                        />
+                        {imageInfo ? (
+                            <Box className="absolute w-full flex justify-between items-center p-3">
+                                <Box className="flex flex-row items-center gap-3">
+                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
+                                    <Box className="flex flex-col">
+                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
+                                    </Box>
+                                </Box>
+                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
+                            </Box>
+                        )
+                            :
+                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
+                                <IoImagesOutline color="#5E5873" size={25} />
+                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
+                            </Box>
+                        }
+                    </Box>
+                </Box>
 
 
 

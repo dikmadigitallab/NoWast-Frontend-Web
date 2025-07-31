@@ -160,7 +160,6 @@ export default function CadastroSetor() {
                 </Box>
 
                 <Box className="w-full flex gap-2">
-
                     <FormControl fullWidth error={!!errors.building?.connect?.id}>
                         <InputLabel id="building-label">Prédio</InputLabel>
                         <Controller

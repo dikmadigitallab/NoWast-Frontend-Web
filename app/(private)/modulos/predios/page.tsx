@@ -48,7 +48,7 @@ export default function Predios() {
             <Box className="flex gap-2 mb-8">
                 <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Prédios</h1>
                 <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Detalhar</h1>
+                <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
             </Box>
 
             <Header />

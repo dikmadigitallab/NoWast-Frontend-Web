@@ -17,17 +17,20 @@ import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useGetPosicao } from "@/app/hooks/posicao/get";
+import { IoImagesOutline } from "react-icons/io5";
 
 const userSchema = z.object({
     id: z.number({ required_error: "ID é obrigatório", invalid_type_error: "ID inválido" }),
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
+    startDate: z.string({ message: "Data de início é obrigatória" }).optional(),
+    endDate: z.string({ message: "Data de fim é obrigatória" }).optional(),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     person: z.object({
         create: z.object({
             name: z.string().min(1, { message: "O nome é obrigatório" }),
-            tradeName: z.string().min(1, { message: "Nome Fantasia é obrigatório" }),
+            tradeName: z.string({ message: "Nome Fantasia é obrigatório" }).optional(),
             document: z.string().min(11, { message: "Documento deve ter pelo menos 11 caracteres" }),
             briefDescription: z.string().min(1, { message: "Descrição é obrigatória" }),
             birthDate: z.string().min(1, { message: "Data de nascimento é obrigatória" }),
@@ -76,6 +79,8 @@ export default function AtualizarPessoa() {
             status: "ACTIVE",
             source: "",
             firstLogin: true,
+            startDate: "",
+            endDate: "",
             person: {
                 create: {
                     name: "",
@@ -131,6 +136,8 @@ export default function AtualizarPessoa() {
     const [openCancelModal, setCancelModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { update, loading } = useUpdate("users", '/usuario/listagem');
+    const [disable, setDisable] = useState(false);
+    const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenModal = (field: string) => {
         if (field === "cancelar") {
@@ -144,6 +151,7 @@ export default function AtualizarPessoa() {
         if (field === "cancelar") {
             setCancelModal(false);
         } else {
+            setDisable(true);
             setOpenDisableModal(false);
         }
     };
@@ -153,36 +161,37 @@ export default function AtualizarPessoa() {
     };
 
     const onSubmit = (formData: UserFormValues) => {
-        const newData = {
-            ...formData,
-            email: formData.person.create.email?.toLowerCase(),
-            phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
-            person: {
-                create: {
-                    ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''),
-                    birthDate: new Date(formData.person.create.birthDate).toISOString()
+        if (disable) {
+            const newData = {
+                ...formData,
+                status: "INACTIVE",
+                email: formData.person.create.email?.toLowerCase(),
+                phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
+                person: {
+                    create: {
+                        ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''),
+                        birthDate: new Date(formData.person.create.birthDate).toISOString()
+                    }
                 }
-            }
-        };
-        update(newData);
+            };
+            update(newData);
+        } else {
+            const newData = {
+                ...formData,
+                email: formData.person.create.email?.toLowerCase(),
+                phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
+                person: {
+                    create: {
+                        ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''),
+                        birthDate: new Date(formData.person.create.birthDate).toISOString()
+                    }
+                }
+            };
+            update(newData);
+        }
     };
 
-    const onDesabled = () => {
-        const formValues = watch()
-        const newData = {
-            ...formValues,
-            email: formValues.person.create.email?.toLowerCase(),
-            phone: formValues.person.create.phone?.replace(/[.\-]/g, ''),
-            status: "INACTIVE",
-            person: {
-                create: {
-                    ...formValues.person.create, document: formValues.person.create.document?.replace(/[.\-]/g, ''),
-                    birthDate: new Date(formValues.person.create.birthDate).toISOString()
-                }
-            }
-        };
-        update(newData);
-    }
+
     const formatDateForInput = (dateString: string | undefined): string => {
         if (!dateString) return "";
         const date = new Date(dateString);
@@ -341,12 +350,26 @@ export default function AtualizarPessoa() {
         );
     };
 
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const imageData = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            previewUrl: URL.createObjectURL(file),
+        };
+        setImageInfo(imageData);
+    };
+
+
 
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Usuários</h1>
+                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Pessoa</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
@@ -354,6 +377,34 @@ export default function AtualizarPessoa() {
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
+                    <Box className="w-full  h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+                            onChange={handleFileChange}
+                        />
+                        {imageInfo ? (
+                            <Box className="absolute w-full flex justify-between items-center p-3">
+                                <Box className="flex flex-row items-center gap-3">
+                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
+                                    <Box className="flex flex-col">
+                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
+                                    </Box>
+                                </Box>
+                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
+                            </Box>
+                        )
+                            :
+                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
+                                <IoImagesOutline color="#5E5873" size={25} />
+                                <p className="text-[.8rem] text-[#000000]">Selecione uma imagem</p>
+                            </Box>
+                        }
+                    </Box>
+
                     <Controller
                         name="person.create.name"
                         control={control}
@@ -364,21 +415,6 @@ export default function AtualizarPessoa() {
                                 {...field}
                                 error={!!errors.person?.create?.name}
                                 helperText={errors.person?.create?.name?.message}
-                                className="w-full"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="person.create.tradeName"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Nome Fantasia"
-                                {...field}
-                                error={!!errors.person?.create?.tradeName}
-                                helperText={errors.person?.create?.tradeName?.message}
                                 className="w-full"
                                 sx={formTheme}
                             />
@@ -722,7 +758,7 @@ export default function AtualizarPessoa() {
                                         <MenuItem key={position.id} value={position.id}>
                                             {position.name}
                                         </MenuItem>
-                                    ))}  
+                                    ))}
                                 </Select>
                                 <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
                             </FormControl>
@@ -974,7 +1010,46 @@ export default function AtualizarPessoa() {
                             </FormControl>
                         )}
                     />
+                </Box>
 
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Período de Acesso</h2>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="startDate"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Data Ínicio"
+                                InputLabelProps={{ shrink: true }}
+                                type="date"
+                                {...field}
+                                error={!!errors.startDate}
+                                helperText={errors.startDate?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="endDate"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                disabled={!disable}
+                                variant="outlined"
+                                label="Data Fim"
+                                InputLabelProps={{ shrink: true }}
+                                type="date"
+                                {...field}
+                                error={!!errors.endDate}
+                                helperText={errors.endDate?.message}
+                                className="w-full"
+                                sx={[formTheme, { opacity: disable ? 1 : 0.3 }]}
+                            />
+                        )}
+                    />
                 </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5 justify-between">
@@ -985,12 +1060,11 @@ export default function AtualizarPessoa() {
                             {loading ? <CircularProgress color="inherit" size={24} /> : "Salvar"}
                         </Button>
                     </Box>
-
                 </Box>
             </form>
 
             <Modal open={openCancelModal} onClose={() => handleCloseModal("cancelar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
@@ -1003,34 +1077,18 @@ export default function AtualizarPessoa() {
             </Modal>
 
             <Modal open={openDisableModal} onClose={() => handleCloseModal("desabilitar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Desabilitar Usuário</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse usuário?</p>
-
-                        <TextField
-                            variant="outlined"
-                            label="Data de fim"
-                            type="date"
-                            value={dataFim ? dataFim.toISOString().split('T')[0] : ''}
-                            onChange={(e) => setDataFim(new Date(e.target.value))}
-                            InputLabelProps={{ shrink: true }}
-                            className="w-full"
-                            sx={formTheme}
-                        />
-
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
                             <Button
                                 variant="outlined"
-                                onClick={onDesabled}
+                                onClick={() => handleCloseModal("desabilitar")}
                                 disabled={loading === true || dataFim === null ? true : false}
                                 sx={buttonTheme}>
-                                {loading
-                                    ?
-                                    <CircularProgress color="inherit" size={24} />
-                                    :
-                                    "Desabilitar"}
+                                {loading ? <CircularProgress color="inherit" size={24} /> : "Desabilitar"}
                             </Button>
                         </Box>
                     </Box>

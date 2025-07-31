@@ -38,7 +38,7 @@ export default function CadastroProduto() {
 
     const handleOpenDisableModal = () => setOpenDisableModal(true);
     const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/produto/listagem');
+    const handleDisableConfirm = () => router.push('/items/transporte/listagem');
 
     const onSubmit = (formData: any) => {
         create(formData);
@@ -81,7 +81,6 @@ export default function CadastroProduto() {
                             />
                         )}
                     />
-
 
                     <Box className="flex flex-row gap-2">
                         <Controller
