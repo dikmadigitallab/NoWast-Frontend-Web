@@ -31,7 +31,6 @@ export const useGet = (url: string) => {
                     "Content-Type": "application/json",
                 },
             });
-
             setData(response.data.data.items);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");

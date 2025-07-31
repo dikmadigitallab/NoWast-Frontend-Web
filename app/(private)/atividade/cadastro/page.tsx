@@ -159,9 +159,9 @@ export default function Locais() {
                     ))}
                 </Box>
 
-                <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
+                <Box className="flex flex-col gap-5">
                     {section === 1 && (
-                        <FormDadosGerais control={control} formState={{ errors }} />
+                        <FormDadosGerais  />
                     )}
 
                     {section === 2 && (
@@ -175,12 +175,7 @@ export default function Locais() {
                     {section === 4 && (
                         <FormCheckList control={control} formState={{ errors }} />
                     )}
-
-                    <Box className="w-[100%] flex flex-row gap-5 justify-end">
-                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
-                        <Button type="submit" variant="outlined" disabled={checkComplete(section) ? false : true} sx={[buttonTheme, { alignSelf: "end" }]} onClick={section !== 4 ? handleNext : undefined}>{section === 4 ? "Enviar" : "Avançar"}</Button>
-                    </Box>
-                </form>
+                </Box>
             </Box>
 
 

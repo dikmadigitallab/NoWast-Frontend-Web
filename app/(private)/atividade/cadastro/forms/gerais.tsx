@@ -1,358 +1,478 @@
+'use client';
 
-import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { FiPlus, FiTool } from "react-icons/fi";
-import { rows } from "./data";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { ptBR } from "@mui/x-data-grid/locales";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineModeEditOutline } from "react-icons/md";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
-export default function FormDadosGerais({ control, formState: { errors } }: { control: any, formState: { errors: any, } }) {
+const activitySchema = z.object({
+    id: z.number().min(1, "ID é obrigatório"),
+    description: z.string().min(1, "Descrição é obrigatória"),
+    environmentId: z.number().min(1, "ID do ambiente é obrigatório"),
+    dateTime: z.string().min(1, "Data e hora são obrigatórias"),
+    recurrenceEnum: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE"]),
+    statusEnum: z.enum(["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
+    activityTypeEnum: z.enum(["NORMAL", "EXTRA", "URGENT"]),
+    supervisorId: z.number().min(1, "ID do supervisor é obrigatório"),
+    managerId: z.number().min(1, "ID do gerente é obrigatório"),
+    observation: z.string().optional(),
+    approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
+    approvalDate: z.string().optional(),
+    approvalUpdatedByUserId: z.number().optional(),
+    justification: z.object({
+        reason: z.string().optional(),
+        description: z.string().optional(),
+        justifiedByUserId: z.number().optional(),
+        isInternal: z.boolean().optional(),
+        transcription: z.string().optional()
+    }).optional()
+});
 
-
-    const columns: GridColDef<any>[] = [
-        {
-            field: 'acoes',
-            headerName: 'Ações',
-            width: 120,
-            sortable: false,
-            filterable: false,
-            disableColumnMenu: true,
-            renderCell: (params) => (
-                <Box>
-                    <IconButton aria-label="visualizar" size="small" >
-                        <GoTrash color='#635D77' size={20} />
-                    </IconButton>
-                    <IconButton aria-label="editar" size="small" >
-                        <MdOutlineModeEditOutline color='#635D77' size={20} />
-                    </IconButton>
-                </Box>
-            ),
+export default function FormDadosGerais() {
+    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<z.infer<typeof activitySchema>>({
+        resolver: zodResolver(activitySchema),
+        defaultValues: {
+            id: 0,
+            description: "",
+            environmentId: 0,
+            dateTime: "",
+            recurrenceEnum: "NONE",
+            statusEnum: "OPEN",
+            activityTypeEnum: "NORMAL",
+            supervisorId: 0,
+            managerId: 0,
+            observation: "",
+            approvalStatus: "PENDING",
+            justification: {
+                reason: "",
+                description: "",
+                justifiedByUserId: 0,
+                isInternal: false,
+                transcription: ""
+            }
         },
-        {
-            field: 'id',
-            headerName: '#ID',
-            width: 120
-        },
-        {
-            field: 'nome',
-            headerName: 'Descrição',
-            width: 320,
-        },
-        {
-            field: 'servico',
-            headerName: 'Serviço',
-            width: 220,
-        },
-        {
-            field: 'tipo',
-            headerName: 'Tipo',
-            width: 220,
-            renderCell: (params) => (
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FiTool /> {params.value}
-                </Box>
-            ),
-        },
+        mode: "onChange",
+    });
 
-    ];
-
-    const local = [
-        "Almoxarifado",
-        "Obra 1 - Centro",
-        "Obra 2 - Zona Norte",
-        "Oficina",
-        "Depósito"
-    ];
-
-    const recorrenciaOptions = [
-        "Semanal",
-        "Mensal",
-        "Anual"
-    ];
-
+    const { data: ambientes } = useGet("environment");
+    const { data: predios } = useGet("building");
+    const { data: setores } = useGet("sector");
+    const { data: servicos } = useGet("service");
+    const { data: tipos_servicos } = useGet("serviceType");
 
     return (
-        <Box className="w-[100%] flex flex-col gap-5">
+        <form className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
 
-            <Box className="w-[100%] flex flex-row justify-between  gap-2 ">
-                <Box className="w-[50%] flex flex-row gap-2">
-                    <Controller
-                        name="id"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="ID#"
-                                {...field}
-                                error={!!errors.id}
-                                helperText={errors.id?.message}
-                                className="w-[20%]"
-                                sx={{
-                                    ...formTheme,
-                                    "& .MuiOutlinedInput-root": {
-                                        backgroundColor: "#00000012",
-                                        borderRadius: "5px"
-                                    }
-                                }}
-                            />
-                        )}
-                    />
+            <Box className="w-[100%] flex flex-row justify-between gap-2">
 
-                    <FormControl sx={formTheme} className="w-[80%]" error={!!errors.setor}>
-                        <InputLabel>Ambiente</InputLabel>
-                        <Controller
-                            name="ambiente"
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    label="Ambiente"
-                                    {...field}
-                                    error={!!errors.ambiente}
-                                    className="w-[100%]"
-                                    sx={formTheme}
-                                >
-                                    {local.map((local) => (
-                                        <MenuItem key={local} value={local}>
-                                            {local}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                <Controller
+                    name="environmentId"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl sx={formTheme} fullWidth error={!!errors.environmentId}>
+                            <InputLabel id="ambiente-label">Ambiente</InputLabel>
+                            <Select labelId="ambiente-label" label="Ambiente" {...field} value={field.value || ""}>
+                                <MenuItem value="" disabled>
+                                    Clique e selecione...
+                                </MenuItem>
+                                {ambientes?.map((ambiente: any) => (
+                                    <MenuItem key={ambiente.id} value={ambiente.id}>
+                                        {ambiente.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            {errors.environmentId && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.environmentId.message}
+                                </p>
                             )}
-                        />
-                        {errors.ambiente && (
-                            <p className="text-red-500 text-xs mt-1">{errors.ambiente.message}</p>
-                        )}
-                    </FormControl>
-                </Box>
+                        </FormControl>
+                    )}
+                />
 
-                <Box className="w-[50%] flex flex-row gap-2">
-
-                    <FormControl sx={formTheme} className="w-[50%]" error={!!errors.setor}>
-                        <InputLabel>Recorrência</InputLabel>
-                        <Controller
-                            name="recorrencia"
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    label="Recorrência"
-                                    {...field}
-                                    error={!!errors.recorrencia}
-                                    className="w-[100%]"
-                                    sx={formTheme}
-                                >
-                                    {recorrenciaOptions.map((local) => (
-                                        <MenuItem key={local} value={local}>
-                                            {local}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            )}
-                        />
-                        {errors.recorrencia && (
-                            <p className="text-red-500 text-xs mt-1">{errors.recorrencia.message}</p>
-                        )}
-                    </FormControl>
-
-                    <Controller
-                        name="repete_dia"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Repete Todo Dia"
-                                type="date"
-                                InputLabelProps={{ shrink: true }}
+                <Controller
+                    name="recurrenceEnum"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl fullWidth sx={formTheme}>
+                            <InputLabel>Recorrência</InputLabel>
+                            <Select
+                                label="Recorrência"
                                 {...field}
-                                error={!!errors.repete_dia}
-                                helperText={errors.repete_dia?.message}
-                                className="w-[25%]"
-                                sx={formTheme}
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="horario"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="No horário"
-                                type="time"
-                                InputLabelProps={{ shrink: true }}
+                                error={!!errors.recurrenceEnum}
+                            >
+                                <MenuItem value="DAILY">Diária</MenuItem>
+                                <MenuItem value="WEEKLY">Semanal</MenuItem>
+                                <MenuItem value="MONTHLY">Mensal</MenuItem>
+                                <MenuItem value="YEARLY">Anual</MenuItem>
+                                <MenuItem value="NONE">Nenhuma</MenuItem>
+                            </Select>
+                        </FormControl>
+                    )}
+                />
+                <Controller
+                    name="dateTime"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Data e Hora"
+                            type="datetime-local"
+                            InputLabelProps={{ shrink: true }}
+                            {...field}
+                            error={!!errors.dateTime}
+                            helperText={errors.dateTime?.message}
+                            fullWidth
+                            sx={formTheme}
+                        />
+                    )}
+                />
+                <Controller
+                    name="statusEnum"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl fullWidth sx={formTheme}>
+                            <InputLabel>Status</InputLabel>
+                            <Select
+                                label="Status"
                                 {...field}
-                                error={!!errors.horario}
-                                helperText={errors.horario?.message}
-                                className="w-[25%]"
-                                sx={formTheme}
-                            />
-                        )}
+                                error={!!errors.statusEnum}
+                            >
+                                <MenuItem value="OPEN">Aberto</MenuItem>
+                                <MenuItem value="IN_PROGRESS">Em Progresso</MenuItem>
+                                <MenuItem value="COMPLETED">Concluído</MenuItem>
+                                <MenuItem value="CANCELLED">Cancelado</MenuItem>
+                            </Select>
+                        </FormControl>
+                    )}
+                />
+                <Controller
+                    name="activityTypeEnum"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl fullWidth sx={formTheme}>
+                            <InputLabel>Tipo de Atividade</InputLabel>
+                            <Select
+                                label="Tipo de Atividade"
+                                {...field}
+                                error={!!errors.activityTypeEnum}
+                            >
+                                <MenuItem value="NORMAL">Normal</MenuItem>
+                                <MenuItem value="EXTRA">Extra</MenuItem>
+                                <MenuItem value="URGENT">Urgente</MenuItem>
+                            </Select>
+                        </FormControl>
+                    )}
+                />
+            </Box>
+
+            <Box className="w-[100%] flex flex-row justify-between gap-2">
+                <FormControl sx={formTheme} fullWidth>
+                    <InputLabel id="predio-label">Prédio</InputLabel>
+                    <Select labelId="predio-label" label="Prédio">
+                        <MenuItem value="" disabled>
+                            Clique e selecione...
+                        </MenuItem>
+                        {predios?.map((predio: any) => (
+                            <MenuItem key={predio.id} value={predio.id}>
+                                {predio.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    {errors.environmentId && (
+                        <p className="text-red-500 text-xs mt-1">
+                            {errors.environmentId.message}
+                        </p>
+                    )}
+                </FormControl>
+
+                <FormControl sx={formTheme} fullWidth>
+                    <InputLabel id="setor-label">Setor</InputLabel>
+                    <Select labelId="setor-label" label="Setor">
+                        <MenuItem value="" disabled>
+                            Clique e selecione...
+                        </MenuItem>
+                        {setores?.map((setor: any) => (
+                            <MenuItem key={setor.id} value={setor.id}>
+                                {setor.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    {errors.environmentId && (
+                        <p className="text-red-500 text-xs mt-1">
+                            {errors.environmentId.message}
+                        </p>
+                    )}
+                </FormControl>
+            </Box>
+
+            <Box className="w-[100%] flex flex-row justify-between gap-2">
+                <FormControl sx={formTheme} fullWidth>
+                    <InputLabel id="servico-label">Serviço</InputLabel>
+                    <Select labelId="servico-label" label="Serviço">
+                        <MenuItem value="" disabled>
+                            Clique e selecione...
+                        </MenuItem>
+                        {servicos?.map((servico: any) => (
+                            <MenuItem key={servico.id} value={servico.id}>
+                                {servico.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    {errors.environmentId && (
+                        <p className="text-red-500 text-xs mt-1">
+                            {errors.environmentId.message}
+                        </p>
+                    )}
+                </FormControl>
+
+                <FormControl sx={formTheme} fullWidth>
+                    <InputLabel id="tipo_servico-label">Tipo</InputLabel>
+                    <Select labelId="tipo_servico-label" label="Tipo">
+                        <MenuItem value="" disabled>
+                            Clique e selecione...
+                        </MenuItem>
+                        {tipos_servicos?.map((tipo_servico: any) => (
+                            <MenuItem key={tipo_servico.id} value={tipo_servico.id}>
+                                {tipo_servico.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    {errors.environmentId && (
+                        <p className="text-red-500 text-xs mt-1">
+                            {errors.environmentId.message}
+                        </p>
+                    )}
+                </FormControl>
+            </Box>
+
+            <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        variant="outlined"
+                        label="Descrição"
+                        {...field}
+                        error={!!errors.description}
+                        helperText={errors.description?.message}
+                        fullWidth
+                        sx={formTheme}
                     />
-                </Box>
+                )}
+            />
 
-            </Box>
+            <Box className="w-[100%] flex flex-row justify-between gap-2">
 
-            <Box className="w-[100%] flex flex-row justify-between gap-2  ">
                 <Controller
-                    name="predio"
+                    name="supervisorId"
                     control={control}
                     render={({ field }) => (
                         <TextField
                             variant="outlined"
-                            label="Prédio"
+                            label="ID do Supervisor"
+                            type="number"
                             {...field}
-                            error={!!errors.predio}
-                            helperText={errors.predio?.message}
-                            className="w-[50%]"
-                            sx={{
-                                ...formTheme,
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "5px"
-                                }
-                            }}
+                            error={!!errors.supervisorId}
+                            helperText={errors.supervisorId?.message}
+                            fullWidth
+                            sx={formTheme}
                         />
                     )}
                 />
-                <Controller
-                    name="setor"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField
-                            variant="outlined"
-                            label="Setor"
-                            {...field}
-                            error={!!errors.setor}
-                            helperText={errors.setor?.message}
-                            className="w-[50%]"
-                            sx={{
-                                ...formTheme,
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "5px"
-                                }
-                            }}
-                        />
-                    )}
-                />
-            </Box>
 
-            <Box className="w-[100%] flex flex-row justify-between gap-2  ">
                 <Controller
-                    name="servico"
+                    name="managerId"
                     control={control}
                     render={({ field }) => (
                         <TextField
                             variant="outlined"
-                            label="Serviço"
+                            label="ID do Gerente"
+                            type="number"
                             {...field}
-                            error={!!errors.servico}
-                            helperText={errors.servico?.message}
-                            className="w-[50%]"
-                            sx={{
-                                ...formTheme,
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "5px"
-                                }
-                            }}
-                        />
-                    )}
-                />
-                <Controller
-                    name="tipo"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField
-                            variant="outlined"
-                            label="Tipo"
-                            {...field}
-                            error={!!errors.tipo}
-                            helperText={errors.tipo?.message}
-                            className="w-[50%]"
-                            sx={{
-                                ...formTheme,
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "5px"
-                                }
-                            }}
-                        />
-                    )}
-                />
-            </Box>
-
-            <Box className="w-[100%]">
-                <Controller
-                    name="observacao"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField
-                            variant="outlined"
-                            label="Observações"
-                            multiline
-                            rows={10}
-                            {...field}
-                            error={!!errors.observacao}
-                            helperText={errors.observacao?.message}
-                            className="w-[100%]"
+                            error={!!errors.managerId}
+                            helperText={errors.managerId?.message}
+                            fullWidth
                             sx={formTheme}
                         />
                     )}
                 />
             </Box>
 
-            <Box className="w-[100%] flex flex-col gap-5">
-
-                <Box className="flex items-center gap-2">
-                    <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
-                    <span className="text-[#3aba8a] font-bold">Pessoas</span>
-                    <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
-                </Box>
-
-                <Box className="flex flex-row gap-3 h-[60px]">
+            <Controller
+                name="observation"
+                control={control}
+                render={({ field }) => (
                     <TextField
                         variant="outlined"
-                        label="Adicionar pessoas"
-                        InputLabelProps={{ shrink: true }}
-                        placeholder="Digite o nome do pessoas"
-                        className="w-[49.8%] mb-5"
+                        label="Observações"
+                        multiline
+                        rows={3}
+                        {...field}
+                        error={!!errors.observation}
+                        helperText={errors.observation?.message}
+                        fullWidth
                         sx={formTheme}
                     />
+                )}
+            />
 
-                    <Button sx={[buttonTheme, { height: "90%" }]}>
-                        <FiPlus size={25} color="#fff" />
-                    </Button>
-                </Box>
+            <Box className="w-[100%] flex flex-row justify-between gap-2">
+                <Controller
+                    name="approvalStatus"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl fullWidth sx={formTheme}>
+                            <InputLabel>Status de Aprovação</InputLabel>
+                            <Select
+                                label="Status de Aprovação"
+                                {...field}
+                                error={!!errors.approvalStatus}
+                            >
+                                <MenuItem value="PENDING">Pendente</MenuItem>
+                                <MenuItem value="APPROVED">Aprovado</MenuItem>
+                                <MenuItem value="REJECTED">Rejeitado</MenuItem>
+                            </Select>
+                        </FormControl>
+                    )}
+                />
 
-                <DataGrid
-                    rows={rows}
-                    columns={columns}
-                    localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 10,
-                            },
-                        },
-                    }}
-                    pageSizeOptions={[5, 10, 25]}
-                    disableRowSelectionOnClick
-                    sx={{
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: 'unset',
-                            color: 'unset',
-                        },
-                        '& .MuiDataGrid-row:nth-of-type(odd)': {
-                            backgroundColor: '#FAFAFA',
-                        },
-                        '& .MuiDataGrid-row:hover': {
-                            backgroundColor: '#f0f0f0',
-                        },
-                    }}
+                <Controller
+                    name="approvalDate"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Data de Aprovação"
+                            type="datetime-local"
+                            InputLabelProps={{ shrink: true }}
+                            {...field}
+                            error={!!errors.approvalDate}
+                            helperText={errors.approvalDate?.message}
+                            fullWidth
+                            sx={formTheme}
+                        />
+                    )}
+                />
+
+                <Controller
+                    name="approvalUpdatedByUserId"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="ID do Aprovador"
+                            type="number"
+                            {...field}
+                            error={!!errors.approvalUpdatedByUserId}
+                            helperText={errors.approvalUpdatedByUserId?.message}
+                            fullWidth
+                            sx={formTheme}
+                        />
+                    )}
                 />
             </Box>
 
+            <Box className="border-t pt-4 mt-4 flex flex-col gap-5">
+                <h3 className="text-lg font-medium mb-4 text-[#5E5873]">Justificativa</h3>
 
-        </Box>
-    )
-} 
+                <Controller
+                    name="justification.reason"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Motivo"
+                            {...field}
+                            error={!!errors.justification?.reason}
+                            helperText={errors.justification?.reason?.message}
+                            className="w-[100%] mb-4"
+                            sx={formTheme}
+                        />
+                    )}
+                />
+
+                <Controller
+                    name="justification.description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Descrição"
+                            multiline
+                            rows={3}
+                            {...field}
+                            error={!!errors.justification?.description}
+                            helperText={errors.justification?.description?.message}
+                            className="w-[100%] mb-4"
+                            sx={formTheme}
+                        />
+                    )}
+                />
+
+                <Box className="flex gap-4">
+                    <Controller
+                        name="justification.justifiedByUserId"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="ID do Justificador"
+                                type="number"
+                                {...field}
+                                error={!!errors.justification?.justifiedByUserId}
+                                helperText={errors.justification?.justifiedByUserId?.message}
+                                fullWidth
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+
+                    <Controller
+                        name="justification.isInternal"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl fullWidth sx={formTheme}>
+                                <InputLabel>É interno?</InputLabel>
+                                <Select
+                                    label="É interno?"
+                                    {...field}
+                                    error={!!errors.justification?.isInternal}
+                                >
+                                    <MenuItem value="true">Sim</MenuItem>
+                                    <MenuItem value="false">Não</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    />
+                </Box>
+
+                <Controller
+                    name="justification.transcription"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Transcrição"
+                            multiline
+                            rows={3}
+                            {...field}
+                            error={!!errors.justification?.transcription}
+                            helperText={errors.justification?.transcription?.message}
+                            className="w-[100%] mt-4"
+                            sx={formTheme}
+                        />
+                    )}
+                />
+            </Box>
+
+            <Box className="flex flex-row justify-end gap-4">
+                <Button variant="outlined" sx={buttonThemeNoBackground} >Cancelar</Button>
+                <Button variant="outlined" type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>Cadastrar</Button>
+            </Box>
+        </form>
+    );
+}
