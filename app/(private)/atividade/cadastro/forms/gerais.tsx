@@ -8,55 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 
-const activitySchema = z.object({
-    id: z.number().min(1, "ID é obrigatório"),
-    description: z.string().min(1, "Descrição é obrigatória"),
-    environmentId: z.number().min(1, "ID do ambiente é obrigatório"),
-    dateTime: z.string().min(1, "Data e hora são obrigatórias"),
-    recurrenceEnum: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE"]),
-    statusEnum: z.enum(["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
-    activityTypeEnum: z.enum(["NORMAL", "EXTRA", "URGENT"]),
-    supervisorId: z.number().min(1, "ID do supervisor é obrigatório"),
-    managerId: z.number().min(1, "ID do gerente é obrigatório"),
-    observation: z.string().optional(),
-    approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
-    approvalDate: z.string().optional(),
-    approvalUpdatedByUserId: z.number().optional(),
-    justification: z.object({
-        reason: z.string().optional(),
-        description: z.string().optional(),
-        justifiedByUserId: z.number().optional(),
-        isInternal: z.boolean().optional(),
-        transcription: z.string().optional()
-    }).optional()
-});
 
-export default function FormDadosGerais() {
-    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<z.infer<typeof activitySchema>>({
-        resolver: zodResolver(activitySchema),
-        defaultValues: {
-            id: 0,
-            description: "",
-            environmentId: 0,
-            dateTime: "",
-            recurrenceEnum: "NONE",
-            statusEnum: "OPEN",
-            activityTypeEnum: "NORMAL",
-            supervisorId: 0,
-            managerId: 0,
-            observation: "",
-            approvalStatus: "PENDING",
-            justification: {
-                reason: "",
-                description: "",
-                justifiedByUserId: 0,
-                isInternal: false,
-                transcription: ""
-            }
-        },
-        mode: "onChange",
-    });
-
+export default function FormDadosGerais({ control, formState: { errors } }: { control: any, formState: { errors: any, } }) {
+ 
     const { data: ambientes } = useGet("environment");
     const { data: predios } = useGet("building");
     const { data: setores } = useGet("sector");

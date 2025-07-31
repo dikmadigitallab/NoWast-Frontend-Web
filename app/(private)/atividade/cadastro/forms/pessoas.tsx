@@ -1,7 +1,6 @@
 
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Checkbox, ListItemText, Chip, OutlinedInput } from "@mui/material";
-import { formTheme } from "@/app/styles/formTheme/theme";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Checkbox, ListItemText, Chip, OutlinedInput, FormHelperText } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus, FiTool } from "react-icons/fi";
 import { rows } from "./data";
@@ -10,6 +9,7 @@ import { ptBR } from "@mui/x-data-grid/locales";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineModeEditOutline } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
+import { useGetUsuario } from "@/app/hooks/usuario/get";
 
 
 export default function FormPessoas({ control, formState: { errors } }: { control: any, formState: { errors: any, } }) {
@@ -60,14 +60,6 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
         },
     ];
 
-    const pessoas = [
-        "Ana Paula",
-        "João Pedro",
-        "Maria Luiza",
-        "Pedro Henrique",
-        "Luiza Helena"
-    ];
-
     const renderChips = (selected: string[], fieldName: string, onDelete: (value: string) => void) => (
         <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {selected.map((value) => (
@@ -81,6 +73,8 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
         </Box>
     );
 
+    const { users } = useGetUsuario();
+
     return (
         <Box className="w-[100%] flex flex-col gap-5">
 
@@ -93,83 +87,91 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
 
                 <Box className="flex flex-row gap-3 h-[60px]">
                     <Controller
-                        name="encarregado"
+                        name="supervisorId"
                         control={control}
                         render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Encarregado"
-                                {...field}
-                                error={!!errors.encarregado}
-                                helperText={errors.encarregado?.message}
-                                InputLabelProps={{ shrink: true }}
-                                placeholder="Digite o nome do pessoas"
-                                className="w-[50%] mb-5"
-                                sx={formTheme}
-                            />
+                            <FormControl fullWidth error={!!errors.supervisorId}>
+                                <InputLabel>Encarregado</InputLabel>
+                                <Select
+                                    label="Encarregado"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                >
+                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
+                                    {Array?.isArray(users) && users.map((pessoa) => (
+                                        <MenuItem key={pessoa?.id} value={pessoa?.id}>
+                                            {pessoa?.person?.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors.supervisorId?.message}</FormHelperText>
+                            </FormControl>
                         )}
-                    />
-                    <Controller
-                        name="lider"
+                    /> <Controller
+                        name="manager.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <TextField
-                                variant="outlined"
-                                label="Lider/Gestor"
-                                {...field}
-                                error={!!errors.lider}
-                                helperText={errors.lider?.message}
-                                InputLabelProps={{ shrink: true }}
-                                placeholder="Digite o nome do pessoas"
-                                className="w-[50%] mb-5"
-                                sx={formTheme}
-                            />
+                            <FormControl fullWidth error={!!errors?.managerId}>
+                                <InputLabel>Líder/Gestor</InputLabel>
+                                <Select
+                                    label="Líder/Gestor"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                >
+                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
+                                    {Array?.isArray(users) && users.map((pessoa) => (
+                                        <MenuItem key={pessoa?.id} value={pessoa?.id}>
+                                            {pessoa?.person?.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors?.managerId?.message}</FormHelperText>
+                            </FormControl>
                         )}
                     />
-
-
                 </Box>
             </Box>
-            <Box className="flex flex-row gap-3 h-[60px]">
 
-                <FormControl sx={formTheme} className="w-[50%]" error={!!errors.pessoas}>
-                    <InputLabel>Pessoas</InputLabel>
+            <Box className="w-[100%] flex flex-col gap-5">
+                <Box className="flex items-center gap-2">
+                    <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
+                    <span className="text-[#3aba8a] font-bold">Pessoas</span>
+                    <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
+                </Box>
+                <Box className="flex flex-row gap-3 h-[60px]">
                     <Controller
-                        name="pessoas"
+                        name="manager.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <Select
-                                multiple
-                                label="Pessoas"
-                                input={<OutlinedInput label="Pessoas" />}
-                                value={field.value || []}
-                                onChange={field.onChange}
-                                renderValue={(selected) =>
-                                    renderChips(
-                                        selected as string[],
-                                        'pessoas',
-                                        (value) => field.onChange(field.value.filter((item: string) => item !== value))
-                                    )
-                                }
+                            <FormControl fullWidth
+                            // error={!!errors?.manager?.connect?.id}
                             >
-                                {pessoas.map((pessoa) => (
-                                    <MenuItem key={pessoa} value={pessoa}>
-                                        <Checkbox checked={field.value?.includes(pessoa) || false} />
-                                        <ListItemText primary={pessoa} />
-                                    </MenuItem>
-                                ))}
-                            </Select>
+                                <InputLabel>Usuário</InputLabel>
+                                <Select
+                                    label="Usuário"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                >
+                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
+                                    {Array?.isArray(users) && users.map((pessoa) => (
+                                        <MenuItem key={pessoa?.id} value={pessoa?.id}>
+                                            {pessoa?.person?.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors?.manager?.connect?.id?.message}</FormHelperText>
+                            </FormControl>
                         )}
                     />
-                    {errors.pessoas && (
-                        <p className="text-red-500 text-xs mt-1">{errors.pessoas.message}</p>
-                    )}
-                </FormControl>
-
-                <Button sx={[buttonTheme, { height: "90%" }]}>
-                    <FiPlus size={25} color="#fff" />
-                </Button>
+                    <Button sx={[buttonTheme, { height: "90%" }]}>
+                        <FiPlus size={25} color="#fff" />
+                    </Button>
+                </Box>
             </Box>
+
             <Box>
                 <DataGrid
                     rows={rows}

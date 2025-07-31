@@ -13,59 +13,64 @@ import FormPessoas from "./forms/pessoas";
 import FormItens from "./forms/itens";
 import FormCheckList from "./forms/checklist";
 import { useRouter } from "next/navigation";
+import { useSectionStore } from "@/app/store/renderSection";
 
-const ambienteSchema = z.object({
-    id: z.string().min(1, "ID do local é obrigatório"),
-    ambiente: z.string().min(1, "O nome é obrigatório"),
-    recorrencia: z.string().min(1, "Dimensão é obrigatória"),
-    repete_dia: z.string().min(1, "Descrição é obrigatória"),
-    horario: z.string().min(1, "Descrição é obrigatória"),
-    predio: z.string().min(1, "Serviço é obrigatória"),
-    setor: z.string().min(1, "Descrição é obrigatória"),
-    servico: z.string().min(1, "Descrição é obrigatória"),
-    tipo: z.string().min(1, "Descrição é obrigatória"),
-    observacao: z.string().min(1, "Checklist é obrigatório"),
-    encarregado: z.string().min(1, "Encarregado é obrigatória"),
-    lider: z.string().min(1, "Responsável é obrigatória"),
-    pessoas: z.array(z.string()).min(1, "Pessoas é obrigatória"),
-    epis: z.array(z.string()).min(1, "EPI é obrigatório"),
-    checklist: z.array(z.string()).min(1, "Checklist é obrigatório"),
+const activitySchema = z.object({
+    id: z.number().min(1, "ID é obrigatório"),
+    description: z.string().min(1, "Descrição é obrigatória"),
+    environmentId: z.number().min(1, "ID do ambiente é obrigatório"),
+    dateTime: z.string().min(1, "Data e hora são obrigatórias"),
+    recurrenceEnum: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE"]),
+    statusEnum: z.enum(["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
+    activityTypeEnum: z.enum(["NORMAL", "EXTRA", "URGENT"]),
+    supervisorId: z.number().min(1, "ID do supervisor é obrigatório"),
+    managerId: z.number().min(1, "ID do gerente é obrigatório"),
+    observation: z.string().optional(),
+    approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
+    approvalDate: z.string().optional(),
+    approvalUpdatedByUserId: z.number().optional(),
+    justification: z.object({
+        reason: z.string().optional(),
+        description: z.string().optional(),
+        justifiedByUserId: z.number().optional(),
+        isInternal: z.boolean().optional(),
+        transcription: z.string().optional()
+    }).optional()
 });
 
-type UserFormValues = z.infer<typeof ambienteSchema>;
+
+type UserFormValues = z.infer<typeof activitySchema>;
 
 export default function Locais() {
 
-    const {
-        control,
-        handleSubmit,
-        formState: { errors, isValid },
-        watch,
-    } = useForm<z.infer<typeof ambienteSchema>>({
-        resolver: zodResolver(ambienteSchema),
+    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<z.infer<typeof activitySchema>>({
+        resolver: zodResolver(activitySchema),
         defaultValues: {
-            id: "",
-            ambiente: "",
-            recorrencia: "",
-            repete_dia: "",
-            horario: "",
-            predio: "",
-            setor: "",
-            servico: "",
-            tipo: "",
-            observacao: "",
-            encarregado: "",
-            lider: "",
-            pessoas: [],
-            epis: [],
-            checklist: [],
+            id: 0,
+            description: "",
+            environmentId: 0,
+            dateTime: "",
+            recurrenceEnum: "NONE",
+            statusEnum: "OPEN",
+            activityTypeEnum: "NORMAL",
+            supervisorId: 0,
+            managerId: 0,
+            observation: "",
+            approvalStatus: "PENDING",
+            justification: {
+                reason: "",
+                description: "",
+                justifiedByUserId: 0,
+                isInternal: false,
+                transcription: ""
+            }
         },
         mode: "onChange",
     });
 
 
     const router = useRouter();
-    const [section, setSection] = useState(1);
+    const { setSection, section } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const onSubmit = (data: UserFormValues) => {
@@ -80,37 +85,6 @@ export default function Locais() {
         }
     }
 
-    const checkComplete = (section: number) => {
-        if (section === 1) {
-            const fields = [
-                watch("id"),
-                watch("ambiente"),
-                watch("recorrencia"),
-                watch("repete_dia"),
-                watch("horario"),
-                watch("predio"),
-                watch("setor"),
-                watch("servico"),
-                watch("tipo"),
-                watch("observacao"),
-            ];
-            return fields.every(item => item.trim() !== "");
-        } else if (section === 2) {
-            const fields = [
-                watch("encarregado"),
-                watch("lider"),
-            ];
-            const pessoas = watch("pessoas");
-            return fields.every(item => item.trim() !== "") && Array.isArray(pessoas) && pessoas.length > 0;
-        } else if (section === 3) {
-            const epis = watch("epis");
-            return Array.isArray(epis) && epis.length > 0;
-        } else if (section === 4) {
-            const checklist = watch("checklist");
-            return Array.isArray(checklist) && checklist.length > 0;
-        }
-        return false;
-    };
 
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
@@ -145,7 +119,7 @@ export default function Locais() {
                             ${section === step ? "bg-[#00000003]" : ""}`}>
                             <Box className="h-[100%] items-center flex flex-row gap-5 w-[80%]">
                                 <Box
-                                    style={{ backgroundColor: checkComplete(step) ? "#E4F5EE" : step === section ? "#3ABA8A" : "#F6F7F8", color: step === section && !checkComplete(step) ? "#fff" : "" }}
+                                    style={{ backgroundColor: step < section ? "#E4F5EE" : step === section ? "#3ABA8A" : "#F6F7F8", color: step === section && step === section ? "#fff" : "" }}
                                     className={`w-[70px] h-full flex justify-center items-center rounded-md text-[#3ABA8A] font-semibold`}>
                                     {step}
                                 </Box>
@@ -161,7 +135,7 @@ export default function Locais() {
 
                 <Box className="flex flex-col gap-5">
                     {section === 1 && (
-                        <FormDadosGerais  />
+                        <FormDadosGerais control={control} formState={{ errors }} />
                     )}
 
                     {section === 2 && (
