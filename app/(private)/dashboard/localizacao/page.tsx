@@ -39,7 +39,7 @@ export default function Atividades() {
       'Manutenção',
       'Outro'
     ],
-    color: '#e74c3c'
+    color: '#29C770'
   }
 
   const data2 = {
@@ -53,7 +53,7 @@ export default function Atividades() {
       "Exemplo de nome",
       "Exemplo de nome"
     ],
-    color: '#2ecc71'
+    color: '#7367F0'
   }
 
   const data3 = {
@@ -68,7 +68,7 @@ export default function Atividades() {
       "Manutenção",
       "Outros"
     ],
-    color: '#f39c12'
+    color: '#2190FF'
   }
 
   const collaboratorOptions = [

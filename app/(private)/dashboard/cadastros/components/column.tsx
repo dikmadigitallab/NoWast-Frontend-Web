@@ -49,7 +49,7 @@ const CadastroColumnChart = () => {
                 }],
                 defaultLocale: 'pt-BR'
             },
-            colors: ['#2ecc71', '#e74c3c', '#f39c12'],
+            colors: ['#2196F3', '#C5F7E3', '#f39c12'],
             stroke: {
                 width: [0, 2, 5],
                 curve: 'smooth'

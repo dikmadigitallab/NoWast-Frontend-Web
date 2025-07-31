@@ -39,7 +39,7 @@ export default function Ambiente() {
                         <Box
                             key={step}
                             className={`
-                            w-[25%] h-[100%] flex flex-row items-center justify-between p-5 rounded-md  cursor-pointer 
+                            w-[25%] h-[100%] flex flex-row items-center justify-between p-5 rounded-md
                             ${section === step ? "bg-[#00000003]" : ""}`}>
                             <Box className="h-[100%] items-center flex flex-row gap-5 w-[80%]">
                                 <Box

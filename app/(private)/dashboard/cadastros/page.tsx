@@ -16,7 +16,6 @@ export default function Atividades() {
 
     const { userType } = useAuthStore();
 
-
     const [filters, setFilters] = useState({
         data: '',
         predio: '',
@@ -52,7 +51,7 @@ export default function Atividades() {
             "Operador 3",
             "Operador 4"
         ],
-        color: '#e74c3c'
+        color: '#7367F0'
     }
 
     const predioOptions = [
@@ -184,10 +183,7 @@ export default function Atividades() {
 
             <Box className="w-[100%] flex flex-row justify-between items-center rounded-lg flex-wrap">
                 {cards.map((card, index) => (
-                    <Box
-                        key={index}
-                        className="flex flex-row items-center gap-3 pl-5 w-[24%] h-[150px] bg-[#fff] rounded-sm"
-                    >
+                    <Box key={index} className="flex flex-row items-center gap-3 pl-5 w-[24%] h-[150px] bg-[#fff] rounded-sm">
                         <Box className="p-2 rounded-full bg-[#2A51631F]">
                             {card.icon}
                         </Box>

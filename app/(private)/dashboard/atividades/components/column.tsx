@@ -16,16 +16,16 @@ export default function ColumnChart() {
     }>({
         series: [
             {
-                name: 'Grave',
-                data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 10))
+                name: 'Nenhum',
+                data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 30))
             },
             {
                 name: 'Leve',
                 data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 20))
             },
             {
-                name: 'Nenhum',
-                data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 30))
+                name: 'Grave',
+                data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 10))
             }
         ],
         options: {
@@ -36,7 +36,7 @@ export default function ColumnChart() {
                 toolbar: { show: true },
                 zoom: { enabled: true }
             },
-            colors: ['#EA5455', '#FDE802', '#768B95'],
+            colors: ['#768B95', '#FDE802', '#EA5455'],
             responsive: [
                 {
                     breakpoint: 480,

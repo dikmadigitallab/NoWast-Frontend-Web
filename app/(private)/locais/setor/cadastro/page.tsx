@@ -10,9 +10,10 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useGetPredio } from "@/app/hooks/locais/predio/get";
 import { useCreate } from "@/app/hooks/crud/create/useCreate";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { IoMdClose } from "react-icons/io";
+import { IoImagesOutline } from "react-icons/io5";
 
 const setorSchema = z.object({
     name: z.string().min(1, "Nome do Setor é obrigatório"),
@@ -50,9 +51,10 @@ export default function CadastroSetor() {
 
 
     const router = useRouter();
-    const { create, loading } = useCreate("sector", "/locais/setor/listagem");
     const { data: predios } = useGet("building");
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { create, loading } = useCreate("sector", "/locais/setor/listagem");
+    const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
@@ -69,6 +71,19 @@ export default function CadastroSetor() {
     const onSubmit = async (formData: any) => {
         console.log(formData);
         create(formData);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const imageData = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            previewUrl: URL.createObjectURL(file),
+        };
+        setImageInfo(imageData);
     };
 
     return (
@@ -144,35 +159,64 @@ export default function CadastroSetor() {
                     />
                 </Box>
 
-                <FormControl fullWidth error={!!errors.building?.connect?.id}>
-                    <InputLabel id="building-label">Contrato</InputLabel>
-                    <Controller
-                        name="building.connect.id"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                {...field}
-                                labelId="building-label"
-                                label="Prédios"
-                                value={field.value || ""}
-                                error={!!errors.building?.connect?.id}
-                            >
-                                <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
-                                {predios?.map((building: any) => (
-                                    <MenuItem key={building.id} value={building.id}>
-                                        {building.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        )}
-                    />
-                    {errors.building?.connect?.id && (
-                        <p className="text-red-500 text-xs mt-1">
-                            {errors.building?.connect?.id.message}
-                        </p>
-                    )}
+                <Box className="w-full flex gap-2">
 
-                </FormControl>
+                    <FormControl fullWidth error={!!errors.building?.connect?.id}>
+                        <InputLabel id="building-label">Prédio</InputLabel>
+                        <Controller
+                            name="building.connect.id"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    {...field}
+                                    labelId="building-label"
+                                    label="Prédios"
+                                    value={field.value || ""}
+                                    error={!!errors.building?.connect?.id}
+                                >
+                                    <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
+                                    {predios?.map((building: any) => (
+                                        <MenuItem key={building.id} value={building.id}>
+                                            {building.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            )}
+                        />
+                        {errors.building?.connect?.id && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.building?.connect?.id.message}
+                            </p>
+                        )}
+                    </FormControl>
+                    <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+                            onChange={handleFileChange}
+                        />
+                        {imageInfo ? (
+                            <Box className="absolute w-full flex justify-between items-center p-3">
+                                <Box className="flex flex-row items-center gap-3">
+                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
+                                    <Box className="flex flex-col">
+                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
+                                    </Box>
+                                </Box>
+                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
+                            </Box>
+                        )
+                            :
+                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
+                                <IoImagesOutline color="#5E5873" size={25} />
+                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
+                            </Box>
+                        }
+                    </Box>
+                </Box>
 
                 <Controller
                     name="description"

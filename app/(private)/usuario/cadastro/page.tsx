@@ -16,6 +16,7 @@ import { useGetPosicao } from "@/app/hooks/posicao/get";
 import { useCreatePessoa } from "@/app/hooks/usuario/create";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { IoImagesOutline } from "react-icons/io5";
 
 const userSchema = z.object({
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }).nullable(),
@@ -123,6 +124,12 @@ export default function CadastroPessoa() {
     const { data: equipamentos } = useGet('tools');
     const { data: transportes } = useGet('transport');
     const { createPessoa, loading } = useCreatePessoa();
+     const [imageInfo, setImageInfo] = useState<{
+        name: string;
+        type: string;
+        size: number;
+        previewUrl: string;
+    } | null>(null);
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -248,6 +255,19 @@ export default function CadastroPessoa() {
         );
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const imageData = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            previewUrl: URL.createObjectURL(file),
+        };
+        setImageInfo(imageData);
+    };
+
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
@@ -258,8 +278,36 @@ export default function CadastroPessoa() {
                 </Box>
 
                 <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
-
                 <Box className="w-[100%] flex flex-row gap-5">
+                  
+                    <Box className="w-full  h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+                            onChange={handleFileChange}
+                        />
+                        {imageInfo ? (
+                            <Box className="absolute w-full flex justify-between items-center p-3">
+                                <Box className="flex flex-row items-center gap-3">
+                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
+                                    <Box className="flex flex-col">
+                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
+                                    </Box>
+                                </Box>
+                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
+                            </Box>
+                        )
+                            :
+                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
+                                <IoImagesOutline color="#5E5873" size={25} />
+                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto sua</p>
+                            </Box>
+                        }
+                    </Box>
+
                     <Controller
                         name="person.create.name"
                         control={control}
