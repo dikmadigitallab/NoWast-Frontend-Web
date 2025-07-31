@@ -722,7 +722,7 @@ export default function AtualizarPessoa() {
                                         <MenuItem key={position.id} value={position.id}>
                                             {position.name}
                                         </MenuItem>
-                                    ))}
+                                    ))}  
                                 </Select>
                                 <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
                             </FormControl>
