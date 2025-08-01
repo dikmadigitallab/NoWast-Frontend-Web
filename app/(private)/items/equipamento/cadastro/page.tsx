@@ -26,6 +26,7 @@ export default function CadastroEquipamento() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
+    const [file, setFile] = useState<File | null>(null);
     const { create, loading } = useCreate("tools", "/items/equipamento/listagem");
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
@@ -41,7 +42,7 @@ export default function CadastroEquipamento() {
     const handleDisableConfirm = () => router.push('/items/equipamento/listagem');
 
     const onSubmit = (formData: any) => {
-        create(formData);
+        create(formData, file);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +56,7 @@ export default function CadastroEquipamento() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+        setFile(file);
     };
 
     return (

@@ -26,8 +26,9 @@ export default function CadastroProduto() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
-    const { create, loading } = useCreate("product", "/items/produto/listagem");
+    const [file, setFile] = useState<File | null>(null);
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { create, loading } = useCreate("product", "/items/produto/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProdutoFormValues>({
@@ -41,7 +42,7 @@ export default function CadastroProduto() {
     const handleDisableConfirm = () => router.push('/items/produto/listagem');
 
     const onSubmit = (formData: any) => {
-        create(formData);
+        create(formData, file);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +56,7 @@ export default function CadastroProduto() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+        setFile(file);
     };
 
     return (

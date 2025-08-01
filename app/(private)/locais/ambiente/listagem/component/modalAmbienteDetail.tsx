@@ -28,69 +28,18 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                             </Box>
                             <Box className="flex flex-col w-[50%]">
                                 <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.nome}</Box>
+                                <Box className="text-[#6E6B7B]">{modalVisualize?.name}</Box>
                             </Box>
                         </Box>
 
-                        <Box className="flex flex-row gap-3">
-                            <Box className="flex flex-col w-[50%]">
-                                <Box className="font-semibold text-[#6E6B7B]">Raio:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.raio}</Box>
-                            </Box>
-                            <Box className="flex flex-col w-[50%]">
-                                <Box className="font-semibold text-[#6E6B7B]">Serviço:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.servico}</Box>
-                            </Box>
-                        </Box>
-
-                        <Box className="flex flex-col">
-                            <Box className="font-semibold text-[#6E6B7B]">Tipo:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.tipo}</Box>
-                        </Box>
                         <Box className="flex flex-col">
                             <Box className="font-semibold text-[#6E6B7B]">Descrição:</Box>
-                            <Box className="text-[#6E6B7B]">{modalVisualize?.descricao}</Box>
+                            <Box className="text-[#6E6B7B]">{modalVisualize?.description}</Box>
                         </Box>
 
                         <Box className="flex flex-col">
-                            <Box className="font-semibold text-[#6E6B7B]">Checklist:</Box>
-                            <Box className="text-[#6E6B7B] flex flex-col gap-1 mt-1">
-                                {modalVisualize?.checklist?.map((item: string, index: number) => (
-                                    <Box key={index}>• {item}</Box>
-                                ))}
-                            </Box>
-                        </Box>
-
-                        <Box className="mt-4 border-t border-[#E0E0E0] pt-3">
-                            <Box className="font-semibold text-[#6E6B7B] mb-2">Setor:</Box>
-                            <Box className="flex flex-col">
-                                <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.setor?.nome}</Box>
-                            </Box>
-                            <Box className="flex flex-col">
-                                <Box className="font-semibold text-[#6E6B7B]">Descrição:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.setor?.descricao}</Box>
-                            </Box>
-                            <Box className="flex flex-col">
-                                <Box className="font-semibold text-[#6E6B7B]">Dimensão:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.setor?.dimensao}</Box>
-                            </Box>
-                        </Box>
-
-                        <Box className="mt-4 border-t border-[#E0E0E0] pt-3">
-                            <Box className="font-semibold text-[#6E6B7B] mb-2">Prédio:</Box>
-                            <Box className="flex flex-col">
-                                <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.predio?.nome}</Box>
-                            </Box>
-                            <Box className="flex flex-col">
-                                <Box className="font-semibold text-[#6E6B7B]">Descrição:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.predio?.descricao}</Box>
-                            </Box>
-                            <Box className="flex flex-col">
-                                <Box className="font-semibold text-[#6E6B7B]">Raio:</Box>
-                                <Box className="text-[#6E6B7B]">{modalVisualize?.predio?.raio}</Box>
-                            </Box>
+                            <Box className="font-semibold text-[#6E6B7B]">Área (m²):</Box>
+                            <Box className="text-[#6E6B7B]">{modalVisualize?.areaM2}</Box>
                         </Box>
 
                     </Box>
@@ -99,3 +48,4 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
         </Modal>
     );
 }
+

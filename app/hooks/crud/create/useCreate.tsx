@@ -11,7 +11,7 @@ export const useCreate = (url: string, redirect: string) => {
     const [data, setData] = useState(null);
     const router = useRouter();
 
-    const create = async (data: any) => {
+    const create = async (data: any, img?: any) => {
 
         setError(null);
         setLoading(true);
@@ -31,6 +31,18 @@ export const useCreate = (url: string, redirect: string) => {
                     "Content-Type": "application/json",
                 },
             });
+
+            if (img) {
+                const formData = new FormData();
+                formData.append("file", img);
+
+                await api.post(`/users/${response.data.data.id}/upload-profile-image`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+            }
 
             setData(response.data.data);
             toast.success("Cadastro feito com sucesso");

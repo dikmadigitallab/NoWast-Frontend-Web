@@ -1,18 +1,18 @@
 "use client";
 
-import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
-import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { StyledMainContainer } from "@/app/styles/container/container";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 import { useCreate } from "@/app/hooks/crud/create/useCreate";
-import { IoMdClose } from "react-icons/io";
+import { formTheme } from "@/app/styles/formTheme/theme";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { IoImagesOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
+import { IoMdClose } from "react-icons/io";
+import { useState } from "react";
+import { z } from "zod";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -26,6 +26,7 @@ export default function CadastroEPI() {
 
     const router = useRouter();
     const { data: pessoas } = useGetPessoa();
+    const [file, setFile] = useState<File | null>(null);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("ppe", "/items/epi/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
@@ -41,7 +42,7 @@ export default function CadastroEPI() {
     const handleDisableConfirm = () => router.push('/items/epi/listagem');
 
     const onSubmit = (formData: any) => {
-        create(formData);
+        create(formData, file);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +56,7 @@ export default function CadastroEPI() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+        setFile(file);
     };
 
     return (
@@ -67,7 +69,6 @@ export default function CadastroEPI() {
                 </Box>
 
                 <Box className="w-full flex flex-col gap-5">
-
                     <Controller
                         name="name"
                         control={control}

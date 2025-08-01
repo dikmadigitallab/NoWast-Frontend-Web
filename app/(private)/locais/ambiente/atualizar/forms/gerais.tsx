@@ -40,7 +40,14 @@ export default function FormDadosGerais() {
 
     const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<AmbienteFormValues>({
         resolver: zodResolver(ambienteSchema),
-        defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } },
+        defaultValues: {
+            name: "",
+            description: "",
+            areaM2: null,
+            startDate: "",
+            endDate: "",
+            sector: { connect: { id: null } }
+        },
         mode: "onChange"
     });
 
@@ -253,6 +260,7 @@ export default function FormDadosGerais() {
                         <Controller
                             name="endDate"
                             control={control}
+                            defaultValue={""}
                             render={({ field }) => (
                                 <TextField
                                     variant="outlined"
