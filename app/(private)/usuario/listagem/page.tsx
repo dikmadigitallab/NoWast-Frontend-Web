@@ -37,6 +37,15 @@ export default function ListagemPessoa() {
         }, 500)
     }
 
+    const userTypes: any = {
+        DEFAULT: '',
+        DIKMA_ADMINISTRATOR: 'Administrador Dikma',
+        CONTRACT_MANAGER: 'Gestão',
+        CLIENT_ADMINISTRATOR: 'Administrador(a) Cliente Dikma',
+        DIKMA_DIRECTOR: 'Diretoria Dikma',
+        OPERATIONAL: 'Operacional'
+    }
+
     const columns: GridColDef<User>[] = [
         {
             field: 'acoes',
@@ -98,6 +107,11 @@ export default function ListagemPessoa() {
             field: 'userType',
             headerName: 'Usuário',
             width: 180,
+            renderCell: (params) => (
+                <Box>
+                    {userTypes[params.value] || params.value}
+                </Box>
+            ),
         },
         {
             field: 'position',

@@ -1,8 +1,8 @@
+import { Logout } from "@/app/utils/logout";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import { Logout } from "@/app/utils/logout";
 import api from "../../api";
-import { useRouter } from "next/navigation";
 
 export const useCreate = (url: string, redirect: string) => {
 
@@ -50,6 +50,7 @@ export const useCreate = (url: string, redirect: string) => {
             setTimeout(() => {
                 router.push(redirect);
             })
+
         } catch (error) {
             setLoading(false);
             const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
