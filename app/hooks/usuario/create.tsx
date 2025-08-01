@@ -11,7 +11,7 @@ export const useCreatePessoa = () => {
     const [data, setData] = useState(null);
     const router = useRouter();
 
-    const createPessoa = async (pessoa: any) => {
+    const createPessoa = async (pessoa: any, img?: any) => {
 
         setError(null);
         setLoading(true);
@@ -33,6 +33,17 @@ export const useCreatePessoa = () => {
                 },
             });
 
+            if (img) {
+                const formData = new FormData();
+                formData.append("file", img);
+
+                await api.post(`/users/${response.data.data.id}/upload-profile-image`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+            }
 
             setData(response.data.data);
             toast.success("Pessoa criada com sucesso");

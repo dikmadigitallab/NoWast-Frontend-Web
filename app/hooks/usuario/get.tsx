@@ -25,12 +25,7 @@ export const useGetUsuario = () => {
         }
 
         try {
-            const response = await api.get<any>("/users?disablePagination=true", {
-                headers: {
-                    Authorization: `Bearer ${authToken.split("=")[1]}`,
-                    "Content-Type": "application/json",
-                },
-            });
+            const response = await api.get<any>("/users?disablePagination=true", { headers: { Authorization: `Bearer ${authToken.split("=")[1]}`, "Content-Type": "application/json" } });
 
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
@@ -46,7 +41,8 @@ export const useGetUsuario = () => {
                 startDate: item.contract?.startDate,
                 epis: item.ppes,
                 transports: item.transports,
-                products: item.products
+                products: item.products,
+                img: item.userFiles[0]?.file.url,
             })) || [];
 
             setUsers(response.data.data.items);

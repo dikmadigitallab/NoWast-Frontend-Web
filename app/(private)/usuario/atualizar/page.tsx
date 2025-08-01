@@ -16,7 +16,6 @@ import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { useGetPosicao } from "@/app/hooks/posicao/get";
 import { IoImagesOutline } from "react-icons/io5";
 
 const userSchema = z.object({
@@ -127,13 +126,12 @@ export default function AtualizarPessoa() {
     const { users } = useGetUsuario();
     const { data } = useGetOneUsuario();
     const { data: epis } = useGet('ppe');
-    const { data: cargos } = useGetPosicao();
+    const { data: cargos } = useGet("position");
     const { data: contrato } = useGetContratos();
     const { data: produtos } = useGet('product');
     const { data: equipamentos } = useGet('tools');
-    const [dataFim, setDataFim] = useState<Date | null>(new Date());
     const { data: transportes } = useGet('transport');
-    const [openCancelModal, setCancelModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { update, loading } = useUpdate("users", '/usuario/listagem');
     const [disable, setDisable] = useState(false);
@@ -141,7 +139,7 @@ export default function AtualizarPessoa() {
 
     const handleOpenModal = (field: string) => {
         if (field === "cancelar") {
-            setCancelModal(true);
+            setOpenCancelModal(true);
         } else {
             setOpenDisableModal(true);
         }
@@ -149,7 +147,7 @@ export default function AtualizarPessoa() {
 
     const handleCloseModal = (field: string) => {
         if (field === "cancelar") {
-            setCancelModal(false);
+            setOpenCancelModal(false);
         } else {
             setDisable(true);
             setOpenDisableModal(false);
@@ -1046,7 +1044,7 @@ export default function AtualizarPessoa() {
                                 error={!!errors.endDate}
                                 helperText={errors.endDate?.message}
                                 className="w-full"
-                                sx={[formTheme, { opacity: disable ? 1 : 0.3 }]}
+                                sx={[formTheme, { opacity: disable ? 1 : 0.8 }]}
                             />
                         )}
                     />
@@ -1081,19 +1079,35 @@ export default function AtualizarPessoa() {
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Desabilitar Usuário</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse usuário?</p>
+                        <Controller
+                            name="endDate"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    variant="outlined"
+                                    label="Data Fim"
+                                    InputLabelProps={{ shrink: true }}
+                                    type="date"
+                                    {...field}
+                                    error={!!errors.endDate}
+                                    helperText={errors.endDate?.message}
+                                    className="w-full"
+                                    sx={[formTheme]}
+                                />
+                            )}
+                        />
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
                             <Button
                                 variant="outlined"
                                 onClick={() => handleCloseModal("desabilitar")}
-                                disabled={loading === true || dataFim === null ? true : false}
-                                sx={buttonTheme}>
-                                {loading ? <CircularProgress color="inherit" size={24} /> : "Desabilitar"}
+                                disabled={loading === true || watch("endDate") === null ? true : false}
+                                sx={buttonTheme}>{loading ? <CircularProgress color="inherit" size={24} /> : "Desabilitar"}
                             </Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
-        </StyledMainContainer >
+        </StyledMainContainer>
     )
 }

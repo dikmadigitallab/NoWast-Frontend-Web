@@ -63,7 +63,6 @@ export default function AtualizarPredio() {
     };
 
     const onSubmit = (data: any) => {
-        console.log(data)
         update(data);
     };
 

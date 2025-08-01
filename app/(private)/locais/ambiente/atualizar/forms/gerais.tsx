@@ -19,6 +19,8 @@ const ambienteSchema = z.object({
     description: z.string().min(1, "Descrição é obrigatória"),
     areaM2: z.number().min(1, "Área em metros quadrados é obrigatória").nullable(),
     sector: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do Setor é obrigatório").nullable() }) }),
+    startDate: z.string({ message: "Data de início é obrigatória" }).optional(),
+    endDate: z.string({ message: "Data de fim é obrigatória" }).optional(),
 });
 
 type AmbienteFormValues = z.infer<typeof ambienteSchema>;
@@ -26,23 +28,39 @@ type AmbienteFormValues = z.infer<typeof ambienteSchema>;
 export default function FormDadosGerais() {
 
     const router = useRouter();
-    const { data } = useGetOneById("environment");
+    const { data, loading } = useGetOneById("environment");
     const { data: setores } = useGet("sector");
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const { update, loading: updateLoading } = useUpdateAmbiente("environment");
-    const { handleDelete, loading: deleteLoading } = useDelete("environment", "/locais/ambiente/listagem");
-
-    const handleOpenDeleteModal = () => setOpenDeleteModal(true);
+    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { update } = useUpdateAmbiente("environment");
+    const { handleDelete } = useDelete("environment", "/locais/ambiente/listagem");
+    const [disable, setDisable] = useState(false);
     const handleCloseDeleteModal = () => setOpenDeleteModal(false);
 
-    const { control, handleSubmit, formState: { errors }, reset } = useForm<AmbienteFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<AmbienteFormValues>({
         resolver: zodResolver(ambienteSchema),
         defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } },
         mode: "onChange"
     });
 
-    const handleOpenCancelModal = () => setOpenCancelModal(true);
+    const handleOpenModal = (field: string) => {
+        if (field === "cancelar") {
+            setOpenCancelModal(true);
+        } else {
+            setOpenDisableModal(true);
+        }
+    };
+
+    const handleCloseModal = (field: string) => {
+        if (field === "cancelar") {
+            setOpenCancelModal(false);
+        } else {
+            setDisable(true);
+            setOpenDisableModal(false);
+        }
+    };
+
     const handleCloseCancelModal = () => setOpenCancelModal(false);
     const handleCancelConfirm = () => router.push('/locais/ambiente/listagem');
 
@@ -149,13 +167,53 @@ export default function FormDadosGerais() {
                             />
                         )}
                     />
+                    <Box className="w-[100%] flex flex-row gap-5">
+                        <Controller
+                            name="startDate"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    variant="outlined"
+                                    label="Data Ínicio"
+                                    InputLabelProps={{ shrink: true }}
+                                    type="date"
+                                    {...field}
+                                    error={!!errors.startDate}
+                                    helperText={errors.startDate?.message}
+                                    className="w-full"
+                                    sx={formTheme}
+                                />
+                            )}
+                        />
+                        <Controller
+                            name="endDate"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    disabled={!disable}
+                                    variant="outlined"
+                                    label="Data Fim"
+                                    InputLabelProps={{ shrink: true }}
+                                    type="date"
+                                    {...field}
+                                    error={!!errors.endDate}
+                                    helperText={errors.endDate?.message}
+                                    className="w-full"
+                                    sx={[formTheme, { opacity: disable ? 1 : 0.8 }]}
+                                />
+                            )}
+                        />
+                    </Box>
+
                 </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5 justify-between">
-                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
-                    <Box className="flex flex-row gap-5" >
-                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenCancelModal}>Cancelar</Button>
-                        <Button type="submit" variant="outlined" disabled={deleteLoading || updateLoading} sx={[buttonTheme, { alignSelf: "end" }]}>{deleteLoading || updateLoading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => handleOpenModal("desabilitar")}>Desabilitar</Button>
+                    <Box className="flex flex-row gap-5">
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => handleOpenModal("cancelar")}>Cancelar</Button>
+                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]} disabled={loading}>
+                            {loading ? <CircularProgress color="inherit" size={24} /> : "Salvar"}
+                        </Button>
                     </Box>
                 </Box>
             </form>
@@ -182,6 +240,41 @@ export default function FormDadosGerais() {
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
                             <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
                             <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
+
+            <Modal open={openDisableModal} onClose={() => handleCloseModal("desabilitar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Desabilitar Ambiente</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse ambiente?</p>
+                        <Controller
+                            name="endDate"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    variant="outlined"
+                                    label="Data Fim"
+                                    InputLabelProps={{ shrink: true }}
+                                    type="date"
+                                    {...field}
+                                    error={!!errors.endDate}
+                                    helperText={errors.endDate?.message}
+                                    className="w-full"
+                                    sx={[formTheme]}
+                                />
+                            )}
+                        />
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                            <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button
+                                variant="outlined"
+                                onClick={() => handleCloseModal("desabilitar")}
+                                disabled={loading === true || watch("endDate") === null ? true : false}
+                                sx={buttonTheme}>{loading ? <CircularProgress color="inherit" size={24} /> : "Desabilitar"}
+                            </Button>
                         </Box>
                     </Box>
                 </Box>

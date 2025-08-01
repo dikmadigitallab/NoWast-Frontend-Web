@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { useGetOne } from "@/app/hooks/global/getOneById";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -25,7 +25,7 @@ type EpiFormValues = z.infer<typeof epiSchema>;
 export default function EditarEPI() {
 
     const router = useRouter();
-    const { data: ppe } = useGetOne("ppe");
+    const { data: ppe } = useGetOneById("ppe");
     const { data: pessoas } = useGet("person");
     const { update, loading } = useUpdate("ppe", "/items/epi/listagem");
     const { handleDelete } = useDelete("ppe", "/items/epi/listagem");

@@ -33,9 +33,6 @@ export const useGetOneById = (url: string) => {
                     "Content-Type": "application/json",
                 },
             });
-
-            console.log(response.data.data);
-
             setData(response.data.data);
         } catch (error) {
             setError("Erro ao buscar dados");

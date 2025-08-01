@@ -4,9 +4,9 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { useCreateEmpresa } from "@/app/hooks/empresa/create";
-import { useGetEmpresa } from "@/app/hooks/empresa/get";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
+import { useCreate } from "@/app/hooks/crud/create/useCreate";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const empresaSchema = z.object({
     acronym: z.string().min(1, "Sigla é obrigatória"),
@@ -46,9 +46,9 @@ export default function FormEmpresa() {
         mode: "onChange"
     });
 
-    const { create, loading } = useCreateEmpresa("company");
-    const { data: empresaData } = useGetEmpresa("businessSector");
     const { data: pessoaData } = useGetPessoa();
+    const { data: empresaData } = useGet("businessSector");
+    const { create, loading } = useCreate("company", "/empresa/listagem");
 
     const onSubmit = (data: EmpresaFormValues) => {
         create(data);

@@ -4,21 +4,7 @@ import { IoMdClose } from "react-icons/io";
 export default function DetailModal({ modalDetail, handleChangeModalDetail }: any) {
     if (!modalDetail) return null;
 
-    const {
-        id,
-        name,
-        email,
-        status,
-        role,
-        position,
-        supervisor,
-        manager,
-        startDate,
-        endDate,
-        epis,
-        transports,
-        products
-    } = modalDetail;
+    const { id, name, email, status, role, position, supervisor, manager, startDate, endDate, epis, transports, products, img } = modalDetail;
 
     return (
         <Modal
@@ -36,6 +22,9 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
                         </IconButton>
                     </Box>
                     <Box className="mt-3 flex flex-col gap-3">
+                        <Box>
+                            <img src={img} alt="User" className="w-full h-[200px] rounded-full object-cover" />
+                        </Box>
                         <Box className="flex flex-col mt-1">
                             <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>
                             <Box className="font-normal text-[#6E6B7B]">{name}</Box>

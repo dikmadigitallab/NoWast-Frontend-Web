@@ -12,14 +12,14 @@ import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/t
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import EditModal from './component/modalPredioEdit';
-import { useGetEmpresa } from '@/app/hooks/empresa/get';
+import { useGet } from '@/app/hooks/crud/get/useGet';
 
 export default function ListagemEmpresas() {
 
     const [edit, setEdit] = useState<any | null>(null);
     const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
-    const { data: empresas } = useGetEmpresa("company");
+    const { data: empresas } = useGet("company");
 
 
     const handleChangeModalEdit = (data: any) => {

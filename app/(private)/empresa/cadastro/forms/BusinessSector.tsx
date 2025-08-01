@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, TextField } from "@mui/material";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { useCreateEmpresa } from "@/app/hooks/empresa/create";
+import { useCreate } from "@/app/hooks/crud/create/useCreate";
 
 const businessSectorSchema = z.object({
     description: z.string().min(1, "Por favor, insira a descrição do setor de negocio"),
@@ -15,7 +15,7 @@ type UserFormValues = z.infer<typeof businessSectorSchema>;
 export default function FormBusinessSector() {
 
     const { control, handleSubmit, formState: { errors }, } = useForm<UserFormValues>({ resolver: zodResolver(businessSectorSchema), defaultValues: { description: "" }, mode: "onChange" });
-    const { create, loading } = useCreateEmpresa("businessSector");
+    const { create, loading } = useCreate("businessSector", "/empresa/listagem");
 
     const onSubmit = (data: UserFormValues) => {
         create(data);

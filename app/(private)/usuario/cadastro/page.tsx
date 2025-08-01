@@ -12,7 +12,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetContratos } from "@/app/hooks/contrato/get";
-import { useGetPosicao } from "@/app/hooks/posicao/get";
 import { useCreatePessoa } from "@/app/hooks/usuario/create";
 import { useGetUsuario } from "@/app/hooks/usuario/get";
 import { useGet } from "@/app/hooks/crud/get/useGet";
@@ -25,8 +24,8 @@ const userSchema = z.object({
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
-    startDate: z.string().min(1, { message: "Data de admissão é obrigatória" }).optional(),
-    endDate: z.string().min(1, { message: "Data de demissão é obrigatória" }).optional(),
+    startDate: z.string({ message: "Data de admissão é obrigatória" }).optional(),
+    endDate: z.string({ message: "Data de demissão é obrigatória" }).optional(),
     person: z.object({
         create: z.object({
             name: z.string().min(1, { message: "O nome é obrigatório" }),
@@ -121,12 +120,13 @@ export default function CadastroPessoa() {
 
     const { users } = useGetUsuario();
     const { data: epis } = useGet('ppe');
-    const { data: cargos } = useGetPosicao();
+    const { data: cargos } = useGet("position");
     const { data: contrato } = useGetContratos();
     const { data: produtos } = useGet('product');
     const { data: equipamentos } = useGet('tools');
     const { data: transportes } = useGet('transport');
     const { createPessoa, loading } = useCreatePessoa();
+    const [file, setFile] = useState<File | null>(null);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const router = useRouter();
@@ -157,7 +157,7 @@ export default function CadastroPessoa() {
                 }
             }
         };
-        createPessoa(newData);
+        createPessoa(newData, file);
     };
 
     const formatCpfOrCnpj = (value: string) => {
@@ -265,21 +265,7 @@ export default function CadastroPessoa() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
-
-        const formData = new FormData();
-        formData.append('file', file); 
-
-        try {
-            const response = await api.post('/users/52/upload-profile-image', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            console.log('Upload com sucesso:', response.data);
-        } catch (error) {
-            console.error('Erro no upload:', error);
-        }
+        setFile(file);
     };
 
 
@@ -941,6 +927,30 @@ export default function CadastroPessoa() {
                                     <p className="text-red-500 text-xs mt-1">{errors.productIds.message}</p>
                                 )}
                             </FormControl>
+                        )}
+                    />
+                </Box>
+
+
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Período de Acesso</h2>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="startDate"
+                        control={control}
+                        defaultValue={new Date().toISOString().split('T')[0]}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Data Ínicio"
+                                InputLabelProps={{ shrink: true }}
+                                type="date"
+                                {...field}
+                                error={!!errors.startDate}
+                                helperText={errors.startDate?.message}
+                                className="w-[30%]"
+                                sx={formTheme}
+                            />
                         )}
                     />
                 </Box>

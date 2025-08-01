@@ -69,7 +69,6 @@ export default function CadastroSetor() {
     };
 
     const onSubmit = async (formData: any) => {
-        console.log(formData);
         create(formData);
     };
 

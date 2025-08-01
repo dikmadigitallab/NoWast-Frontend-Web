@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
-import { useGetOne } from "@/app/hooks/global/getOneById";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Equipamento é obrigatório"),
@@ -25,7 +25,7 @@ type EquipamentoFormValues = z.infer<typeof epiSchema>;
 export default function EditarEquipamento() {
 
     const router = useRouter();
-    const { data } = useGetOne("tools");
+    const { data } = useGetOneById("tools");
     const { data: pessoas } = useGetPessoa();
     const { update, loading } = useUpdate("tools", '/items/equipamento/listagem');
     const { handleDelete } = useDelete("tools", '/items/equipamento/listagem');

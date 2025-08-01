@@ -10,8 +10,8 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useGetEmpresa } from "@/app/hooks/empresa/get";
-import { useGetOne } from "@/app/hooks/global/getOneById";
+import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 
 const contractSchema = z.object({
     name: z.string().min(1, "Nome do contrato é obrigatório"),
@@ -52,9 +52,9 @@ export default function EditContrato() {
 
     const router = useRouter();
     // const { users: usuarios } = useGetUsers();
-    const { data: empresas } = useGetEmpresa("company");
+    const { data: empresas } = useGet("company");
     const [openDisableModal, setOpenDisableModal] = useState(false);
-    const { data, loading } = useGetOne('contract');
+    const { data, loading } = useGetOneById('contract');
 
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
@@ -88,10 +88,8 @@ export default function EditContrato() {
 
     useEffect(() => {
         if (data) {
-            console.log('Dados recebidos:', data);
             const startDate = data.startDate ? data.startDate.split('T')[0] : '';
             const endDate = data.endDate ? data.endDate.split('T')[0] : '';
-
             const formData = {
                 name: data.name,
                 startDate,
@@ -101,7 +99,6 @@ export default function EditContrato() {
                 // users: data.users?.map((user: any) => user.id) || [],
             };
 
-            console.log('Dados do formulário a serem resetados:', formData);
             reset(formData);
         }
     }, [data, reset]);

@@ -20,8 +20,6 @@ export const useLogin = () => {
             const response = await api.post('/auth', { document: clearFormatedData, password });
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
 
-            // console.log(response.data.data.user.role.name)
-            console.log(response.data.data.user.role.name)
             if (response.data.data.user.role.name === "Administrador Dikma") {
                 setUserType("ADM_DIKMA");
             } else if (response.data.data.user.role.name === "Diretor Dikma") {

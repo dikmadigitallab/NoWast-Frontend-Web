@@ -10,8 +10,8 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useGetEmpresa } from "@/app/hooks/empresa/get";
 import { useCreateContrato } from "@/app/hooks/contrato/create";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const contractSchema = z.object({
     name: z.string().min(1, "Nome do contrato é obrigatório"),
@@ -49,7 +49,7 @@ export default function CadastroContrato() {
 
     const router = useRouter();
     // const { users: usuarios } = useGetUsers();
-    const { data: empresas } = useGetEmpresa("company");
+    const { data: empresas } = useGet("company");
     const { create, loading } = useCreateContrato()
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
