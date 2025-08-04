@@ -1,31 +1,31 @@
 "use client";
 
-import React, { useState } from 'react';
-import Box from '@mui/material/Box';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { ptBR } from '@mui/x-data-grid/locales';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
-import { FiPlus } from 'react-icons/fi';
 import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import { StyledMainContainer } from '@/app/styles/container/container';
-import DetailModal from './component/modalEPIDetail';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
-import { GoDownload } from 'react-icons/go';
-import { formTheme } from '@/app/styles/formTheme/theme';
-import { useGetIDStore } from '@/app/store/getIDStore';
-import { useRouter } from 'next/navigation';
-import { useGet } from '@/app/hooks/crud/get/useGet';
+import { StyledMainContainer } from '@/app/styles/container/container';
 import { LoadingComponent } from '@/app/components/loading';
+import { formTheme } from '@/app/styles/formTheme/theme';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import DetailModal from './component/modalEPIDetail';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+import { ptBR } from '@mui/x-data-grid/locales';
+import { useRouter } from 'next/navigation';
+import { GoDownload } from 'react-icons/go';
+import React, { useState } from 'react';
+import { FiPlus } from 'react-icons/fi';
+import Box from '@mui/material/Box';
 
 export default function ListagemEpi() {
 
     const router = useRouter();
     const { setId } = useGetIDStore();
-    const { data: pessoas } = useGet({ url: 'person' });
     const [isFilter, setIsFilter] = useState(false);
+    const { data: pessoas } = useGet({ url: 'person' });
     const [modalDetail, setModalDetail] = useState(false);
-    const [detail, setDetail] = useState<any | null>(null);
     const { data: predios } = useGet({ url: 'building' });
+    const [detail, setDetail] = useState<any | null>(null);
     const [search, setSearch] = useState<any>({ query: '', responsibleManagerId: null, buildingId: null });
     const { data: epis } = useGet({ url: 'ppe', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
 
@@ -97,9 +97,7 @@ export default function ListagemEpi() {
 
     return (
         <StyledMainContainer>
-
             <DetailModal handleChangeModalDetail={() => handleChangeModalDetail(null)} modalDetail={detail} />
-
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">
@@ -166,38 +164,35 @@ export default function ListagemEpi() {
                         </Box>
                     )
                 }
-
-                {
-                    epis ?
-                        (<DataGrid
-                            rows={epis}
-                            columns={columns}
-                            localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: {
-                                        pageSize: 10,
-                                    },
+                {epis ?
+                    (<DataGrid
+                        rows={epis}
+                        columns={columns}
+                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {
+                                    pageSize: 10,
                                 },
-                            }}
-                            pageSizeOptions={[5, 10, 25]}
-                            disableRowSelectionOnClick
-                            sx={{
-                                '& .MuiDataGrid-columnHeaders': {
-                                    backgroundColor: 'unset',
-                                    color: 'unset',
-                                },
-                                '& .MuiDataGrid-row:nth-of-type(odd)': {
-                                    backgroundColor: '#FAFAFA',
-                                },
-                                '& .MuiDataGrid-row:hover': {
-                                    backgroundColor: '#f0f0f0',
-                                },
-                            }}
-                        />) :
-                        (<LoadingComponent />)
+                            },
+                        }}
+                        pageSizeOptions={[5, 10, 25]}
+                        disableRowSelectionOnClick
+                        sx={{
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: 'unset',
+                                color: 'unset',
+                            },
+                            '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                backgroundColor: '#FAFAFA',
+                            },
+                            '& .MuiDataGrid-row:hover': {
+                                backgroundColor: '#f0f0f0',
+                            },
+                        }}
+                    />) :
+                    (<LoadingComponent />)
                 }
-
             </Box>
         </StyledMainContainer>
     );
