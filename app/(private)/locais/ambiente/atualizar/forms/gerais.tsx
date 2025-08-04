@@ -29,7 +29,7 @@ export default function FormDadosGerais() {
 
     const router = useRouter();
     const { data, loading } = useGetOneById("environment");
-    const { data: setores } = useGet("sector");
+    const { data: setores } = useGet({ url: "sector" });
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);

@@ -51,7 +51,7 @@ export default function CadastroSetor() {
 
 
     const router = useRouter();
-    const { data: predios } = useGet("building");
+    const { data: predios } = useGet({ url: "building" });
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("sector", "/locais/setor/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);

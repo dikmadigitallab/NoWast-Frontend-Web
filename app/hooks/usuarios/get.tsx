@@ -4,7 +4,8 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervisor = null, position = null, gestor = null }: { page?: number, pageSize?: number | null, query?: string | null, supervisor?: number | null, position?: number | null, gestor?: number | null }) => {
+export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervisorId = null, position = null, managerId = null }: { page?: number, pageSize?: number | null, query?: string | null, supervisorId?: number | null, position?: number | null, managerId?: number | null }) => {
+   
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
@@ -32,14 +33,13 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
 
             if (query !== null) params.append("query", query.trim());
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
-            if (supervisor !== null) params.append("supervisorId", String(supervisor).trim());
+            if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
             if (position !== null) params.append("positionId", String(position).trim());
-            if (gestor !== null) params.append("managerId", String(gestor).trim());
+            if (managerId !== null) params.append("managerId", String(managerId).trim());
 
             const url = `/users?${params.toString()}`;
 
-            const response = await api.get<any>(
-                url,
+            const response = await api.get<any>(url,
                 {
                     headers: {
                         Authorization: `Bearer ${authToken.split("=")[1]}`,
@@ -52,7 +52,7 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
                 id: item.id,
                 personId: item.person?.id,
                 name: item.person?.name,
-                supervisor: item?.supervisor?.person?.name,
+                supervisorId: item?.supervisorId?.person?.name,
                 manager: item?.manager?.person?.name,
                 email: item?.person?.emails[0]?.email,
                 status: item.status,
@@ -85,7 +85,7 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [query, supervisor, position, gestor, page, pageSize]);
+    }, [query, supervisorId, position, managerId, page, pageSize]);
 
     return {
         getUsuario,

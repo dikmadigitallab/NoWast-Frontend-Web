@@ -49,7 +49,7 @@ export default function CadastroContrato() {
 
     const router = useRouter();
     // const { users: usuarios } = useGetUsers();
-    const { data: empresas } = useGet("company");
+    const { data: empresas } = useGet({ url: "company" });
     const { create, loading } = useCreateContrato()
     const [openDisableModal, setOpenDisableModal] = useState(false);
 

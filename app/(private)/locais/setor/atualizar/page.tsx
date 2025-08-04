@@ -53,7 +53,7 @@ export default function EditarSetor() {
     });
 
     const router = useRouter();
-    const { data: predios } = useGet("building");
+    const { data: predios } = useGet({ url: "building" });
     const { data: setor } = useGetOneById("sector");
     const { update, loading } = useUpdate("sector", "/locais/setor/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);

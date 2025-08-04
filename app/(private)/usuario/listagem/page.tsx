@@ -21,14 +21,13 @@ export default function ListagemPessoa() {
 
     const router = useRouter();
     const { setId } = useGetIDStore()
-    const { data: position } = useGet("position")
+    const { data: position } = useGet({ url: "position" });
     const [isFilter, setIsFilter] = useState(false);
-    const { data: responsaveis } = useGetUsuario({});
+    const { data: pessoasLista } = useGet({ url: 'person' });
     const [modalDetail, setModalDetail] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
-    const [search, setSearch] = useState<any>({ query: '', position: null, supervisor: null, gestor: null });
-    const { data: pessoas } = useGetUsuario({ query: search.query, supervisor: search.supervisor, position: search.position, gestor: search.gestor });
-
+    const [search, setSearch] = useState<any>({ query: '', position: null, supervisorId: null, managerId: null });
+    const { data: pessoas } = useGetUsuario({ query: search.query, supervisorId: search.supervisorId, position: search.position, managerId: search.managerId });
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
@@ -114,7 +113,7 @@ export default function ListagemPessoa() {
             width: 180,
         },
         {
-            field: 'supervisor',
+            field: 'supervisorId',
             headerName: 'Encarregado Responsável',
             width: 200,
         },
@@ -158,14 +157,13 @@ export default function ListagemPessoa() {
                                 <TextField
                                     value={search.query}
                                     onChange={(e) => setSearch({ ...search, query: e.target.value })} variant="outlined" label="Nome, Email ou Usuário" className="w-[100%]" sx={formTheme} />
-                                <FormControl fullWidth>
+                                <FormControl fullWidth sx={formTheme}>
                                     <InputLabel id="cargo-label">Cargo</InputLabel>
                                     <Select
                                         value={search.position || ""}
                                         labelId="cargo-label"
                                         label="Pessoa"
                                         onChange={(e) => setSearch({ ...search, position: Number(e.target.value) })}
-                                        sx={formTheme}
                                     >
                                         {position?.map((cargo: any) => (
                                             <MenuItem key={cargo.id} value={cargo.id}>
@@ -179,32 +177,31 @@ export default function ListagemPessoa() {
                                         ))}
                                     </Select>
                                 </FormControl>
-                                <FormControl fullWidth>
+                                <FormControl fullWidth sx={formTheme}>
                                     <InputLabel>Encarregado Responsável</InputLabel>
                                     <Select
-                                        value={search.supervisor || ""}
+                                        value={search.supervisorId || ""}
                                         label="Encarregado Responsável"
-                                        onChange={(e) => setSearch({ ...search, supervisor: Number(e.target.value) })}
-                                        sx={formTheme}
+                                        onChange={(e) => setSearch({ ...search, supervisorId: Number(e.target.value) })}
                                     >
-                                        <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
-                                        {Array.isArray(responsaveis) && responsaveis.map((pessoa) => (
+                                        <MenuItem value="" disabled>Selecione um supervisorId...</MenuItem>
+                                        {Array.isArray(pessoasLista) && pessoasLista.map((pessoa) => (
                                             <MenuItem key={pessoa.id} value={pessoa.id}>
                                                 {pessoa.name}
                                             </MenuItem>
                                         ))}
                                     </Select>
                                 </FormControl>
-                                <FormControl fullWidth>
+                                <FormControl fullWidth sx={formTheme}>
                                     <InputLabel>Gestor Responsável</InputLabel>
                                     <Select
-                                        value={search.gestor || ""}
+                                        value={search.managerId || ""}
                                         label="Gestor Responsável"
-                                        onChange={(e) => setSearch({ ...search, gestor: Number(e.target.value) })}
+                                        onChange={(e) => setSearch({ ...search, managerId: Number(e.target.value) })}
                                         sx={formTheme}
                                     >
-                                        <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
-                                        {Array.isArray(responsaveis) && responsaveis.map((pessoa) => (
+                                        <MenuItem value="" disabled>Selecione um supervisorId...</MenuItem>
+                                        {Array.isArray(pessoasLista) && pessoasLista.map((pessoa) => (
                                             <MenuItem key={pessoa.id} value={pessoa.id}>
                                                 {pessoa.name}
                                             </MenuItem>
@@ -213,7 +210,7 @@ export default function ListagemPessoa() {
                                 </FormControl>
                             </Box>
                             <Box className="flex gap-2 items-center justify-end mt-2">
-                                <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setSearch({ query: "", position: null, supervisor: null })}>
+                                <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setSearch({ query: "", position: null, supervisorId: null })}>
                                     Limpar
                                 </Button>
                             </Box>

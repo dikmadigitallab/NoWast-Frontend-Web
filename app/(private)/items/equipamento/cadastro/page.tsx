@@ -5,9 +5,9 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { useCreateItems } from "@/app/hooks/items/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
@@ -25,8 +25,8 @@ type EquipamentoFormValues = z.infer<typeof equipamentoSchema>;
 export default function CadastroEquipamento() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetUsuario({});
-    const { create, loading } = useCreateItems("tools");
+    const { data: pessoas } = useGet({ url: 'person' });
+    const { create, loading } = useCreateItems("tools", "/items/equipamento/listagem");
     const [file, setFile] = useState<File | null>(null);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
@@ -45,7 +45,7 @@ export default function CadastroEquipamento() {
         const newObject = { ...formData, file: file, buildingId: 12 };
         create(newObject);
     };
-    
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -106,7 +106,7 @@ export default function CadastroEquipamento() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.personId}>
+                                            <MenuItem key={person.id} value={person.id}>
                                                 {person.name}
                                             </MenuItem>
                                         ))}

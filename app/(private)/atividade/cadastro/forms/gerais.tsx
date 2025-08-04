@@ -10,12 +10,12 @@ import { useGet } from "@/app/hooks/crud/get/useGet";
 
 
 export default function FormDadosGerais({ control, formState: { errors } }: { control: any, formState: { errors: any, } }) {
- 
-    const { data: ambientes } = useGet("environment");
-    const { data: predios } = useGet("building");
-    const { data: setores } = useGet("sector");
-    const { data: servicos } = useGet("service");
-    const { data: tipos_servicos } = useGet("serviceType");
+
+    const { data: ambientes } = useGet({ url: "environment" });
+    const { data: predios } = useGet({ url: "building" });
+    const { data: setores } = useGet({ url: "sector" });
+    const { data: servicos } = useGet({ url: "service" });
+    const { data: tipos_servicos } = useGet({ url: "serviceType" });
 
     return (
         <form className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
@@ -107,7 +107,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
                     name="activityTypeEnum"
                     control={control}
                     render={({ field }) => (
-                        <FormControl fullWidth sx={formTheme}>
+                        <FormControl sx={formTheme} fullWidth >
                             <InputLabel>Tipo de Atividade</InputLabel>
                             <Select
                                 label="Tipo de Atividade"
@@ -124,7 +124,7 @@ export default function FormDadosGerais({ control, formState: { errors } }: { co
             </Box>
 
             <Box className="w-[100%] flex flex-row justify-between gap-2">
-                <FormControl sx={formTheme} fullWidth>
+                <FormControl sx={formTheme} fullWidth >
                     <InputLabel id="predio-label">Prédio</InputLabel>
                     <Select labelId="predio-label" label="Prédio">
                         <MenuItem value="" disabled>

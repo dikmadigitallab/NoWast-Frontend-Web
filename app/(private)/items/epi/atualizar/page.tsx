@@ -10,10 +10,8 @@ import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } fr
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
-import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
-import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
 import { useUpdateItem } from "@/app/hooks/items/update";
@@ -29,8 +27,8 @@ type EpiFormValues = z.infer<typeof epiSchema>;
 export default function EditarEPI() {
 
     const router = useRouter();
-    const { data: ppe } = useGetOneById("ppe");
-    const { data: pessoas } = useGetUsuario({});
+    const { data } = useGetOneById("ppe");
+    const { data: pessoas } = useGet({ url: 'person' });
     const { update, loading } = useUpdateItem("ppe", "/items/epi/listagem");
     const { handleDelete } = useDelete("ppe", "/items/epi/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -64,14 +62,21 @@ export default function EditarEPI() {
         setOpenDeleteModal(false);
     };
 
-     const onSubmit = (formData: any) => {
+    const onSubmit = (formData: any) => {
         const newObject = { ...formData, file: file, buildingId: 12 };
         update(newObject);
     };
 
     useEffect(() => {
-        if (ppe) reset({ ...ppe, responsibleManager: { connect: { id: ppe?.responsibleManagerId } }, buildingId: 1 });
-    }, [ppe, reset]);
+        if (data) reset({ ...data, responsibleManager: { connect: { id: data?.responsibleManagerId } }, buildingId: 1 });
+
+        setImageInfo({
+            name: data?.ppeFiles[0]?.file?.fileName,
+            type: data?.ppeFiles[0]?.file?.fileType,
+            size: data?.ppeFiles[0]?.file?.size,
+            previewUrl: data?.ppeFiles[0]?.file?.url,
+        });
+    }, [data, reset]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -133,7 +138,7 @@ export default function EditarEPI() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.personId}>
+                                            <MenuItem key={person.id} value={person.id}>
                                                 {person.name}
                                             </MenuItem>
                                         ))}
@@ -174,7 +179,7 @@ export default function EditarEPI() {
                             }
                         </Box>
                     </Box>
-                    
+
                     <Controller
                         name="description"
                         control={control}

@@ -22,7 +22,7 @@ export default function ListagemEquipamento() {
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
-    const { data: equipamentos } = useGet('tools');
+    const { data: equipamentos } = useGet({ url: 'tools' });
     const { setId } = useGetIDStore()
     const router = useRouter();
 

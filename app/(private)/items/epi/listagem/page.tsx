@@ -6,7 +6,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { ptBR } from '@mui/x-data-grid/locales';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { FiPlus } from 'react-icons/fi';
-import { Button, IconButton, TextField } from '@mui/material';
+import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import DetailModal from './component/modalEPIDetail';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
@@ -16,15 +16,17 @@ import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
 import { useGet } from '@/app/hooks/crud/get/useGet';
 
-
 export default function ListagemEpi() {
 
-    const [isFilter, setIsFilter] = useState(false);
-    const [detail, setDetail] = useState<any | null>(null);
-    const [modalDetail, setModalDetail] = useState(false);
-    const { data: epis } = useGet('ppe');
-    const { setId } = useGetIDStore();
     const router = useRouter();
+    const { setId } = useGetIDStore();
+    const { data: pessoas } = useGet({url: 'person' });
+    const [isFilter, setIsFilter] = useState(false);
+    const [modalDetail, setModalDetail] = useState(false);
+    const [detail, setDetail] = useState<any | null>(null);
+    const { data: predios } = useGet({ url: 'building' });
+    const [search, setSearch] = useState<any>({ query: '', responsibleManagerId: null, buildingId: null });
+    const { data: epis } = useGet({ url: 'ppe', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
@@ -95,10 +97,7 @@ export default function ListagemEpi() {
     return (
         <StyledMainContainer>
 
-            <DetailModal
-                handleChangeModalDetail={() => handleChangeModalDetail(null)}
-                modalDetail={detail}
-            />
+            <DetailModal handleChangeModalDetail={() => handleChangeModalDetail(null)} modalDetail={detail} />
 
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
@@ -124,17 +123,43 @@ export default function ListagemEpi() {
                     isFilter && (
                         <Box>
                             <Box className="flex gap-3 justify-between items-center">
-                                <TextField variant="outlined" label="Nome, Email ou Usuário" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Cargo" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Encarregado Responsável" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Gestor Responsável" className="w-[100%]" sx={formTheme} />
+                                <TextField
+                                    value={search.query}
+                                    onChange={(e) => setSearch({ ...search, query: e.target.value })} variant="outlined" label="Nome do EPI" className="w-[100%]" sx={formTheme} />
+                                <FormControl fullWidth sx={formTheme}>
+                                    <InputLabel>Encarregado Responsável</InputLabel>
+                                    <Select
+                                        value={search.responsibleManagerId || ""}
+                                        label="Encarregado Responsável"
+                                        onChange={(e) => setSearch({ ...search, responsibleManagerId: Number(e.target.value) })}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
+                                        {Array.isArray(pessoas) && pessoas?.map((pessoa) => (
+                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <FormControl fullWidth sx={formTheme}>
+                                    <InputLabel>Local</InputLabel>
+                                    <Select
+                                        value={search.buildingId || ""}
+                                        label="Local"
+                                        onChange={(e) => setSearch({ ...search, buildingId: Number(e.target.value) })}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
+                                        {Array.isArray(predios) && predios?.map((predio) => (
+                                            <MenuItem key={predio.id} value={predio.id}>
+                                                {predio.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </Box>
                             <Box className="flex gap-2 items-center justify-end mt-2">
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(false)}>
+                                <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setSearch({ query: '', responsibleManagerId: null, buildingId: null })}>
                                     Limpar
-                                </Button>
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
-                                    Pesquisar
                                 </Button>
                             </Box>
                         </Box>

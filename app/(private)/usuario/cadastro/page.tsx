@@ -118,12 +118,12 @@ export default function CadastroPessoa() {
     });
 
     const { users } = useGetUsuario({});
-    const { data: epis } = useGet('ppe');
-    const { data: cargos } = useGet("position");
+    const { data: epis } = useGet({ url: 'ppe' });
+    const { data: cargos } = useGet({ url: 'position' });
     const { data: contrato } = useGetContratos();
-    const { data: produtos } = useGet('product');
-    const { data: equipamentos } = useGet('tools');
-    const { data: transportes } = useGet('transport');
+    const { data: produtos } = useGet({ url: 'product' });
+    const { data: equipamentos } = useGet({ url: 'tools' });
+    const { data: transportes } = useGet({ url: 'transport' });
     const [file, setFile] = useState<File | null>(null);
     const { create, loading } = useCreate("users", "/usuario/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
@@ -241,8 +241,10 @@ export default function CadastroPessoa() {
                                 backgroundColor: '#00B288',
                                 color: 'white',
                                 borderRadius: '4px',
+                                fontSize: '.7rem',
                                 '& .MuiChip-deleteIcon': {
                                     color: 'white',
+                                    fontSize: '.8rem',
                                 },
                             }}
                         />
@@ -328,7 +330,7 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.person?.create?.personType}>
-                                <InputLabel>Tipo de Pessoa</InputLabel>
+                                <InputLabel sx={formTheme}>Tipo de Pessoa</InputLabel>
                                 <Select
                                     label="Tipo de Pessoa"
                                     {...field}
@@ -371,7 +373,7 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.person?.create?.gender}>
-                                <InputLabel>Gênero</InputLabel>
+                                <InputLabel sx={formTheme}>Gênero</InputLabel>
                                 <Select label="Gênero" {...field} value={field.value || ""}>
                                     <MenuItem value="" disabled>Selecione...</MenuItem>
                                     <MenuItem value="MALE">Masculino</MenuItem>
@@ -478,7 +480,7 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth>
-                                <InputLabel>Status</InputLabel>
+                                <InputLabel sx={formTheme}>Status</InputLabel>
                                 <Select
                                     label="Status"
                                     {...field}
@@ -495,7 +497,7 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth>
-                                <InputLabel>Primeiro Login</InputLabel>
+                                <InputLabel sx={formTheme}>Primeiro Login</InputLabel>
                                 <Select
                                     label="Primeiro Login"
                                     {...field}
@@ -605,7 +607,7 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.person?.create?.address?.addressType}>
-                                <InputLabel>Tipo de Endereço</InputLabel>
+                                <InputLabel sx={formTheme}>Tipo de Endereço</InputLabel>
                                 <Select
                                     label="Tipo de Endereço"
                                     {...field}
@@ -662,8 +664,8 @@ export default function CadastroPessoa() {
                         name="position.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
-                                <InputLabel>Cargo</InputLabel>
+                            <FormControl fullWidth error={!!errors.position?.connect?.id} sx={formTheme}>
+                                <InputLabel sx={formTheme}>Cargo</InputLabel>
                                 <Select
                                     label="Cargo"
                                     {...field}
@@ -684,8 +686,8 @@ export default function CadastroPessoa() {
                         name="userType"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.userType}>
-                                <InputLabel>Tipo de Usuário</InputLabel>
+                            <FormControl fullWidth error={!!errors.userType} sx={formTheme}>
+                                <InputLabel sx={formTheme}>Tipo de Usuário</InputLabel>
                                 <Select
                                     label="Tipo de Usuário"
                                     {...field}
@@ -706,8 +708,8 @@ export default function CadastroPessoa() {
                         name="contract.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.contract?.connect?.id}>
-                                <InputLabel>Contrato</InputLabel>
+                            <FormControl fullWidth error={!!errors.contract?.connect?.id} sx={formTheme}>
+                                <InputLabel sx={formTheme}>Contrato</InputLabel>
                                 <Select
                                     label="Contrato"
                                     {...field}
@@ -732,8 +734,8 @@ export default function CadastroPessoa() {
                         name="supervisor.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.supervisor?.connect?.id}>
-                                <InputLabel>Supervisor</InputLabel>
+                            <FormControl fullWidth error={!!errors.supervisor?.connect?.id} sx={formTheme}>
+                                <InputLabel sx={formTheme}>Supervisor</InputLabel>
                                 <Select
                                     label="Supervisor"
                                     {...field}
@@ -755,8 +757,8 @@ export default function CadastroPessoa() {
                         name="manager.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors?.manager?.connect?.id}>
-                                <InputLabel>Gerente</InputLabel>
+                            <FormControl fullWidth error={!!errors?.manager?.connect?.id} sx={formTheme}>
+                                <InputLabel sx={formTheme}>Gerente</InputLabel>
                                 <Select
                                     label="Gerente"
                                     {...field}
@@ -783,8 +785,8 @@ export default function CadastroPessoa() {
                         name="epiIds"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.epiIds} sx={{ width: '25%' }}>
-                                <InputLabel>EPIs</InputLabel>
+                            <FormControl fullWidth error={!!errors.epiIds} sx={{ width: '25%', ...formTheme }}>
+                                <InputLabel >EPIs</InputLabel>
                                 <Select
                                     multiple
                                     label="EPIs"
@@ -794,12 +796,15 @@ export default function CadastroPessoa() {
                                         const value = e.target.value;
                                         field.onChange(Array.isArray(value) ? value : []);
                                     }}
-                                    renderValue={(selected) => renderChips(
-                                        selected as number[],
-                                        'epiIds',
-                                        (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        epis || []
-                                    )}
+                                    renderValue={(selected) =>
+                                        renderChips(
+                                            selected as number[],
+                                            'epiIds',
+                                            (value) =>
+                                                field.onChange((field.value as number[]).filter((item) => item !== value)),
+                                            epis || []
+                                        )
+                                    }
                                 >
                                     <MenuItem disabled>Adicione EPIs</MenuItem>
                                     {(epis || []).map((item: any) => (
@@ -815,12 +820,13 @@ export default function CadastroPessoa() {
                             </FormControl>
                         )}
                     />
+
                     <Controller
                         name="equipmentIds"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.equipmentIds} sx={{ width: '25%' }}>
-                                <InputLabel>Equipamentos</InputLabel>
+                            <FormControl fullWidth error={!!errors.equipmentIds} sx={{ width: '25%', ...formTheme }}>
+                                <InputLabel sx={formTheme}>Equipamentos</InputLabel>
                                 <Select
                                     multiple
                                     label="Equipamentos"
@@ -856,8 +862,8 @@ export default function CadastroPessoa() {
                         name="vehicleIds"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.vehicleIds} sx={{ width: '25%' }}>
-                                <InputLabel>Veículos</InputLabel>
+                            <FormControl fullWidth error={!!errors.vehicleIds} sx={{ width: '25%', ...formTheme }}>
+                                <InputLabel sx={formTheme}>Veículos</InputLabel>
                                 <Select
                                     multiple
                                     label="Veículos"
@@ -893,8 +899,8 @@ export default function CadastroPessoa() {
                         name="productIds"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.productIds} sx={{ width: '25%' }}>
-                                <InputLabel>Produtos</InputLabel>
+                            <FormControl fullWidth error={!!errors.productIds} sx={{ width: '25%', ...formTheme }}>
+                                <InputLabel sx={formTheme}>Produtos</InputLabel>
                                 <Select
                                     multiple
                                     label="Produtos"

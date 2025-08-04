@@ -22,7 +22,7 @@ export default function ListagemTransporte() {
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
-    const { data: transportes } = useGet('product');
+    const { data: transportes } = useGet({ url: 'transport' });
     const { setId } = useGetIDStore()
     const router = useRouter();
 

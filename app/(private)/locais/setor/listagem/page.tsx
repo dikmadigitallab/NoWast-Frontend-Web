@@ -19,7 +19,7 @@ export default function ListagemSetores() {
 
     const router = useRouter();
     const [isFilter, setIsFilter] = useState(false);
-    const { data } = useGet("sector");
+    const { data } = useGet({ url: "sector" });
     const { setId } = useGetIDStore()
 
     const handleChangeModalEdit = (id: any) => {
@@ -93,6 +93,7 @@ export default function ListagemSetores() {
                         </Button>
                     </Box>
                 </Box>
+                
                 {
                     isFilter && (
                         <Box>
@@ -115,7 +116,7 @@ export default function ListagemSetores() {
                 }
 
                 <DataGrid
-                    rows={data?.data.items}
+                    rows={data}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

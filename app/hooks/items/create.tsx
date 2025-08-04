@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useState } from "react";
 import api from "../api";
 
-export const useCreateItems = (url: string) => {
+export const useCreateItems = (url: string, redirect: string) => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export const useCreateItems = (url: string) => {
             toast.success("Cadastro feito com sucesso");
 
             setTimeout(() => {
-                router.push("/items/epi/listagem");
+                router.push(redirect);
             });
         } catch (error) {
             setLoading(false);

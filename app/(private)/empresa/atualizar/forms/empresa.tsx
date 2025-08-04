@@ -46,8 +46,8 @@ export default function FormEmpresa() {
     });
 
     const { create, loading } = useCreate("company", "/empresa/listagem");
-    const { data: empresaData } = useGet("businessSector");
-     const { data: pessoas } = useGetUsuario({});
+    const { data: empresaData } = useGet({ url: "businessSector" });
+    const { data: pessoas } = useGetUsuario({});
 
     const onSubmit = (data: EmpresaFormValues) => {
         create(data);

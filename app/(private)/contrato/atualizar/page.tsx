@@ -52,7 +52,7 @@ export default function EditContrato() {
 
     const router = useRouter();
     // const { users: usuarios } = useGetUsers();
-    const { data: empresas } = useGet("company");
+    const { data: empresas } = useGet({ url: "company" });
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { data, loading } = useGetOneById('contract');
 

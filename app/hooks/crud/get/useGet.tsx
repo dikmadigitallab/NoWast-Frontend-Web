@@ -5,7 +5,19 @@ import { useEffect, useState } from "react";
 import api from "../../api";
 
 
-export const useGet = (url: string) => {
+export interface UseGetParams {
+    url: string,
+    page?: number,
+    pageSize?: number | null,
+    query?: string | null,
+    supervisorId?: number | null,
+    positionId?: number | null,
+    managerId?: number | null,
+    responsibleManagerId?: number | null
+    buildingId?: number | null
+}
+
+export const useGet = ({ url, page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null }: UseGetParams) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -25,13 +37,28 @@ export const useGet = (url: string) => {
         }
 
         try {
-            const response = await api.get<any>(`/${url}?disablePagination=true`, {
+            const params = new URLSearchParams();
+
+            params.append("disablePagination", "true");
+            params.append("page", String(page));
+
+            if (query !== null) params.append("query", query.trim());
+            if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
+            if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
+            if (positionId !== null) params.append("positionId", String(positionId).trim());
+            if (managerId !== null) params.append("managerId", String(managerId).trim());
+            if (responsibleManagerId !== null) params.append("responsibleManagerId", String(responsibleManagerId).trim());
+            if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
+
+            const paramUrl = `/${url}?${params.toString()}`;
+
+            const response = await api.get<any>(paramUrl, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
-            
+
             setData(response.data.data.items);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
@@ -43,9 +70,15 @@ export const useGet = (url: string) => {
         }
     };
 
+
     useEffect(() => {
-        get();
-    }, []);
+        const delayDebounce = setTimeout(() => {
+            get();
+        }, 1000);
+
+        return () => clearTimeout(delayDebounce);
+    }, [query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId]);
+
 
     return {
         loading,

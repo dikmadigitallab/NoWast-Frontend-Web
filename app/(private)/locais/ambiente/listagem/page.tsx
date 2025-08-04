@@ -23,7 +23,7 @@ export default function DataGridAmbientes() {
     const { setId } = useGetIDStore();
     const [isFilter, setIsFilter] = useState(false);
     const { setSection } = useSectionStore();
-    const { data: ambientes } = useGet("environment");
+    const { data: ambientes } = useGet({ url: "environment" });
     const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
 

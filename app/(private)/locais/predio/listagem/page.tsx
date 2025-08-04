@@ -19,7 +19,7 @@ export default function ListagemPredios() {
 
     const router = useRouter();
     const { setId } = useGetIDStore();
-    const { data: predio } = useGet("building");
+    const { data: predio } = useGet({ url: "building" });
     const [isFilter, setIsFilter] = useState(false);
 
     const handleChangeModalEdit = (id: any) => {

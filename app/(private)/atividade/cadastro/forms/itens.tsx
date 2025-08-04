@@ -95,7 +95,7 @@ export default function FormItens({ control, formState: { errors } }: { control:
                                 <Select
                                     multiple
                                     label="Epis"
-                                    input={<OutlinedInput label="Epis" />}
+                                    input={<OutlinedInput  sx={formTheme}label="Epis" />}
                                     value={field.value}
                                     onChange={field.onChange}
                                     renderValue={(selected) => renderChips(

@@ -15,6 +15,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
+import { useUpdateItem } from "@/app/hooks/items/update";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Transport é obrigatório"),
@@ -27,9 +29,9 @@ type TransportFormValues = z.infer<typeof epiSchema>;
 export default function EditarTransport() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetUsuario({});
+    const { data: pessoas } = useGet({ url: 'person' });
     const { data } = useGetOneById("transport");
-    const { update, loading } = useUpdate("transport", "/items/transporte/listagem");
+    const { update, loading } = useUpdateItem("transport", "/items/transporte/listagem");
     const { handleDelete } = useDelete("transport", "/items/transporte/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -69,6 +71,13 @@ export default function EditarTransport() {
 
     useEffect(() => {
         if (data) reset({ ...data, responsibleManager: { connect: { id: data?.responsibleManagerId } }, buildingId: 1 });
+
+        setImageInfo({
+            name: data?.transportFiles[0]?.file?.fileName,
+            type: data?.transportFiles[0]?.file?.fileType,
+            size: data?.transportFiles[0]?.file?.size,
+            previewUrl: data?.transportFiles[0]?.file?.url,
+        });
     }, [data, reset]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,7 +140,7 @@ export default function EditarTransport() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.personId}>
+                                            <MenuItem key={person.id} value={person.id}>
                                                 {person.name}
                                             </MenuItem>
                                         ))}

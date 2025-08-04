@@ -22,7 +22,7 @@ export default function ListagemProduto() {
     const [isFilter, setIsFilter] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [modalDetail, setModalDetail] = useState(false);
-    const { data: produtos } = useGet('product');
+    const { data: produtos } = useGet({ url: 'product' });
     const { setId } = useGetIDStore()
     const router = useRouter();
 

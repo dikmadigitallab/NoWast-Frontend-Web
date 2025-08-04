@@ -19,7 +19,7 @@ export default function ListagemEmpresas() {
     const [edit, setEdit] = useState<any | null>(null);
     const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
-    const { data: empresas } = useGet("company");
+    const { data: empresas } = useGet({ url: "company" });
 
 
     const handleChangeModalEdit = (data: any) => {

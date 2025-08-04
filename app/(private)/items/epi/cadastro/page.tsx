@@ -3,16 +3,16 @@
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
+import { useCreateItems } from "@/app/hooks/items/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
 import { z } from "zod";
-import { useCreateItems } from "@/app/hooks/items/create";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -25,10 +25,10 @@ type EpiFormValues = z.infer<typeof epiSchema>;
 export default function CadastroEPI() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetUsuario({});
-    const { create, loading } = useCreateItems("ppe")
+    const { data: pessoas } = useGet({ url: 'person' });
     const [file, setFile] = useState<File | null>(null);
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { create, loading } = useCreateItems("ppe", "/items/epi/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const { control, handleSubmit, setValue, formState: { errors } } = useForm<EpiFormValues>({
@@ -84,7 +84,6 @@ export default function CadastroEPI() {
                             />
                         )}
                     />
-
                     <Box className="flex flex-row gap-2">
                         <Controller
                             name="responsibleManager.connect.id"
@@ -106,7 +105,7 @@ export default function CadastroEPI() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.personId}>
+                                            <MenuItem key={person.id} value={person.id}>
                                                 {person.name}
                                             </MenuItem>
                                         ))}

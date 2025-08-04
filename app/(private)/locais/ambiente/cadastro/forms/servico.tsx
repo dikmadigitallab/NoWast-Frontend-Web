@@ -41,7 +41,7 @@ export default function FormServicos() {
     const { id } = useGetIDStore();
     const [newItem, setNewItem] = useState("");
     const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
-    const { data: tiposServicos } = useGet("serviceType");
+    const { data: tiposServicos } = useGet({ url: "serviceType" });
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreateAmbiente("service", "/locais/ambiente/listagem");

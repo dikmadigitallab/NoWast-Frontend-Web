@@ -24,7 +24,7 @@ type AmbienteFormValues = z.infer<typeof ambienteSchema>;
 export default function FormDadosGerais() {
 
     const router = useRouter();
-    const { data: setores } = useGet("sector");
+    const { data: setores } = useGet({ url: "sector" });
     const { create, loading } = useCreateAmbiente("environment");
     const [openCancelModal, setOpenCancelModal] = useState(false);
 

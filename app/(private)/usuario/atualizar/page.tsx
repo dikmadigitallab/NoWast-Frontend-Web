@@ -124,14 +124,14 @@ export default function AtualizarPessoa() {
 
     const router = useRouter();
     const { users } = useGetUsuario({});
-    const { data: epis } = useGet('ppe');
-    const { data } = useGetOneById("users");
-    const { data: cargos } = useGet("position");
+    const { data: epis } = useGet({ url: 'ppe' });
+    const { data } = useGetOneById('users');
+    const { data: cargos } = useGet({ url: 'position' });
     const { data: contrato } = useGetContratos();
-    const { data: produtos } = useGet('product');
+    const { data: produtos } = useGet({ url: 'product' });
     const [disable, setDisable] = useState(false);
-    const { data: equipamentos } = useGet('tools');
-    const { data: transportes } = useGet('transport');
+    const { data: equipamentos } = useGet({ url: 'tools' });
+    const { data: transportes } = useGet({ url: 'transport' });
     const [file, setFile] = useState<File | null>(null);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -267,6 +267,7 @@ export default function AtualizarPessoa() {
             console.error('Erro ao buscar CEP:', error);
         }
     }
+    
     useEffect(() => {
         if (data) {
 
@@ -432,7 +433,7 @@ export default function AtualizarPessoa() {
                         name="person.create.personType"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.person?.create?.personType}>
+                            <FormControl fullWidth error={!!errors.person?.create?.personType} sx={formTheme}>
                                 <InputLabel>Tipo de Pessoa</InputLabel>
                                 <Select
                                     label="Tipo de Pessoa"
@@ -475,7 +476,7 @@ export default function AtualizarPessoa() {
                         name="person.create.gender"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.person?.create?.gender}>
+                            <FormControl fullWidth error={!!errors.person?.create?.gender} sx={formTheme}>
                                 <InputLabel>Gênero</InputLabel>
                                 <Select label="Gênero" {...field} value={field.value || ""}>
                                     <MenuItem value="" disabled>Selecione...</MenuItem>
@@ -566,7 +567,7 @@ export default function AtualizarPessoa() {
                         name="status"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth>
+                            <FormControl fullWidth sx={formTheme}>
                                 <InputLabel>Status</InputLabel>
                                 <Select
                                     label="Status"
@@ -583,7 +584,7 @@ export default function AtualizarPessoa() {
                         name="firstLogin"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth>
+                            <FormControl fullWidth sx={formTheme}>
                                 <InputLabel>Primeiro Login</InputLabel>
                                 <Select
                                     label="Primeiro Login"
@@ -693,7 +694,7 @@ export default function AtualizarPessoa() {
                         name="person.create.address.addressType"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.person?.create?.address?.addressType}>
+                            <FormControl fullWidth error={!!errors.person?.create?.address?.addressType} sx={formTheme}>
                                 <InputLabel>Tipo de Endereço</InputLabel>
                                 <Select
                                     label="Tipo de Endereço"
@@ -751,7 +752,7 @@ export default function AtualizarPessoa() {
                         name="position.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.position?.connect?.id}>
+                            <FormControl fullWidth error={!!errors.position?.connect?.id} sx={formTheme}>
                                 <InputLabel>Cargo</InputLabel>
                                 <Select
                                     label="Cargo"
@@ -773,7 +774,7 @@ export default function AtualizarPessoa() {
                         name="userType"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.userType}>
+                            <FormControl fullWidth error={!!errors.userType} sx={formTheme}>
                                 <InputLabel>Tipo de Usuário</InputLabel>
                                 <Select
                                     label="Tipo de Usuário"
@@ -795,7 +796,7 @@ export default function AtualizarPessoa() {
                         name="contract.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.contract?.connect?.id}>
+                            <FormControl fullWidth error={!!errors.contract?.connect?.id} sx={formTheme}>
                                 <InputLabel>Contrato</InputLabel>
                                 <Select
                                     label="Contrato"
@@ -821,7 +822,7 @@ export default function AtualizarPessoa() {
                         name="supervisor.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.supervisor?.connect?.id}>
+                            <FormControl fullWidth error={!!errors.supervisor?.connect?.id} sx={formTheme}>
                                 <InputLabel>Supervisor</InputLabel>
                                 <Select
                                     label="Supervisor"
@@ -844,7 +845,7 @@ export default function AtualizarPessoa() {
                         name="manager.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors?.manager?.connect?.id}>
+                            <FormControl fullWidth error={!!errors?.manager?.connect?.id} sx={formTheme}>
                                 <InputLabel>Gerente</InputLabel>
                                 <Select
                                     label="Gerente"
@@ -872,12 +873,12 @@ export default function AtualizarPessoa() {
                         name="epiIds"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.epiIds} sx={{ width: '25%' }}>
+                            <FormControl fullWidth error={!!errors.epiIds} sx={{ width: '25%', ...formTheme }}>
                                 <InputLabel>EPIs</InputLabel>
                                 <Select
                                     multiple
                                     label="EPIs"
-                                    input={<OutlinedInput label="EPIs" />}
+                                    input={<OutlinedInput sx={formTheme} label="EPIs" />}
                                     value={field.value || []}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -908,12 +909,12 @@ export default function AtualizarPessoa() {
                         name="equipmentIds"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.equipmentIds} sx={{ width: '25%' }}>
+                            <FormControl fullWidth error={!!errors.equipmentIds} sx={{ width: '25%', ...formTheme }}>
                                 <InputLabel>Equipamentos</InputLabel>
                                 <Select
                                     multiple
                                     label="Equipamentos"
-                                    input={<OutlinedInput label="Equipamentos" />}
+                                    input={<OutlinedInput sx={formTheme} label="Equipamentos" />}
                                     value={field.value || []}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -945,12 +946,12 @@ export default function AtualizarPessoa() {
                         name="vehicleIds"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.vehicleIds} sx={{ width: '25%' }}>
+                            <FormControl fullWidth error={!!errors.vehicleIds} sx={{ width: '25%', ...formTheme }}>
                                 <InputLabel>Veículos</InputLabel>
                                 <Select
                                     multiple
                                     label="Veículos"
-                                    input={<OutlinedInput label="Veículos" />}
+                                    input={<OutlinedInput sx={formTheme} label="Veículos" />}
                                     value={field.value || []}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -982,12 +983,12 @@ export default function AtualizarPessoa() {
                         name="productIds"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.productIds} sx={{ width: '25%' }}>
+                            <FormControl fullWidth error={!!errors.productIds} sx={{ width: '25%', ...formTheme }}>
                                 <InputLabel>Produtos</InputLabel>
                                 <Select
                                     multiple
                                     label="Produtos"
-                                    input={<OutlinedInput label="Produtos" />}
+                                    input={<OutlinedInput sx={formTheme} label="Produtos" />}
                                     value={field.value || []}
                                     onChange={(e) => {
                                         const value = e.target.value;

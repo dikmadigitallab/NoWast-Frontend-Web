@@ -7,7 +7,6 @@ import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useUpdateItem } from "@/app/hooks/items/update";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +14,7 @@ import { IoImagesOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Equipamento é obrigatório"),
@@ -28,7 +28,7 @@ export default function EditarEquipamento() {
 
     const router = useRouter();
     const { data } = useGetOneById("tools");
-    const { data: pessoas } = useGetUsuario({});
+    const { data: pessoas } = useGet({ url: "person" });
     const { update, loading } = useUpdateItem("tools", "/items/equipamento/listagem");
     const { handleDelete } = useDelete("tools", '/items/equipamento/listagem');
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -52,7 +52,7 @@ export default function EditarEquipamento() {
 
     const handleOpenDisableModal = () => setOpenDisableModal(true);
     const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/epi/listagem');
+    const handleDisableConfirm = () => router.push('/items/equipamento/listagem');
 
     const handleOpenDeleteModal = () => {
         setOpenDeleteModal(true);
@@ -69,6 +69,13 @@ export default function EditarEquipamento() {
 
     useEffect(() => {
         if (data) reset({ ...data, responsibleManager: { connect: { id: data?.responsibleManagerId } }, buildingId: 1 });
+
+        setImageInfo({
+            name: data?.toolsFiles[0]?.file?.fileName,
+            type: data?.toolsFiles[0]?.file?.fileType,
+            size: data?.toolsFiles[0]?.file?.size,
+            previewUrl: data?.toolsFiles[0]?.file?.url,
+        });
     }, [data, reset]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,7 +138,7 @@ export default function EditarEquipamento() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.personId}>
+                                            <MenuItem key={person.id} value={person.id}>
                                                 {person.name}
                                             </MenuItem>
                                         ))}

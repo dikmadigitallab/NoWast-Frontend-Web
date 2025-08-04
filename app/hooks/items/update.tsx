@@ -26,6 +26,7 @@ export const useUpdateItem = (url: string, redirect: string) => {
         }
 
         try {
+
             const formData = new FormData();
             formData.append("name", data.name);
             formData.append("description", data.description);
@@ -33,7 +34,7 @@ export const useUpdateItem = (url: string, redirect: string) => {
             formData.append("buildingId", String(data.buildingId));
             formData.append("file", data.file);
 
-            const response = await api.patch(`/ppe/${id}`, formData, {
+            const response = await api.put(`/${url}/${id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "multipart/form-data",
