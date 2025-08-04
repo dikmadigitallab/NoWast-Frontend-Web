@@ -15,12 +15,13 @@ import { formTheme } from '@/app/styles/formTheme/theme';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
 import { useGet } from '@/app/hooks/crud/get/useGet';
+import { LoadingComponent } from '@/app/components/loading';
 
 export default function ListagemEpi() {
 
     const router = useRouter();
     const { setId } = useGetIDStore();
-    const { data: pessoas } = useGet({url: 'person' });
+    const { data: pessoas } = useGet({ url: 'person' });
     const [isFilter, setIsFilter] = useState(false);
     const [modalDetail, setModalDetail] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
@@ -165,32 +166,38 @@ export default function ListagemEpi() {
                         </Box>
                     )
                 }
-                <DataGrid
-                    rows={epis}
-                    columns={columns}
-                    localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 10,
-                            },
-                        },
-                    }}
-                    pageSizeOptions={[5, 10, 25]}
-                    disableRowSelectionOnClick
-                    sx={{
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: 'unset',
-                            color: 'unset',
-                        },
-                        '& .MuiDataGrid-row:nth-of-type(odd)': {
-                            backgroundColor: '#FAFAFA',
-                        },
-                        '& .MuiDataGrid-row:hover': {
-                            backgroundColor: '#f0f0f0',
-                        },
-                    }}
-                />
+
+                {
+                    epis ?
+                        (<DataGrid
+                            rows={epis}
+                            columns={columns}
+                            localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+                            initialState={{
+                                pagination: {
+                                    paginationModel: {
+                                        pageSize: 10,
+                                    },
+                                },
+                            }}
+                            pageSizeOptions={[5, 10, 25]}
+                            disableRowSelectionOnClick
+                            sx={{
+                                '& .MuiDataGrid-columnHeaders': {
+                                    backgroundColor: 'unset',
+                                    color: 'unset',
+                                },
+                                '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                    backgroundColor: '#FAFAFA',
+                                },
+                                '& .MuiDataGrid-row:hover': {
+                                    backgroundColor: '#f0f0f0',
+                                },
+                            }}
+                        />) :
+                        (<LoadingComponent />)
+                }
+
             </Box>
         </StyledMainContainer>
     );
