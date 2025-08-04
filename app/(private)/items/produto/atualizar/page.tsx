@@ -2,17 +2,19 @@
 
 import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
+import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { StyledMainContainer } from "@/app/styles/container/container";
+import { useDelete } from "@/app/hooks/crud/delete/useDelete";
+import { useUpdate } from "@/app/hooks/crud/update/update";
+import { formTheme } from "@/app/styles/formTheme/theme";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
-import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
+import { IoImagesOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
-import { useUpdate } from "@/app/hooks/crud/update/update";
-import { useDelete } from "@/app/hooks/crud/delete/useDelete";
-import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { IoMdClose } from "react-icons/io";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Produto é obrigatório"),
@@ -25,12 +27,14 @@ type ProdutoFormValues = z.infer<typeof epiSchema>;
 export default function EditarProduto() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetPessoa();
+    const { data: pessoas } = useGetUsuario({});
     const { data } = useGetOneById("product");
     const { update, loading } = useUpdate("product", "/items/produto/listagem");
     const { handleDelete } = useDelete("product", "/items/produto/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
+    const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const { control, handleSubmit, setValue, formState: { errors }, reset, watch } = useForm<ProdutoFormValues>({
         resolver: zodResolver(epiSchema),
@@ -59,12 +63,27 @@ export default function EditarProduto() {
     };
 
     const onSubmit = (formData: any) => {
-        update(formData);
+        const newObject = { ...formData, file: file, buildingId: 12 };
+        update(newObject);
     };
 
     useEffect(() => {
         if (data) reset({ ...data, responsibleManager: { connect: { id: data?.responsibleManagerId } }, buildingId: 1 });
     }, [data, reset]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const imageData = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            previewUrl: URL.createObjectURL(file),
+        };
+        setImageInfo(imageData);
+        setFile(file);
+    };
 
     return (
         <StyledMainContainer>
@@ -91,40 +110,68 @@ export default function EditarProduto() {
                         )}
                     />
 
-                    <Controller
-                        name="responsibleManager.connect.id"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl
-                                sx={formTheme}
-                                fullWidth
-                                error={!!errors.responsibleManager?.connect?.id}
-                            >
-                                <InputLabel id="responsible-label">Gestor Responsável</InputLabel>
-                                <Select
-                                    labelId="responsible-label"
-                                    label="Gestor Responsável"
-                                    {...field}
-                                    value={field.value || ""}
+                    <Box className="flex flex-row gap-2">
+                        <Controller
+                            name="responsibleManager.connect.id"
+                            control={control}
+                            render={({ field }) => (
+                                <FormControl
+                                    sx={formTheme}
+                                    fullWidth
+                                    error={!!errors.responsibleManager?.connect?.id}
                                 >
-                                    <MenuItem value="" disabled>
-                                        Clique e selecione...
-                                    </MenuItem>
-                                    {pessoas?.map((person: any) => (
-                                        <MenuItem key={person.id} value={person.id}>
-                                            {person.name}
+                                    <InputLabel id="responsible-label">Gestor Responsável</InputLabel>
+                                    <Select
+                                        labelId="responsible-label"
+                                        label="Gestor Responsável"
+                                        {...field}
+                                        value={field.value || ""}
+                                    >
+                                        <MenuItem value="" disabled>
+                                            Clique e selecione...
                                         </MenuItem>
-                                    ))}
-                                </Select>
-
-                                {errors.responsibleManager?.connect?.id && (
-                                    <p className="text-red-500 text-xs mt-1">
-                                        {errors.responsibleManager.connect.id.message}
-                                    </p>
-                                )}
-                            </FormControl>
-                        )}
-                    />
+                                        {pessoas?.map((person: any) => (
+                                            <MenuItem key={person.id} value={person.personId}>
+                                                {person.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    {errors.responsibleManager?.connect?.id && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.responsibleManager.connect.id.message}
+                                        </p>
+                                    )}
+                                </FormControl>
+                            )}
+                        />
+                        <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+                                onChange={handleFileChange}
+                            />
+                            {imageInfo ? (
+                                <Box className="absolute w-full flex justify-between items-center p-3">
+                                    <Box className="flex flex-row items-center gap-3">
+                                        <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
+                                        <Box className="flex flex-col">
+                                            <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
+                                            <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
+                                            <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
+                                        </Box>
+                                    </Box>
+                                    <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
+                                </Box>
+                            )
+                                :
+                                <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
+                                    <IoImagesOutline color="#5E5873" size={25} />
+                                    <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
+                                </Box>
+                            }
+                        </Box>
+                    </Box>
 
                     <Controller
                         name="description"

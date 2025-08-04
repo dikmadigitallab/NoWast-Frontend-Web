@@ -2,17 +2,17 @@
 
 import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { StyledMainContainer } from "@/app/styles/container/container";
+import { useCreateItems } from "@/app/hooks/items/create";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
+import { formTheme } from "@/app/styles/formTheme/theme";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
-import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
-import { useCreate } from "@/app/hooks/crud/create/useCreate";
-import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
+import { IoMdClose } from "react-icons/io";
+import { useState } from "react";
 
 const produtoSchema = z.object({
     name: z.string().min(1, "Nome do Produto é obrigatório"),
@@ -25,10 +25,10 @@ type ProdutoFormValues = z.infer<typeof produtoSchema>;
 export default function CadastroProduto() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetPessoa();
+    const { data: pessoas } = useGetUsuario({});
     const [file, setFile] = useState<File | null>(null);
     const [openDisableModal, setOpenDisableModal] = useState(false);
-    const { create, loading } = useCreate("product", "/items/produto/listagem");
+    const { create, loading } = useCreateItems("products");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProdutoFormValues>({
@@ -42,7 +42,8 @@ export default function CadastroProduto() {
     const handleDisableConfirm = () => router.push('/items/produto/listagem');
 
     const onSubmit = (formData: any) => {
-        create(formData, file);
+        const newObject = { ...formData, file: file, buildingId: 12 };
+        create(newObject);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +106,7 @@ export default function CadastroProduto() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.id}>
+                                            <MenuItem key={person.id} value={person.personId}>
                                                 {person.name}
                                             </MenuItem>
                                         ))}

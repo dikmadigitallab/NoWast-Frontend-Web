@@ -4,9 +4,9 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 import { useCreate } from "@/app/hooks/crud/create/useCreate";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 const empresaSchema = z.object({
     acronym: z.string().min(1, "Sigla é obrigatória").max(10, "Sigla muito longa"),
@@ -20,7 +20,6 @@ const empresaSchema = z.object({
 });
 
 type EmpresaFormValues = z.infer<typeof empresaSchema>;
-
 
 export default function FormEmpresa() {
     const {
@@ -48,7 +47,7 @@ export default function FormEmpresa() {
 
     const { create, loading } = useCreate("company", "/empresa/listagem");
     const { data: empresaData } = useGet("businessSector");
-    const { data: pessoaData } = useGetPessoa();
+     const { data: pessoas } = useGetUsuario({});
 
     const onSubmit = (data: EmpresaFormValues) => {
         create(data);
@@ -103,7 +102,7 @@ export default function FormEmpresa() {
                                 <MenuItem value={0} disabled>
                                     Selecione uma pessoa
                                 </MenuItem>
-                                {pessoaData?.map((user: any) => (
+                                {pessoas?.map((user: any) => (
                                     <MenuItem key={user.id} value={user.id}>
                                         <Box display="flex" justifyContent="space-between" width="100%">
                                             <Box className="flex flex-col">

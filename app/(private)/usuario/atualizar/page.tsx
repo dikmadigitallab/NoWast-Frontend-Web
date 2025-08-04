@@ -12,11 +12,11 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetContratos } from "@/app/hooks/contrato/get";
-import { useGetUsuario } from "@/app/hooks/usuario/get";
-import { useGetOneUsuario } from "@/app/hooks/usuario/getOneById";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 
 const userSchema = z.object({
     id: z.number({ required_error: "ID é obrigatório", invalid_type_error: "ID inválido" }),
@@ -123,18 +123,19 @@ export default function AtualizarPessoa() {
     });
 
     const router = useRouter();
-    const { users } = useGetUsuario();
-    const { data } = useGetOneUsuario();
+    const { users } = useGetUsuario({});
     const { data: epis } = useGet('ppe');
+    const { data } = useGetOneById("users");
     const { data: cargos } = useGet("position");
     const { data: contrato } = useGetContratos();
     const { data: produtos } = useGet('product');
+    const [disable, setDisable] = useState(false);
     const { data: equipamentos } = useGet('tools');
     const { data: transportes } = useGet('transport');
+    const [file, setFile] = useState<File | null>(null);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { update, loading } = useUpdate("users", '/usuario/listagem');
-    const [disable, setDisable] = useState(false);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenModal = (field: string) => {
@@ -185,7 +186,7 @@ export default function AtualizarPessoa() {
                     }
                 }
             };
-            update(newData);
+            update(newData, file);
         }
     };
 
@@ -315,6 +316,13 @@ export default function AtualizarPessoa() {
                 setValue('person.create.address.longitude', data.person.addresses[0].longitude)
             }
 
+            setImageInfo({
+                name: data.userFiles[0]?.file?.fileName,
+                type: data.userFiles[0]?.file?.fileType,
+                size: data.userFiles[0]?.file?.size,
+                previewUrl: data.userFiles[0]?.file?.url,
+            });
+
 
         }
     }, [data, reset]);
@@ -359,9 +367,8 @@ export default function AtualizarPessoa() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+        setFile(file);
     };
-
-
 
     return (
         <StyledMainContainer>

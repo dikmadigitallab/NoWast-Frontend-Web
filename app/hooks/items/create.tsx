@@ -1,44 +1,49 @@
+import { Logout } from "@/app/utils/logout";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import { Logout } from "@/app/utils/logout";
-import api from "../../api";
-import { useRouter } from "next/navigation";
+import api from "../api";
 
-export const useCreatePredio = () => {
+export const useCreateItems = (url: string) => {
 
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState(null);
+    const router = useRouter();
 
-    const createPredio = async (predio: string) => {
-
+    const create = async (data: any) => {
         setError(null);
         setLoading(true);
-
 
         const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
 
         if (!authToken) {
             setError("Token de autenticação não encontrado");
-            Logout()
+            Logout();
             return;
         }
 
         try {
-            const response = await api.post("/building", predio, {
+            const formData = new FormData();
+            formData.append("name", data.name);
+            formData.append("description", data.description);
+            formData.append("responsibleManagerId", String(data.responsibleManager.connect.id));
+            formData.append("buildingId", String(data.buildingId));
+            formData.append("file", data.file);
+
+            const response = await api.post(`/${url}`, formData, {
                 headers: {
-                    Authorization: `Bearer ${authToken?.split("=")[1]}`,
-                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken.split("=")[1]}`,
+                    "Content-Type": "multipart/form-data",
                 },
             });
 
             setData(response.data.data);
-            toast.success("Predio criado com sucesso");
-            setLoading(false);
+            toast.success("Cadastro feito com sucesso");
+
             setTimeout(() => {
-                router.push('/locais/predio/listagem');
-            }, 1000);
+                router.push("/items/epi/listagem");
+            });
         } catch (error) {
             setLoading(false);
             const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
@@ -47,8 +52,9 @@ export const useCreatePredio = () => {
         }
     };
 
+
     return {
-        createPredio,
+        create,
         loading,
         error,
         data

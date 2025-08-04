@@ -4,9 +4,9 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
 import { useCreate } from "@/app/hooks/crud/create/useCreate";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 const empresaSchema = z.object({
     acronym: z.string().min(1, "Sigla é obrigatória"),
@@ -46,8 +46,8 @@ export default function FormEmpresa() {
         mode: "onChange"
     });
 
-    const { data: pessoaData } = useGetPessoa();
-    const { data: empresaData } = useGet("businessSector");
+    const { data: pessoas } = useGetUsuario({});
+    const { data: empresas } = useGet("businessSector");
     const { create, loading } = useCreate("company", "/empresa/listagem");
 
     const onSubmit = (data: EmpresaFormValues) => {
@@ -103,7 +103,7 @@ export default function FormEmpresa() {
                                 <MenuItem value={0} disabled>
                                     Selecione uma pessoa
                                 </MenuItem>
-                                {pessoaData?.map((user: any) => (
+                                {pessoas?.map((user: any) => (
                                     <MenuItem key={user.id} value={user.id}>
                                         <Box display="flex" justifyContent="space-between" width="100%">
                                             <Box className="flex flex-col">
@@ -139,7 +139,7 @@ export default function FormEmpresa() {
                                 <MenuItem value={0} disabled>
                                     Selecione um setor
                                 </MenuItem>
-                                {empresaData?.map((setor: any) => (
+                                {empresas?.map((setor: any) => (
                                     <MenuItem key={setor.id} value={setor.id}>
                                         {setor.description}
                                     </MenuItem>

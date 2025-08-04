@@ -1,18 +1,18 @@
 "use client";
 
-import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { StyledMainContainer } from "@/app/styles/container/container";
+import { useCreateItems } from "@/app/hooks/items/create";
+import { formTheme } from "@/app/styles/formTheme/theme";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
-import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
-import { useCreate } from "@/app/hooks/crud/create/useCreate";
-import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
+import { IoMdClose } from "react-icons/io";
+import { useState } from "react";
+import { z } from "zod";
 
 const equipamentoSchema = z.object({
     name: z.string().min(1, "Nome do Equipamento é obrigatório"),
@@ -25,9 +25,9 @@ type EquipamentoFormValues = z.infer<typeof equipamentoSchema>;
 export default function CadastroEquipamento() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetPessoa();
+    const { data: pessoas } = useGetUsuario({});
+    const { create, loading } = useCreateItems("tools");
     const [file, setFile] = useState<File | null>(null);
-    const { create, loading } = useCreate("tools", "/items/equipamento/listagem");
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
@@ -42,9 +42,10 @@ export default function CadastroEquipamento() {
     const handleDisableConfirm = () => router.push('/items/equipamento/listagem');
 
     const onSubmit = (formData: any) => {
-        create(formData, file);
+        const newObject = { ...formData, file: file, buildingId: 12 };
+        create(newObject);
     };
-
+    
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -105,7 +106,7 @@ export default function CadastroEquipamento() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.id}>
+                                            <MenuItem key={person.id} value={person.personId}>
                                                 {person.name}
                                             </MenuItem>
                                         ))}

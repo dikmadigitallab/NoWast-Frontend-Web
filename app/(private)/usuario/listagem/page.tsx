@@ -2,9 +2,9 @@
 
 import Box from '@mui/material/Box';
 import React, { useState } from 'react';
-import { Button, Chip, IconButton, TextField } from '@mui/material';
+import { Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { ptBR } from '@mui/x-data-grid/locales';
-import { FiPlus, FiUser } from 'react-icons/fi';
+import { FiPlus } from 'react-icons/fi';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
@@ -14,16 +14,21 @@ import { formTheme } from '@/app/styles/formTheme/theme';
 import DetailModal from './component/modalPessoaDetail';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
-import { useGetUsuario } from '@/app/hooks/usuario/get';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
+import { useGet } from '@/app/hooks/crud/get/useGet';
 
 export default function ListagemPessoa() {
 
-    const [isFilter, setIsFilter] = useState(false);
-    const [modalDetail, setModalDetail] = useState(false);
-    const { data: usuarios } = useGetUsuario();
-    const [detail, setDetail] = useState<any | null>(null);
-    const { setId } = useGetIDStore()
     const router = useRouter();
+    const { setId } = useGetIDStore()
+    const { data: position } = useGet("position")
+    const [isFilter, setIsFilter] = useState(false);
+    const { data: responsaveis } = useGetUsuario({});
+    const [modalDetail, setModalDetail] = useState(false);
+    const [detail, setDetail] = useState<any | null>(null);
+    const [search, setSearch] = useState<any>({ query: '', position: null, supervisor: null, gestor: null });
+    const { data: pessoas } = useGetUsuario({ query: search.query, supervisor: search.supervisor, position: search.position, gestor: search.gestor });
+
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
@@ -77,7 +82,6 @@ export default function ListagemPessoa() {
             renderCell: (params) => {
                 const status = params.value.toLowerCase() === 'active' ? 'Ativo' : 'Inativo';
                 const color = params.value.toLowerCase() === 'active' ? 'success' : 'error';
-
                 return (
                     <Chip
                         label={status}
@@ -92,11 +96,6 @@ export default function ListagemPessoa() {
             field: 'name',
             headerName: 'Nome',
             width: 180,
-            renderCell: (params) => (
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FiUser /> {params.value}
-                </Box>
-            ),
         },
         {
             field: 'email',
@@ -107,11 +106,7 @@ export default function ListagemPessoa() {
             field: 'userType',
             headerName: 'Usuário',
             width: 180,
-            renderCell: (params) => (
-                <Box>
-                    {userTypes[params.value] || params.value}
-                </Box>
-            ),
+            renderCell: (params) => userTypes[params.value] || params.value,
         },
         {
             field: 'position',
@@ -133,11 +128,7 @@ export default function ListagemPessoa() {
     return (
         <StyledMainContainer>
 
-
-            <DetailModal
-                handleChangeModalDetail={() => handleChangeModalDetail(null)}
-                modalDetail={detail}
-            />
+            <DetailModal handleChangeModalDetail={() => handleChangeModalDetail(null)} modalDetail={detail} />
 
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
@@ -153,27 +144,77 @@ export default function ListagemPessoa() {
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
                             <GoDownload size={25} color='#635D77' />
                         </Button>
-                        <Button href="/usuario/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
+                        <Button href="/usuario/cadastro" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
                             Cadastrar Usuário
                         </Button>
                     </Box>
                 </Box>
+
                 {
                     isFilter && (
                         <Box>
                             <Box className="flex gap-3 justify-between items-center">
-                                <TextField variant="outlined" label="Nome, Email ou Usuário" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Cargo" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Encarregado Responsável" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Gestor Responsável" className="w-[100%]" sx={formTheme} />
+                                <TextField
+                                    value={search.query}
+                                    onChange={(e) => setSearch({ ...search, query: e.target.value })} variant="outlined" label="Nome, Email ou Usuário" className="w-[100%]" sx={formTheme} />
+                                <FormControl fullWidth>
+                                    <InputLabel id="cargo-label">Cargo</InputLabel>
+                                    <Select
+                                        value={search.position || ""}
+                                        labelId="cargo-label"
+                                        label="Pessoa"
+                                        onChange={(e) => setSearch({ ...search, position: Number(e.target.value) })}
+                                        sx={formTheme}
+                                    >
+                                        {position?.map((cargo: any) => (
+                                            <MenuItem key={cargo.id} value={cargo.id}>
+                                                <Box display="flex" justifyContent="space-between" width="100%">
+                                                    <Box className="flex flex-col">
+                                                        <span className="text-[#000] text-[1rem]">{cargo?.name}</span>
+                                                        <span className="text-gray-600 text-[.8rem]">{cargo?.tradeName}</span>
+                                                    </Box>
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <FormControl fullWidth>
+                                    <InputLabel>Encarregado Responsável</InputLabel>
+                                    <Select
+                                        value={search.supervisor || ""}
+                                        label="Encarregado Responsável"
+                                        onChange={(e) => setSearch({ ...search, supervisor: Number(e.target.value) })}
+                                        sx={formTheme}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
+                                        {Array.isArray(responsaveis) && responsaveis.map((pessoa) => (
+                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <FormControl fullWidth>
+                                    <InputLabel>Gestor Responsável</InputLabel>
+                                    <Select
+                                        value={search.gestor || ""}
+                                        label="Gestor Responsável"
+                                        onChange={(e) => setSearch({ ...search, gestor: Number(e.target.value) })}
+                                        sx={formTheme}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
+                                        {Array.isArray(responsaveis) && responsaveis.map((pessoa) => (
+                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </Box>
                             <Box className="flex gap-2 items-center justify-end mt-2">
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(false)}>
+                                <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setSearch({ query: "", position: null, supervisor: null })}>
                                     Limpar
-                                </Button>
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
-                                    Pesquisar
                                 </Button>
                             </Box>
                         </Box>
@@ -181,7 +222,7 @@ export default function ListagemPessoa() {
                 }
 
                 <DataGrid
-                    rows={usuarios}
+                    rows={pessoas}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{

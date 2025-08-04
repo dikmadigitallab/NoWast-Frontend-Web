@@ -12,11 +12,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetContratos } from "@/app/hooks/contrato/get";
-import { useCreatePessoa } from "@/app/hooks/usuario/create";
-import { useGetUsuario } from "@/app/hooks/usuario/get";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
-import api from "@/app/hooks/api";
+import { useCreate } from "@/app/hooks/crud/create/useCreate";
 
 const userSchema = z.object({
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }).nullable(),
@@ -118,15 +117,15 @@ export default function CadastroPessoa() {
         mode: "onChange"
     });
 
-    const { users } = useGetUsuario();
+    const { users } = useGetUsuario({});
     const { data: epis } = useGet('ppe');
     const { data: cargos } = useGet("position");
     const { data: contrato } = useGetContratos();
     const { data: produtos } = useGet('product');
     const { data: equipamentos } = useGet('tools');
     const { data: transportes } = useGet('transport');
-    const { createPessoa, loading } = useCreatePessoa();
     const [file, setFile] = useState<File | null>(null);
+    const { create, loading } = useCreate("users", "/usuario/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const router = useRouter();
@@ -157,7 +156,7 @@ export default function CadastroPessoa() {
                 }
             }
         };
-        createPessoa(newData, file);
+        create(newData, file);
     };
 
     const formatCpfOrCnpj = (value: string) => {

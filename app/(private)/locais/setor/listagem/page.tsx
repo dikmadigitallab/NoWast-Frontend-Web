@@ -11,15 +11,15 @@ import { StyledMainContainer } from '@/app/styles/container/container';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { useGetSetor } from '@/app/hooks/locais/setor/get';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
+import { useGet } from '@/app/hooks/crud/get/useGet';
 
 export default function ListagemSetores() {
 
     const router = useRouter();
     const [isFilter, setIsFilter] = useState(false);
-    const { loading, error, data } = useGetSetor();
+    const { data } = useGet("sector");
     const { setId } = useGetIDStore()
 
     const handleChangeModalEdit = (id: any) => {

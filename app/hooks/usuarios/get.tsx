@@ -4,8 +4,7 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetUsuario = () => {
-
+export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervisor = null, position = null, gestor = null }: { page?: number, pageSize?: number | null, query?: string | null, supervisor?: number | null, position?: number | null, gestor?: number | null }) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
@@ -25,10 +24,33 @@ export const useGetUsuario = () => {
         }
 
         try {
-            const response = await api.get<any>("/users?disablePagination=true", { headers: { Authorization: `Bearer ${authToken.split("=")[1]}`, "Content-Type": "application/json" } });
+
+            const params = new URLSearchParams();
+
+            params.append("disablePagination", "true");
+            params.append("page", String(page));
+
+            if (query !== null) params.append("query", query.trim());
+            if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
+            if (supervisor !== null) params.append("supervisorId", String(supervisor).trim());
+            if (position !== null) params.append("positionId", String(position).trim());
+            if (gestor !== null) params.append("managerId", String(gestor).trim());
+
+            const url = `/users?${params.toString()}`;
+
+            const response = await api.get<any>(
+                url,
+                {
+                    headers: {
+                        Authorization: `Bearer ${authToken.split("=")[1]}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
 
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
+                personId: item.person?.id,
                 name: item.person?.name,
                 supervisor: item?.supervisor?.person?.name,
                 manager: item?.manager?.person?.name,
@@ -58,8 +80,12 @@ export const useGetUsuario = () => {
     };
 
     useEffect(() => {
-        getUsuario();
-    }, []);
+        const delayDebounce = setTimeout(() => {
+            getUsuario();
+        }, 1000);
+
+        return () => clearTimeout(delayDebounce);
+    }, [query, supervisor, position, gestor, page, pageSize]);
 
     return {
         getUsuario,

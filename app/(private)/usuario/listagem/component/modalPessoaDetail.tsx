@@ -22,8 +22,8 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
                         </IconButton>
                     </Box>
                     <Box className="mt-3 flex flex-col gap-3">
-                        <Box>
-                            <img src={img} alt="User" className="w-full h-[200px] rounded-full object-cover" />
+                        <Box className="w-full h-[300px] rounded-2xl overflow-hidden">
+                            <img src={img} alt="User" className="w-full h-full object-cover object-top" />
                         </Box>
                         <Box className="flex flex-col mt-1">
                             <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>

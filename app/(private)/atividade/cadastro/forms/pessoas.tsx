@@ -9,7 +9,7 @@ import { ptBR } from "@mui/x-data-grid/locales";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineModeEditOutline } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
-import { useGetUsuario } from "@/app/hooks/usuario/get";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 
 export default function FormPessoas({ control, formState: { errors } }: { control: any, formState: { errors: any, } }) {
@@ -73,7 +73,7 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
         </Box>
     );
 
-    const { users } = useGetUsuario();
+    const { users } = useGetUsuario({});
 
     return (
         <Box className="w-[100%] flex flex-col gap-5">

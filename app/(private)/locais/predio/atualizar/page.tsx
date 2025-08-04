@@ -10,7 +10,6 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useCreatePredio } from "@/app/hooks/locais/predio/create";
 import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";

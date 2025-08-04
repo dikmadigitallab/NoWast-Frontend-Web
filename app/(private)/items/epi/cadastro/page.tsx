@@ -3,9 +3,8 @@
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
-import { useGetPessoa } from "@/app/hooks/pessoas/pessoa/get";
-import { useCreate } from "@/app/hooks/crud/create/useCreate";
 import { formTheme } from "@/app/styles/formTheme/theme";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IoImagesOutline } from "react-icons/io5";
@@ -13,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
 import { z } from "zod";
+import { useCreateItems } from "@/app/hooks/items/create";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -25,10 +25,10 @@ type EpiFormValues = z.infer<typeof epiSchema>;
 export default function CadastroEPI() {
 
     const router = useRouter();
-    const { data: pessoas } = useGetPessoa();
+    const { data: pessoas } = useGetUsuario({});
+    const { create, loading } = useCreateItems("ppe")
     const [file, setFile] = useState<File | null>(null);
     const [openDisableModal, setOpenDisableModal] = useState(false);
-    const { create, loading } = useCreate("ppe", "/items/epi/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const { control, handleSubmit, setValue, formState: { errors } } = useForm<EpiFormValues>({
@@ -42,7 +42,8 @@ export default function CadastroEPI() {
     const handleDisableConfirm = () => router.push('/items/epi/listagem');
 
     const onSubmit = (formData: any) => {
-        create(formData, file);
+        const newObject = { ...formData, file: file, buildingId: 12 };
+        create(newObject);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +106,7 @@ export default function CadastroEPI() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.id}>
+                                            <MenuItem key={person.id} value={person.personId}>
                                                 {person.name}
                                             </MenuItem>
                                         ))}

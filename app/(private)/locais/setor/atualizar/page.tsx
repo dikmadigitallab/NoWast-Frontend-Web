@@ -10,15 +10,13 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useUpdateSetor } from "@/app/hooks/locais/setor/update";
-import { useGetOneSetor } from "@/app/hooks/locais/setor/getOneById";
 import { useGetIDStore } from "@/app/store/getIDStore";
-import { useDeleteSetor } from "@/app/hooks/locais/setor/delete";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 
 const setorSchema = z.object({
     name: z.string().min(1, "Nome do Setor é obrigatório"),
@@ -55,9 +53,8 @@ export default function EditarSetor() {
     });
 
     const router = useRouter();
-    const { id } = useGetIDStore()
     const { data: predios } = useGet("building");
-    const { data: setor, getOneSetor } = useGetOneSetor();
+    const { data: setor } = useGetOneById("sector");
     const { update, loading } = useUpdate("sector", "/locais/setor/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
@@ -78,11 +75,6 @@ export default function EditarSetor() {
     const onSubmit = async (formData: SetorFormValues) => {
         update(formData);
     };
-
-
-    useEffect(() => {
-        if (id) getOneSetor(id);
-    }, [id]);
 
     useEffect(() => {
         if (setor) reset({ ...setor, id: setor.id, building: { connect: { id: setor.buildingId } } });

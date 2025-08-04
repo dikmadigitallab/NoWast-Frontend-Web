@@ -11,17 +11,16 @@ import { StyledMainContainer } from '@/app/styles/container/container';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { GoDownload } from 'react-icons/go';
-import { useGetPredio } from '@/app/hooks/locais/predio/get';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
+import { useGet } from '@/app/hooks/crud/get/useGet';
 
 export default function ListagemPredios() {
 
-    const [isFilter, setIsFilter] = useState(false);
-    const { setId } = useGetIDStore();
     const router = useRouter();
-    const { data: predio } = useGetPredio();
-
+    const { setId } = useGetIDStore();
+    const { data: predio } = useGet("building");
+    const [isFilter, setIsFilter] = useState(false);
 
     const handleChangeModalEdit = (id: any) => {
         setId(id)

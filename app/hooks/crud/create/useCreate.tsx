@@ -36,7 +36,7 @@ export const useCreate = (url: string, redirect: string) => {
                 const formData = new FormData();
                 formData.append("file", img);
 
-                await api.post(`/users/${response.data.data.id}/upload-profile-image`, formData, {
+                await api.post(`/${url}/${response.data.data.id}/upload-profile-image`, formData, {
                     headers: {
                         Authorization: `Bearer ${authToken?.split("=")[1]}`,
                         "Content-Type": "multipart/form-data",

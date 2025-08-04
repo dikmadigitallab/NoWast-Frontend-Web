@@ -38,7 +38,6 @@ const activitySchema = z.object({
     }).optional()
 });
 
-
 type UserFormValues = z.infer<typeof activitySchema>;
 
 export default function Locais() {
