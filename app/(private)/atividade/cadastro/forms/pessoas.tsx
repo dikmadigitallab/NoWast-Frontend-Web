@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -12,7 +12,7 @@ import { tableTheme } from '@/app/styles/tableTheme/theme';
 
 export default function FormPessoas({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any, } }) {
 
-    const { data: users } = useGet({ url: "person" });
+    const { data: users, loading } = useGet({ url: "person" });
     const [selectedUser, setSelectedUser] = useState<string>('');
 
     const handleAddUser = () => {
@@ -106,6 +106,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                         </MenuItem>
                                     ))}
                                 </Select>
+                                {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
                                 <FormHelperText>{errors.supervisorId?.message}</FormHelperText>
                             </FormControl>
                         )}
@@ -129,6 +130,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                         </MenuItem>
                                     ))}
                                 </Select>
+                                {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
                                 <FormHelperText>{errors?.managerId?.message}</FormHelperText>
                             </FormControl>
                         )}
@@ -154,6 +156,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                             ))}
                         </Select>
                         <FormHelperText>{errors?.usersIds?.message}</FormHelperText>
+                        {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
                     </FormControl>
                     <Button
                         sx={[buttonTheme, { height: "90%" }]}

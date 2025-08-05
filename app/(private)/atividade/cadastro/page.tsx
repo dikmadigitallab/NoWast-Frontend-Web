@@ -113,16 +113,11 @@ export default function Locais() {
 
     return (
         <StyledMainContainer>
-            <Box className="w-[100%] h-[100%] flex flex-col gap-2 p-5">
+            <Box className="w-[100%] flex flex-col gap-5 p-5">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Atividade</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
-                </Box>
-
-                <Box className="flex flex-row justify-end gap-4 ">
-                    <Button variant="outlined" sx={buttonThemeNoBackground} >Cancelar</Button>
-                    <Button variant="outlined" type="submit" sx={[buttonTheme]}>Avançar</Button>
                 </Box>
 
                 <Box className="w-[100%] flex items-center h-[100px]">
@@ -148,25 +143,29 @@ export default function Locais() {
                         </Box>
                     ))}
                 </Box>
-                <Box className="w-[100%] bg-red-800 flex flex-col gap-5">
-                    <Box style={{ position: 'relative', height: '100%' }}>
-                        <Box style={{ minHeight: '500px', opacity: section === 1 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 1 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
-                            <FormDadosGerais control={control} formState={{ errors }} watch={watch} />
-                        </Box>
-                        <Box style={{ opacity: section === 2 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 2 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
-                            <FormPessoas control={control} formState={{ errors }} setValue={setValue} watch={watch} />
-                        </Box>
-                        <Box style={{ opacity: section === 3 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 3 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
-                            <FormItens control={control} formState={{ errors }} setValue={setValue} watch={watch} />
-                        </Box>
-                        <Box style={{ opacity: section === 4 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 4 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
-                            {/* <FormJustificativa control={control} formState={{ errors }} /> */}
-                        </Box>
-                        <Box style={{ opacity: section === 5 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 5 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
-                            {/* <FormCheckList control={control} formState={{ errors }} /> */}
-                        </Box>
-                    </Box>
+
+                {section === 1 && (
+                    <FormDadosGerais control={control} formState={{ errors }} watch={watch} />
+                )}
+                {section === 2 && (
+                    <FormPessoas control={control} formState={{ errors }} setValue={setValue} watch={watch} />
+                )}
+                {section === 3 && (
+                    <FormItens control={control} formState={{ errors }} setValue={setValue} watch={watch} />
+                )}
+                {section === 4 && (
+                    <FormJustificativa control={control} formState={{ errors }} />
+                )}
+                {section === 5 && (
+                    <FormCheckList control={control} formState={{ errors }} />
+                )}
+
+                <Box className="flex flex-row justify-end gap-4">
+                    <Button variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                    <Button variant="outlined" type="submit" sx={[buttonTheme]}>Avançar</Button>
                 </Box>
+
+
             </Box>
 
             <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
