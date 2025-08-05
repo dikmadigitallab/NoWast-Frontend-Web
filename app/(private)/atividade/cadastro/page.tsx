@@ -14,54 +14,68 @@ import FormItens from "./forms/itens";
 import FormCheckList from "./forms/checklist";
 import { useRouter } from "next/navigation";
 import { useSectionStore } from "@/app/store/renderSection";
+import FormJustificativa from "./forms/justificativa";
 
 const activitySchema = z.object({
-    id: z.number().min(1, "ID é obrigatório"),
-    description: z.string().min(1, "Descrição é obrigatória"),
-    environmentId: z.number().min(1, "ID do ambiente é obrigatório"),
-    dateTime: z.string().min(1, "Data e hora são obrigatórias"),
-    recurrenceEnum: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE"]),
-    statusEnum: z.enum(["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
-    activityTypeEnum: z.enum(["NORMAL", "EXTRA", "URGENT"]),
-    supervisorId: z.number().min(1, "ID do supervisor é obrigatório"),
-    managerId: z.number().min(1, "ID do gerente é obrigatório"),
+    id: z.number().min(1, "ID é obrigatório").nullable().optional(),
+    description: z.string(),
+    environmentId: z.number().min(1, "ID do ambiente é obrigatório").nullable().optional(),
+    dateTime: z.string(),
+    recurrenceEnum: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE"]).optional(),
+    statusEnum: z.enum(["OPEN", "COMPLETED", "UNDER_REVIEW", "PENDING", "JUSTIFIED", "INTERNAL_JUSTIFICATION", ""]).optional(),
+    activityTypeEnum: z.enum(["NORMAL", "URGENT", "RECURRING", ""]),
+    supervisorId: z.number().min(1, "ID do supervisor é obrigatório").nullable().optional(),
+    managerId: z.number().min(1, "ID do gerente é obrigatório").nullable().optional(),
     observation: z.string().optional(),
+    hasRecurrence: z.enum(["true", "false", ""]).optional(),
+    recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE", ""]),
     approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
     approvalDate: z.string().optional(),
-    approvalUpdatedByUserId: z.number().optional(),
+    approvalUpdatedByUserId: z.number().nullable().optional(),
     justification: z.object({
         reason: z.string().optional(),
         description: z.string().optional(),
-        justifiedByUserId: z.number().optional(),
+        justifiedByUserId: z.number().nullable().optional(),
         isInternal: z.boolean().optional(),
         transcription: z.string().optional()
-    }).optional()
+    }).optional(),
+    usersIds: z.array(z.number()).min(1, "Pelo menos um usuário é obrigatório"),
+    epiIds: z.array(z.number()).min(1, "Pelo menos um EPI é obrigatório"),
+    equipmentIds: z.array(z.number()).min(1, "Pelo menos um equipamento é obrigatório"),
+    productIds: z.array(z.number()).min(1, "Pelo menos um produto é obrigatório"),
+    vehicleIds: z.array(z.number()).min(1, "Pelo menos um transporte é obrigatório"),
 });
+
+
 
 type UserFormValues = z.infer<typeof activitySchema>;
 
 export default function Locais() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<z.infer<typeof activitySchema>>({
+    const { control, handleSubmit, formState: { errors, isValid }, setValue, watch } = useForm<UserFormValues>({
         resolver: zodResolver(activitySchema),
         defaultValues: {
-            id: 0,
+            id: null,
             description: "",
-            environmentId: 0,
+            environmentId: null,
             dateTime: "",
-            recurrenceEnum: "NONE",
-            statusEnum: "OPEN",
-            activityTypeEnum: "NORMAL",
-            supervisorId: 0,
-            managerId: 0,
+            recurrenceEnum: undefined,
+            statusEnum: "",
+            activityTypeEnum: "",
+            supervisorId: null,
+            managerId: null,
             observation: "",
-            approvalStatus: "PENDING",
+            hasRecurrence: "",
+            recurrenceType: "",
+            approvalStatus: undefined,
+            approvalDate: "",
+            approvalUpdatedByUserId: null,
             justification: {
                 reason: "",
                 description: "",
-                justifiedByUserId: 0,
+                justifiedByUserId: null,
                 isInternal: false,
-                transcription: ""
+                transcription: "Transcrição do áudio explicativo"
             }
         },
         mode: "onChange",
@@ -84,7 +98,6 @@ export default function Locais() {
         }
     }
 
-
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
     };
@@ -100,16 +113,20 @@ export default function Locais() {
 
     return (
         <StyledMainContainer>
-            <Box className="w-[100%] flex flex-col gap-5">
-
+            <Box className="w-[100%] h-[100%] flex flex-col gap-2 p-5">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Atividade</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
+                <Box className="flex flex-row justify-end gap-4 ">
+                    <Button variant="outlined" sx={buttonThemeNoBackground} >Cancelar</Button>
+                    <Button variant="outlined" type="submit" sx={[buttonTheme]}>Avançar</Button>
+                </Box>
+
                 <Box className="w-[100%] flex items-center h-[100px]">
-                    {[1, 2, 3, 4].map((step) => (
+                    {[1, 2, 3, 4, 5].map((step) => (
                         <Box
                             key={step}
                             onClick={() => setSection(step)}
@@ -124,33 +141,33 @@ export default function Locais() {
                                 </Box>
                                 <h1
                                     className="text-[#43BC8B] font-semibold">
-                                    {step === 1 ? "Dados Gerais" : step === 2 ? "Pessoas" : step === 3 ? "Itens" : "Checklist"}
+                                    {step === 1 ? "Dados Gerais" : step === 2 ? "Pessoas" : step === 3 ? "Itens" : step === 4 ? "Justificativa" : "CheckList"}
                                 </h1>
                             </Box>
                             <IoIosArrowForward />
                         </Box>
                     ))}
                 </Box>
-
-                <Box className="flex flex-col gap-5">
-                    {section === 1 && (
-                        <FormDadosGerais control={control} formState={{ errors }} />
-                    )}
-
-                    {section === 2 && (
-                        <FormPessoas control={control} formState={{ errors }} />
-                    )}
-
-                    {section === 3 && (
-                        <FormItens control={control} formState={{ errors }} />
-                    )}
-
-                    {section === 4 && (
-                        <FormCheckList control={control} formState={{ errors }} />
-                    )}
+                <Box className="w-[100%] bg-red-800 flex flex-col gap-5">
+                    <Box style={{ position: 'relative', height: '100%' }}>
+                        <Box style={{ minHeight: '500px', opacity: section === 1 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 1 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
+                            <FormDadosGerais control={control} formState={{ errors }} watch={watch} />
+                        </Box>
+                        <Box style={{ opacity: section === 2 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 2 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
+                            <FormPessoas control={control} formState={{ errors }} setValue={setValue} watch={watch} />
+                        </Box>
+                        <Box style={{ opacity: section === 3 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 3 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
+                            <FormItens control={control} formState={{ errors }} setValue={setValue} watch={watch} />
+                        </Box>
+                        <Box style={{ opacity: section === 4 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 4 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
+                            {/* <FormJustificativa control={control} formState={{ errors }} /> */}
+                        </Box>
+                        <Box style={{ opacity: section === 5 ? 1 : 0, position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: section === 5 ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
+                            {/* <FormCheckList control={control} formState={{ errors }} /> */}
+                        </Box>
+                    </Box>
                 </Box>
             </Box>
-
 
             <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">

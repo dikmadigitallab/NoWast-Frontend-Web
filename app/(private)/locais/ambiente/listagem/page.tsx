@@ -1,31 +1,34 @@
 "use client";
 
-import Box from '@mui/material/Box';
-import React, { useEffect, useState } from 'react';
-import { Button, IconButton, TextField } from '@mui/material';
-import { ptBR } from '@mui/x-data-grid/locales';
-import { FiPlus } from 'react-icons/fi';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
-import ModalVisualizeDetail from './component/modalAmbienteDetail';
+import { StyledMainContainer } from '@/app/styles/container/container';
+import { Button, IconButton, TextField } from '@mui/material';
+import { LoadingComponent } from '@/app/components/loading';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { GoDownload } from 'react-icons/go';
-import { useGet } from '@/app/hooks/crud/get/useGet';
-import { useRouter } from 'next/navigation';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useGetIDStore } from '@/app/store/getIDStore';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+import { ptBR } from '@mui/x-data-grid/locales';
+import { GoDownload } from 'react-icons/go';
+import { useRouter } from 'next/navigation';
+import { FiPlus } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import Box from '@mui/material/Box';
 import { useSectionStore } from '@/app/store/renderSection';
+import ModalVisualizeDetail from './component/modalAmbienteDetail';
+
 
 export default function DataGridAmbientes() {
 
     const router = useRouter();
     const { setId } = useGetIDStore();
-    const [isFilter, setIsFilter] = useState(false);
     const { setSection } = useSectionStore();
-    const { data: ambientes } = useGet({ url: "environment" });
+    const [isFilter, setIsFilter] = useState(false);
     const [visualize, setVisualize] = useState<any>(null);
+    const [search, setSearch] = useState<any>({ query: '' });
     const [modalVisualize, setModalVisualize] = useState(false);
+    const { data: ambientes } = useGet({ url: "environment", query: search.query });
 
     const handleChangeModalVisualize = (data: any) => {
         setVisualize(data);
@@ -114,53 +117,51 @@ export default function DataGridAmbientes() {
                         </Button>
                     </Box>
                 </Box>
+
                 {
                     isFilter && (
                         <Box>
                             <Box className="flex gap-3 justify-between items-center">
-                                <TextField variant="outlined" label="Nome, Email ou Usuário" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Cargo" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Encarregado Responsável" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Gestor Responsável" className="w-[100%]" sx={formTheme} />
+                                <TextField value={search.query} onChange={(e) => setSearch({ ...search, query: e.target.value })} variant="outlined" label="Nome do ambiente" className="w-[100%]" sx={formTheme} />
                             </Box>
                             <Box className="flex gap-2 items-center justify-end mt-2">
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(false)}>
+                                <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setSearch({ query: '' })}>
                                     Limpar
-                                </Button>
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
-                                    Pesquisar
                                 </Button>
                             </Box>
                         </Box>
                     )
                 }
 
-                <DataGrid
-                    rows={ambientes}
-                    columns={columns}
-                    localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 10,
+                {ambientes ?
+                    (<DataGrid
+                        rows={ambientes}
+                        columns={columns}
+                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {
+                                    pageSize: 10,
+                                },
                             },
-                        },
-                    }}
-                    pageSizeOptions={[5, 10, 25]}
-                    disableRowSelectionOnClick
-                    sx={{
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: 'unset',
-                            color: 'unset',
-                        },
-                        '& .MuiDataGrid-row:nth-of-type(odd)': {
-                            backgroundColor: '#FAFAFA',
-                        },
-                        '& .MuiDataGrid-row:hover': {
-                            backgroundColor: '#f0f0f0',
-                        },
-                    }}
-                />
+                        }}
+                        pageSizeOptions={[5, 10, 25]}
+                        disableRowSelectionOnClick
+                        sx={{
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: 'unset',
+                                color: 'unset',
+                            },
+                            '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                backgroundColor: '#FAFAFA',
+                            },
+                            '& .MuiDataGrid-row:hover': {
+                                backgroundColor: '#f0f0f0',
+                            },
+                        }}
+                    />) :
+                    (<LoadingComponent />)
+                }
 
             </Box>
         </StyledMainContainer >

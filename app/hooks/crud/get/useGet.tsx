@@ -14,10 +14,11 @@ export interface UseGetParams {
     positionId?: number | null,
     managerId?: number | null,
     responsibleManagerId?: number | null
-    buildingId?: number | null
+    buildingId?: number | null,
+    environmentId?: number | null
 }
 
-export const useGet = ({ url, page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null }: UseGetParams) => {
+export const useGet = ({ url, page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -49,6 +50,7 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
             if (managerId !== null) params.append("managerId", String(managerId).trim());
             if (responsibleManagerId !== null) params.append("responsibleManagerId", String(responsibleManagerId).trim());
             if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
+            if (environmentId !== null) params.append("environmentId", String(environmentId).trim());
 
             const paramUrl = `/${url}?${params.toString()}`;
 
@@ -77,7 +79,7 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId]);
+    }, [query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId, environmentId]);
 
 
     return {

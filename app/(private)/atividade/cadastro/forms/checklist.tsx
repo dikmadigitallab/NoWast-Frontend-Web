@@ -3,7 +3,6 @@ import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, Tex
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus, FiTool } from "react-icons/fi";
-import { rows } from "./data";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
 import { GoTrash } from "react-icons/go";
@@ -109,7 +108,7 @@ export default function FormCheckList({ control, formState: { errors } }: { cont
                 </Box>
             </Box>
             <Box>
-                <DataGrid
+                {/* <DataGrid
                     rows={rows}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
@@ -134,7 +133,7 @@ export default function FormCheckList({ control, formState: { errors } }: { cont
                             backgroundColor: '#f0f0f0',
                         },
                     }}
-                />
+                /> */}
             </Box>
 
 

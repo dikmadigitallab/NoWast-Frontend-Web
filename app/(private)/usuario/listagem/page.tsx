@@ -16,6 +16,7 @@ import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
 import { useGetUsuario } from '@/app/hooks/usuarios/get';
 import { useGet } from '@/app/hooks/crud/get/useGet';
+import { LoadingComponent } from '@/app/components/loading';
 
 export default function ListagemPessoa() {
 
@@ -218,32 +219,35 @@ export default function ListagemPessoa() {
                     )
                 }
 
-                <DataGrid
-                    rows={pessoas}
-                    columns={columns}
-                    localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 15,
+                {pessoas ?
+                    (<DataGrid
+                        rows={pessoas}
+                        columns={columns}
+                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {
+                                    pageSize: 10,
+                                },
                             },
-                        },
-                    }}
-                    pageSizeOptions={[10, 15, 35]}
-                    disableRowSelectionOnClick
-                    sx={{
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: 'unset',
-                            color: 'unset',
-                        },
-                        '& .MuiDataGrid-row:nth-of-type(odd)': {
-                            backgroundColor: '#FAFAFA',
-                        },
-                        '& .MuiDataGrid-row:hover': {
-                            backgroundColor: '#f0f0f0',
-                        },
-                    }}
-                />
+                        }}
+                        pageSizeOptions={[5, 10, 25]}
+                        disableRowSelectionOnClick
+                        sx={{
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: 'unset',
+                                color: 'unset',
+                            },
+                            '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                backgroundColor: '#FAFAFA',
+                            },
+                            '& .MuiDataGrid-row:hover': {
+                                backgroundColor: '#f0f0f0',
+                            },
+                        }}
+                    />) :
+                    (<LoadingComponent />)
+                }
             </Box>
         </StyledMainContainer >
     );

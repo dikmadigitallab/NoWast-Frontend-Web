@@ -27,7 +27,7 @@ export default function ListagemEpi() {
     const { data: predios } = useGet({ url: 'building' });
     const [detail, setDetail] = useState<any | null>(null);
     const [search, setSearch] = useState<any>({ query: '', responsibleManagerId: null, buildingId: null });
-    const { data: epis } = useGet({ url: 'ppe', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
+    const { data: epis, loading } = useGet({ url: 'ppe', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
@@ -118,6 +118,7 @@ export default function ListagemEpi() {
                         </Button>
                     </Box>
                 </Box>
+
                 {
                     isFilter && (
                         <Box>
@@ -164,7 +165,8 @@ export default function ListagemEpi() {
                         </Box>
                     )
                 }
-                {epis ?
+
+                {epis && !loading ?
                     (<DataGrid
                         rows={epis}
                         columns={columns}

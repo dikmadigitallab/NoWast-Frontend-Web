@@ -1,18 +1,41 @@
-
+import { useState } from 'react';
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Checkbox, ListItemText, Chip, OutlinedInput, FormHelperText } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { FiPlus, FiTool } from "react-icons/fi";
-import { rows } from "./data";
+import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
 import { GoTrash } from "react-icons/go";
-import { MdOutlineModeEditOutline } from "react-icons/md";
-import { IoMdClose } from "react-icons/io";
-import { useGetUsuario } from "@/app/hooks/usuarios/get";
+import { useGet } from "@/app/hooks/crud/get/useGet";
+import { formTheme } from "@/app/styles/formTheme/theme";
+import { tableTheme } from '@/app/styles/tableTheme/theme';
 
+export default function FormPessoas({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any, } }) {
 
-export default function FormPessoas({ control, formState: { errors } }: { control: any, formState: { errors: any, } }) {
+    const { data: users } = useGet({ url: "person" });
+    const [selectedUser, setSelectedUser] = useState<string>('');
+
+    const handleAddUser = () => {
+        if (!selectedUser) return;
+
+        const currentUsers = watch("users") || [];
+        const userToAdd = users.find((user: any) => user.id.toString() === selectedUser);
+
+        if (userToAdd && !currentUsers.some((user: any) => user.id.toString() === selectedUser)) {
+            const updatedUsers = [...currentUsers, userToAdd];
+            setValue("users", updatedUsers);
+            setValue("usersIds", updatedUsers.map((user: any) => user.id));
+            setSelectedUser('');
+        }
+    };
+
+    const handleRemoveUser = (userId: string) => {
+        const currentUsers = watch("users") || [];
+        const updatedUsers = currentUsers.filter((user: any) => user.id.toString() !== userId);
+
+        setValue("users", updatedUsers);
+        setValue("usersIds", updatedUsers.map((user: any) => user.id));
+    };
 
     const columns: GridColDef<any>[] = [
         {
@@ -24,11 +47,8 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="visualizar" size="small" >
+                    <IconButton aria-label="remover" size="small" onClick={() => handleRemoveUser(params.row.id.toString())}>
                         <GoTrash color='#635D77' size={20} />
-                    </IconButton>
-                    <IconButton aria-label="editar" size="small" >
-                        <MdOutlineModeEditOutline color='#635D77' size={20} />
                     </IconButton>
                 </Box>
             ),
@@ -39,45 +59,26 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
             width: 120
         },
         {
-            field: 'nome',
+            field: 'name',
             headerName: 'Descrição',
             width: 320,
         },
         {
-            field: 'servico',
-            headerName: 'Serviço',
-            width: 220,
-        },
-        {
-            field: 'tipo',
-            headerName: 'Tipo',
+            field: 'phones',
+            headerName: 'Telefone',
             width: 220,
             renderCell: (params) => (
                 <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FiTool /> {params.value}
+                    {params.value.map((phone: any, index: number) => (
+                        <span key={index}>{phone.phoneNumber}</span>
+                    ))}
                 </Box>
             ),
-        },
+        }
     ];
-
-    const renderChips = (selected: string[], fieldName: string, onDelete: (value: string) => void) => (
-        <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {selected.map((value) => (
-                <Chip
-                    key={value}
-                    label={value}
-                    onDelete={() => onDelete(value)}
-                    deleteIcon={<IoMdClose onMouseDown={(event) => event.stopPropagation()} />}
-                />
-            ))}
-        </Box>
-    );
-
-    const { users } = useGetUsuario({});
 
     return (
         <Box className="w-[100%] flex flex-col gap-5">
-
             <Box className="w-[100%] flex flex-col gap-5">
                 <Box className="flex items-center gap-2">
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
@@ -90,7 +91,7 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
                         name="supervisorId"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.supervisorId}>
+                            <FormControl sx={formTheme} fullWidth error={!!errors.supervisorId}>
                                 <InputLabel>Encarregado</InputLabel>
                                 <Select
                                     label="Encarregado"
@@ -101,18 +102,19 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
                                     {Array?.isArray(users) && users.map((pessoa) => (
                                         <MenuItem key={pessoa?.id} value={pessoa?.id}>
-                                            {pessoa?.person?.name}
+                                            {pessoa?.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
                                 <FormHelperText>{errors.supervisorId?.message}</FormHelperText>
                             </FormControl>
                         )}
-                    /> <Controller
-                        name="manager.connect.id"
+                    />
+                    <Controller
+                        name="managerId"
                         control={control}
                         render={({ field }) => (
-                            <FormControl fullWidth error={!!errors?.managerId}>
+                            <FormControl sx={formTheme} fullWidth error={!!errors?.managerId}>
                                 <InputLabel>Líder/Gestor</InputLabel>
                                 <Select
                                     label="Líder/Gestor"
@@ -123,7 +125,7 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
                                     {Array?.isArray(users) && users.map((pessoa) => (
                                         <MenuItem key={pessoa?.id} value={pessoa?.id}>
-                                            {pessoa?.person?.name}
+                                            {pessoa?.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -141,32 +143,22 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
                     <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
                 </Box>
                 <Box className="flex flex-row gap-3 h-[60px]">
-                    <Controller
-                        name="manager.connect.id"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth
-                            // error={!!errors?.manager?.connect?.id}
-                            >
-                                <InputLabel>Usuário</InputLabel>
-                                <Select
-                                    label="Usuário"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(users) && users.map((pessoa) => (
-                                        <MenuItem key={pessoa?.id} value={pessoa?.id}>
-                                            {pessoa?.person?.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                <FormHelperText>{errors?.manager?.connect?.id?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Button sx={[buttonTheme, { height: "90%" }]}>
+                    <FormControl sx={formTheme} fullWidth error={!!errors?.usersIds}>
+                        <InputLabel>Pessoa</InputLabel>
+                        <Select label="Pessoa" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+                            <MenuItem value="" disabled>Selecione um usuário...</MenuItem>
+                            {Array?.isArray(users) && users.map((pessoa) => (
+                                <MenuItem key={pessoa?.id} value={pessoa?.id.toString()}>
+                                    {pessoa?.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>{errors?.usersIds?.message}</FormHelperText>
+                    </FormControl>
+                    <Button
+                        sx={[buttonTheme, { height: "90%" }]}
+                        onClick={handleAddUser}
+                    >
                         <FiPlus size={25} color="#fff" />
                     </Button>
                 </Box>
@@ -174,7 +166,7 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
 
             <Box>
                 <DataGrid
-                    rows={rows}
+                    rows={watch("users") || []}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
@@ -186,22 +178,10 @@ export default function FormPessoas({ control, formState: { errors } }: { contro
                     }}
                     pageSizeOptions={[5, 10, 25]}
                     disableRowSelectionOnClick
-                    sx={{
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: 'unset',
-                            color: 'unset',
-                        },
-                        '& .MuiDataGrid-row:nth-of-type(odd)': {
-                            backgroundColor: '#FAFAFA',
-                        },
-                        '& .MuiDataGrid-row:hover': {
-                            backgroundColor: '#f0f0f0',
-                        },
-                    }}
+                    sx={tableTheme}
+                    getRowId={(row) => row.id}
                 />
             </Box>
-
-
         </Box>
     )
-} 
+}

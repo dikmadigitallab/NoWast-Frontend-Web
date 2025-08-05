@@ -1,26 +1,28 @@
 "use client";
 
+import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline } from 'react-icons/md';
+import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
+import { StyledMainContainer } from '@/app/styles/container/container';
+import { Button, IconButton, TextField } from '@mui/material';
+import { LoadingComponent } from '@/app/components/loading';
+import { formTheme } from '@/app/styles/formTheme/theme';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+import { ptBR } from '@mui/x-data-grid/locales';
+import { GoDownload } from 'react-icons/go';
+import { useRouter } from 'next/navigation';
+import { FiPlus } from 'react-icons/fi';
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { ptBR } from '@mui/x-data-grid/locales';
-import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline } from 'react-icons/md';
-import { FiPlus } from 'react-icons/fi';
-import { Button, IconButton, TextField } from '@mui/material';
-import { StyledMainContainer } from '@/app/styles/container/container';
-import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
-import { formTheme } from '@/app/styles/formTheme/theme';
-import { GoDownload } from 'react-icons/go';
-import { useGetIDStore } from '@/app/store/getIDStore';
-import { useRouter } from 'next/navigation';
-import { useGet } from '@/app/hooks/crud/get/useGet';
 
 export default function ListagemPredios() {
 
     const router = useRouter();
     const { setId } = useGetIDStore();
-    const { data: predio } = useGet({ url: "building" });
     const [isFilter, setIsFilter] = useState(false);
+    const [search, setSearch] = useState<any>({ query: '' });
+    const { data: predios } = useGet({ url: "building", query: search.query });
 
     const handleChangeModalEdit = (id: any) => {
         setId(id)
@@ -102,52 +104,51 @@ export default function ListagemPredios() {
                         </Button>
                     </Box>
                 </Box>
+
                 {
                     isFilter && (
                         <Box>
                             <Box className="flex gap-3 justify-between items-center">
-                                <TextField variant="outlined" label="Nome, Email ou Usuário" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Cargo" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Encarregado Responsável" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Gestor Responsável" className="w-[100%]" sx={formTheme} />
+                                <TextField value={search.query} onChange={(e) => setSearch({ ...search, query: e.target.value })} variant="outlined" label="Nome do prédio" className="w-[100%]" sx={formTheme} />
                             </Box>
                             <Box className="flex gap-2 items-center justify-end mt-2">
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(false)}>
+                                <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setSearch({ query: '' })}>
                                     Limpar
-                                </Button>
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
-                                    Pesquisar
                                 </Button>
                             </Box>
                         </Box>
                     )
                 }
-                <DataGrid
-                    rows={predio || []}
-                    columns={columns}
-                    localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 10,
+
+                {predios ?
+                    (<DataGrid
+                        rows={predios}
+                        columns={columns}
+                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {
+                                    pageSize: 10,
+                                },
                             },
-                        },
-                    }}
-                    pageSizeOptions={[5, 10, 25]}
-                    disableRowSelectionOnClick
-                    sx={{
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: 'unset',
-                            color: 'unset',
-                        },
-                        '& .MuiDataGrid-row:nth-of-type(odd)': {
-                            backgroundColor: '#FAFAFA',
-                        },
-                        '& .MuiDataGrid-row:hover': {
-                            backgroundColor: '#f0f0f0',
-                        },
-                    }}
-                />
+                        }}
+                        pageSizeOptions={[5, 10, 25]}
+                        disableRowSelectionOnClick
+                        sx={{
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: 'unset',
+                                color: 'unset',
+                            },
+                            '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                backgroundColor: '#FAFAFA',
+                            },
+                            '& .MuiDataGrid-row:hover': {
+                                backgroundColor: '#f0f0f0',
+                            },
+                        }}
+                    />) :
+                    (<LoadingComponent />)
+                }
             </Box>
         </StyledMainContainer>
     );
