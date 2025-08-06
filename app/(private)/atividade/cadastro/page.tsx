@@ -17,7 +17,6 @@ import { useSectionStore } from "@/app/store/renderSection";
 import FormJustificativa from "./forms/justificativa";
 
 const activitySchema = z.object({
-    id: z.number().min(1, "ID é obrigatório").nullable().optional(),
     description: z.string(),
     environmentId: z.number().min(1, "ID do ambiente é obrigatório").nullable().optional(),
     dateTime: z.string(),
@@ -30,6 +29,7 @@ const activitySchema = z.object({
     hasRecurrence: z.enum(["true", "false", ""]).optional(),
     recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE", ""]),
     approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
+    recurrenceFinalDate: z.string().optional(),
     approvalDate: z.string().optional(),
     approvalUpdatedByUserId: z.number().nullable().optional(),
     justification: z.object({
@@ -55,7 +55,6 @@ export default function Locais() {
     const { control, handleSubmit, formState: { errors, isValid }, setValue, watch } = useForm<UserFormValues>({
         resolver: zodResolver(activitySchema),
         defaultValues: {
-            id: null,
             description: "",
             environmentId: null,
             dateTime: "",
@@ -68,6 +67,7 @@ export default function Locais() {
             hasRecurrence: "",
             recurrenceType: "",
             approvalStatus: undefined,
+            recurrenceFinalDate: "",
             approvalDate: "",
             approvalUpdatedByUserId: null,
             justification: {

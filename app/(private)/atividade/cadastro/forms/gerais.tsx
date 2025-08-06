@@ -75,21 +75,42 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                         </FormControl>
                     )}
                 />
-            </Box>
-
-            <Box className="flex flex-row gap-2">
                 <Controller
                     name="recurrenceFinalDate"
                     control={control}
                     render={({ field }) => (
                         <TextField
                             variant="outlined"
-                            label="Data e Hora"
+                            label="Repete todo dia / hora:"
                             type="datetime-local"
                             InputLabelProps={{ shrink: true }}
                             {...field}
                             error={!!errors.recurrenceFinalDate}
                             helperText={errors.recurrenceFinalDate?.message}
+                            fullWidth
+                            sx={formTheme}
+                            value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
+                            onChange={(event) => field.onChange(new Date(event.target.value).toISOString())}
+                        />
+                    )}
+                />
+            </Box>
+
+            <Box className="flex flex-row gap-2">
+
+
+                <Controller
+                    name="dateTime"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Data e hora de Início da atividade"
+                            type="datetime-local"
+                            InputLabelProps={{ shrink: true }}
+                            {...field}
+                            error={!!errors.dateTime}
+                            helperText={errors.dateTime?.message}
                             fullWidth
                             sx={formTheme}
                             value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
@@ -126,9 +147,13 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     name="activityTypeEnum"
                     control={control}
                     render={({ field }) => (
-                        <FormControl sx={formTheme} fullWidth >
+                        <FormControl sx={formTheme} fullWidth>
                             <InputLabel>Tipo de Atividade</InputLabel>
-                            <Select label="Tipo de Atividade" {...field} error={!!errors.activityTypeEnum}>
+                            <Select
+                                label="Tipo de Atividade"
+                                {...field}
+                                value={field.value ?? ""}
+                                error={!!errors.activityTypeEnum}>
                                 <MenuItem value="">Selecione...</MenuItem>
                                 <MenuItem value="NORMAL">Normal</MenuItem>
                                 <MenuItem value="URGENT">Urgente</MenuItem>
@@ -137,10 +162,31 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                         </FormControl>
                     )}
                 />
+
+                <Controller
+                    name="approvalStatus"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl sx={formTheme} fullWidth>
+                            <InputLabel>Status de aprovação da atividade</InputLabel>
+                            <Select
+                                label="Status de aprovação da atividade"
+                                {...field}
+                                value={field.value ?? ""}
+                                error={!!errors.approvalStatus}
+                            >
+                                <MenuItem value="">Selecione...</MenuItem>
+                                <MenuItem value="PENDING">Pendente</MenuItem>
+                                <MenuItem value="APPROVED">Aprovado</MenuItem>
+                                <MenuItem value="REJECTED">Rejeitado</MenuItem>
+                            </Select>
+                        </FormControl>
+                    )}
+                />
             </Box>
 
             <Controller
-                name="observation"
+                name="description"
                 control={control}
                 render={({ field }) => (
                     <TextField
@@ -149,8 +195,8 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                         multiline
                         rows={3}
                         {...field}
-                        error={!!errors.observation}
-                        helperText={errors.observation?.message}
+                        error={!!errors.description}
+                        helperText={errors.description?.message}
                         fullWidth
                         sx={formTheme}
                     />

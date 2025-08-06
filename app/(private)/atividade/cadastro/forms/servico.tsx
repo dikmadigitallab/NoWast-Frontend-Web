@@ -7,7 +7,6 @@ import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { MdOutlineModeEditOutline } from "react-icons/md";
 import { GoTrash } from "react-icons/go";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { rows } from "./data";
 import { ptBR } from "@mui/x-data-grid/locales";
 
 export default function FormServico({ control, formState: { errors } }: { control: any, formState: { errors: any, } }) {
@@ -121,7 +120,7 @@ export default function FormServico({ control, formState: { errors } }: { contro
                 </Box>
 
                 <DataGrid
-                    rows={rows}
+                    rows={[]}
                     columns={columns}
                     localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                     initialState={{
