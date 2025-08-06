@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -9,23 +9,27 @@ import { GoTrash } from "react-icons/go";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from '@/app/styles/tableTheme/theme';
+import { IoMdClose } from 'react-icons/io';
 
 export default function FormPessoas({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any, } }) {
 
-    const { data: users, loading } = useGet({ url: "person" });
-    const [selectedUser, setSelectedUser] = useState<string>('');
+    const { data: pessoas, loading } = useGet({ url: "person" });
+    const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
-    const handleAddUser = () => {
-        if (!selectedUser) return;
+    const handleAddUsers = () => {
+        if (selectedUsers.length === 0) return;
 
         const currentUsers = watch("users") || [];
-        const userToAdd = users.find((user: any) => user.id.toString() === selectedUser);
+        const usersToAdd = pessoas.filter((user: any) =>
+            selectedUsers.includes(user.id.toString()) &&
+            !currentUsers.some((existingUser: any) => existingUser.id.toString() === user.id.toString())
+        );
 
-        if (userToAdd && !currentUsers.some((user: any) => user.id.toString() === selectedUser)) {
-            const updatedUsers = [...currentUsers, userToAdd];
+        if (usersToAdd.length > 0) {
+            const updatedUsers = [...currentUsers, ...usersToAdd];
             setValue("users", updatedUsers);
             setValue("usersIds", updatedUsers.map((user: any) => user.id));
-            setSelectedUser('');
+            setSelectedUsers([]);
         }
     };
 
@@ -35,6 +39,10 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
 
         setValue("users", updatedUsers);
         setValue("usersIds", updatedUsers.map((user: any) => user.id));
+    };
+
+    const handleDeleteChip = (userId: number) => {
+        handleRemoveUser(userId.toString());
     };
 
     const columns: GridColDef<any>[] = [
@@ -77,6 +85,36 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
         }
     ];
 
+
+    const renderChips = (selected: number[], fieldName: string, onDelete: (value: number) => void, items: { id: number, name: string }[] = []) => {
+        const safeItems = Array.isArray(items) ? items : [];
+        return (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginTop: 1 }}>
+                {selected?.map((value) => {
+                    const selectedItem = safeItems.find(item => item.id === value);
+                    return (
+                        <Chip
+                            key={value}
+                            label={selectedItem ? selectedItem.name : `ID: ${value}`}
+                            onDelete={() => onDelete(value)}
+                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                            sx={{
+                                backgroundColor: '#00B288',
+                                color: 'white',
+                                borderRadius: '4px',
+                                fontSize: '.7rem',
+                                '& .MuiChip-deleteIcon': {
+                                    color: 'white',
+                                    fontSize: '.8rem',
+                                },
+                            }}
+                        />
+                    );
+                })}
+            </Box>
+        );
+    };
+
     return (
         <Box className="w-[100%] flex flex-col gap-5">
             <Box className="w-[100%] flex flex-col gap-5">
@@ -100,7 +138,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(users) && users.map((pessoa) => (
+                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
                                         <MenuItem key={pessoa?.id} value={pessoa?.id}>
                                             {pessoa?.name}
                                         </MenuItem>
@@ -124,7 +162,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(users) && users.map((pessoa) => (
+                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
                                         <MenuItem key={pessoa?.id} value={pessoa?.id}>
                                             {pessoa?.name}
                                         </MenuItem>
@@ -138,53 +176,83 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 </Box>
             </Box>
 
-            <Box className="w-[100%] flex flex-col gap-5">
+            <Box className="w-[100%] flex flex-col gap-5 ">
                 <Box className="flex items-center gap-2">
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
                     <span className="text-[#3aba8a] font-bold">Pessoas</span>
                     <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
                 </Box>
-                <Box className="flex flex-row gap-3 h-[60px]">
-                    <FormControl sx={formTheme} fullWidth error={!!errors?.usersIds}>
-                        <InputLabel>Pessoa</InputLabel>
-                        <Select label="Pessoa" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
-                            <MenuItem value="" disabled>Selecione um usuário...</MenuItem>
-                            {Array?.isArray(users) && users.map((pessoa) => (
-                                <MenuItem key={pessoa?.id} value={pessoa?.id.toString()}>
-                                    {pessoa?.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <FormHelperText>{errors?.usersIds?.message}</FormHelperText>
-                        {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                    </FormControl>
-                    <Button
-                        sx={[buttonTheme, { height: "90%" }]}
-                        onClick={handleAddUser}
-                    >
-                        <FiPlus size={25} color="#fff" />
-                    </Button>
+                <Box className="flex flex-col gap-3">
+                    <Box className="flex flex-row gap-3 h-[60px]">
+                        <FormControl sx={formTheme} fullWidth >
+                            <InputLabel>Pessoas</InputLabel>
+                            <Select
+                                label="Pessoas"
+                                multiple
+                                value={selectedUsers}
+                                onChange={(e) => setSelectedUsers(e.target.value as string[])}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => {
+                                            const selectedPessoa = pessoas.find((p: any) => p.id.toString() === value);
+                                            return (
+                                                <Chip
+                                                    key={value}
+                                                    label={selectedPessoa?.name || value}
+                                                    size="small"
+                                                    onDelete={() => setSelectedUsers(selectedUsers.filter(id => id !== value))}
+                                                    deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                                                    sx={{
+                                                        backgroundColor: '#00B288',
+                                                        color: 'white',
+                                                        borderRadius: '4px',
+                                                        fontSize: '.7rem',
+                                                        '& .MuiChip-deleteIcon': {
+                                                            color: 'white',
+                                                            fontSize: '.8rem',
+                                                        },
+                                                    }}
+                                                />
+                                            );
+                                        })}
+                                    </Box>
+                                )}
+                            >
+                                <MenuItem value="" disabled>Selecione usuários...</MenuItem>
+                                {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
+                                    <MenuItem key={pessoa?.id} value={pessoa?.id.toString()}>
+                                        {pessoa?.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            {/* <FormHelperText>{errors?.usersIds?.message}</FormHelperText> */}
+                            {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
+                        </FormControl>
+                        <Button
+                            sx={[buttonTheme, { height: "90%" }]}
+                            onClick={handleAddUsers}
+                        >
+                            <FiPlus size={25} color="#fff" />
+                        </Button>
+                    </Box>
                 </Box>
             </Box>
-
-            <Box>
-                <DataGrid
-                    rows={watch("users") || []}
-                    columns={columns}
-                    localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 10,
-                            },
+            <DataGrid
+                rows={watch("users") || []}
+                columns={columns}
+                localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+                initialState={{
+                    pagination: {
+                        paginationModel: {
+                            pageSize: 10,
                         },
-                    }}
-                    pageSizeOptions={[5, 10, 25]}
-                    disableRowSelectionOnClick
-                    sx={tableTheme}
-                    getRowId={(row) => row.id}
-                />
-            </Box>
+                    },
+                }}
+                pageSizeOptions={[5, 10, 25]}
+                disableRowSelectionOnClick
+                sx={tableTheme}
+                getRowId={(row) => row.id}
+            />
         </Box>
     )
 }

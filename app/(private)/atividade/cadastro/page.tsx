@@ -17,69 +17,73 @@ import { useSectionStore } from "@/app/store/renderSection";
 import FormJustificativa from "./forms/justificativa";
 
 const activitySchema = z.object({
-    description: z.string(),
-    environmentId: z.number().min(1, "ID do ambiente é obrigatório").nullable().optional(),
-    dateTime: z.string(),
-    recurrenceEnum: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE"]).optional(),
-    statusEnum: z.enum(["OPEN", "COMPLETED", "UNDER_REVIEW", "PENDING", "JUSTIFIED", "INTERNAL_JUSTIFICATION", ""]).optional(),
-    activityTypeEnum: z.enum(["NORMAL", "URGENT", "RECURRING", ""]),
-    supervisorId: z.number().min(1, "ID do supervisor é obrigatório").nullable().optional(),
-    managerId: z.number().min(1, "ID do gerente é obrigatório").nullable().optional(),
-    observation: z.string().optional(),
-    hasRecurrence: z.enum(["true", "false", ""]).optional(),
-    recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE", ""]),
-    approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
-    recurrenceFinalDate: z.string().optional(),
+    description: z.string().min(1, "Campo Obrigatório"),
+    environmentId: z.preprocess((val) => val === "" ? undefined : val, z.number({ required_error: "Campo Obrigatório" }).min(1, "Campo Obrigatório")),
+    statusEnum: z.enum(["OPEN", "COMPLETED", "UNDER_REVIEW", "PENDING", "JUSTIFIED", "INTERNAL_JUSTIFICATION"]),
+    activityTypeEnum: z.enum(["NORMAL", "URGENT", "RECURRING"]),
+    supervisorId: z.preprocess((val) => val === "" ? undefined : val, z.number({ required_error: "Campo Obrigatório" }).min(1, "Campo Obrigatório")),
+    managerId: z.preprocess((val) => val === "" ? undefined : val, z.number({ required_error: "Campo Obrigatório" }).min(1, "Campo Obrigatório")),
+    observation: z.string(),
+    hasRecurrence: z.enum(["true", "false"]),
+    recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE"]),
+    approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]),
+    recurrenceFinalDate: z.string().min(1, "Campo Obrigatório"),
+    dateTime: z.string().min(1, "Campo Obrigatório"),
     approvalDate: z.string().optional(),
-    approvalUpdatedByUserId: z.number().nullable().optional(),
+    approvalUpdatedByUserId: z.union([z.number(), z.null()]).optional(),
     justification: z.object({
         reason: z.string().optional(),
         description: z.string().optional(),
-        justifiedByUserId: z.number().nullable().optional(),
-        isInternal: z.boolean().optional(),
-        transcription: z.string().optional()
+        justifiedByUserId: z.union([z.number(), z.null()]).optional(),
+        isInternal: z.enum(["true", "false"]).optional(),
+        transcription: z.string().optional(),
+        justificationFiles: z.array(z.object({ file: z.instanceof(File).optional() })).optional()
     }).optional(),
-    usersIds: z.array(z.number()).min(1, "Pelo menos um usuário é obrigatório"),
-    epiIds: z.array(z.number()).min(1, "Pelo menos um EPI é obrigatório"),
-    equipmentIds: z.array(z.number()).min(1, "Pelo menos um equipamento é obrigatório"),
-    productIds: z.array(z.number()).min(1, "Pelo menos um produto é obrigatório"),
-    vehicleIds: z.array(z.number()).min(1, "Pelo menos um transporte é obrigatório"),
+    usersIds: z.array(z.number().min(1)).min(1, "Pelo menos um usuário é obrigatório"),
+    epiIds: z.array(z.number().min(1)).optional(),
+    equipmentIds: z.array(z.number().min(1)).optional(),
+    productIds: z.array(z.number().min(1)).optional(),
+    vehicleIds: z.array(z.number().min(1)).optional(),
 });
-
 
 
 type UserFormValues = z.infer<typeof activitySchema>;
 
 export default function Locais() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, setValue, watch } = useForm<UserFormValues>({
-        resolver: zodResolver(activitySchema),
-        defaultValues: {
-            description: "",
-            environmentId: null,
-            dateTime: "",
-            recurrenceEnum: undefined,
-            statusEnum: "",
-            activityTypeEnum: "",
-            supervisorId: null,
-            managerId: null,
-            observation: "",
-            hasRecurrence: "",
-            recurrenceType: "",
-            approvalStatus: undefined,
-            recurrenceFinalDate: "",
-            approvalDate: "",
-            approvalUpdatedByUserId: null,
-            justification: {
-                reason: "",
+    const { control, handleSubmit, formState: { errors }, setValue, watch, trigger, clearErrors } =
+        useForm<any>({
+            resolver: zodResolver(activitySchema),
+            defaultValues: {
                 description: "",
-                justifiedByUserId: null,
-                isInternal: false,
-                transcription: "Transcrição do áudio explicativo"
-            }
-        },
-        mode: "onChange",
-    });
+                environmentId: undefined,
+                dateTime: "",
+                recurrenceFinalDate: "",
+                statusEnum: "OPEN",
+                approvalStatus: "PENDING",
+                activityTypeEnum: "NORMAL",
+                supervisorId: undefined,
+                managerId: undefined,
+                observation: "",
+                hasRecurrence: "false",
+                recurrenceType: "NONE",
+                usersIds: [],
+                epiIds: [],
+                equipmentIds: [],
+                productIds: [],
+                vehicleIds: [],
+                justification: {
+                    reason: "",
+                    description: "",
+                    justifiedByUserId: null,
+                    isInternal: "false",
+                    transcription: "Transcrição do áudio explicativo"
+                }
+            },
+            mode: "onChange",
+            reValidateMode: "onChange",
+        });
+
 
 
     const router = useRouter();
@@ -91,17 +95,59 @@ export default function Locais() {
     }
 
     const handleNext = () => {
-        if (section < 2) {
+
+        const requiredFields = [
+            { field: "environmentId", condition: watch("environmentId") === undefined },
+            { field: "hasRecurrence", condition: watch("hasRecurrence") === undefined },
+            { field: "recurrenceFinalDate", condition: watch("recurrenceFinalDate") === "" },
+            { field: "dateTime", condition: watch("dateTime") === "" },
+            { field: "statusEnum", condition: watch("statusEnum") === undefined },
+            { field: "activityTypeEnum", condition: watch("activityTypeEnum") === undefined },
+            { field: "approvalStatus", condition: watch("approvalStatus") === undefined }
+        ];
+
+        const personnelFields = [
+            { field: "managerId", condition: watch("managerId") === undefined },
+            { field: "supervisorId", condition: watch("supervisorId") === undefined },
+            { field: "usersIds", condition: watch("usersIds").length === 0 }
+        ];
+
+        // const resourceFields = [
+        //     { field: "epiIds", condition: watch("epiIds").length === 0 },
+        //     { field: "equipmentIds", condition: watch("equipmentIds").length === 0 },
+        //     { field: "productIds", condition: watch("productIds").length === 0 },
+        //     { field: "vehicleIds", condition: watch("vehicleIds").length === 0 }
+        // ];
+
+        const hasMissingRequiredField = requiredFields.some(item => item.condition);
+        const hasMissingPersonnelField = personnelFields.some(item => item.condition);
+        // const hasMissingResourceField = resourceFields.some(item => item.condition);
+
+
+
+        if (hasMissingRequiredField && section === 1) {
+            trigger();
+            return;
+        }
+
+        if (hasMissingPersonnelField && section === 2) {
+            trigger();
+            return;
+        }
+
+
+        // if (hasMissingItemsField && section === 4) {
+        //     trigger();
+        //     return;
+        // }
+
+        if (section < 5) {
+            clearErrors();
             setSection(section + 1);
         } else {
             handleSubmit(onSubmit)();
         }
     }
-
-    const handleOpenDisableModal = () => {
-        setOpenDisableModal(true);
-    };
-
     const handleCloseDisableModal = () => {
         setOpenDisableModal(false);
     };
@@ -109,6 +155,8 @@ export default function Locais() {
     const handleDisableConfirm = () => {
         router.push('/atividade/listagem');
     };
+
+    console.log(errors)
 
 
     return (
@@ -136,7 +184,7 @@ export default function Locais() {
                                 </Box>
                                 <h1
                                     className="text-[#43BC8B] font-semibold">
-                                    {step === 1 ? "Dados Gerais" : step === 2 ? "Pessoas" : step === 3 ? "Itens" : step === 4 ? "Justificativa" : "CheckList"}
+                                    {step === 1 ? "Dados Gerais" : step === 2 ? "Pessoas" : step === 3 ? "Itens" : step === 4 ? "Checklist" : "Justificativa"}
                                 </h1>
                             </Box>
                             <IoIosArrowForward />
@@ -154,15 +202,21 @@ export default function Locais() {
                     <FormItens control={control} formState={{ errors }} setValue={setValue} watch={watch} />
                 )}
                 {section === 4 && (
-                    <FormJustificativa control={control} formState={{ errors }} />
+                    <FormCheckList control={control} formState={{ errors }} />
                 )}
                 {section === 5 && (
-                    <FormCheckList control={control} formState={{ errors }} />
+                    <FormJustificativa control={control} formState={{ errors }} />
                 )}
 
                 <Box className="flex flex-row justify-end gap-4">
                     <Button variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
-                    <Button variant="outlined" type="submit" sx={[buttonTheme]}>Avançar</Button>
+                    {
+                        section <= 4 ? (
+                            <Button variant="outlined" sx={buttonTheme} onClick={handleNext}>Próximo</Button>
+                        ) : (
+                            <Button variant="outlined" sx={buttonTheme} onClick={handleSubmit(onSubmit)}>Enviar</Button>
+                        )
+                    }
                 </Box>
 
 

@@ -3,7 +3,7 @@
 import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 
 export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
 
@@ -20,10 +20,12 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     render={({ field }) => (
                         <FormControl sx={formTheme} fullWidth error={!!errors.environmentId}>
                             <InputLabel id="ambiente-label">Ambiente</InputLabel>
-                            <Select labelId="ambiente-label" label="Ambiente" {...field} value={field.value || ""}>
-                                <MenuItem value="" disabled>
-                                    Clique e selecione...
-                                </MenuItem>
+                            <Select
+                                label="Ambiente"
+                                {...field}
+                                value={field.value || ""}
+                                error={!!errors.environmentId}
+                            >
                                 {ambientes?.map((ambiente: any) => (
                                     <MenuItem key={ambiente.id} value={ambiente.id}>
                                         {ambiente.name}
@@ -46,7 +48,6 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                         <FormControl fullWidth sx={formTheme}>
                             <InputLabel>Atividade Recorrente</InputLabel>
                             <Select label="Atividade Recorrente" {...field} error={!!errors.hasRecurrence}>
-                                <MenuItem value="">Selecione</MenuItem>
                                 <MenuItem value="true">Sim</MenuItem>
                                 <MenuItem value="false">Não</MenuItem>
                             </Select>
@@ -59,22 +60,6 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     )}
                 />
 
-                <Controller
-                    name="recurrenceType"
-                    control={control}
-                    render={({ field }) => (
-                        <FormControl fullWidth sx={formTheme}>
-                            <InputLabel>Recorrência</InputLabel>
-                            <Select label="Recorrência" {...field} error={!!errors.recurrenceEnum}>
-                                <MenuItem value="DAILY">Diária</MenuItem>
-                                <MenuItem value="WEEKLY">Semanal</MenuItem>
-                                <MenuItem value="MONTHLY">Mensal</MenuItem>
-                                <MenuItem value="YEARLY">Anual</MenuItem>
-                                <MenuItem value="NONE">Nenhuma</MenuItem>
-                            </Select>
-                        </FormControl>
-                    )}
-                />
                 <Controller
                     name="recurrenceFinalDate"
                     control={control}
@@ -97,7 +82,6 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
             </Box>
 
             <Box className="flex flex-row gap-2">
-
 
                 <Controller
                     name="dateTime"
@@ -138,7 +122,9 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                                 <MenuItem value="JUSTIFIED">Justificado</MenuItem>
                                 <MenuItem value="INTERNAL_JUSTIFICATION">Justificativa Interna</MenuItem>
                             </Select>
-
+                            <FormHelperText error={!!errors.statusEnum}>
+                                {errors.statusEnum?.message}
+                            </FormHelperText>
                         </FormControl>
                     )}
                 />
@@ -154,11 +140,13 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                                 {...field}
                                 value={field.value ?? ""}
                                 error={!!errors.activityTypeEnum}>
-                                <MenuItem value="">Selecione...</MenuItem>
                                 <MenuItem value="NORMAL">Normal</MenuItem>
                                 <MenuItem value="URGENT">Urgente</MenuItem>
                                 <MenuItem value="RECURRING">Recorrente</MenuItem>
                             </Select>
+                            <FormHelperText error={!!errors.activityTypeEnum}>
+                                {errors.activityTypeEnum?.message}
+                            </FormHelperText>
                         </FormControl>
                     )}
                 />
@@ -175,11 +163,13 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                                 value={field.value ?? ""}
                                 error={!!errors.approvalStatus}
                             >
-                                <MenuItem value="">Selecione...</MenuItem>
                                 <MenuItem value="PENDING">Pendente</MenuItem>
                                 <MenuItem value="APPROVED">Aprovado</MenuItem>
                                 <MenuItem value="REJECTED">Rejeitado</MenuItem>
                             </Select>
+                            <FormHelperText error={!!errors.approvalStatus}>
+                                {errors.approvalStatus?.message}
+                            </FormHelperText>
                         </FormControl>
                     )}
                 />

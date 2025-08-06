@@ -42,7 +42,7 @@ export const useLogin = () => {
             }, 1000);
 
         } catch (error) {
-            toast.error("Usuário ou senha inválidos!");
+            toast.error("Documento ou senha inválidos!");
             setError((error as any)?.response?.data?.message || null);
         } finally {
             setIsLoading(false);

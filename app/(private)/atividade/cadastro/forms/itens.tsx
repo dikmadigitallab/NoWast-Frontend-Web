@@ -25,7 +25,7 @@ export default function FormItens({ control, setValue, watch, formState: { error
     });
 
     const [expandedSections, setExpandedSections] = useState({
-        epis: true,
+        epis: false,
         equipamentos: false,
         produtos: false,
         transportes: false
@@ -40,7 +40,7 @@ export default function FormItens({ control, setValue, watch, formState: { error
 
     const handleAddItems = (type: 'epis' | 'equipamentos' | 'produtos' | 'transportes') => {
         const fieldMap = {
-            epis: { idField: 'epi', data: epis, watchField: 'epis', idsField: 'episIds' },
+            epis: { idField: 'epi', data: epis, watchField: 'epis', idsField: 'epiIds' },
             equipamentos: { idField: 'equipamento', data: equipamentos, watchField: 'equipamentos', idsField: 'equipmentIds' },
             produtos: { idField: 'produto', data: produtos, watchField: 'produtos', idsField: 'productIds' },
             transportes: { idField: 'transporte', data: transportes, watchField: 'transportes', idsField: 'vehicleIds' }
@@ -88,12 +88,7 @@ export default function FormItens({ control, setValue, watch, formState: { error
         }));
     };
 
-    const renderChips = (
-        selected: number[],
-        fieldName: string,
-        onDelete: (value: number) => void,
-        items: { id: number, name: string }[] = []
-    ) => {
+    const renderChips = (selected: number[], fieldName: string, onDelete: (value: number) => void, items: { id: number, name: string }[] = []) => {
         const safeItems = Array.isArray(items) ? items : [];
         return (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -154,35 +149,21 @@ export default function FormItens({ control, setValue, watch, formState: { error
         },
     ];
 
-    const renderSection = (
-        type: 'epis' | 'equipamentos' | 'produtos' | 'transportes',
-        label: string,
-        data: any[],
-        errorField: string
-    ) => {
-        const fieldMap = {
-            epis: { idField: 'epi', watchField: 'epis' },
-            equipamentos: { idField: 'equipamento', watchField: 'equipamentos' },
-            produtos: { idField: 'produto', watchField: 'produtos' },
-            transportes: { idField: 'transporte', watchField: 'transportes' }
-        };
-
+    const renderSection = (type: 'epis' | 'equipamentos' | 'produtos' | 'transportes', label: string, data: any[], errorField: string) => {
+        const fieldMap = { epis: { idField: 'epi', watchField: 'epis' }, equipamentos: { idField: 'equipamento', watchField: 'equipamentos' }, produtos: { idField: 'produto', watchField: 'produtos' }, transportes: { idField: 'transporte', watchField: 'transportes' } };
         const { idField, watchField } = fieldMap[type];
         const error = errors?.[errorField]?.message;
 
         return (
             <Box className="w-[100%] flex flex-col gap-5">
-                <Box
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() => toggleSection(type)}
-                >
+                <Box className="flex items-center gap-2 cursor-pointer" onClick={() => toggleSection(type)}>
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
                     <span className="text-[#3aba8a] font-bold">{label}</span>
                     <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
                     {expandedSections[type] ? <FiChevronUp color="#3aba8a" /> : <FiChevronDown color="#3aba8a" />}
                 </Box>
                 <Collapse in={expandedSections[type]}>
-                    <Box className="h-[600px] flex flex-col gap-5">
+                    <Box className="h-[500px] flex flex-col gap-5">
                         <Box className="flex flex-col gap-3">
                             <FormControl sx={formTheme} fullWidth error={!!error}>
                                 <InputLabel>{label}</InputLabel>
@@ -244,8 +225,8 @@ export default function FormItens({ control, setValue, watch, formState: { error
     };
 
     return (
-        <Box className="w-[100%] flex flex-col gap-5">
-            {renderSection('epis', 'EPIs', epis, 'episIds')}
+        <Box className="w-[100%]  flex flex-col gap-5">
+            {renderSection('epis', 'EPIs', epis, 'epiIds')}
             {renderSection('equipamentos', 'Equipamentos', equipamentos, 'equipmentIds')}
             {renderSection('produtos', 'Produtos', produtos, 'productIds')}
             {renderSection('transportes', 'Transportes', transportes, 'vehicleIds')}
