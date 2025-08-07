@@ -2,11 +2,11 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../../api";
+import api from "../api";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
 
 export interface UseGetParams {
-    url: string,
     page?: number,
     pageSize?: number | null,
     query?: string | null,
@@ -18,14 +18,14 @@ export interface UseGetParams {
     environmentId?: number | null
 }
 
-export const useGet = ({ url, page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
+export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
+    const { id } = useGetIDStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
     const get = async () => {
-        
         setError(null);
         setLoading(true);
 
@@ -51,9 +51,9 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
             if (managerId !== null) params.append("managerId", String(managerId).trim());
             if (responsibleManagerId !== null) params.append("responsibleManagerId", String(responsibleManagerId).trim());
             if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
-            if (environmentId !== null) params.append("environmentId", String(environmentId).trim());
+            if (id !== null) params.append("environmentId", String(environmentId).trim());
 
-            const paramUrl = `/${url}?${params.toString()}`;
+            const paramUrl = `/service?${params.toString()}`;
 
             const response = await api.get<any>(paramUrl, {
                 headers: {
@@ -62,7 +62,10 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
                 },
             });
 
-            setData(response.data.data.items);
+
+            const refactorData = response.data.data.items.map((item: any) => item.serviceItems);
+            setData(refactorData[0]);
+
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
@@ -75,8 +78,6 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
 
 
     useEffect(() => {
-        setLoading(true);
-
         const delayDebounce = setTimeout(() => {
             get();
         }, 1000);

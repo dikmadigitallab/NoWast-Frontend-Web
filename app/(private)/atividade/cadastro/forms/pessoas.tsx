@@ -10,10 +10,12 @@ import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from '@/app/styles/tableTheme/theme';
 import { IoMdClose } from 'react-icons/io';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
 
 export default function FormPessoas({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any, } }) {
 
     const { data: pessoas, loading } = useGet({ url: "person" });
+    const { data: responsaveis } = useGetUsuario({})
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
     const handleAddUsers = () => {
@@ -138,7 +140,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
+                                    {Array?.isArray(responsaveis) && responsaveis.map((pessoa) => (
                                         <MenuItem key={pessoa?.id} value={pessoa?.id}>
                                             {pessoa?.name}
                                         </MenuItem>
@@ -162,7 +164,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
+                                    {Array?.isArray(responsaveis) && responsaveis.map((pessoa) => (
                                         <MenuItem key={pessoa?.id} value={pessoa?.id}>
                                             {pessoa?.name}
                                         </MenuItem>
@@ -229,7 +231,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                             {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
                         </FormControl>
                         <Button
-                            sx={[buttonTheme, { height: "90%" }]}
+                            sx={[buttonTheme, { height: 55 }]}
                             onClick={handleAddUsers}
                         >
                             <FiPlus size={25} color="#fff" />

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, Collapse, Chip } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, Collapse, Chip, CircularProgress } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -12,7 +12,7 @@ import { IoMdClose } from 'react-icons/io';
 
 export default function FormItens({ control, setValue, watch, formState: { errors } }: { control?: any, setValue?: any, watch?: any, formState: { errors?: any } }) {
 
-    const { data: epis } = useGet({ url: "ppe" });
+    const { data: epis, loading } = useGet({ url: "ppe" });
     const { data: equipamentos } = useGet({ url: "tools" });
     const { data: produtos } = useGet({ url: "product" });
     const { data: transportes } = useGet({ url: "transport" });
@@ -25,7 +25,7 @@ export default function FormItens({ control, setValue, watch, formState: { error
     });
 
     const [expandedSections, setExpandedSections] = useState({
-        epis: false,
+        epis: true,
         equipamentos: false,
         produtos: false,
         transportes: false
@@ -164,7 +164,7 @@ export default function FormItens({ control, setValue, watch, formState: { error
                 </Box>
                 <Collapse in={expandedSections[type]}>
                     <Box className="h-[500px] flex flex-col gap-5">
-                        <Box className="flex flex-col gap-3">
+                        <Box className="flex flex-row justify-center items-center gap-3 ">
                             <FormControl sx={formTheme} fullWidth error={!!error}>
                                 <InputLabel>{label}</InputLabel>
                                 <Select
@@ -195,11 +195,11 @@ export default function FormItens({ control, setValue, watch, formState: { error
                                         </MenuItem>
                                     ))}
                                 </Select>
+                                {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
                                 <FormHelperText>{error}</FormHelperText>
                             </FormControl>
-                            <Button sx={[buttonTheme, { alignSelf: 'flex-end', width: 'fit-content' }]} onClick={() => handleAddItems(type)}>
+                            <Button sx={[buttonTheme, { width: 'fit-content', height: 55 }]} onClick={() => handleAddItems(type)}>
                                 <FiPlus size={20} color="#fff" />
-                                Adicionar
                             </Button>
                         </Box>
                         <DataGrid

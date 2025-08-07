@@ -15,6 +15,7 @@ import FormCheckList from "./forms/checklist";
 import { useRouter } from "next/navigation";
 import { useSectionStore } from "@/app/store/renderSection";
 import FormJustificativa from "./forms/justificativa";
+import { useCreateServiceEnvironment } from "@/app/hooks/atividade/useCreate";
 
 const activitySchema = z.object({
     description: z.string().min(1, "Campo Obrigatório"),
@@ -23,9 +24,9 @@ const activitySchema = z.object({
     activityTypeEnum: z.enum(["NORMAL", "URGENT", "RECURRING"]),
     supervisorId: z.preprocess((val) => val === "" ? undefined : val, z.number({ required_error: "Campo Obrigatório" }).min(1, "Campo Obrigatório")),
     managerId: z.preprocess((val) => val === "" ? undefined : val, z.number({ required_error: "Campo Obrigatório" }).min(1, "Campo Obrigatório")),
-    observation: z.string(),
+    observation: z.string().optional(),
     hasRecurrence: z.enum(["true", "false"]),
-    recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "NONE"]),
+    recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]),
     approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]),
     recurrenceFinalDate: z.string().min(1, "Campo Obrigatório"),
     dateTime: z.string().min(1, "Campo Obrigatório"),
@@ -39,13 +40,13 @@ const activitySchema = z.object({
         transcription: z.string().optional(),
         justificationFiles: z.array(z.object({ file: z.instanceof(File).optional() })).optional()
     }).optional(),
+    serviceItemsIds: z.array(z.number().min(1)).min(1, "Pelo menos um item de serviço é obrigatório"),
     usersIds: z.array(z.number().min(1)).min(1, "Pelo menos um usuário é obrigatório"),
     epiIds: z.array(z.number().min(1)).optional(),
     equipmentIds: z.array(z.number().min(1)).optional(),
     productIds: z.array(z.number().min(1)).optional(),
     vehicleIds: z.array(z.number().min(1)).optional(),
 });
-
 
 type UserFormValues = z.infer<typeof activitySchema>;
 
@@ -64,34 +65,26 @@ export default function Locais() {
                 activityTypeEnum: "NORMAL",
                 supervisorId: undefined,
                 managerId: undefined,
-                observation: "",
                 hasRecurrence: "false",
-                recurrenceType: "NONE",
+                recurrenceType: "DAILY",
                 usersIds: [],
                 epiIds: [],
                 equipmentIds: [],
                 productIds: [],
-                vehicleIds: [],
-                justification: {
-                    reason: "",
-                    description: "",
-                    justifiedByUserId: null,
-                    isInternal: "false",
-                    transcription: "Transcrição do áudio explicativo"
-                }
+                vehicleIds: []
             },
             mode: "onChange",
             reValidateMode: "onChange",
         });
 
-
-
     const router = useRouter();
+    const {create} = useCreateServiceEnvironment();
     const { setSection, section } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const onSubmit = (data: UserFormValues) => {
-        console.log("Form data enviado:", data);
+        console.log("teste")
+        create(data);
     }
 
     const handleNext = () => {
@@ -112,18 +105,8 @@ export default function Locais() {
             { field: "usersIds", condition: watch("usersIds").length === 0 }
         ];
 
-        // const resourceFields = [
-        //     { field: "epiIds", condition: watch("epiIds").length === 0 },
-        //     { field: "equipmentIds", condition: watch("equipmentIds").length === 0 },
-        //     { field: "productIds", condition: watch("productIds").length === 0 },
-        //     { field: "vehicleIds", condition: watch("vehicleIds").length === 0 }
-        // ];
-
         const hasMissingRequiredField = requiredFields.some(item => item.condition);
         const hasMissingPersonnelField = personnelFields.some(item => item.condition);
-        // const hasMissingResourceField = resourceFields.some(item => item.condition);
-
-
 
         if (hasMissingRequiredField && section === 1) {
             trigger();
@@ -134,12 +117,6 @@ export default function Locais() {
             trigger();
             return;
         }
-
-
-        // if (hasMissingItemsField && section === 4) {
-        //     trigger();
-        //     return;
-        // }
 
         if (section < 5) {
             clearErrors();
@@ -155,9 +132,6 @@ export default function Locais() {
     const handleDisableConfirm = () => {
         router.push('/atividade/listagem');
     };
-
-    console.log(errors)
-
 
     return (
         <StyledMainContainer>
@@ -202,7 +176,7 @@ export default function Locais() {
                     <FormItens control={control} formState={{ errors }} setValue={setValue} watch={watch} />
                 )}
                 {section === 4 && (
-                    <FormCheckList control={control} formState={{ errors }} />
+                    <FormCheckList control={control} formState={{ errors }} setValue={setValue} watch={watch} />
                 )}
                 {section === 5 && (
                     <FormJustificativa control={control} formState={{ errors }} />
@@ -218,8 +192,6 @@ export default function Locais() {
                         )
                     }
                 </Box>
-
-
             </Box>
 
             <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">

@@ -4,9 +4,11 @@ import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
 export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
 
+    const { setId } = useGetIDStore();
     const { data: ambientes } = useGet({ url: "environment" });
 
     return (
@@ -25,6 +27,10 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                                 {...field}
                                 value={field.value || ""}
                                 error={!!errors.environmentId}
+                                onChange={(e) => {
+                                    setId(e.target.value);
+                                    field.onChange(e.target.value)
+                                }}
                             >
                                 {ambientes?.map((ambiente: any) => (
                                     <MenuItem key={ambiente.id} value={ambiente.id}>
