@@ -1,15 +1,22 @@
 "use client";
 import { create } from 'zustand';
 
+interface UserInfo {
+    email: string | null;
+    document: string | null;
+    name: string | null;
+    position: string | null;
+}
+
+type UserType = 'DEFAULT' | 'ADM_DIKMA' | 'OPERATIONAL' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null;
+
 interface AuthStore {
     id: number | null;
-    email: string | null;
-    documento: string | undefined | null;
-    userType: 'DEFAULT' | 'ADM_DIKMA' | 'OPERATIONAL' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null;
+    userInfo: UserInfo;
+    userType: UserType;
     setId: (id: number | null) => void;
-    setEmail: (email: string | null) => void;
-    setDocumento: (documento: string | null) => void;
-    setUserType: (userType: 'DEFAULT' | 'OPERATIONAL' | 'ADM_DIKMA' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null) => void;
+    setUserInfo: (userInfo: UserInfo) => void;
+    setUserType: (userType: UserType) => void;
 }
 
 const encrypt = (data: string): string => {
@@ -25,11 +32,14 @@ const decrypt = (data: string): string => {
 };
 
 export const useAuthStore = create<AuthStore>((set, get) => {
-
     let storedId: number | null = null;
-    let storedEmail: string | null = null;
-    let storedDocumento: string | null = null;
-    let storedTipoUsuario: 'DEFAULT' | 'OPERATIONAL' | 'ADM_DIKMA' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null = null;
+    let storedUserInfo: UserInfo = {
+        email: null,
+        document: null,
+        name: null,
+        position: null
+    };
+    let storedUserType: UserType = null;
 
     if (typeof window !== 'undefined') {
         const stored = localStorage.getItem('user');
@@ -38,44 +48,47 @@ export const useAuthStore = create<AuthStore>((set, get) => {
             try {
                 const userData = JSON.parse(decoded);
                 storedId = userData?.id || null;
-                storedEmail = userData?.email || null;
-                storedDocumento = userData?.documento || null;
-                storedTipoUsuario = userData?.userType || null;
+                storedUserInfo = userData?.userInfo || { email: null, document: null, name: null };
+                storedUserType = userData?.userType || null;
             } catch (err) {
                 console.warn("Dados de usuário inválidos:", decoded);
             }
         }
     }
 
+    const persist = () => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(
+                'user',
+                encrypt(
+                    JSON.stringify({
+                        id: get().id,
+                        userInfo: get().userInfo,
+                        userType: get().userType,
+                    })
+                )
+            );
+        }
+    };
+
     return {
         id: storedId,
-        email: storedEmail,
-        documento: storedDocumento,
-        userType: storedTipoUsuario,
+        userInfo: storedUserInfo,
+        userType: storedUserType,
+
         setId: (id) => {
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('user', encrypt(JSON.stringify({ id, email: get().email, documento: get().documento, userType: get().userType })));
-            }
             set({ id });
+            persist();
         },
-        setEmail: (email) => {
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('user', encrypt(JSON.stringify({ id: get().id, email, documento: get().documento, userType: get().userType })));
-            }
-            set({ email });
+
+        setUserInfo: (userInfo) => {
+            set({ userInfo });
+            persist();
         },
-        setDocumento: (documento) => {
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('user', encrypt(JSON.stringify({ id: get().id, email: get().email, documento, userType: get().userType })));
-            }
-            set({ documento });
-        },
+
         setUserType: (userType) => {
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('user', encrypt(JSON.stringify({ id: get().id, email: get().email, documento: get().documento, userType })));
-            }
             set({ userType });
+            persist();
         },
     };
 });
-

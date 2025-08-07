@@ -114,7 +114,7 @@ export default function ListagemPessoa() {
             width: 180,
         },
         {
-            field: 'supervisorId',
+            field: 'supervisor',
             headerName: 'Encarregado Responsável',
             width: 200,
         },

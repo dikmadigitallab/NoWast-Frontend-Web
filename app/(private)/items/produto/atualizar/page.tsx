@@ -29,14 +29,14 @@ export default function EditarProduto() {
     const router = useRouter();
     const { data } = useGetOneById("product");
     const { data: pessoas } = useGet({ url: 'person' });
-    const { update, loading } = useUpdateItem("product", "/items/produto/listagem");
-    const { handleDelete } = useDelete("product", "/items/produto/listagem");
-    const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const [openDisableModal, setOpenDisableModal] = useState(false);
     const [file, setFile] = useState<File | null>(null);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
+    const { handleDelete } = useDelete("product", "/items/produto/listagem");
+    const { update, loading } = useUpdateItem("product", "/items/produto/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
-    const { control, handleSubmit, setValue, formState: { errors }, reset, watch } = useForm<ProdutoFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<ProdutoFormValues>({
         resolver: zodResolver(epiSchema),
         defaultValues: {
             name: "",
@@ -50,9 +50,9 @@ export default function EditarProduto() {
         mode: "onChange"
     });
 
-    const handleOpenDisableModal = () => setOpenDisableModal(true);
-    const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/produto/listagem');
+    const handleOpenCancelModal = () => setOpenCancelModal(true);
+    const handleCloseCancelModal = () => setOpenCancelModal(false);
+    const handleCancelConfirm = () => router.push('/items/produto/listagem');
 
     const handleOpenDeleteModal = () => {
         setOpenDeleteModal(true);
@@ -200,33 +200,32 @@ export default function EditarProduto() {
                 <Box className="w-[100%] flex flex-row gap-5 justify-between">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
                     <Box className="flex flex-row gap-5" >
-                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenCancelModal}>Cancelar</Button>
                         <Button type="submit" variant="outlined" disabled={loading} sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
                     </Box>
                 </Box>
             </form>
 
             <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar exclusão</h2>
-                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir este produto? Está ação não pode ser desfeita.</p>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir este item? Está ação não pode ser desfeita.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDelete} variant="outlined" sx={buttonThemeNoBackgroundError}>Confirmar</Button>
+                            <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                            <Button onClick={handleDelete} variant="outlined" sx={buttonTheme}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
-
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar está ação? Todos os dados serão perdidos.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Desistir</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Comfirmar</Button>
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Comfirmar</Button>
                         </Box>
                     </Box>
                 </Box>

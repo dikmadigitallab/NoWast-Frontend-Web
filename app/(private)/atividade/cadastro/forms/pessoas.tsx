@@ -6,7 +6,6 @@ import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
 import { GoTrash } from "react-icons/go";
-import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from '@/app/styles/tableTheme/theme';
 import { IoMdClose } from 'react-icons/io';
@@ -14,10 +13,8 @@ import { useGetUsuario } from '@/app/hooks/usuarios/get';
 
 export default function FormPessoas({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any, } }) {
 
-    const { data: pessoas, loading } = useGet({ url: "person" });
-    const { data: responsaveis } = useGetUsuario({})
+    const { data: pessoas, loading } = useGetUsuario({})
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-
     const handleAddUsers = () => {
         if (selectedUsers.length === 0) return;
 
@@ -77,14 +74,17 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
             field: 'phones',
             headerName: 'Telefone',
             width: 220,
-            renderCell: (params) => (
-                <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {params.value.map((phone: any, index: number) => (
-                        <span key={index}>{phone.phoneNumber}</span>
-                    ))}
-                </Box>
-            ),
-        }
+            renderCell: (params) => {
+                const phones = Array.isArray(params.value) ? params.value : [];
+                return (
+                    <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {phones.map((phone: any, index: number) => (
+                            <span key={index}>{phone.phoneNumber}</span>
+                        ))}
+                    </Box>
+                );
+            },
+        },
     ];
 
 
@@ -140,7 +140,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(responsaveis) && responsaveis.map((pessoa) => (
+                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
                                         <MenuItem key={pessoa?.id} value={pessoa?.id}>
                                             {pessoa?.name}
                                         </MenuItem>
@@ -164,7 +164,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 >
                                     <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(responsaveis) && responsaveis.map((pessoa) => (
+                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
                                         <MenuItem key={pessoa?.id} value={pessoa?.id}>
                                             {pessoa?.name}
                                         </MenuItem>
@@ -243,17 +243,11 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 rows={watch("users") || []}
                 columns={columns}
                 localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                initialState={{
-                    pagination: {
-                        paginationModel: {
-                            pageSize: 10,
-                        },
-                    },
-                }}
                 pageSizeOptions={[5, 10, 25]}
                 disableRowSelectionOnClick
                 sx={tableTheme}
                 getRowId={(row) => row.id}
+                hideFooter
             />
         </Box>
     )

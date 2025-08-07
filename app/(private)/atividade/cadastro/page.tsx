@@ -32,14 +32,6 @@ const activitySchema = z.object({
     dateTime: z.string().min(1, "Campo Obrigatório"),
     approvalDate: z.string().optional(),
     approvalUpdatedByUserId: z.union([z.number(), z.null()]).optional(),
-    justification: z.object({
-        reason: z.string().optional(),
-        description: z.string().optional(),
-        justifiedByUserId: z.union([z.number(), z.null()]).optional(),
-        isInternal: z.enum(["true", "false"]).optional(),
-        transcription: z.string().optional(),
-        justificationFiles: z.array(z.object({ file: z.instanceof(File).optional() })).optional()
-    }).optional(),
     serviceItemsIds: z.array(z.number().min(1)).min(1, "Pelo menos um item de serviço é obrigatório"),
     usersIds: z.array(z.number().min(1)).min(1, "Pelo menos um usuário é obrigatório"),
     epiIds: z.array(z.number().min(1)).optional(),
@@ -78,13 +70,13 @@ export default function Locais() {
         });
 
     const router = useRouter();
-    const {create} = useCreateServiceEnvironment();
+    const { create } = useCreateServiceEnvironment();
     const { setSection, section } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
-
     const onSubmit = (data: UserFormValues) => {
-        console.log("teste")
-        create(data);
+        const newData = {...data, hasRecurrence: data.hasRecurrence === "true" ? true : false}
+        console.log(newData);
+        create(newData);
     }
 
     const handleNext = () => {
@@ -118,7 +110,7 @@ export default function Locais() {
             return;
         }
 
-        if (section < 5) {
+        if (section < 4) {
             clearErrors();
             setSection(section + 1);
         } else {
@@ -143,7 +135,7 @@ export default function Locais() {
                 </Box>
 
                 <Box className="w-[100%] flex items-center h-[100px]">
-                    {[1, 2, 3, 4, 5].map((step) => (
+                    {[1, 2, 3, 4].map((step) => (
                         <Box
                             key={step}
                             onClick={() => setSection(step)}
@@ -158,7 +150,7 @@ export default function Locais() {
                                 </Box>
                                 <h1
                                     className="text-[#43BC8B] font-semibold">
-                                    {step === 1 ? "Dados Gerais" : step === 2 ? "Pessoas" : step === 3 ? "Itens" : step === 4 ? "Checklist" : "Justificativa"}
+                                    {step === 1 ? "Dados Gerais" : step === 2 ? "Pessoas" : step === 3 ? "Itens" : "Checklist"}
                                 </h1>
                             </Box>
                             <IoIosArrowForward />
@@ -178,14 +170,11 @@ export default function Locais() {
                 {section === 4 && (
                     <FormCheckList control={control} formState={{ errors }} setValue={setValue} watch={watch} />
                 )}
-                {section === 5 && (
-                    <FormJustificativa control={control} formState={{ errors }} />
-                )}
 
                 <Box className="flex flex-row justify-end gap-4">
                     <Button variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
                     {
-                        section <= 4 ? (
+                        section <= 3 ? (
                             <Button variant="outlined" sx={buttonTheme} onClick={handleNext}>Próximo</Button>
                         ) : (
                             <Button variant="outlined" sx={buttonTheme} onClick={handleSubmit(onSubmit)}>Enviar</Button>
@@ -195,7 +184,7 @@ export default function Locais() {
             </Box>
 
             <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>

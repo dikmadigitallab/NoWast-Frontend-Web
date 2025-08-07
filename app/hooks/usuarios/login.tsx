@@ -8,7 +8,7 @@ export const useLogin = () => {
 
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const { setId, setEmail, setDocumento, setUserType } = useAuthStore();
+    const { setId, setUserInfo, setUserType } = useAuthStore();
 
     const login = async (data: string, password: string) => {
 
@@ -32,9 +32,15 @@ export const useLogin = () => {
                 setUserType("OPERATIONAL");
             }
 
+            const userInfo = {
+                name: response.data.data.user.person.name,
+                email: response.data.data.user.person.emails[0]?.email,
+                document: response.data.data.user.person.document,
+                position: response.data.data.user.role.name
+            }
+
+            setUserInfo(userInfo);
             setId(response.data.data.user.id);
-            setEmail(response.data.data.user.email);
-            setDocumento(response.data.data.user.person.document);
             toast.success("Login realizado com sucesso!");
 
             setTimeout(() => {

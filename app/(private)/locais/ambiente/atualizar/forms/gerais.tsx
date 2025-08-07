@@ -26,7 +26,6 @@ const ambienteSchema = z.object({
 type AmbienteFormValues = z.infer<typeof ambienteSchema>;
 
 export default function FormDadosGerais() {
-
     const router = useRouter();
     const { data, loading } = useGetOneById("environment");
     const { data: setores } = useGet({ url: "sector" });
@@ -36,9 +35,10 @@ export default function FormDadosGerais() {
     const { update } = useUpdateAmbiente("environment");
     const { handleDelete } = useDelete("environment", "/locais/ambiente/listagem");
     const [disable, setDisable] = useState(false);
+    const [tempEndDate, setTempEndDate] = useState("");
     const handleCloseDeleteModal = () => setOpenDeleteModal(false);
 
-    const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<AmbienteFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<AmbienteFormValues>({
         resolver: zodResolver(ambienteSchema),
         defaultValues: {
             name: "",
@@ -63,9 +63,14 @@ export default function FormDadosGerais() {
         if (field === "cancelar") {
             setOpenCancelModal(false);
         } else {
-            setDisable(true);
             setOpenDisableModal(false);
         }
+    };
+
+    const handleConfirmDisable = () => {
+        setDisable(true);
+        setValue("endDate", tempEndDate);
+        setOpenDisableModal(false);
     };
 
     const handleCloseCancelModal = () => setOpenCancelModal(false);
@@ -76,6 +81,9 @@ export default function FormDadosGerais() {
     useEffect(() => {
         if (data) {
             reset({ ...data, sector: { connect: { id: data.sectorId } } });
+            if (data.endDate) {
+                setDisable(true);
+            }
         }
     }, [data])
 
@@ -226,10 +234,10 @@ export default function FormDadosGerais() {
             </form>
 
             <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar exclusão</h2>
-                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir este equipamento? Está ação não pode ser desfeita.</p>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir este item? Está ação não pode ser desfeita.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
                             <Button onClick={handleDelete} variant="outlined" sx={buttonThemeNoBackgroundError}>Confirmar</Button>
@@ -238,9 +246,8 @@ export default function FormDadosGerais() {
                 </Box>
             </Modal>
 
-
             <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
@@ -253,42 +260,36 @@ export default function FormDadosGerais() {
             </Modal>
 
             <Modal open={openDisableModal} onClose={() => handleCloseModal("desabilitar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] bg-white rounded-lg p-6">
+                <Box  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Desabilitar Ambiente</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse ambiente?</p>
-                        <Controller
-                            name="endDate"
-                            control={control}
-                            defaultValue={""}
-                            render={({ field }) => (
-                                <TextField
-                                    variant="outlined"
-                                    label="Data Fim"
-                                    InputLabelProps={{ shrink: true }}
-                                    type="date"
-                                    {...field}
-                                    error={!!errors.endDate}
-                                    helperText={errors.endDate?.message}
-                                    className="w-full"
-                                    sx={[formTheme]}
-                                />
-                            )}
+                        <TextField
+                            variant="outlined"
+                            label="Data Fim"
+                            InputLabelProps={{ shrink: true }}
+                            type="date"
+                            value={tempEndDate}
+                            onChange={(e) => setTempEndDate(e.target.value)}
+                            error={!!errors.endDate}
+                            helperText={errors.endDate?.message}
+                            className="w-full"
+                            sx={[formTheme]}
                         />
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
                             <Button
                                 variant="outlined"
-                                onClick={() => handleCloseModal("desabilitar")}
-                                disabled={loading === true || watch("endDate") === null ? true : false}
-                                sx={buttonTheme}>{loading ? <CircularProgress color="inherit" size={24} /> : "Desabilitar"}
+                                onClick={handleConfirmDisable}
+                                sx={buttonTheme}
+                                disabled={!tempEndDate}
+                            >
+                                {loading ? <CircularProgress color="inherit" size={24} /> : "Confirmar"}
                             </Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
-
-
         </StyledMainContainer>
     );
 }

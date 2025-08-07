@@ -1,13 +1,13 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress, Checkbox, ListItemText } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress, Checkbox, ListItemText, InputAdornment } from "@mui/material";
+import { set, useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
@@ -124,15 +124,17 @@ export default function AtualizarPessoa() {
 
     const router = useRouter();
     const { users } = useGetUsuario({});
-    const { data: epis } = useGet({ url: 'ppe' });
     const { data } = useGetOneById('users');
-    const { data: cargos } = useGet({ url: 'position' });
     const { data: contrato } = useGetContratos();
-    const { data: produtos } = useGet({ url: 'product' });
+    const { data: epis } = useGet({ url: 'ppe' });
     const [disable, setDisable] = useState(false);
+    const [tempEndDate, setTempEndDate] = useState("");
+    const [file, setFile] = useState<File | null>(null);
+    const [cepLoading, setCepLoading] = useState(false);
+    const { data: cargos } = useGet({ url: 'position' });
+    const { data: produtos } = useGet({ url: 'product' });
     const { data: equipamentos } = useGet({ url: 'tools' });
     const { data: transportes } = useGet({ url: 'transport' });
-    const [file, setFile] = useState<File | null>(null);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { update, loading } = useUpdate("users", '/usuario/listagem');
@@ -150,14 +152,18 @@ export default function AtualizarPessoa() {
         if (field === "cancelar") {
             setOpenCancelModal(false);
         } else {
-            setDisable(true);
             setOpenDisableModal(false);
         }
     };
 
-    const handleCancelConfirm = () => {
-        router.push('/usuario/listagem');
+    const handleConfirmDisable = () => {
+        setDisable(true);
+        setValue("endDate", tempEndDate);
+        setOpenDisableModal(false);
     };
+
+    const handleCloseCancelModal = () => setOpenCancelModal(false);
+    const handleCancelConfirm = () => router.push('/usuario/listagem');
 
     const onSubmit = (formData: UserFormValues) => {
         if (disable) {
@@ -224,6 +230,7 @@ export default function AtualizarPessoa() {
         if (cep.length < 9) return;
 
         try {
+            setCepLoading(true);
             const cleanedCep = cep.replace(/\D/g, '');
             const viaCepResponse = await fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`);
             const viaCepData = await viaCepResponse.json();
@@ -265,9 +272,11 @@ export default function AtualizarPessoa() {
             setValue('person.create.address', address as any);
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
+        } finally {
+            setCepLoading(false);
         }
     }
-    
+
     useEffect(() => {
         if (data) {
 
@@ -304,24 +313,24 @@ export default function AtualizarPessoa() {
             setValue('manager.connect.id', manager.id)
 
             if (data.person.addresses.length > 0) {
-                setValue('person.create.address.address', data.person.addresses[0].address)
                 setValue('person.create.address.city', data.person.addresses[0].city)
                 setValue('person.create.address.state', data.person.addresses[0].state)
                 setValue('person.create.address.number', data.person.addresses[0].number)
-                setValue('person.create.address.complement', data.person.addresses[0].complement)
-                setValue('person.create.address.district', data.person.addresses[0].district)
-                setValue('person.create.address.postalCode', data.person.addresses[0].postalCode)
-                setValue('person.create.address.stateAbbreviation', data.person.addresses[0].stateAbbreviation)
+                setValue('person.create.address.address', data.person.addresses[0].address)
                 setValue('person.create.address.country', data.person.addresses[0].country)
+                setValue('person.create.address.district', data.person.addresses[0].district)
                 setValue('person.create.address.latitude', data.person.addresses[0].latitude)
                 setValue('person.create.address.longitude', data.person.addresses[0].longitude)
+                setValue('person.create.address.complement', data.person.addresses[0].complement)
+                setValue('person.create.address.postalCode', data.person.addresses[0].postalCode)
+                setValue('person.create.address.stateAbbreviation', data.person.addresses[0].stateAbbreviation)
             }
 
             setImageInfo({
+                size: data.userFiles[0]?.file?.size,
                 name: data.userFiles[0]?.file?.fileName,
                 type: data.userFiles[0]?.file?.fileType,
-                size: data.userFiles[0]?.file?.size,
-                previewUrl: data.userFiles[0]?.file?.url,
+                previewUrl: data.userFiles[0]?.file?.url
             });
 
 
@@ -612,6 +621,7 @@ export default function AtualizarPessoa() {
                                 variant="outlined"
                                 label="CEP"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.postalCode}
                                 helperText={errors.person?.create?.address?.postalCode?.message}
                                 className="w-full"
@@ -624,6 +634,13 @@ export default function AtualizarPessoa() {
                                     }
                                     field.onChange(formatted);
                                 }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -635,10 +652,18 @@ export default function AtualizarPessoa() {
                                 variant="outlined"
                                 label="Endereço"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.address}
                                 helperText={errors.person?.create?.address?.address?.message}
                                 className="w-full"
                                 sx={formTheme}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -683,10 +708,18 @@ export default function AtualizarPessoa() {
                                 variant="outlined"
                                 label="Bairro"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.district}
                                 helperText={errors.person?.create?.address?.district?.message}
                                 className="w-full"
                                 sx={formTheme}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -721,10 +754,18 @@ export default function AtualizarPessoa() {
                                 variant="outlined"
                                 label="Cidade"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.city}
                                 helperText={errors.person?.create?.address?.city?.message}
                                 className="w-full"
                                 sx={formTheme}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -736,10 +777,18 @@ export default function AtualizarPessoa() {
                                 variant="outlined"
                                 label="Estado"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.state}
                                 helperText={errors.person?.create?.address?.state?.message}
                                 className="w-full"
                                 sx={formTheme}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -1069,48 +1118,45 @@ export default function AtualizarPessoa() {
                 </Box>
             </form>
 
-            <Modal open={openCancelModal} onClose={() => handleCloseModal("cancelar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] bg-white rounded-lg p-6">
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
-                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
-                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={() => handleCloseModal("cancelar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Comfirmar</Button>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
 
             <Modal open={openDisableModal} onClose={() => handleCloseModal("desabilitar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Desabilitar Usuário</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse usuário?</p>
-                        <Controller
-                            name="endDate"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    variant="outlined"
-                                    label="Data Fim"
-                                    InputLabelProps={{ shrink: true }}
-                                    type="date"
-                                    {...field}
-                                    error={!!errors.endDate}
-                                    helperText={errors.endDate?.message}
-                                    className="w-full"
-                                    sx={[formTheme]}
-                                />
-                            )}
+                        <TextField
+                            variant="outlined"
+                            label="Data Fim"
+                            InputLabelProps={{ shrink: true }}
+                            type="date"
+                            value={tempEndDate}
+                            onChange={(e) => setTempEndDate(e.target.value)}
+                            error={!!errors.endDate}
+                            helperText={errors.endDate?.message}
+                            className="w-full"
+                            sx={[formTheme]}
                         />
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
                             <Button
                                 variant="outlined"
-                                onClick={() => handleCloseModal("desabilitar")}
-                                disabled={loading === true || watch("endDate") === null ? true : false}
-                                sx={buttonTheme}>{loading ? <CircularProgress color="inherit" size={24} /> : "Desabilitar"}
+                                onClick={handleConfirmDisable}
+                                sx={buttonTheme}
+                                disabled={!tempEndDate}
+                            >
+                                {loading ? <CircularProgress color="inherit" size={24} /> : "Confirmar"}
                             </Button>
                         </Box>
                     </Box>

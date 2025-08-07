@@ -206,17 +206,11 @@ export default function FormItens({ control, setValue, watch, formState: { error
                             rows={watch(watchField) || []}
                             columns={columns(type)}
                             localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: {
-                                        pageSize: 10,
-                                    },
-                                },
-                            }}
                             pageSizeOptions={[5, 10, 25]}
                             disableRowSelectionOnClick
                             sx={tableTheme}
                             getRowId={(row) => row.id}
+                            hideFooter
                         />
                     </Box>
                 </Collapse>

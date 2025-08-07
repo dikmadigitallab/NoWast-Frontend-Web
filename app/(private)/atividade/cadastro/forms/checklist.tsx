@@ -107,7 +107,6 @@ export default function FormCheckList({
         }
     };
 
-    // Remover serviço individual da tabela
     const handleRemoveService = (serviceId: string) => {
         const currentServices = watch("serviceItems") || [];
         const updatedServices = currentServices.filter((service: any) => service.id.toString() !== serviceId);
@@ -116,7 +115,6 @@ export default function FormCheckList({
         setValue("serviceItemsIds", updatedServices.map((service: any) => service.id));
     };
 
-    // Colunas da tabela
     const columns: GridColDef<any>[] = [
         {
             field: 'acoes',
@@ -203,17 +201,11 @@ export default function FormCheckList({
                 rows={watch("serviceItems") || []}
                 columns={columns}
                 localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                initialState={{
-                    pagination: {
-                        paginationModel: {
-                            pageSize: 10,
-                        },
-                    },
-                }}
                 pageSizeOptions={[5, 10, 25]}
                 disableRowSelectionOnClick
                 sx={tableTheme}
                 getRowId={(row) => row.id}
+                hideFooter
             />
         </Box>
     );

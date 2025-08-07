@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress, Checkbox, ListItemText } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress, Checkbox, ListItemText, InputAdornment } from "@mui/material";
 import { set, useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -126,6 +126,7 @@ export default function CadastroPessoa() {
     const { data: transportes } = useGet({ url: 'transport' });
     const [file, setFile] = useState<File | null>(null);
     const { create, loading } = useCreate("users", "/usuario/listagem");
+    const [cepLoading, setCepLoading] = useState(false);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const router = useRouter();
@@ -178,6 +179,7 @@ export default function CadastroPessoa() {
     };
 
     const getCepAddress = async (cep: string) => {
+        setCepLoading(true);
         if (cep.length < 9) return;
 
         try {
@@ -222,6 +224,8 @@ export default function CadastroPessoa() {
             setValue('person.create.address', address as any);
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
+        } finally {
+            setCepLoading(false);
         }
     }
 
@@ -536,6 +540,13 @@ export default function CadastroPessoa() {
                                     }
                                     field.onChange(formatted);
                                 }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -547,10 +558,18 @@ export default function CadastroPessoa() {
                                 variant="outlined"
                                 label="Endereço"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.address}
                                 helperText={errors.person?.create?.address?.address?.message}
                                 className="w-full"
                                 sx={formTheme}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -595,10 +614,18 @@ export default function CadastroPessoa() {
                                 variant="outlined"
                                 label="Bairro"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.district}
                                 helperText={errors.person?.create?.address?.district?.message}
                                 className="w-full"
                                 sx={formTheme}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -633,10 +660,18 @@ export default function CadastroPessoa() {
                                 variant="outlined"
                                 label="Cidade"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.city}
                                 helperText={errors.person?.create?.address?.city?.message}
                                 className="w-full"
                                 sx={formTheme}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -648,10 +683,18 @@ export default function CadastroPessoa() {
                                 variant="outlined"
                                 label="Estado"
                                 {...field}
+                                disabled={cepLoading}
                                 error={!!errors.person?.create?.address?.state}
                                 helperText={errors.person?.create?.address?.state?.message}
                                 className="w-full"
                                 sx={formTheme}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {cepLoading && <CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />}
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         )}
                     />
@@ -971,7 +1014,7 @@ export default function CadastroPessoa() {
             </form>
 
             <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>

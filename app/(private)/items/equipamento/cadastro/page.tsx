@@ -28,18 +28,18 @@ export default function CadastroEquipamento() {
     const { data: pessoas } = useGet({ url: 'person' });
     const { create, loading } = useCreateItems("tools", "/items/equipamento/listagem");
     const [file, setFile] = useState<File | null>(null);
-    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
-    const { control, handleSubmit, setValue, formState: { errors } } = useForm<EquipamentoFormValues>({
+    const { control, handleSubmit, formState: { errors } } = useForm<EquipamentoFormValues>({
         resolver: zodResolver(equipamentoSchema),
         defaultValues: { name: "", description: "", responsibleManager: { connect: { id: 0 } } },
         mode: "onChange"
     });
 
-    const handleOpenDisableModal = () => setOpenDisableModal(true);
-    const handleCloseDisableModal = () => setOpenDisableModal(false);
-    const handleDisableConfirm = () => router.push('/items/equipamento/listagem');
+    const handleOpenCancelModal = () => setOpenCancelModal(true);
+    const handleCloseCancelModal = () => setOpenCancelModal(false);
+    const handleCancelConfirm = () => router.push('/items/equipamento/listagem');
 
     const onSubmit = (formData: any) => {
         const newObject = { ...formData, file: file, buildingId: 12 };
@@ -167,19 +167,19 @@ export default function CadastroEquipamento() {
                 </Box>
 
                 <Box className="flex flex-row justify-end gap-4">
-                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDisableModal}>Cancelar</Button>
+                    <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenCancelModal}>Cancelar</Button>
                     <Button variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}</Button>
                 </Box>
             </form>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
                         </Box>
                     </Box>
                 </Box>

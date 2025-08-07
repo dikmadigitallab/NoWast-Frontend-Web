@@ -52,7 +52,7 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
                 id: item.id,
                 personId: item.person?.id,
                 name: item.person?.name,
-                supervisorId: item?.supervisorId?.person?.name,
+                supervisor: item?.supervisor?.person?.name,
                 manager: item?.manager?.person?.name,
                 email: item?.person?.emails[0]?.email,
                 status: item.status,
