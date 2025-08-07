@@ -118,14 +118,8 @@ export default function FormServicos() {
     ];
 
     return (
-        <StyledMainContainer>
+        <>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
-                <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Serviços</h1>
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro de Limpeza</h1>
-                </Box>
-
                 <Box className="w-full flex flex-col gap-5">
                     <Controller
                         name="name"
@@ -259,6 +253,6 @@ export default function FormServicos() {
                     </Box>
                 </Box>
             </Modal>
-        </StyledMainContainer>
+        </>
     );
 }

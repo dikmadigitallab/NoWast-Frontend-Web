@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 export const useUpdateAmbiente = (url: string, redirect?: string) => {
 
-    const { setId, id } = useGetIDStore();
+    const { id, setIdAmbiente } = useGetIDStore();
     const [loading, setLoading] = useState(false);
     const { setSection, section } = useSectionStore();
     const [error, setError] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export const useUpdateAmbiente = (url: string, redirect?: string) => {
             toast.success("Atualização feita com sucesso");
             setTimeout(() => {
                 if (section === 1) {
-                    setId(response.data.data.services[0].id)
+                    setIdAmbiente(response.data.data.services[0].id)
                     setSection(2);
                 } else {
                     if (redirect) {

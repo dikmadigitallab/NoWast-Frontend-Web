@@ -37,14 +37,8 @@ export default function FormDadosGerais() {
     const onSubmit = (formData: AmbienteFormValues) => create(formData);
 
     return (
-        <StyledMainContainer>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
-                <Box className="flex gap-2">
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Ambientes</h1>
-                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
-                </Box>
-
+        <>
+            <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
                 <Box className="w-full flex flex-col gap-5">
                     <Controller
                         name="name"
@@ -141,7 +135,7 @@ export default function FormDadosGerais() {
 
             {/* Modal de cancelamento */}
             <Modal open={openCancelModal} onClose={handleCloseCancelModal}>
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[25%] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? Todos os dados serão apagados.</p>
@@ -152,6 +146,6 @@ export default function FormDadosGerais() {
                     </Box>
                 </Box>
             </Modal>
-        </StyledMainContainer>
+        </>
     );
 }

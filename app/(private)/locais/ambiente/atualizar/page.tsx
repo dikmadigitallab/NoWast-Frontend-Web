@@ -26,12 +26,14 @@ export default function Ambiente() {
 
     return (
         <StyledMainContainer>
-            <Box className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
+            <Box className="w-[100%] flex flex-col gap-5 p-5">
 
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Ambiente</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
+                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Editar</h1>
+                    {section === 1 && <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/ Dados Gerais</h1>}
+                    {section === 2 && <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/ Seviço</h1>}
                 </Box>
 
                 <Box className="w-[100%] flex items-center h-[100px]">

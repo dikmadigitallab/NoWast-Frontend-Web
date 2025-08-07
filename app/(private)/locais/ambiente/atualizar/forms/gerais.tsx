@@ -4,7 +4,6 @@ import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
@@ -26,19 +25,20 @@ const ambienteSchema = z.object({
 type AmbienteFormValues = z.infer<typeof ambienteSchema>;
 
 export default function FormDadosGerais() {
+
     const router = useRouter();
-    const { data, loading } = useGetOneById("environment");
-    const { data: setores } = useGet({ url: "sector" });
-    const [openCancelModal, setOpenCancelModal] = useState(false);
-    const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const [openDisableModal, setOpenDisableModal] = useState(false);
-    const { update } = useUpdateAmbiente("environment");
-    const { handleDelete } = useDelete("environment", "/locais/ambiente/listagem");
     const [disable, setDisable] = useState(false);
     const [tempEndDate, setTempEndDate] = useState("");
+    const { data: setores } = useGet({ url: "sector" });
+    const { update } = useUpdateAmbiente("environment");
+    const { data, loading } = useGetOneById("environment");
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
     const handleCloseDeleteModal = () => setOpenDeleteModal(false);
+    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { handleDelete } = useDelete("environment", "/locais/ambiente/listagem");
 
-    const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<AmbienteFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset, setValue } = useForm<AmbienteFormValues>({
         resolver: zodResolver(ambienteSchema),
         defaultValues: {
             name: "",
@@ -88,7 +88,7 @@ export default function FormDadosGerais() {
     }, [data])
 
     return (
-        <StyledMainContainer>
+        <>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Ambientes</h1>
@@ -260,7 +260,7 @@ export default function FormDadosGerais() {
             </Modal>
 
             <Modal open={openDisableModal} onClose={() => handleCloseModal("desabilitar")} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
-                <Box  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Desabilitar Ambiente</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse ambiente?</p>
@@ -290,6 +290,6 @@ export default function FormDadosGerais() {
                     </Box>
                 </Box>
             </Modal>
-        </StyledMainContainer>
+        </>
     );
 }

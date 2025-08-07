@@ -14,7 +14,7 @@ import { IoImagesOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
-import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Equipamento é obrigatório"),
@@ -28,7 +28,7 @@ export default function EditarEquipamento() {
 
     const router = useRouter();
     const { data } = useGetOneById("tools");
-    const { data: pessoas } = useGet({ url: "person" });
+    const { data: pessoas } = useGetUsuario({});
     const [file, setFile] = useState<File | null>(null);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);

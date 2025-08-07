@@ -73,8 +73,9 @@ export default function Locais() {
     const { create } = useCreateServiceEnvironment();
     const { setSection, section } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
+
     const onSubmit = (data: UserFormValues) => {
-        const newData = {...data, hasRecurrence: data.hasRecurrence === "true" ? true : false}
+        const newData = { ...data, hasRecurrence: data.hasRecurrence === "true" ? true : false }
         console.log(newData);
         create(newData);
     }
@@ -120,6 +121,10 @@ export default function Locais() {
     const handleCloseDisableModal = () => {
         setOpenDisableModal(false);
     };
+
+    const handleOpenDisableModal = () => {
+        setOpenDisableModal(true);
+    }
 
     const handleDisableConfirm = () => {
         router.push('/atividade/listagem');
@@ -172,7 +177,7 @@ export default function Locais() {
                 )}
 
                 <Box className="flex flex-row justify-end gap-4">
-                    <Button variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                    <Button variant="outlined" onClick={handleOpenDisableModal} sx={buttonThemeNoBackground}>Cancelar</Button>
                     {
                         section <= 3 ? (
                             <Button variant="outlined" sx={buttonTheme} onClick={handleNext}>Próximo</Button>
@@ -189,8 +194,8 @@ export default function Locais() {
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Voltar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Cancelar</Button>
+                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>

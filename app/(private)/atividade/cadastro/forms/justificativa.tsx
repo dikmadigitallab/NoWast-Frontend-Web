@@ -3,11 +3,11 @@
 import { Controller } from "react-hook-form";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 export default function FormJustificativa({ control, formState: { errors } }: { control: any, formState: { errors: any, } }) {
 
-    const { data: pessoas, loading } = useGet({ url: "person" });
+    const { data: pessoas, loading } = useGetUsuario({});
 
     return (
         <Box className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">

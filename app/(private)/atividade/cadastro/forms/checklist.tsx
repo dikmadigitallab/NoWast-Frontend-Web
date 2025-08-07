@@ -40,9 +40,8 @@ export default function FormCheckList({
         services: [],
     });
 
-    const { data: services, loading } = useGetServiceEnvironment({ environmentId: 35 });
+    const { data: services, loading } = useGetServiceEnvironment({});
 
-    // Função genérica para remover item selecionado
     const handleRemoveSelected = (
         value: string,
         field: keyof typeof selectedState,
@@ -54,7 +53,6 @@ export default function FormCheckList({
         }));
     };
 
-    // Função para renderizar os chips
     const renderChips = (
         selected: string[],
         field: keyof typeof selectedState,
@@ -89,7 +87,6 @@ export default function FormCheckList({
         );
     };
 
-    // Adicionar serviços selecionados à lista
     const handleAddServices = () => {
         if (selectedState.services.length === 0) return;
 

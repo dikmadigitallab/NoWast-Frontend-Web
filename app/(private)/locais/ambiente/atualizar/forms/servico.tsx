@@ -1,13 +1,12 @@
 "use client";
 
-import { z } from "zod";
+import z from "zod";
 import {
     TextField, Button, Box, Modal, CircularProgress, Chip,
     FormControl, InputLabel, Select, MenuItem, IconButton
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, set } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
@@ -17,9 +16,10 @@ import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useUpdateAmbiente } from "@/app/hooks/locais/ambiente/update";
 import { GoTrash } from "react-icons/go";
-import { MdOutlineModeEditOutline } from "react-icons/md";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
+import { FiPlus } from "react-icons/fi";
+import { IoMdClose } from "react-icons/io";
 
 const servicoSchema = z.object({
     name: z.string().min(1, "Nome do serviço é obrigatório"),
@@ -47,15 +47,16 @@ type ServiceItem = {
 export default function FormServicos() {
     const router = useRouter();
     const { id } = useGetIDStore();
-    const { data } = useGetOneById("service");
-    const [newItem, setNewItem] = useState("");
-    const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
+    const { data: servico } = useGetOneById("service");
     const { data: tiposServicos } = useGet({ url: "serviceType" });
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
     const { update, loading } = useUpdateAmbiente("service", "/locais/ambiente/listagem");
+    const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
+    const [servicesFromApi, setServicesFromApi] = useState<any[]>([]);
 
-    const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<ServicoFormValues>({
+
+    const { control, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm<ServicoFormValues>({
         resolver: zodResolver(servicoSchema),
         defaultValues: {
             name: "",
@@ -70,44 +71,69 @@ export default function FormServicos() {
     const handleCloseCancelModal = () => setOpenCancelModal(false);
     const handleCancelConfirm = () => router.push('/locais/ambiente/listagem');
 
-
-    const handleEditItem = (item: ServiceItem) => {
-        setEditingItem(item);
-        setNewItem(item.name);
+    const handleRemoveSelected = (value: string) => {
+        setSelectedState(prev => ({
+            ...prev,
+            services: prev.services.filter(id => id !== value)
+        }));
     };
 
-    const addServiceItem = () => {
-        const text = newItem.trim();
-        if (!text) return;
+    const renderChips = () => {
+        return (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selectedState.services.map((value) => {
+                    const selectedItem = servicesFromApi?.find(item => item.id.toString() === value);
+                    return (
+                        <Chip
+                            key={value}
+                            label={selectedItem ? selectedItem.name : `ID: ${value}`}
+                            onDelete={() => handleRemoveSelected(value)}
+                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                            sx={{
+                                backgroundColor: '#00B288',
+                                color: 'white',
+                                borderRadius: '4px',
+                                fontSize: '.7rem',
+                                '& .MuiChip-deleteIcon': {
+                                    color: 'white',
+                                    fontSize: '.8rem',
+                                },
+                            }}
+                        />
+                    );
+                })}
+            </Box>
+        );
+    };
 
-        if (editingItem) {
-            const updatedItems = serviceItems.map(item => item.id === editingItem.id ? { ...item, name: text } : item);
-            setServiceItems(updatedItems);
-            setValue("serviceItens", { create: updatedItems.map(item => ({ name: item.name })) });
-            setEditingItem(null);
-        } else {
-            if (!serviceItems.some(item => item.name === text)) {
-                const newItemObj = { id: Date.now(), name: text };
-                const updatedItems = [...serviceItems, newItemObj];
-                setServiceItems(updatedItems);
-                setValue("serviceItens", { create: updatedItems.map(item => ({ name: item.name })) });
-            }
+    const handleAddServices = () => {
+        if (selectedState.services.length === 0) return;
+
+        const serviceToAdd = servicesFromApi?.filter((service) =>
+            selectedState.services.includes(service.id.toString()) &&
+            !serviceItems.some(existingService => existingService.id.toString() === service.id.toString())
+        );
+
+        if (serviceToAdd.length > 0) {
+            const updatedServices = [...serviceItems, ...serviceToAdd.map((service) => ({
+                id: service.id,
+                name: service.name
+            }))];
+
+            setServiceItems(updatedServices);
+            setValue("serviceItens", {
+                create: updatedServices.map(service => ({ name: service.name }))
+            });
+            setSelectedState(prev => ({ ...prev, services: [] }));
         }
-        setNewItem("");
     };
 
-    const removeServiceItem = (name: string) => {
-        const updatedItems = serviceItems.filter(item => item.name !== name);
+    const handleRemoveService = (serviceId: string) => {
+        const updatedItems = serviceItems.filter(item => item.id.toString() !== serviceId);
         setServiceItems(updatedItems);
-        setValue("serviceItens", { create: updatedItems.map(item => ({ name: item.name })) });
-        if (editingItem && editingItem.name === name) {
-            setEditingItem(null);
-            setNewItem("");
-        }
-    };
-
-    const onSubmit = (formData: ServicoFormValues) => {
-        update(formData);
+        setValue("serviceItens", {
+            create: updatedItems.map(item => ({ name: item.name }))
+        });
     };
 
     const columns: GridColDef<ServiceItem>[] = [
@@ -120,11 +146,8 @@ export default function FormServicos() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton size="small" onClick={() => removeServiceItem(params.row.name)}>
+                    <IconButton size="small" onClick={() => handleRemoveService(params.row.id.toString())}>
                         <GoTrash color='#635D77' size={20} />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleEditItem(params.row)}>
-                        <MdOutlineModeEditOutline color='#635D77' size={20} />
                     </IconButton>
                 </Box>
             ),
@@ -133,18 +156,41 @@ export default function FormServicos() {
     ];
 
     useEffect(() => {
-        if (data) {
+
+        setServicesFromApi(servico?.serviceItems);
+        const initialItems = servicesFromApi?.map((item) => ({
+            id: item.id,
+            name: item.name
+        }));
+
+        setServiceItems(initialItems);
+        setValue("serviceItens", {
+            create: initialItems.map(item => ({ name: item.name }))
+        });
+
+        if (servico) {
             reset({
-                ...data,
-                environment: { connect: { id: data.environmentId } },
-                serviceType: { connect: { id: data.serviceTypeId } },
-                serviceItens: { create: data.serviceItens?.map((item: any) => ({ name: item.name })) || [] }
+                ...servico,
+                environment: { connect: { id: servico.environmentId } },
+                serviceType: { connect: { id: servico.serviceTypeId } }
+            });
+        } else {
+            reset({
+                name: "Serviço de Limpeza",
+                environment: { connect: { id: id } },
+                serviceType: { connect: { id: 1 } },
+                serviceItens: { create: initialItems.map(item => ({ name: item.name })) }
             });
         }
-    }, [data, reset]);
+    }, [servico, reset, id, setValue]);
+
+    const onSubmit = (formData: ServicoFormValues) => {
+        console.log("Dados enviados:", formData);
+        update(formData);
+    };
 
     return (
-        <StyledMainContainer>
+        <>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Serviços</h1>
@@ -198,41 +244,47 @@ export default function FormServicos() {
                         )}
                     />
 
-                    <Box className="flex flex-col gap-2">
-                        <Box className="flex gap-2 h-[55px]">
-                            <TextField
-                                label={editingItem ? "Editar Item" : "Novo Item de Serviço"}
-                                variant="outlined"
-                                value={newItem}
-                                onChange={(e) => setNewItem(e.target.value)}
-                                sx={[formTheme, { height: "100%" }]}
-                                fullWidth
-                            />
-                            <Button
-                                variant="outlined"
-                                onClick={addServiceItem}
-                                sx={[buttonTheme, { height: "100%" }]}
-                            >
-                                {editingItem ? "Atualizar" : "Adicionar"}
-                            </Button>
-                            {editingItem && (
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => {
-                                        setEditingItem(null);
-                                        setNewItem("");
-                                    }}
-                                    sx={[buttonThemeNoBackground, { height: "100%" }]}
-                                >
-                                    Cancelar
-                                </Button>
-                            )}
+                    <Box className="flex flex-col gap-3">
+                        <Box className="flex items-center gap-2">
+                            <Box className="w-[15px] h-[15px] bg-[#3aba8a]" />
+                            <span className="text-[#3aba8a] font-bold">Checklist</span>
+                            <Box className="flex-1 h-[1px] bg-[#3aba8a]" />
                         </Box>
-
-                        {errors.serviceItens && (
-                            <p className="text-red-500 text-sm">{errors.serviceItens.message}</p>
-                        )}
+                        <Box className="flex flex-row gap-3 h-[60px]">
+                            <FormControl sx={formTheme} fullWidth>
+                                <InputLabel>Checklist</InputLabel>
+                                <Select
+                                    label="Checklist"
+                                    multiple
+                                    value={selectedState.services}
+                                    onChange={(e) =>
+                                        setSelectedState(prev => ({
+                                            ...prev,
+                                            services: e.target.value as string[]
+                                        }))
+                                    }
+                                    renderValue={renderChips}
+                                >
+                                    <MenuItem value="" disabled>Selecione serviços...</MenuItem>
+                                    {servicesFromApi?.map((service) => (
+                                        <MenuItem key={service.id} value={service.id.toString()}>
+                                            {service.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <Button
+                                sx={[buttonTheme, { height: "90%" }]}
+                                onClick={handleAddServices}
+                            >
+                                <FiPlus size={25} color="#fff" />
+                            </Button>
+                        </Box>
                     </Box>
+
+                    {errors.serviceItens && (
+                        <p className="text-red-500 text-sm">{errors.serviceItens.message}</p>
+                    )}
                 </Box>
 
                 <Box>
@@ -285,6 +337,6 @@ export default function FormServicos() {
                     </Box>
                 </Box>
             </Modal>
-        </StyledMainContainer>
+        </>
     );
 }

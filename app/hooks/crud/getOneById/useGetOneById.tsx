@@ -7,7 +7,7 @@ import { useGetIDStore } from "@/app/store/getIDStore";
 
 export const useGetOneById = (url: string) => {
 
-    const { id } = useGetIDStore();
+    const { id_ambiente } = useGetIDStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
@@ -27,7 +27,7 @@ export const useGetOneById = (url: string) => {
         }
 
         try {
-            const response = await api.get<any>(`/${url}/${id}`, {
+            const response = await api.get<any>(`/${url}/${id_ambiente}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
@@ -45,8 +45,8 @@ export const useGetOneById = (url: string) => {
     };
 
     useEffect(() => {
-        if (id) getOneById();
-    }, [id]);
+        if (id_ambiente) getOneById();
+    }, [id_ambiente]);
 
     return {
         getOneById,

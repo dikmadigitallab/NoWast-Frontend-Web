@@ -3,8 +3,6 @@
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
-import { useGetIDStore } from "@/app/store/getIDStore";
-
 
 export interface UseGetParams {
     page?: number,
@@ -20,7 +18,6 @@ export interface UseGetParams {
 
 export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
-    const { id } = useGetIDStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
@@ -39,6 +36,7 @@ export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = nu
         }
 
         try {
+
             const params = new URLSearchParams();
 
             params.append("disablePagination", "true");
@@ -51,7 +49,7 @@ export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = nu
             if (managerId !== null) params.append("managerId", String(managerId).trim());
             if (responsibleManagerId !== null) params.append("responsibleManagerId", String(responsibleManagerId).trim());
             if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
-            if (id !== null) params.append("environmentId", String(environmentId).trim());
+            if (environmentId !== null) params.append("environmentId", String(environmentId).trim());
 
             const paramUrl = `/service?${params.toString()}`;
 
@@ -61,7 +59,6 @@ export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = nu
                     "Content-Type": "application/json",
                 },
             });
-
 
             const refactorData = response.data.data.items.map((item: any) => item.serviceItems);
             setData(refactorData[0]);
