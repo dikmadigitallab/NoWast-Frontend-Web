@@ -2,10 +2,10 @@
 
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { IoIosArrowForward } from "react-icons/io";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Button, Modal } from "@mui/material";
 import FormDadosGerais from "./forms/gerais";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
@@ -15,6 +15,8 @@ import FormCheckList from "./forms/checklist";
 import { useRouter } from "next/navigation";
 import { useSectionStore } from "@/app/store/renderSection";
 import { useCreateActivity } from "@/app/hooks/atividade/create";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { useUpdateActivity } from "@/app/hooks/atividade/update";
 
 const activitySchema = z.object({
     description: z.string().min(1, "Campo Obrigatório"),
@@ -41,9 +43,9 @@ const activitySchema = z.object({
 
 type UserFormValues = z.infer<typeof activitySchema>;
 
-export default function Atividade() {
+export default function AtividadeAtualizar() {
 
-    const { control, handleSubmit, formState: { errors }, setValue, watch, trigger, clearErrors } =
+    const { control, handleSubmit, formState: { errors }, reset, setValue, watch, trigger, clearErrors } =
         useForm<any>({
             resolver: zodResolver(activitySchema),
             defaultValues: {
@@ -68,8 +70,10 @@ export default function Atividade() {
             reValidateMode: "onChange",
         });
 
+
     const router = useRouter();
-    const { create } = useCreateActivity();
+    const { update } = useUpdateActivity();
+    const { data: atividade } = useGetOneById("activity")
     const { setSection, section } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -87,10 +91,8 @@ export default function Atividade() {
             serviceItemsIds: convertToString(data.serviceItemsIds)
         };
 
-        create(newData);
+        update(newData);
     };
-
-
 
     const handleNext = () => {
 
@@ -141,6 +143,41 @@ export default function Atividade() {
     const handleDisableConfirm = () => {
         router.push('/atividade/listagem');
     };
+
+    useEffect(() => {
+        if (atividade) {
+            setValue('description', atividade?.description);
+            setValue('environmentId', atividade?.environmentId);
+            setValue('statusEnum', atividade?.statusEnum);
+            setValue('dateTime', atividade?.dateTime);
+            setValue('activityTypeEnum', atividade?.activityTypeEnum);
+            setValue('supervisorId', atividade?.supervisorId);
+            setValue('managerId', atividade?.managerId);
+            setValue('observation', atividade?.observation || '');
+            setValue('hasRecurrence', atividade?.recurrenceId ? 'true' : 'false');
+            setValue('approvalStatus', atividade?.approvalStatus);
+            setValue('approvalDate', atividade?.approvalDate ? atividade?.approvalDate : '');
+            setValue('approvalUpdatedByUserId', atividade?.approvalUpdatedByUserId || null);
+            setValue('serviceItemsIds', atividade?.checklists?.map((item: any) => item.serviceItemId));
+            setValue("users", atividade?.userActivities);
+            setValue('usersIds', atividade?.userActivities?.map((user: any) => user.userId));
+            setValue('epis', atividade?.ppes);
+            setValue('epiIds', atividade?.ppes?.map((ppe: any) => ppe.id));
+            setValue('produtos', atividade?.products);
+            setValue('productIds', atividade?.products?.map((product: any) => product.id));
+            setValue('transportes', atividade?.transports);
+            setValue('vehicleIds', atividade?.transports?.map((transport: any) => transport.id));
+            setValue('equipamentos', atividade?.tools);
+            setValue('equipamentoIds', atividade?.tools?.map((equipment: any) => equipment.id));
+            setValue('serviceItems', atividade?.checklists);
+            setValue('serviceItemsIds', atividade?.checklists?.map((checklist: any) => checklist.id));
+
+
+        }
+    }, [atividade, reset]);
+
+    console.log(atividade)
+
 
     return (
         <StyledMainContainer>

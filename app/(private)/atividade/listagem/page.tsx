@@ -1,32 +1,37 @@
 "use client";
 
 
-import Box from '@mui/material/Box';
-import React, { useState } from 'react';
-import { Button, IconButton, TextField } from '@mui/material';
-import { ptBR } from '@mui/x-data-grid/locales';
-import { FiPlus } from 'react-icons/fi';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
+import { StyledMainContainer } from '@/app/styles/container/container';
 import ModalVisualizeDetail from './component/modalActivityDetail';
-import { GoDownload } from 'react-icons/go';
-import { formTheme } from '@/app/styles/formTheme/theme';
-import { useGetActivity } from '@/app/hooks/atividade/useGet';
+import { Button, IconButton, TextField } from '@mui/material';
+import { useGetActivity } from '@/app/hooks/atividade/get';
 import { LoadingComponent } from '@/app/components/loading';
-import { filterStatusActivity } from '@/app/utils/statusActivity';
+import { formTheme } from '@/app/styles/formTheme/theme';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { useGetIDStore } from '@/app/store/getIDStore';
+import { ptBR } from '@mui/x-data-grid/locales';
+import { GoDownload } from 'react-icons/go';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { FiPlus } from 'react-icons/fi';
+import Box from '@mui/material/Box';
 
 export default function DataGridAtividades() {
 
-    const [modalEdit, setModalEdit] = useState(false);
+    const router = useRouter();
+    const { setId } = useGetIDStore()
     const [isFilter, setIsFilter] = useState(false);
     const [visualize, setVisualize] = useState<any>(null);
+    const { data: activity, loading } = useGetActivity({});
     const [modalVisualize, setModalVisualize] = useState(false);
-    const { data: activity, loading } = useGetActivity({})
 
-    const handleChangeModalEdit = (data: any) => {
-        setModalEdit(!modalEdit);
+    const handleChangeModalEdit = (id: any) => {
+        setId(id)
+        setTimeout(() => {
+            router.push(`/atividade/atualizar`);
+        }, 1000)
     }
 
     const handleChangeModalVisualize = (data: any) => {
@@ -48,7 +53,7 @@ export default function DataGridAtividades() {
                     <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalVisualize(params.row)}>
                         <MdOutlineVisibility color='#635D77' />
                     </IconButton>
-                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row)}>
+                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
                         <MdOutlineModeEditOutline color='#635D77' />
                     </IconButton>
                 </Box>

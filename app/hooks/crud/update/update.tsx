@@ -48,7 +48,7 @@ export const useUpdate = (url: string, redirect: string) => {
             }
 
             setData(response.data.data);
-            toast.success("Atualização feito com sucesso");
+            toast.success("Atualização feita com sucesso");
 
             setTimeout(() => {
                 router.push(redirect);

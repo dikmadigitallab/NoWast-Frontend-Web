@@ -1,17 +1,19 @@
+import { useGetIDStore } from "@/app/store/getIDStore";
 import { Logout } from "@/app/utils/logout";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import api from "../api";
 
-export const useCreateActivity = () => {
+export const useUpdateActivity = () => {
 
+    const { id } = useGetIDStore();
     const router = useRouter();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const create = async (data: any) => {
+    const update = async (data: any) => {
         setError(null);
         setLoading(true);
 
@@ -32,14 +34,14 @@ export const useCreateActivity = () => {
         });
 
         try {
-            const response = await api.post(`/activity`, formData, {
+            const response = await api.patch(`/activity/${id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                 },
             });
 
             setData(response.data.data);
-            toast.success("Cadastro feito com sucesso");
+            toast.success("Atualização feita com sucesso");
 
             setTimeout(() => {
                 router.push("/atividade/listagem");
@@ -54,7 +56,7 @@ export const useCreateActivity = () => {
     };
 
     return {
-        create,
+        update,
         loading,
         error,
         data
