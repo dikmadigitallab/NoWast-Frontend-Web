@@ -1,20 +1,18 @@
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
-import api from "../../api";
 import { useSectionStore } from "@/app/store/renderSection";
-import { useGetIDStore } from "@/app/store/getIDStore";
 import { useRouter } from "next/navigation";
+import api from "../api";
 
-export const useUpdateAmbiente = (url: string, redirect?: string) => {
+export const useUpdateService = (redirect?: string) => {
 
-    const { id, setIdService } = useGetIDStore();
     const [loading, setLoading] = useState(false);
     const { setSection, section } = useSectionStore();
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    const update = async (data: any) => {
+    const update = async (id: string, data: any) => {
 
         setError(null);
         setLoading(true);
@@ -28,14 +26,13 @@ export const useUpdateAmbiente = (url: string, redirect?: string) => {
         }
 
         try {
-            const response = await api.put(`/${url}/${id}`, data, {
+            const response = await api.put(`/service/${id}`, data, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            setIdService(response.data.data.services[0].id)
             toast.success("Atualização feita com sucesso");
             setTimeout(() => {
                 if (section === 1) {

@@ -5,18 +5,18 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 interface GetIDStore {
     id: string | number | null | any;
-    id_ambiente: string | number | null | any;
-    setId: (id: number | string) => void;
-    setIdAmbiente: (id: number | string) => void;
+    id_service: string | number | null | any;
+    setId: (id: number | string | null) => void;
+    setIdService: (id: number | string | null) => void;
 }
 
 export const useGetIDStore = create<GetIDStore>()(
     persist(
         (set) => ({
             id: null,
-            id_ambiente: null,
+            id_service: null,
             setId: (id) => set({ id }),
-            setIdAmbiente: (id_ambiente) => set({ id_ambiente }),
+            setIdService: (id_service) => set({ id_service }),
         }),
         {
             name: "id-storage",

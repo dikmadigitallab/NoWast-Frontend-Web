@@ -2,12 +2,12 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../../api";
 import { useGetIDStore } from "@/app/store/getIDStore";
+import api from "../api";
 
-export const useGetOneById = (url: string) => {
+export const useGetOneServiceById = () => {
 
-    const { id } = useGetIDStore();
+    const { id_service } = useGetIDStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
@@ -27,7 +27,7 @@ export const useGetOneById = (url: string) => {
         }
 
         try {
-            const response = await api.get<any>(`/${url}/${id}`, {
+            const response = await api.get<any>(`/service/${id_service}`, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
                     "Content-Type": "application/json",
@@ -45,8 +45,8 @@ export const useGetOneById = (url: string) => {
     };
 
     useEffect(() => {
-        if (id) getOneById();
-    }, [id]);
+        if (id_service) getOneById();
+    }, [id_service]);
 
     return {
         getOneById,

@@ -75,10 +75,23 @@ export default function Locais() {
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const onSubmit = (data: UserFormValues) => {
-        const newData = { ...data, hasRecurrence: data.hasRecurrence === "true" ? true : false }
-        console.log(newData);
+        const convertToString = (arr?: number[]) => arr && arr.length > 0 ? arr.join(",") : "";
+
+        const newData = {
+            ...data,
+            hasRecurrence: data.hasRecurrence === "true" ? true : false,
+            usersIds: convertToString(data.usersIds),
+            epiIds: convertToString(data.epiIds),
+            equipmentIds: convertToString(data.equipmentIds),
+            productIds: convertToString(data.productIds),
+            vehicleIds: convertToString(data.vehicleIds),
+            serviceItemsIds: convertToString(data.serviceItemsIds)
+        };
+
         create(newData);
-    }
+    };
+
+
 
     const handleNext = () => {
 

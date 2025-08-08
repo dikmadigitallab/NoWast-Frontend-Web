@@ -1,25 +1,22 @@
 "use client";
 
-import z from "zod";
-import {
-    TextField, Button, Box, Modal, CircularProgress, Chip,
-    FormControl, InputLabel, Select, MenuItem, IconButton
-} from "@mui/material";
-import { useForm, Controller, set } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formTheme } from "@/app/styles/formTheme/theme";
+import { TextField, Button, Box, Modal, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, IconButton } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { useGetOneServiceById } from "@/app/hooks/servicos/getOne";
+import { useUpdateService } from "@/app/hooks/servicos/update";
+import { formTheme } from "@/app/styles/formTheme/theme";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useGetIDStore } from "@/app/store/getIDStore";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useGet } from "@/app/hooks/crud/get/useGet";
+import { ptBR } from "@mui/x-data-grid/locales";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useGetIDStore } from "@/app/store/getIDStore";
-import { useGet } from "@/app/hooks/crud/get/useGet";
-import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
-import { useUpdateAmbiente } from "@/app/hooks/locais/ambiente/update";
-import { GoTrash } from "react-icons/go";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { ptBR } from "@mui/x-data-grid/locales";
-import { FiPlus } from "react-icons/fi";
 import { IoMdClose } from "react-icons/io";
+import { GoTrash } from "react-icons/go";
+import { FiPlus } from "react-icons/fi";
+import z from "zod";
 
 const servicoSchema = z.object({
     name: z.string().min(1, "Nome do serviço é obrigatório"),
@@ -31,8 +28,13 @@ const servicoSchema = z.object({
         })
     }),
     serviceItens: z.object({
-        create: z.array(z.object({
-            name: z.string().min(1, "Pelo menos um item de serviço é obrigatório")
+        update: z.array(z.object({
+            update: z.object({
+                name: z.string().min(1, "Pelo menos um item de serviço é obrigatório"),
+                service: z.object({
+                    connect: z.object({ id: z.number() })
+                })
+            })
         }))
     })
 });
@@ -45,24 +47,24 @@ type ServiceItem = {
 };
 
 export default function FormServicos() {
+
     const router = useRouter();
     const { id } = useGetIDStore();
-    const { data: servico } = useGetOneById("service");
+    const { data: servico } = useGetOneServiceById();
     const { data: tiposServicos } = useGet({ url: "serviceType" });
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
-    const { update, loading } = useUpdateAmbiente("service", "/locais/ambiente/listagem");
+    const { update, loading } = useUpdateService("/locais/ambiente/listagem");
     const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
     const [servicesFromApi, setServicesFromApi] = useState<any[]>([]);
 
-
-    const { control, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm<ServicoFormValues>({
+    const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<ServicoFormValues>({
         resolver: zodResolver(servicoSchema),
         defaultValues: {
             name: "",
             environment: { connect: { id: id } },
-            serviceType: { connect: { id: null } },
-            serviceItens: { create: [] }
+            serviceType: { connect: { id: null, name: "" } },
+            serviceItens: { update: [] }
         },
         mode: "onChange"
     });
@@ -78,38 +80,37 @@ export default function FormServicos() {
         }));
     };
 
-    const renderChips = () => {
-        return (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selectedState.services.map((value) => {
-                    const selectedItem = servicesFromApi?.find(item => item.id.toString() === value);
-                    return (
-                        <Chip
-                            key={value}
-                            label={selectedItem ? selectedItem.name : `ID: ${value}`}
-                            onDelete={() => handleRemoveSelected(value)}
-                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                            sx={{
-                                backgroundColor: '#00B288',
+    const renderChips = () => (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {selectedState?.services?.map((value) => {
+                const selectedItem = servicesFromApi?.find(item => item.id.toString() === value);
+                return (
+                    <Chip
+                        key={value}
+                        label={selectedItem ? selectedItem.name : `ID: ${value}`}
+                        onDelete={() => handleRemoveSelected(value)}
+                        deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                        sx={{
+                            backgroundColor: '#00B288',
+                            color: 'white',
+                            borderRadius: '4px',
+                            fontSize: '.7rem',
+                            '& .MuiChip-deleteIcon': {
                                 color: 'white',
-                                borderRadius: '4px',
-                                fontSize: '.7rem',
-                                '& .MuiChip-deleteIcon': {
-                                    color: 'white',
-                                    fontSize: '.8rem',
-                                },
-                            }}
-                        />
-                    );
-                })}
-            </Box>
-        );
-    };
+                                fontSize: '.8rem',
+                            },
+                        }}
+                    />
+                );
+            })}
+        </Box>
+    );
 
     const handleAddServices = () => {
+        if (!Array.isArray(serviceItems)) return;
         if (selectedState.services.length === 0) return;
 
-        const serviceToAdd = servicesFromApi?.filter((service) =>
+        const serviceToAdd = (servicesFromApi ?? []).filter((service) =>
             selectedState.services.includes(service.id.toString()) &&
             !serviceItems.some(existingService => existingService.id.toString() === service.id.toString())
         );
@@ -122,7 +123,12 @@ export default function FormServicos() {
 
             setServiceItems(updatedServices);
             setValue("serviceItens", {
-                create: updatedServices.map(service => ({ name: service.name }))
+                update: updatedServices.map(service => ({
+                    update: {
+                        name: service.name,
+                        service: { connect: { id: service.id } }
+                    }
+                }))
             });
             setSelectedState(prev => ({ ...prev, services: [] }));
         }
@@ -132,7 +138,12 @@ export default function FormServicos() {
         const updatedItems = serviceItems.filter(item => item.id.toString() !== serviceId);
         setServiceItems(updatedItems);
         setValue("serviceItens", {
-            create: updatedItems.map(item => ({ name: item.name }))
+            update: updatedItems.map(item => ({
+                update: {
+                    name: item.name,
+                    service: { connect: { id: item.id } }
+                }
+            }))
         });
     };
 
@@ -156,37 +167,57 @@ export default function FormServicos() {
     ];
 
     useEffect(() => {
+        const services = servico?.serviceItems ?? [];
+        setServicesFromApi(services);
 
-        setServicesFromApi(servico?.serviceItems);
-        const initialItems = servicesFromApi?.map((item) => ({
+        const initialItems = services.map((item: any) => ({
             id: item.id,
             name: item.name
         }));
 
         setServiceItems(initialItems);
         setValue("serviceItens", {
-            create: initialItems.map(item => ({ name: item.name }))
+            update: initialItems.map((item: any) => ({
+                update: {
+                    name: item.name,
+                    service: { connect: { id: item.id } }
+                }
+            }))
         });
 
         if (servico) {
             reset({
                 ...servico,
                 environment: { connect: { id: servico.environmentId } },
-                serviceType: { connect: { id: servico.serviceTypeId } }
+                serviceType: { connect: { id: servico.serviceTypeId, name: servico.serviceTypeName ?? "" } },
+                serviceItens: {
+                    update: initialItems.map((item: any) => ({
+                        update: {
+                            name: item.name,
+                            service: { connect: { id: item.id } }
+                        }
+                    }))
+                }
             });
         } else {
             reset({
                 name: "Serviço de Limpeza",
                 environment: { connect: { id: id } },
-                serviceType: { connect: { id: 1 } },
-                serviceItens: { create: initialItems.map(item => ({ name: item.name })) }
+                serviceType: { connect: { id: 1, name: "" } },
+                serviceItens: {
+                    update: initialItems.map((item: any) => ({
+                        update: {
+                            name: item.name,
+                            service: { connect: { id: item.id } }
+                        }
+                    }))
+                }
             });
         }
     }, [servico, reset, id, setValue]);
 
     const onSubmit = (formData: ServicoFormValues) => {
-        console.log("Dados enviados:", formData);
-        update(formData);
+        update(servico.id, formData);
     };
 
     return (

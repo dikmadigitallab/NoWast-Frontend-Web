@@ -22,31 +22,18 @@ import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from "@/app/styles/tableTheme/theme";
 import { useGetServiceEnvironment } from '@/app/hooks/atividade/useGet';
+import { useGetIDStore } from '@/app/store/getIDStore';
 
 type Service = { id: number, name: string };
 
-export default function FormCheckList({
-    control,
-    setValue,
-    watch,
-    formState: { errors }
-}: {
-    control: any,
-    setValue: any,
-    watch: any,
-    formState: { errors: any }
-}) {
-    const [selectedState, setSelectedState] = useState<{ services: string[] }>({
-        services: [],
-    });
+export default function FormCheckList({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any } }) {
 
-    const { data: services, loading } = useGetServiceEnvironment({});
+    const { id } = useGetIDStore();
+    const { data: services, loading } = useGetServiceEnvironment({ environmentId: id });
+    const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
 
-    const handleRemoveSelected = (
-        value: string,
-        field: keyof typeof selectedState,
-        setSelectedState: any
-    ) => {
+    // console.log("Selected State:", services);
+    const handleRemoveSelected = (value: string, field: keyof typeof selectedState, setSelectedState: any) => {
         setSelectedState((prev: any) => ({
             ...prev,
             [field]: prev[field].filter((id: string) => id !== value)

@@ -3,6 +3,7 @@
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../../api";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
 
 export interface UseGetParams {
@@ -22,10 +23,11 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const { setIdService, setId } = useGetIDStore();
     const [data, setData] = useState<any>(null);
 
     const get = async () => {
-        
+
         setError(null);
         setLoading(true);
 
@@ -70,6 +72,8 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
             }
         } finally {
             setLoading(false);
+            setIdService(null)
+            setId(null)
         }
     };
 

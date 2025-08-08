@@ -1,14 +1,14 @@
 "use client";
 
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
+import { useSectionStore } from "@/app/store/renderSection";
 import { IoIosArrowForward } from "react-icons/io";
-import { useState } from "react";
 import { Box, Button, Modal } from "@mui/material";
 import FormDadosGerais from "./forms/gerais";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
-import { useSectionStore } from "@/app/store/renderSection";
 import FormServicos from "./forms/servico";
+import { useState } from "react";
 
 export default function Ambiente() {
 
@@ -31,9 +31,9 @@ export default function Ambiente() {
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Ambiente</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                    <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
-                    {section === 1 && <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/ Dados Gerais</h1>}
-                    {section === 2 && <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/ Seviço</h1>}
+                    <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Cadastro</h1>
+                    {section === 1 && <h1 className="text-[#5E5873] text-[1.4rem] font-normal">/ Dados Gerais</h1>}
+                    {section === 2 && <h1 className="text-[#5E5873] text-[1.4rem] font-normal">/ Seviço</h1>}
                 </Box>
 
                 <Box className="w-[100%] flex items-center h-[100px]">

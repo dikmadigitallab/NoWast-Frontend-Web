@@ -60,6 +60,8 @@ export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = nu
                 },
             });
 
+            console.log(response.data.data.items)
+
             const refactorData = response.data.data.items.map((item: any) => item.serviceItems);
             setData(refactorData[0]);
 
