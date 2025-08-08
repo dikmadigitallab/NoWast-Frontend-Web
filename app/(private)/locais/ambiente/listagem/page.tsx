@@ -78,8 +78,11 @@ export default function DataGridAmbientes() {
         },
         {
             field: 'areaM2',
-            headerName: 'Área em m²',
-            width: 120,
+            headerName: 'Dimensão',
+            width: 150,
+            renderCell: (params) => (
+                <span>{params.row.areaM2} m²</span>
+            ),
         },
         {
             field: 'sectorId',

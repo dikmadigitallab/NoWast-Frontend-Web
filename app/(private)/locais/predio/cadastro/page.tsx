@@ -10,10 +10,10 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useCreate } from "@/app/hooks/crud/create/useCreate";
 import { IoImagesOutline } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const predioSchema = z.object({
     name: z.string().min(1, "Nome do Predio é obrigatório"),
@@ -39,7 +39,7 @@ export default function CadastroPredio() {
     });
 
     const { create, loading } = useCreate("building", "/locais/predio/listagem");
-    const { data: contratos } = useGetContratos(true);
+    const { data: contratos } = useGet({ url: "contract" });
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);

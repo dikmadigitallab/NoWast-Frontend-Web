@@ -60,7 +60,7 @@ export default function EditarSetor() {
     const handleCloseCancelModal = () => setOpenCancelModal(false);
     const { handleDelete } = useDelete("sector", "/locais/setor/listagem");
     const { update, loading } = useUpdate("sector", "/locais/setor/listagem");
-    const handleCancelConfirm = () => router.push('/locais/setor/listagem");');
+    const handleCancelConfirm = () => router.push("/locais/setor/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenDeleteModal = () => {

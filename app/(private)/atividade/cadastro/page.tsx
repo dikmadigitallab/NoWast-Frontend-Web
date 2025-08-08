@@ -14,8 +14,7 @@ import FormItens from "./forms/itens";
 import FormCheckList from "./forms/checklist";
 import { useRouter } from "next/navigation";
 import { useSectionStore } from "@/app/store/renderSection";
-import FormJustificativa from "./forms/justificativa";
-import { useCreateServiceEnvironment } from "@/app/hooks/atividade/useCreate";
+import { useCreateServiceEnvironment } from "@/app/hooks/atividade/create";
 
 const activitySchema = z.object({
     description: z.string().min(1, "Campo Obrigatório"),

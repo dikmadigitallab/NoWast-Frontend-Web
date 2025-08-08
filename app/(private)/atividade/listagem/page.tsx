@@ -1,6 +1,6 @@
 "use client";
 
-import { rows } from './data';
+
 import Box from '@mui/material/Box';
 import React, { useState } from 'react';
 import { Button, IconButton, TextField } from '@mui/material';
@@ -10,21 +10,22 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
-import ModalAmbienteEditModal from './component/AmbienteEdit/modalAmbienteEdit';
-import ModalVisualizeDetail from './component/modalAmbienteDetail';
+import ModalVisualizeDetail from './component/modalActivityDetail';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
+import { useGetActivity } from '@/app/hooks/atividade/useGet';
+import { LoadingComponent } from '@/app/components/loading';
+import { filterStatusActivity } from '@/app/utils/statusActivity';
 
 export default function DataGridAtividades() {
 
-    const [edit, setEdit] = useState<any>(null);
     const [modalEdit, setModalEdit] = useState(false);
     const [isFilter, setIsFilter] = useState(false);
     const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
+    const { data: activity, loading } = useGetActivity({})
 
     const handleChangeModalEdit = (data: any) => {
-        setEdit(data);
         setModalEdit(!modalEdit);
     }
 
@@ -59,47 +60,44 @@ export default function DataGridAtividades() {
             width: 80,
         },
         {
-            field: 'nome',
-            headerName: 'Nome do Ambiente',
-            width: 200,
-        },
-        {
-            field: 'setor',
-            headerName: 'Setor',
+            field: 'approvalStatus',
+            headerName: 'Status de Aprovação',
             width: 150,
         },
         {
-            field: 'predio',
-            headerName: 'Predio',
+            field: 'environment',
+            headerName: 'Ambiente',
             width: 150,
         },
         {
-            field: 'dataHora',
+            field: 'dateTime',
             headerName: 'Data e Hora',
             width: 240,
-            renderCell: (params) => <span>{params.row.data ? `${params.row.data} - ${params.row.hora}` : '-'}</span>,
         },
         {
-            field: 'dimensao',
+            field: 'supervisor',
+            headerName: 'Supervisor',
+            width: 150,
+        },
+        {
+            field: 'manager',
+            headerName: 'Gerente',
+            width: 150,
+        },
+        {
+            field: 'dimension',
             headerName: 'Dimensão',
             width: 150,
-        },
-        {
-            field: 'servico',
-            headerName: 'Serviço',
-            width: 150,
-        },
-        {
-            field: 'Tipo',
-            headerName: 'Tipo',
-            width: 150,
+            renderCell: (params) => (
+                <span>{params.row?.dimension} m²</span>
+            ),
+
         },
     ];
 
     return (
         <StyledMainContainer>
             <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} />
-            <ModalAmbienteEditModal edit={edit} modalEdit={modalEdit} handleChangeModalEdit={handleChangeModalEdit} />
 
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
@@ -142,32 +140,35 @@ export default function DataGridAtividades() {
                     )
                 }
 
-                <DataGrid
-                    rows={rows}
-                    columns={columns}
-                    localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 10,
+                {activity && !loading ?
+                    (<DataGrid
+                        rows={activity}
+                        columns={columns}
+                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {
+                                    pageSize: 10,
+                                },
                             },
-                        },
-                    }}
-                    pageSizeOptions={[5, 10, 25]}
-                    disableRowSelectionOnClick
-                    sx={{
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: 'unset',
-                            color: 'unset',
-                        },
-                        '& .MuiDataGrid-row:nth-of-type(odd)': {
-                            backgroundColor: '#FAFAFA',
-                        },
-                        '& .MuiDataGrid-row:hover': {
-                            backgroundColor: '#f0f0f0',
-                        },
-                    }}
-                />
+                        }}
+                        pageSizeOptions={[5, 10, 25]}
+                        disableRowSelectionOnClick
+                        sx={{
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: 'unset',
+                                color: 'unset',
+                            },
+                            '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                backgroundColor: '#FAFAFA',
+                            },
+                            '& .MuiDataGrid-row:hover': {
+                                backgroundColor: '#f0f0f0',
+                            },
+                        }}
+                    />) :
+                    (<LoadingComponent />)
+                }
 
             </Box>
         </StyledMainContainer >

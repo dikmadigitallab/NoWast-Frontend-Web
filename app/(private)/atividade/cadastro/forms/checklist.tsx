@@ -21,7 +21,7 @@ import { IoMdClose } from 'react-icons/io';
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from "@/app/styles/tableTheme/theme";
-import { useGetServiceEnvironment } from '@/app/hooks/atividade/useGet';
+import { useGetServiceEnvironment } from '@/app/hooks/servicos/get';
 import { useGetIDStore } from '@/app/store/getIDStore';
 
 type Service = { id: number, name: string };

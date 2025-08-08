@@ -14,6 +14,7 @@ export const useDelete = (url: string, redirect?: string) => {
     const [error, setError] = useState<string | null>(null);
 
     const handleDelete = async () => {
+
         setError(null);
         setLoading(true);
 

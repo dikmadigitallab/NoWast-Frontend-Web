@@ -94,7 +94,7 @@ export default function FormDadosGerais() {
                         control={control}
                         render={({ field }) => (
                             <TextField
-                                label="Área (m²)"
+                                label="Dimensão"
                                 variant="outlined"
                                 type="number"
                                 {...field}

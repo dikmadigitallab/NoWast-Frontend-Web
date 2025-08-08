@@ -2,7 +2,10 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
+import { useGetIDStore } from "@/app/store/getIDStore";
 import api from "../api";
+import { filterStatusActivity } from "@/app/utils/statusActivity";
+
 
 export interface UseGetParams {
     page?: number,
@@ -16,13 +19,15 @@ export interface UseGetParams {
     environmentId?: number | null
 }
 
-export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
+export const useGetActivity = ({ page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const { setIdService, setId } = useGetIDStore();
     const [data, setData] = useState<any>(null);
 
     const get = async () => {
+
         setError(null);
         setLoading(true);
 
@@ -36,7 +41,6 @@ export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = nu
         }
 
         try {
-
             const params = new URLSearchParams();
 
             params.append("disablePagination", "true");
@@ -51,7 +55,7 @@ export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = nu
             if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
             if (environmentId !== null) params.append("environmentId", String(environmentId).trim());
 
-            const paramUrl = `/service?${params.toString()}`;
+            const paramUrl = `/activity?${params.toString()}`;
 
             const response = await api.get<any>(paramUrl, {
                 headers: {
@@ -60,11 +64,23 @@ export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = nu
                 },
             });
 
-            console.log(response.data.data.items)
+            const refactory = response.data.data.items?.map((item: any) => ({
+                id: item.id,
+                environment: item.environment?.name,
+                dimension: item.environment?.areaM2,
+                supervisor: item?.supervisor?.person?.name,
+                manager: item?.manager?.person?.name,
+                approvalStatus: filterStatusActivity(item?.approvalStatus),
+                ppe: item?.ppe,
+                tools: item?.tools,
+                products: item?.products,
+                transports: item?.transports,
+                dateTime: new Date(item.dateTime).toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+            })) || [];
 
-            const refactorData = response.data.data.items.map((item: any) => item.serviceItems);
-            setData(refactorData[0]);
+            console.log(refactory)
 
+            setData(refactory);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
@@ -72,11 +88,15 @@ export const useGetServiceEnvironment = ({ page = 1, pageSize = null, query = nu
             }
         } finally {
             setLoading(false);
+            setIdService(null)
+            setId(null)
         }
     };
 
 
     useEffect(() => {
+        setLoading(true);
+
         const delayDebounce = setTimeout(() => {
             get();
         }, 1000);
