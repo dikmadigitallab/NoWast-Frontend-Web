@@ -2,7 +2,7 @@
 
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
-import api from "../../api";
+import api from "../api";
 
 
 export const useGetAmbiente = () => {

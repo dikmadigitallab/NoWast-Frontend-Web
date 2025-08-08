@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
-import { useUpdateAmbiente } from "@/app/hooks/locais/ambiente/update";
+import { useUpdateAmbiente } from "@/app/hooks/ambiente/update";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 
 const ambienteSchema = z.object({

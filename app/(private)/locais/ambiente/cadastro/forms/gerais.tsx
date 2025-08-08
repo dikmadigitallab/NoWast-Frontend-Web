@@ -10,7 +10,7 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { useCreateAmbiente } from "@/app/hooks/locais/ambiente/create";
+import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 
 const ambienteSchema = z.object({
     name: z.string().min(1, "Nome do Ambiente é obrigatório"),

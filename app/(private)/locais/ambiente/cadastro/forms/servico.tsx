@@ -10,7 +10,7 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useGetIDStore } from "@/app/store/getIDStore";
-import { useCreateAmbiente } from "@/app/hooks/locais/ambiente/create";
+import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineModeEditOutline } from "react-icons/md";

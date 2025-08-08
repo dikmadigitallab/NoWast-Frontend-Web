@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { Logout } from "@/app/utils/logout";
-import api from "../../api";
+import api from "../api";
 import { useSectionStore } from "@/app/store/renderSection";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import { useRouter } from "next/navigation";
