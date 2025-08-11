@@ -1,19 +1,21 @@
 "use client";
 
-import { z } from "zod";
-import { TextField, Box, Button, Modal, FormControl, InputLabel, Select, MenuItem, FormHelperText, CircularProgress } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
-import { formTheme } from "@/app/styles/formTheme/theme";
+import { TextField, Box, Button, Modal, FormControl, InputLabel, Select, MenuItem, CircularProgress, IconButton, SnackbarCloseReason, Snackbar } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { StyledMainContainer } from "@/app/styles/container/container";
 import { useCreate } from "@/app/hooks/crud/create/useCreate";
+import { formTheme } from "@/app/styles/formTheme/theme";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
+import { GridCloseIcon } from "@mui/x-data-grid";
+import { Controller } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { IoMdClose } from "react-icons/io";
+import { useForm } from "react-hook-form";
+import * as React from 'react';
+import { z } from "zod";
 
 const setorSchema = z.object({
     name: z.string().min(1, "Nome do Setor é obrigatório"),
@@ -55,6 +57,25 @@ export default function CadastroSetor() {
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("sector", "/locais/setor/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
+    const [open, setOpen] = useState(false);
+
+    const handleClose = (event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpen(false);
+    };
+
+    const action = (
+        <React.Fragment>
+            <Button sx={{ ...buttonTheme, mr: 1 }} href='/locais/predio/cadastro' color="secondary" size="small" onClick={handleClose}>
+                Cadastrar Prédio
+            </Button>
+            <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose} sx={{ mr: 1 }}>
+                <GridCloseIcon fontSize="small" />
+            </IconButton>
+        </React.Fragment>
+    );
 
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
@@ -85,8 +106,20 @@ export default function CadastroSetor() {
         setImageInfo(imageData);
     };
 
+    useEffect(() => {
+        if (predios?.length <= 0) setOpen(true);
+    }, [predios])
+
     return (
         <StyledMainContainer>
+            <Snackbar
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                message="Nenhum prédio cadastrado! Necessário para cadastro de setor."
+                action={action}
+            />
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Setor</h1>

@@ -1,21 +1,20 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Button, Box, Modal, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, IconButton } from "@mui/material";
+import { TextField, Button, Box, Modal, CircularProgress, FormControl, InputLabel, Select, MenuItem, IconButton } from "@mui/material";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
+import { MdOutlineModeEditOutline } from "react-icons/md";
+import { formTheme } from "@/app/styles/formTheme/theme";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useGetIDStore } from "@/app/store/getIDStore";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
-import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useGetIDStore } from "@/app/store/getIDStore";
-import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineModeEditOutline } from "react-icons/md";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
+import { useRouter } from "next/navigation";
+import { GoTrash } from "react-icons/go";
+import { useState } from "react";
 
 const servicoSchema = z.object({
     name: z.string().min(1, "Nome do serviço é obrigatório"),

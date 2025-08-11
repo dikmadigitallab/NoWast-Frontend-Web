@@ -56,21 +56,21 @@ const userSchema = z.object({
         }),
     }),
     role: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do papel inválido", required_error: "Selecione um cargo" }).min(1, { message: "Selecione um cargo" }) }) }),
-    contract: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do contrato inválido", required_error: "Selecione um contrato" }).min(1, { message: "Selecione um contrato" }) }) }),
-    position: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do cargo inválido", required_error: "Selecione uma posição" }).min(1, { message: "Selecione uma posição" }) }) }),
-    supervisor: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do supervisor inválido", required_error: "Selecione um supervisor" }).min(1, { message: "Selecione um supervisor" }) }) }),
-    manager: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do gerente inválido", required_error: "Selecione um gerente" }).min(1, { message: "Selecione um gerente" }) }) }),
-    epiIds: z.array(z.number({ invalid_type_error: "ID de EPI inválido" }), { required_error: "Selecione pelo menos um EPI" }).min(1, { message: "Selecione pelo menos um EPI" }),
-    equipmentIds: z.array(z.number({ invalid_type_error: "ID de equipamento inválido" }), { required_error: "Selecione pelo menos um equipamento" }).min(1, { message: "Selecione pelo menos um equipamento" }),
-    vehicleIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }), { required_error: "Selecione pelo menos um veículo" }).min(1, { message: "Selecione pelo menos um veículo" }),
-    productIds: z.array(z.number({ invalid_type_error: "ID de produto inválido" }), { required_error: "Selecione pelo menos um produto" }).min(1, { message: "Selecione pelo menos um produto" }),
+    contract: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do contrato inválido", required_error: "Selecione um contrato" }).min(1, { message: "Selecione um contrato" }).optional() }).optional() }).optional(),
+    position: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do cargo inválido", required_error: "Selecione uma posição" }).min(1, { message: "Selecione uma posição" }).optional() }).optional() }).optional(),
+    supervisor: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do supervisor inválido", required_error: "Selecione um supervisor" }).min(1, { message: "Selecione um supervisor" }).optional() }).optional() }).optional(),
+    manager: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do gerente inválido", required_error: "Selecione um gerente" }).min(1, { message: "Selecione um gerente" }).optional() }).optional() }).optional(),
+    epiIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }).optional()),
+    equipmentIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }).optional()),
+    vehicleIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }).optional()),
+    productIds: z.array(z.number({ invalid_type_error: "ID de produto inválido" }).optional())
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
 
 export default function AtualizarPessoa() {
 
-    const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<UserFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset, watch, setValue, trigger } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
             id: undefined,
@@ -227,10 +227,10 @@ export default function AtualizarPessoa() {
 
 
     const getCepAddress = async (cep: string) => {
+        setCepLoading(true);
         if (cep.length < 9) return;
 
         try {
-            setCepLoading(true);
             const cleanedCep = cep.replace(/\D/g, '');
             const viaCepResponse = await fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`);
             const viaCepData = await viaCepResponse.json();
@@ -239,9 +239,7 @@ export default function AtualizarPessoa() {
 
             const fullAddress = `${viaCepData.logradouro}, ${viaCepData.bairro}, ${viaCepData.localidade}-${viaCepData.uf}, Brasil`;
 
-            const geocodeResponse = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&countrycodes=br`
-            );
+            const geocodeResponse = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&countrycodes=br`);
             const geocodeData = await geocodeResponse.json();
 
             let latitude = '';
@@ -273,6 +271,11 @@ export default function AtualizarPessoa() {
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
         } finally {
+            trigger('person.create.address.postalCode');
+            trigger('person.create.address.state');
+            trigger('person.create.address.city');
+            trigger('person.create.address.district');
+            trigger('person.create.address.address');
             setCepLoading(false);
         }
     }
@@ -283,7 +286,6 @@ export default function AtualizarPessoa() {
             const { id, status, person, role, firstLogin, ppes, tools, transports, products, position, userType, contractId, supervisor, manager } = data;
             const { name, tradeName, document, briefDescription, birthDate, gender, personType } = person;
             const phones = person.phones.map((phone: any) => phone.phoneNumber);
-            const emails = person.emails.map((email: any) => email.email);
             const epis = ppes.map((epi: any) => epi.id)
             const ferramentas = tools.map((ferramenta: any) => ferramenta.id)
             const transportes = transports.map((transporte: any) => transporte.id)
@@ -300,7 +302,7 @@ export default function AtualizarPessoa() {
             setValue('person.create.personType', personType);
             setValue('role.connect.id', role.id);
             setValue('firstLogin', firstLogin);
-            setValue('person.create.email', emails[0]);
+            setValue('person.create.email', data.email);
             setValue('person.create.phone', phones[0]);
             setValue('epiIds', epis)
             setValue('equipmentIds', ferramentas)
@@ -794,7 +796,7 @@ export default function AtualizarPessoa() {
                     />
                 </Box>
 
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relacionamentos</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller

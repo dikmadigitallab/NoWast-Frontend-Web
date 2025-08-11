@@ -70,14 +70,13 @@ export default function AtividadeAtualizar() {
             reValidateMode: "onChange",
         });
 
-
     const router = useRouter();
     const { update } = useUpdateActivity();
     const { setSection, section } = useSectionStore();
     const { data: atividade } = useGetOneById("activity");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
-    const { handleDelete } = useDelete("acivity", "/atividade/listagem");
+    const { handleDelete } = useDelete("activity", "/atividade/listagem");
 
     const onSubmit = (data: UserFormValues) => {
         const convertToString = (arr?: number[]) => arr && arr.length > 0 ? arr.join(",") : "";
