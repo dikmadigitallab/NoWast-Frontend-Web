@@ -21,6 +21,7 @@ import { useGet } from "@/app/hooks/crud/get/useGet";
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Transport é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
+    buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
 });
 
@@ -30,7 +31,8 @@ export default function EditarTransport() {
 
     const router = useRouter();
     const { data } = useGetOneById("transport");
-    const { data: pessoas } = useGet({ url: 'person' });
+    const { data: pessoas } = useGetUsuario({});
+    const { data: predios } = useGet({ url: 'building' });
     const [file, setFile] = useState<File | null>(null);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
@@ -38,17 +40,9 @@ export default function EditarTransport() {
     const { update, loading } = useUpdateItem("transport", "/items/transporte/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
-    const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<TransportFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset } = useForm<TransportFormValues>({
         resolver: zodResolver(epiSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            responsibleManager: {
-                connect: {
-                    id: 0,
-                }
-            }
-        },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManager: { connect: { id: 0, } } },
         mode: "onChange"
     });
 
@@ -65,7 +59,7 @@ export default function EditarTransport() {
     };
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, file: file, buildingId: 12 };
+        const newObject = { ...formData, file: file };
         update(newObject);
     };
 
@@ -168,6 +162,39 @@ export default function EditarTransport() {
                         </Box>
                     </Box>
 
+                    <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl
+                                sx={formTheme}
+                                fullWidth
+                                error={!!errors.buildingId}
+                            >
+                                <InputLabel id="responsible-label">Prédio</InputLabel>
+                                <Select
+                                    labelId="responsible-label"
+                                    label="Prédio"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {predios?.map((predio: any) => (
+                                        <MenuItem key={predio.id} value={predio.id}>
+                                            {predio.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.responsibleManager?.connect?.id && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.buildingId?.message}
+                                    </p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
 
                     <Controller
                         name="description"

@@ -13,10 +13,12 @@ import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 const produtoSchema = z.object({
     name: z.string().min(1, "Nome do Produto é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
+    buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
 });
 
@@ -25,15 +27,16 @@ type ProdutoFormValues = z.infer<typeof produtoSchema>;
 export default function CadastroProduto() {
 
     const router = useRouter();
-    const { data: pessoas } = useGet({ url: 'person' });
+    const { data: pessoas } = useGetUsuario({});
+    const { data: predios } = useGet({ url: 'building' });
     const [file, setFile] = useState<File | null>(null);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreateItems("product", '/items/produto/listagem');
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
-    const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProdutoFormValues>({
+    const { control, handleSubmit, formState: { errors } } = useForm<ProdutoFormValues>({
         resolver: zodResolver(produtoSchema),
-        defaultValues: { name: "", description: "", responsibleManager: { connect: { id: 0 } } },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManager: { connect: { id: 0 } } },
         mode: "onChange"
     });
 
@@ -42,7 +45,7 @@ export default function CadastroProduto() {
     const handleDisableConfirm = () => router.push('/items/produto/listagem');
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, file: file, buildingId: 12 };
+        const newObject = { ...formData, file: file };
         create(newObject);
     };
 
@@ -147,6 +150,40 @@ export default function CadastroProduto() {
                             }
                         </Box>
                     </Box>
+
+                    <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl
+                                sx={formTheme}
+                                fullWidth
+                                error={!!errors.buildingId}
+                            >
+                                <InputLabel id="responsible-label">Prédio</InputLabel>
+                                <Select
+                                    labelId="responsible-label"
+                                    label="Prédio"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {predios?.map((predio: any) => (
+                                        <MenuItem key={predio.id} value={predio.id}>
+                                            {predio.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.responsibleManager?.connect?.id && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.buildingId?.message}
+                                    </p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
 
                     <Controller
                         name="description"

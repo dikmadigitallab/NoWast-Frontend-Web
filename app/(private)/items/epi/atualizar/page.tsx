@@ -15,10 +15,12 @@ import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
 import { useUpdateItem } from "@/app/hooks/items/update";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
+    buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
 });
 
@@ -28,7 +30,8 @@ export default function EditarEPI() {
 
     const router = useRouter();
     const { data } = useGetOneById("ppe");
-    const { data: pessoas } = useGet({ url: 'person' });
+    const { data: pessoas } = useGetUsuario({});
+    const { data: predios } = useGet({ url: 'building' });
     const { update, loading } = useUpdateItem("ppe", "/items/epi/listagem");
     const { handleDelete } = useDelete("ppe", "/items/epi/listagem");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -38,15 +41,7 @@ export default function EditarEPI() {
 
     const { control, handleSubmit, setValue, formState: { errors }, reset, watch } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            responsibleManager: {
-                connect: {
-                    id: 0,
-                }
-            }
-        },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManager: { connect: { id: 0, } } },
         mode: "onChange"
     });
 
@@ -63,7 +58,7 @@ export default function EditarEPI() {
     };
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, file: file, buildingId: 12 };
+        const newObject = { ...formData, file: file };
         update(newObject);
     };
 
@@ -179,6 +174,40 @@ export default function EditarEPI() {
                             }
                         </Box>
                     </Box>
+
+                    <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl
+                                sx={formTheme}
+                                fullWidth
+                                error={!!errors.buildingId}
+                            >
+                                <InputLabel id="responsible-label">Prédio</InputLabel>
+                                <Select
+                                    labelId="responsible-label"
+                                    label="Prédio"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {predios?.map((predio: any) => (
+                                        <MenuItem key={predio.id} value={predio.id}>
+                                            {predio.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.responsibleManager?.connect?.id && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.buildingId?.message}
+                                    </p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
 
                     <Controller
                         name="description"

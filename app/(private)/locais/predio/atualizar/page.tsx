@@ -16,6 +16,7 @@ import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
+import { useAuthStore } from "@/app/store/storeApp";
 
 const predioSchema = z.object({
     id: z.number().int().min(1, "ID do Predio é obrigatório"),
@@ -35,9 +36,11 @@ type PredioFormValues = z.infer<typeof predioSchema>;
 
 export default function AtualizarPredio() {
 
-    const { control, handleSubmit, formState: { errors, }, reset } = useForm<PredioFormValues>({
+    const { userInfo } = useAuthStore();
+
+    const { control, handleSubmit, formState: { errors }, reset } = useForm<PredioFormValues>({
         resolver: zodResolver(predioSchema),
-        defaultValues: { name: "", latitude: "", longitude: "", description: "", contract: { connect: { id: 0 } }, radius: 0 },
+        defaultValues: { name: "", latitude: "", longitude: "", description: "", contract: { connect: { id: Number(userInfo?.contractId) } }, radius: 0 },
         mode: "onChange"
     });
 
@@ -255,7 +258,7 @@ export default function AtualizarPredio() {
                     </Box>
                 </Box>
             </form>
-            
+
             <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">

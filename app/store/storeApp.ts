@@ -6,6 +6,7 @@ interface UserInfo {
     document: string | null;
     name: string | null;
     position: string | null;
+    contractId: string | number | null
 }
 
 type UserType = 'DEFAULT' | 'ADM_DIKMA' | 'OPERATIONAL' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null;
@@ -37,7 +38,8 @@ export const useAuthStore = create<AuthStore>((set, get) => {
         email: null,
         document: null,
         name: null,
-        position: null
+        position: null,
+        contractId: null
     };
     let storedUserType: UserType = null;
 
@@ -48,7 +50,7 @@ export const useAuthStore = create<AuthStore>((set, get) => {
             try {
                 const userData = JSON.parse(decoded);
                 storedId = userData?.id || null;
-                storedUserInfo = userData?.userInfo || { email: null, document: null, name: null };
+                storedUserInfo = userData?.userInfo || { email: null, document: null, name: null, position: null, contractId: null };
                 storedUserType = userData?.userType || null;
             } catch (err) {
                 console.warn("Dados de usuário inválidos:", decoded);

@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
-import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
@@ -15,10 +15,12 @@ import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { useUpdateItem } from "@/app/hooks/items/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Produto é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
+    buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
 });
 
@@ -28,7 +30,8 @@ export default function EditarProduto() {
 
     const router = useRouter();
     const { data } = useGetOneById("product");
-    const { data: pessoas } = useGet({ url: 'person' });
+    const { data: pessoas } = useGetUsuario({});
+    const { data: predios } = useGet({ url: 'building' });
     const [file, setFile] = useState<File | null>(null);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
@@ -36,17 +39,9 @@ export default function EditarProduto() {
     const { update, loading } = useUpdateItem("product", "/items/produto/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
-    const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<ProdutoFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset } = useForm<ProdutoFormValues>({
         resolver: zodResolver(epiSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            responsibleManager: {
-                connect: {
-                    id: 0,
-                }
-            }
-        },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManager: { connect: { id: 0 } } },
         mode: "onChange"
     });
 
@@ -63,7 +58,7 @@ export default function EditarProduto() {
     };
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, file: file, buildingId: 12 };
+        const newObject = { ...formData, file: file };
         update(newObject);
     };
 
@@ -179,6 +174,37 @@ export default function EditarProduto() {
                             }
                         </Box>
                     </Box>
+
+                    <Controller name="buildingId" control={control} render={({ field }) => (
+                        <FormControl
+                            sx={formTheme}
+                            fullWidth
+                            error={!!errors.buildingId}
+                        >
+                            <InputLabel id="responsible-label">Prédio</InputLabel>
+                            <Select
+                                labelId="responsible-label"
+                                label="Prédio"
+                                {...field}
+                                value={field.value || ""}
+                            >
+                                <MenuItem value="" disabled>
+                                    Clique e selecione...
+                                </MenuItem>
+                                {predios?.map((predio: any) => (
+                                    <MenuItem key={predio.id} value={predio.id}>
+                                        {predio.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            {errors.responsibleManager?.connect?.id && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.buildingId?.message}
+                                </p>
+                            )}
+                        </FormControl>
+                    )}
+                    />
 
                     <Controller
                         name="description"

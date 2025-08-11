@@ -15,10 +15,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { useGetUsuario } from "@/app/hooks/usuarios/get";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do Equipamento é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
+    buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
 });
 
@@ -30,6 +32,7 @@ export default function EditarEquipamento() {
     const { data } = useGetOneById("tools");
     const { data: pessoas } = useGetUsuario({});
     const [file, setFile] = useState<File | null>(null);
+    const { data: predios } = useGet({ url: 'building' });
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const { handleDelete } = useDelete("tools", '/items/equipamento/listagem');
@@ -38,15 +41,7 @@ export default function EditarEquipamento() {
 
     const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<EquipamentoFormValues>({
         resolver: zodResolver(epiSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            responsibleManager: {
-                connect: {
-                    id: 0,
-                }
-            }
-        },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManager: { connect: { id: 0 } } },
         mode: "onChange"
     });
 
@@ -63,7 +58,7 @@ export default function EditarEquipamento() {
     };
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, file: file, buildingId: 12 };
+        const newObject = { ...formData, file: file };
         update(newObject);
     };
 
@@ -179,6 +174,40 @@ export default function EditarEquipamento() {
                             }
                         </Box>
                     </Box>
+
+                    <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl
+                                sx={formTheme}
+                                fullWidth
+                                error={!!errors.buildingId}
+                            >
+                                <InputLabel id="responsible-label">Prédio</InputLabel>
+                                <Select
+                                    labelId="responsible-label"
+                                    label="Prédio"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {predios?.map((predio: any) => (
+                                        <MenuItem key={predio.id} value={predio.id}>
+                                            {predio.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.responsibleManager?.connect?.id && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.buildingId?.message}
+                                    </p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
 
                     <Controller
                         name="description"
