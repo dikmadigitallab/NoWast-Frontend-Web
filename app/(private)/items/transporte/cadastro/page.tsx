@@ -4,16 +4,16 @@ import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
+import { useCreate } from "@/app/hooks/crud/create/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
-import { useCreate } from "@/app/hooks/crud/create/create";
-import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const produtoSchema = z.object({
     name: z.string().min(1, "Nome do Produto é obrigatório"),
@@ -179,6 +179,36 @@ export default function CadastroProduto() {
                             </Box>
                         }
                     </Box>
+
+                    <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl sx={formTheme} fullWidth error={!!errors.buildingId}>
+                                <InputLabel id="responsible-label">Prédio</InputLabel>
+                                <Select
+                                    labelId="responsible-label"
+                                    label="Prédio"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {predios?.map((predio: any) => (
+                                        <MenuItem key={predio.id} value={predio.id}>
+                                            {predio.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.responsibleManager?.connect?.id && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.buildingId?.message}
+                                    </p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
 
                     <Controller
                         name="description"

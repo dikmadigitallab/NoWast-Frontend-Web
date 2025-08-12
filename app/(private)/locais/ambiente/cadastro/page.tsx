@@ -4,7 +4,7 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { useSectionStore } from "@/app/store/renderSection";
 import { IoIosArrowForward } from "react-icons/io";
-import { Box, Button, Modal } from "@mui/material";
+import { Box, Button, Modal} from "@mui/material";
 import FormDadosGerais from "./forms/gerais";
 import { useRouter } from "next/navigation";
 import FormServicos from "./forms/servico";
@@ -27,7 +27,6 @@ export default function Ambiente() {
     return (
         <StyledMainContainer>
             <Box className="w-[100%] flex flex-col gap-5 p-5">
-
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Ambiente</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>

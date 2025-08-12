@@ -205,6 +205,40 @@ export default function EditarEquipamento() {
                     </Box>
 
                     <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl
+                                sx={formTheme}
+                                fullWidth
+                                error={!!errors.buildingId}
+                            >
+                                <InputLabel id="responsible-label">Prédio</InputLabel>
+                                <Select
+                                    labelId="responsible-label"
+                                    label="Prédio"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {predios?.map((predio: any) => (
+                                        <MenuItem key={predio.id} value={predio.id}>
+                                            {predio.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.responsibleManager?.connect?.id && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.buildingId?.message}
+                                    </p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
+
+                    <Controller
                         name="description"
                         control={control}
                         render={({ field }) => (

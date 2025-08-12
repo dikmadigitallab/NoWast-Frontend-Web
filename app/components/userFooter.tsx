@@ -40,7 +40,14 @@ export default function UserFooter() {
             <Box onClick={handleOpenLogoutModal} >
                 <IoLogOutOutline color='#5E5873' size={30} className='cursor-pointer' />
             </Box>
-            <Modal open={openLogoutModal} onClose={handleCloseLogoutModal} aria-labelledby="logout-modal-title" aria-describedby="logout-modal-description">
+
+            <Modal
+                open={openLogoutModal}
+                onClose={handleCloseLogoutModal}
+                aria-labelledby="disable-confirmation-modal"
+                aria-describedby="disable-confirmation-modal-description"
+                sx={{ outline: 'none' }}
+            >
                 <Box sx={{ width: 400, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', p: 4, borderRadius: '8px' }}>
                     <Box className="flex flex-row items-center gap-2">
                         <IoLogOutOutline size={30} />

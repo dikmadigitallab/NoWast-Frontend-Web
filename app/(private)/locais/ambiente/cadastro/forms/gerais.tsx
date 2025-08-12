@@ -1,15 +1,17 @@
 "use client";
 
-import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Snackbar, IconButton, SnackbarCloseReason } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { GridCloseIcon } from '@mui/x-data-grid';
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as React from 'react';
+import { z } from "zod";
 
 const ambienteSchema = z.object({
     name: z.string().min(1, "Nome do Ambiente é obrigatório"),
@@ -35,8 +37,41 @@ export default function FormDadosGerais() {
 
     const onSubmit = (formData: AmbienteFormValues) => create(formData);
 
+    const [open, setOpen] = useState(false);
+
+    const handleClose = (event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpen(false);
+    };
+
+    const action = (
+        <React.Fragment>
+            <Button sx={{ ...buttonTheme, mr: 1 }} href='/locais/setor/cadastro' color="secondary" size="small" onClick={handleClose}>
+                Cadastrar Setor
+            </Button>
+            <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose} sx={{ mr: 1 }}>
+                <GridCloseIcon fontSize="small" />
+            </IconButton>
+        </React.Fragment>
+    );
+
+
+    useEffect(() => {
+        if (setores?.length <= 0) setOpen(true);
+    }, [setores])
+
     return (
         <>
+            <Snackbar
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                message="Nenhum setor cadastrado! Necessário para cadastro de ambiente."
+                action={action}
+            />
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
                 <Box className="w-full flex flex-col gap-5">
                     <Controller

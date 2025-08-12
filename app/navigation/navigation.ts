@@ -44,6 +44,15 @@ export const ADM_DIKMA: NavItem[] = [
         ]
     },
     {
+        name: 'Locais',
+        icon: MdOutlinePlace,
+        subItems: [
+            { icon: FaRegCircle, name: 'Prédio', href: ['/locais/predio/listagem', '/locais/predio/cadastro', '/locais/predio/atualizar'] },
+            { icon: FaRegCircle, name: 'Setor', href: ['/locais/setor/listagem', '/locais/setor/cadastro', '/locais/setor/atualizar'] },
+            { icon: FaRegCircle, name: 'Ambiente', href: ['/locais/ambiente/listagem', '/locais/ambiente/cadastro', '/locais/ambiente/atualizar'] }
+        ]
+    },
+    {
         name: 'Itens',
         icon: FiBox,
         subItems: [
@@ -51,15 +60,6 @@ export const ADM_DIKMA: NavItem[] = [
             { icon: FaRegCircle, name: 'Equipamento', href: ['/items/equipamento/listagem', '/items/equipamento/cadastro', '/items/equipamento/atualizar'] },
             { icon: FaRegCircle, name: 'Produto', href: ['/items/produto/listagem', '/items/produto/cadastro', '/items/produto/atualizar'] },
             { icon: FaRegCircle, name: 'Transporte', href: ['/items/transporte/listagem', '/items/transporte/cadastro', '/items/transporte/atualizar'] },
-        ]
-    },
-    {
-        name: 'Locais',
-        icon: MdOutlinePlace,
-        subItems: [
-            { icon: FaRegCircle, name: 'Prédio', href: ['/locais/predio/listagem', '/locais/predio/cadastro', '/locais/predio/atualizar'] },
-            { icon: FaRegCircle, name: 'Setor', href: ['/locais/setor/listagem', '/locais/setor/cadastro', '/locais/setor/atualizar'] },
-            { icon: FaRegCircle, name: 'Ambiente', href: ['/locais/ambiente/listagem', '/locais/ambiente/cadastro', '/locais/ambiente/atualizar'] }
         ]
     },
     {

@@ -107,9 +107,9 @@ export default function CadastroEPI() {
                                         <MenuItem value="" disabled>
                                             Clique e selecione...
                                         </MenuItem>
-                                        {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.id}>
-                                                {person.name}
+                                        {pessoas?.map((pessoa: any) => (
+                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.name}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -178,6 +178,36 @@ export default function CadastroEPI() {
                             </Box>
                         }
                     </Box>
+
+                    <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl sx={formTheme} fullWidth error={!!errors.buildingId}>
+                                <InputLabel id="responsible-label">Prédio</InputLabel>
+                                <Select
+                                    labelId="responsible-label"
+                                    label="Prédio"
+                                    {...field}
+                                    value={field.value || ""}
+                                >
+                                    <MenuItem value="" disabled>
+                                        Clique e selecione...
+                                    </MenuItem>
+                                    {predios?.map((predio: any) => (
+                                        <MenuItem key={predio.id} value={predio.id}>
+                                            {predio.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {errors.responsibleManager?.connect?.id && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.buildingId?.message}
+                                    </p>
+                                )}
+                            </FormControl>
+                        )}
+                    />
 
                     <Controller
                         name="description"

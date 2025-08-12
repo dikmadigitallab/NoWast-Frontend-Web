@@ -54,7 +54,7 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
                 name: item.person?.name,
                 supervisor: item?.supervisor?.person?.name,
                 manager: item?.manager?.person?.name,
-                email: item?.person?.emails[0]?.email,
+                email: item?.email,
                 status: item.status,
                 userType: item.userType,
                 role: item.role?.name,

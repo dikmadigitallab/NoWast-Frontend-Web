@@ -37,7 +37,7 @@ const userSchema = z.object({
             email: z.string().email({ message: "Email inválido" }),
             phone: z.string().min(7, { message: "Telefone inválido" }),
             address: z.object({
-                address: z.string().min(9, { message: "Endereço é obrigatório" }),
+                address: z.string().min(1, { message: "Endereço é obrigatório" }),
                 number: z.string().min(1, { message: "Número é obrigatório" }),
                 complement: z.string(),
                 district: z.string().min(1, { message: "Bairro é obrigatório" }),
@@ -54,21 +54,21 @@ const userSchema = z.object({
             }),
         }),
     }),
-    contract: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do contrato inválido", required_error: "Selecione um contrato" }).min(1, { message: "Selecione um contrato" }) }) }),
-    position: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do cargo inválido", required_error: "Selecione uma posição" }).min(1, { message: "Selecione uma posição" }) }) }),
-    supervisor: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do supervisor inválido", required_error: "Selecione um supervisor" }).min(1, { message: "Selecione um supervisor" }) }) }),
-    manager: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do gerente inválido", required_error: "Selecione um gerente" }).min(1, { message: "Selecione um gerente" }) }) }),
-    epiIds: z.array(z.number({ invalid_type_error: "ID de EPI inválido" }), { required_error: "Selecione pelo menos um EPI" }).min(1, { message: "Selecione pelo menos um EPI" }),
-    equipmentIds: z.array(z.number({ invalid_type_error: "ID de equipamento inválido" }), { required_error: "Selecione pelo menos um equipamento" }).min(1, { message: "Selecione pelo menos um equipamento" }),
-    vehicleIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }), { required_error: "Selecione pelo menos um veículo" }).min(1, { message: "Selecione pelo menos um veículo" }),
-    productIds: z.array(z.number({ invalid_type_error: "ID de produto inválido" }), { required_error: "Selecione pelo menos um produto" }).min(1, { message: "Selecione pelo menos um produto" }),
+    contract: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do contrato inválido", required_error: "Selecione um contrato" }).min(1, { message: "Selecione um contrato" }).optional() }).optional() }).optional(),
+    position: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do cargo inválido", required_error: "Selecione uma posição" }).min(1, { message: "Selecione uma posição" }).optional() }).optional() }).optional(),
+    supervisor: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do supervisor inválido", required_error: "Selecione um supervisor" }).min(1, { message: "Selecione um supervisor" }).optional() }).optional() }).optional(),
+    manager: z.object({ connect: z.object({ id: z.number({ invalid_type_error: "ID do gerente inválido", required_error: "Selecione um gerente" }).min(1, { message: "Selecione um gerente" }).optional() }).optional() }).optional(),
+    epiIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }).optional()),
+    equipmentIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }).optional()),
+    vehicleIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }).optional()),
+    productIds: z.array(z.number({ invalid_type_error: "ID de produto inválido" }).optional())
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
 
 export default function CadastroPessoa() {
 
-    const { control, handleSubmit, formState: { errors, isValid }, watch, setValue } = useForm<UserFormValues>({
+    const { control, handleSubmit, formState: { errors }, watch, setValue, trigger } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
             userType: null,
@@ -191,9 +191,7 @@ export default function CadastroPessoa() {
 
             const fullAddress = `${viaCepData.logradouro}, ${viaCepData.bairro}, ${viaCepData.localidade}-${viaCepData.uf}, Brasil`;
 
-            const geocodeResponse = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&countrycodes=br`
-            );
+            const geocodeResponse = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&countrycodes=br`);
             const geocodeData = await geocodeResponse.json();
 
             let latitude = '';
@@ -225,6 +223,11 @@ export default function CadastroPessoa() {
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
         } finally {
+            trigger('person.create.address.postalCode');
+            trigger('person.create.address.state');
+            trigger('person.create.address.city');
+            trigger('person.create.address.district');
+            trigger('person.create.address.address');
             setCepLoading(false);
         }
     }
@@ -700,7 +703,7 @@ export default function CadastroPessoa() {
                     />
                 </Box>
 
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relação Funcional</h2>
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Relacionamentos</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller

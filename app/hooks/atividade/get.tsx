@@ -78,8 +78,6 @@ export const useGetActivity = ({ page = 1, pageSize = null, query = null, superv
                 dateTime: new Date(item.dateTime).toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
             })) || [];
 
-            console.log(refactory)
-
             setData(refactory);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");

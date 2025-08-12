@@ -24,7 +24,7 @@ export default function ListagemPessoa() {
     const { setId } = useGetIDStore()
     const { data: position } = useGet({ url: "position" });
     const [isFilter, setIsFilter] = useState(false);
-    const { data: pessoasLista } = useGet({ url: 'person' });
+    const { data: pessoasLista } = useGetUsuario({});
     const [modalDetail, setModalDetail] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [search, setSearch] = useState<any>({ query: '', position: null, supervisorId: null, managerId: null });

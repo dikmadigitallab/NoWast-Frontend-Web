@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
-import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { IoImagesOutline } from "react-icons/io5";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 const transportSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -29,9 +30,9 @@ export default function EditarTransport() {
 
     const router = useRouter();
     const { data } = useGetOneById("transport");
-    const { data: pessoas } = useGet({ url: 'person' });
-    const [file, setFile] = useState<File | null>(null);
+    const { data: pessoas } = useGetUsuario({});
     const { data: predios } = useGet({ url: 'building' });
+    const [file, setFile] = useState<File | null>(null);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const { handleDelete } = useDelete("transport", "/items/transporte/listagem");
@@ -206,7 +207,7 @@ export default function EditarTransport() {
                             />
                         )}
                     />
-                </Box>
+                </Box >
                 <Box className="w-[100%] flex flex-row gap-5 justify-between">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
                     <Box className="flex flex-row gap-5" >
@@ -214,7 +215,7 @@ export default function EditarTransport() {
                         <Button type="submit" variant="outlined" disabled={loading} sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}</Button>
                     </Box>
                 </Box>
-            </form>
+            </form >
 
             <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
@@ -240,6 +241,6 @@ export default function EditarTransport() {
                     </Box>
                 </Box>
             </Modal>
-        </StyledMainContainer>
+        </StyledMainContainer >
     );
 }

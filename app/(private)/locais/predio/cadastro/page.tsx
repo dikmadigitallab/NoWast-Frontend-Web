@@ -2,18 +2,19 @@
 
 import { z } from "zod";
 import { TextField, Box, Button, Modal, CircularProgress, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useGet } from "@/app/hooks/crud/get/useGet";
+import { IoImagesOutline } from "react-icons/io5";
+import { useAuthStore } from "@/app/store/storeApp";
+import { Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
 import { useCreate } from "@/app/hooks/crud/create/create";
-import { IoImagesOutline } from "react-icons/io5";
-import { IoMdClose } from "react-icons/io";
-import { useGet } from "@/app/hooks/crud/get/useGet";
 
 const predioSchema = z.object({
     name: z.string().min(1, "Nome do Predio é obrigatório"),
@@ -32,9 +33,11 @@ type PredioFormValues = z.infer<typeof predioSchema>;
 
 export default function CadastroPredio() {
 
-    const { control, handleSubmit, formState: { errors, }, setValue } = useForm<PredioFormValues>({
+    const { userInfo } = useAuthStore();
+
+    const { control, handleSubmit, formState: { errors, } } = useForm<PredioFormValues>({
         resolver: zodResolver(predioSchema),
-        defaultValues: { name: "", latitude: "", longitude: "", description: "", contract: { connect: { id: 0 } }, radius: 0 },
+        defaultValues: { name: "", latitude: "", longitude: "", description: "", contract: { connect: { id: Number(userInfo?.contractId) } }, radius: 0 },
         mode: "onChange"
     });
 
@@ -151,35 +154,6 @@ export default function CadastroPredio() {
                 </Box>
 
                 <Box className="w-full flex gap-2">
-                    <FormControl fullWidth error={!!errors.contract}>
-                        <InputLabel id="contract-label">Contrato</InputLabel>
-                        <Controller
-                            name="contract.connect.id"
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    {...field}
-                                    labelId="contract-label"
-                                    label="Contrato"
-                                    fullWidth
-                                    value={field.value || ""}
-                                    error={!!errors.contract}
-                                >
-                                    {contratos?.map((contract: any) => (
-                                        <MenuItem key={contract.id} value={contract.id}>
-                                            {contract.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            )}
-                        />
-                        {errors.contract && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.contract.connect?.id?.message}
-                            </p>
-                        )}
-                    </FormControl>
-
                     <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
                         <input
                             type="file"

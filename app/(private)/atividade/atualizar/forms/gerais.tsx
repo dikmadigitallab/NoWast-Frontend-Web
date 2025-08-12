@@ -12,7 +12,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
     const { data: ambientes } = useGet({ url: "environment" });
 
     return (
-        <Box className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
+        <Box className="w-[100%] flex flex-col gap-5">
 
             <Box className="flex flex-row gap-2">
 

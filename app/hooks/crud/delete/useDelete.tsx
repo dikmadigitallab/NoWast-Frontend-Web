@@ -1,10 +1,9 @@
-import { Logout } from "@/app/utils/logout";
+import api from "../../api";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import api from "../../api";
 import { useRouter } from "next/navigation";
+import { Logout } from "@/app/utils/logout";
 import { useGetIDStore } from "@/app/store/getIDStore";
-import { getToastMessageRequest } from "@/app/utils/getToastMessageByType";
 
 export const useDelete = (url: string, redirect?: string) => {
 
@@ -35,7 +34,7 @@ export const useDelete = (url: string, redirect?: string) => {
                 },
             });
 
-            toast.success("Item deletado com sucesso!");
+            toast.success("Item excluido com sucesso!");
             setTimeout(() => {
                 if (redirect) {
                     router.push(redirect)

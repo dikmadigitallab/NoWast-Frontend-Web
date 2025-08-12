@@ -1,22 +1,22 @@
 "use client";
 
-import { StyledMainContainer } from "@/app/styles/container/container";
-import { IoIosArrowForward } from "react-icons/io";
-import { set, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useEffect, useState } from "react";
-import { Box, Button, Modal } from "@mui/material";
-import FormDadosGerais from "./forms/gerais";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { StyledMainContainer } from "@/app/styles/container/container";
+import { useUpdateActivity } from "@/app/hooks/atividade/update";
+import { useDelete } from "@/app/hooks/crud/delete/useDelete";
+import { useSectionStore } from "@/app/store/renderSection";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { IoIosArrowForward } from "react-icons/io";
+import { Box, Button, Modal } from "@mui/material";
+import FormCheckList from "./forms/checklist";
+import FormDadosGerais from "./forms/gerais";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import FormPessoas from "./forms/pessoas";
 import FormItens from "./forms/itens";
-import FormCheckList from "./forms/checklist";
-import { useRouter } from "next/navigation";
-import { useSectionStore } from "@/app/store/renderSection";
-import { useCreateActivity } from "@/app/hooks/atividade/create";
-import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
-import { useUpdateActivity } from "@/app/hooks/atividade/update";
+import { z } from "zod";
 
 const activitySchema = z.object({
     description: z.string().min(1, "Campo Obrigatório"),
@@ -70,12 +70,13 @@ export default function AtividadeAtualizar() {
             reValidateMode: "onChange",
         });
 
-
     const router = useRouter();
     const { update } = useUpdateActivity();
-    const { data: atividade } = useGetOneById("activity")
     const { setSection, section } = useSectionStore();
+    const { data: atividade } = useGetOneById("activity");
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { handleDelete } = useDelete("activity", "/atividade/listagem");
 
     const onSubmit = (data: UserFormValues) => {
         const convertToString = (arr?: number[]) => arr && arr.length > 0 ? arr.join(",") : "";
@@ -144,6 +145,14 @@ export default function AtividadeAtualizar() {
         router.push('/atividade/listagem');
     };
 
+    const handleOpenDeleteModal = () => {
+        setOpenDeleteModal(true);
+    };
+
+    const handleCloseDeleteModal = () => {
+        setOpenDeleteModal(false);
+    };
+
     useEffect(() => {
         if (atividade) {
             setValue('description', atividade?.description);
@@ -171,17 +180,12 @@ export default function AtividadeAtualizar() {
             setValue('equipamentoIds', atividade?.tools?.map((equipment: any) => equipment.id));
             setValue('serviceItems', atividade?.checklists);
             setValue('serviceItemsIds', atividade?.checklists?.map((checklist: any) => checklist.id));
-
-
         }
     }, [atividade, reset]);
 
-    console.log(atividade)
-
-
     return (
         <StyledMainContainer>
-            <Box className="w-[100%] flex flex-col gap-5 p-5">
+            <Box className="w-[100%] flex flex-col gap-5 p-5 border  border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Atividade</h1>
                     <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
@@ -225,18 +229,37 @@ export default function AtividadeAtualizar() {
                     <FormCheckList control={control} formState={{ errors }} setValue={setValue} watch={watch} />
                 )}
 
-                <Box className="flex flex-row justify-end gap-4">
-                    <Button variant="outlined" onClick={handleOpenDisableModal} sx={buttonThemeNoBackground}>Cancelar</Button>
-                    {
-                        section <= 3 ? (
-                            <Button variant="outlined" sx={buttonTheme} onClick={handleNext}>Próximo</Button>
-                        ) : (
-                            <Button variant="outlined" sx={buttonTheme} onClick={handleSubmit(onSubmit)}>Enviar</Button>
-                        )
-                    }
+                <Box className="w-[100%] flex flex-row gap-5 justify-between">
+                    <Box className="w-[100%] flex flex-row gap-5 justify-between">
+                        <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
+                        <Box className="flex flex-row gap-5" >
+                            <Box className="flex flex-row justify-end gap-4">
+                                <Button variant="outlined" onClick={handleOpenDisableModal} sx={buttonThemeNoBackground}>Cancelar</Button>
+                                {
+                                    section <= 3 ? (
+                                        <Button variant="outlined" sx={buttonTheme} onClick={handleNext}>Próximo</Button>
+                                    ) : (
+                                        <Button variant="outlined" sx={buttonTheme} onClick={handleSubmit(onSubmit)}>Enviar</Button>
+                                    )
+                                }
+                            </Box>
+                        </Box>
+                    </Box>
                 </Box>
             </Box>
 
+            <Modal open={openDeleteModal} onClose={handleCloseDeleteModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar exclusão</h2>
+                        <p className="text-[#6E6B7B] text-center">Deseja realmente excluir este item? Está ação não pode ser desfeita.</p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
+                            <Button onClick={handleCloseDeleteModal} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                            <Button onClick={handleDelete} variant="outlined" sx={buttonTheme}>Confirmar</Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
             <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">

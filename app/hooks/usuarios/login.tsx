@@ -36,7 +36,8 @@ export const useLogin = () => {
                 name: response.data.data.user.person.name,
                 email: response.data.data.user.person.emails[0]?.email,
                 document: response.data.data.user.person.document,
-                position: response.data.data.user.role.name
+                position: response.data.data.user.role.name,
+                contractId: response.data.data.user.contractId
             }
 
             setUserInfo(userInfo);
