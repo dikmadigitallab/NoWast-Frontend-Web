@@ -8,7 +8,6 @@ export const useCreate = (url: string, redirect: string) => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState(null);
     const router = useRouter();
 
     const create = async (data: any, containsImg?: any) => {
@@ -25,13 +24,6 @@ export const useCreate = (url: string, redirect: string) => {
         }
 
         try {
-            const response = await api.post(`/${url}`, data, {
-                headers: {
-                    Authorization: `Bearer ${authToken?.split("=")[1]}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
             if (containsImg) {
                 const formData = new FormData();
                 Object.entries(data).forEach(([key, value]) => {
@@ -49,11 +41,20 @@ export const useCreate = (url: string, redirect: string) => {
                     },
                 });
 
-                setData(response.data.data);
                 toast.success("Cadastro feito com sucesso");
+
+                setTimeout(() => {
+                    return router.push(redirect);
+                })
             }
 
-            setData(response.data.data);
+            const response = await api.post(`/${url}`, data, {
+                headers: {
+                    Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
             toast.success("Cadastro feito com sucesso");
 
             setTimeout(() => {
@@ -71,7 +72,6 @@ export const useCreate = (url: string, redirect: string) => {
     return {
         create,
         loading,
-        error,
-        data
+        error
     };
 };
