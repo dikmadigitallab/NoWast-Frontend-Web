@@ -10,7 +10,7 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useCreate } from "@/app/hooks/crud/create/useCreate";
+import { useCreate } from "@/app/hooks/crud/create/create";
 import { IoImagesOutline } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
 import { useGet } from "@/app/hooks/crud/get/useGet";
@@ -38,10 +38,10 @@ export default function CadastroPredio() {
         mode: "onChange"
     });
 
-    const { create, loading } = useCreate("building", "/locais/predio/listagem");
-    const { data: contratos } = useGet({ url: "contract" });
     const router = useRouter();
+    const { data: contratos } = useGet({ url: "contract" });
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const { create, loading } = useCreate("building", "/locais/predio/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenDisableModal = () => {

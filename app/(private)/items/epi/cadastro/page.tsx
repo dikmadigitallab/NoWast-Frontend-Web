@@ -3,8 +3,9 @@
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
-import { useCreateItems } from "@/app/hooks/items/create";
+import { useCreate } from "@/app/hooks/crud/create/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGet } from "@/app/hooks/crud/get/useGet";
@@ -17,6 +18,7 @@ import { z } from "zod";
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
+    buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
     responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
 });
 
@@ -25,15 +27,16 @@ type EpiFormValues = z.infer<typeof epiSchema>;
 export default function CadastroEPI() {
 
     const router = useRouter();
-    const { data: pessoas } = useGet({ url: 'person' });
+    const { data: pessoas } = useGetUsuario({});
     const [file, setFile] = useState<File | null>(null);
+    const { data: predios } = useGet({ url: 'building' });
     const [openDisableModal, setOpenDisableModal] = useState(false);
-    const { create, loading } = useCreateItems("ppe", "/items/epi/listagem");
+    const { create, loading } = useCreate("ppe", "/items/epi/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
-    const { control, handleSubmit, setValue, formState: { errors } } = useForm<EpiFormValues>({
+    const { control, handleSubmit, formState: { errors } } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
-        defaultValues: { name: "", description: "", responsibleManager: { connect: { id: 0 } } },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManager: { connect: { id: 0 } } },
         mode: "onChange"
     });
 
@@ -42,8 +45,8 @@ export default function CadastroEPI() {
     const handleDisableConfirm = () => router.push('/items/epi/listagem');
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, file: file, buildingId: 12 };
-        create(newObject);
+        const newObject = { ...formData, file: file };
+        create(newObject, true);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,33 +121,62 @@ export default function CadastroEPI() {
                                 </FormControl>
                             )}
                         />
-                        <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-                                onChange={handleFileChange}
+                        <FormControl fullWidth error={!!errors.buildingId}>
+                            <InputLabel id="building-label">Prédio</InputLabel>
+                            <Controller
+                                name="buildingId"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        {...field}
+                                        labelId="building-label"
+                                        label="Prédios"
+                                        value={field.value || ""}
+                                        error={!!errors.buildingId}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
+                                        {predios?.map((building: any) => (
+                                            <MenuItem key={building.id} value={building.id}>
+                                                {building.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                )}
                             />
-                            {imageInfo ? (
-                                <Box className="absolute w-full flex justify-between items-center p-3">
-                                    <Box className="flex flex-row items-center gap-3">
-                                        <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
-                                        <Box className="flex flex-col">
-                                            <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
-                                            <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
-                                            <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
-                                        </Box>
+                            {errors.buildingId && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.buildingId.message}
+                                </p>
+                            )}
+                        </FormControl>
+                    </Box>
+
+                    <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+                            onChange={handleFileChange}
+                        />
+                        {imageInfo ? (
+                            <Box className="absolute w-full flex justify-between items-center p-3">
+                                <Box className="flex flex-row items-center gap-3">
+                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
+                                    <Box className="flex flex-col">
+                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
+                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
                                     </Box>
-                                    <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
                                 </Box>
-                            )
-                                :
-                                <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
-                                    <IoImagesOutline color="#5E5873" size={25} />
-                                    <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
-                                </Box>
-                            }
-                        </Box>
+                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
+                            </Box>
+                        )
+                            :
+                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
+                                <IoImagesOutline color="#5E5873" size={25} />
+                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
+                            </Box>
+                        }
                     </Box>
 
                     <Controller

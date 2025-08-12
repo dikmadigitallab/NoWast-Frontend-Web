@@ -4,7 +4,7 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { useCreate } from "@/app/hooks/crud/create/useCreate";
+import { useCreate } from "@/app/hooks/crud/create/create";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useGetUsuario } from "@/app/hooks/usuarios/get";
 

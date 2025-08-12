@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, TextField } from "@mui/material";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { useCreate } from "@/app/hooks/crud/create/useCreate";
+import { useCreate } from "@/app/hooks/crud/create/create";
 
 const businessSectorSchema = z.object({
     description: z.string().min(1, "Por favor, insira a descrição do setor de negocio"),

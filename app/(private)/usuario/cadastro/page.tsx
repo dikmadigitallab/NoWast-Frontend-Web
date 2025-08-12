@@ -15,7 +15,7 @@ import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
-import { useCreate } from "@/app/hooks/crud/create/useCreate";
+import { useCreate } from "@/app/hooks/crud/create/create";
 
 const userSchema = z.object({
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }).nullable(),

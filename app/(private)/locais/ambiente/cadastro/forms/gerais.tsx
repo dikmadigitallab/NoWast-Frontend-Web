@@ -2,15 +2,14 @@
 
 import { z } from "zod";
 import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
+import { formTheme } from "@/app/styles/formTheme/theme";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
-import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useGet } from "@/app/hooks/crud/get/useGet";
-import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 
 const ambienteSchema = z.object({
     name: z.string().min(1, "Nome do Ambiente é obrigatório"),

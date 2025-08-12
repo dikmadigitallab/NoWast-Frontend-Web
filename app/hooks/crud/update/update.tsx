@@ -13,7 +13,7 @@ export const useUpdate = (url: string, redirect: string) => {
     const [data, setData] = useState(null);
     const router = useRouter();
 
-    const update = async (data: any, img?: any) => {
+    const update = async (data: any, containsImg?: any) => {
 
         setError(null);
         setLoading(true);
@@ -35,18 +35,26 @@ export const useUpdate = (url: string, redirect: string) => {
             });
 
 
-            if (img) {
+            if (containsImg) {
                 const formData = new FormData();
-                formData.append("file", img);
+                Object.entries(data).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null) {
+                        formData.append(key, typeof value === "object" ? JSON.stringify(value) : value as string | Blob);
+                    }
+                });
 
-                await api.post(`/${url}/${response.data.data.id}/upload-profile-image`, formData, {
+                formData.append("file", containsImg);
+
+                const response = await api.patch(`/${url}`, formData, {
                     headers: {
                         Authorization: `Bearer ${authToken?.split("=")[1]}`,
                         "Content-Type": "multipart/form-data",
                     },
                 });
-            }
 
+                setData(response.data.data);
+                toast.success("Atualização feita com sucesso");
+            }
             setData(response.data.data);
             toast.success("Atualização feita com sucesso");
 
