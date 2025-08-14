@@ -6,12 +6,11 @@ import api from "../../api";
 
 export const useCreate = (url: string, redirect: string) => {
 
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
 
-    const create = async (data: any, containsImg?: any) => {
-
+    const create = async (data: any, containsImg?: boolean) => {
         setError(null);
         setLoading(true);
 
@@ -19,22 +18,29 @@ export const useCreate = (url: string, redirect: string) => {
 
         if (!authToken) {
             setError("Token de autenticação não encontrado");
-            Logout()
+            Logout();
             return;
         }
 
         try {
             if (containsImg) {
                 const formData = new FormData();
+
                 Object.entries(data).forEach(([key, value]) => {
                     if (value !== undefined && value !== null) {
-                        formData.append(key, typeof value === "object" ? JSON.stringify(value) : value as string | Blob);
+                        if (key === "file" && value instanceof File) {
+                            formData.append(key, value);
+                        } else if (key === "image" && value instanceof File) {
+                            formData.append(key, value);
+                        } else if (typeof value === "object" && !(value instanceof File)) {
+                            formData.append(key, JSON.stringify(value));
+                        } else {
+                            formData.append(key, value as string | Blob);
+                        }
                     }
                 });
 
-                formData.append("file", containsImg);
-
-                const response = await api.post(`/${url}`, formData, {
+                await api.post(`/${url}`, formData, {
                     headers: {
                         Authorization: `Bearer ${authToken?.split("=")[1]}`,
                         "Content-Type": "multipart/form-data",
@@ -42,24 +48,19 @@ export const useCreate = (url: string, redirect: string) => {
                 });
 
                 toast.success("Cadastro feito com sucesso");
+                setTimeout(() => router.push(redirect));
 
-                setTimeout(() => {
-                    return router.push(redirect);
-                })
+            } else {
+                await api.post(`/${url}`, data, {
+                    headers: {
+                        Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                toast.success("Cadastro feito com sucesso");
+                setTimeout(() => router.push(redirect));
             }
-
-            const response = await api.post(`/${url}`, data, {
-                headers: {
-                    Authorization: `Bearer ${authToken?.split("=")[1]}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            toast.success("Cadastro feito com sucesso");
-
-            setTimeout(() => {
-                router.push(redirect);
-            })
 
         } catch (error) {
             setLoading(false);

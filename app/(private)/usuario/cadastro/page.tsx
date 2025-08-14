@@ -11,11 +11,11 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
-import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
-import { useCreate } from "@/app/hooks/crud/create/create";
+import { useAuthStore } from "@/app/store/storeApp";
+import { useCreateUser } from "@/app/hooks/usuarios/create";
 
 const userSchema = z.object({
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }).nullable(),
@@ -68,6 +68,8 @@ type UserFormValues = z.infer<typeof userSchema>;
 
 export default function CadastroPessoa() {
 
+    const { userInfo } = useAuthStore();
+
     const { control, handleSubmit, formState: { errors }, watch, setValue, trigger } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
@@ -105,7 +107,7 @@ export default function CadastroPessoa() {
                     },
                 },
             },
-            contract: { connect: { id: undefined } },
+            contract: { connect: { id: Number(userInfo?.contractId) } },
             position: { connect: { id: undefined } },
             supervisor: { connect: { id: undefined } },
             manager: { connect: { id: undefined } },
@@ -120,12 +122,11 @@ export default function CadastroPessoa() {
     const { users } = useGetUsuario({});
     const { data: epis } = useGet({ url: 'ppe' });
     const { data: cargos } = useGet({ url: 'position' });
-    const { data: contrato } = useGetContratos();
     const { data: produtos } = useGet({ url: 'product' });
     const { data: equipamentos } = useGet({ url: 'tools' });
     const { data: transportes } = useGet({ url: 'transport' });
     const [file, setFile] = useState<File | null>(null);
-    const { create, loading } = useCreate("users", "/usuario/listagem");
+    const { create, loading } = useCreateUser("users", "/usuario/listagem");
     const [cepLoading, setCepLoading] = useState(false);
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
@@ -284,7 +285,7 @@ export default function CadastroPessoa() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações Pessoais</h2>
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Box className="w-full  h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
                         <input
@@ -747,29 +748,6 @@ export default function CadastroPessoa() {
                                     <MenuItem value="OPERATIONAL">Operacional</MenuItem>
                                 </Select>
                                 <FormHelperText>{errors.userType?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
-                        name="contract.connect.id"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.contract?.connect?.id} sx={formTheme}>
-                                <InputLabel sx={formTheme}>Contrato</InputLabel>
-                                <Select
-                                    label="Contrato"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um contrato...</MenuItem>
-                                    {contrato?.map((contract: any) => (
-                                        <MenuItem key={contract.id} value={contract.id}>
-                                            {contract.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                <FormHelperText>{errors.contract?.connect?.id?.message}</FormHelperText>
                             </FormControl>
                         )}
                     />

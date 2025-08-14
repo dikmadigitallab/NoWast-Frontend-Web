@@ -7,16 +7,17 @@ import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetUsuario } from "@/app/hooks/usuarios/get";
-import { useUpdate } from "@/app/hooks/crud/update/update";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { useAuthStore } from "@/app/store/storeApp";
+import { useUpdateUser } from "@/app/hooks/usuarios/update";
 
 const userSchema = z.object({
     id: z.number({ required_error: "ID é obrigatório", invalid_type_error: "ID inválido" }),
@@ -70,6 +71,8 @@ type UserFormValues = z.infer<typeof userSchema>;
 
 export default function AtualizarPessoa() {
 
+    const { userInfo } = useAuthStore();
+
     const { control, handleSubmit, formState: { errors }, reset, watch, setValue, trigger } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
@@ -109,7 +112,7 @@ export default function AtualizarPessoa() {
                     },
                 }
             },
-            role: { connect: { id: undefined } },
+            role: { connect: { id: Number(userInfo?.contractId) } },
             contract: { connect: { id: undefined } },
             position: { connect: { id: undefined } },
             supervisor: { connect: { id: undefined } },
@@ -137,7 +140,7 @@ export default function AtualizarPessoa() {
     const { data: transportes } = useGet({ url: 'transport' });
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
-    const { update, loading } = useUpdate("users", '/usuario/listagem');
+    const { update, loading } = useUpdateUser("users", '/usuario/listagem');
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenModal = (field: string) => {
@@ -169,6 +172,7 @@ export default function AtualizarPessoa() {
         if (disable) {
             const newData = {
                 ...formData,
+                file: file,
                 status: "INACTIVE",
                 email: formData.person.create.email?.toLowerCase(),
                 phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
@@ -179,10 +183,11 @@ export default function AtualizarPessoa() {
                     }
                 }
             };
-            update(newData);
+            update(newData, file);
         } else {
             const newData = {
                 ...formData,
+                file: file,
                 email: formData.person.create.email?.toLowerCase(),
                 phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
                 person: {
@@ -391,7 +396,7 @@ export default function AtualizarPessoa() {
                     <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Cadastro</h1>
                 </Box>
 
-                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações da Pessoa</h2>
+                <h2 className="text-[#5E5873] text-[1.2rem] font-normal mt-4">Informações Pessoais</h2>
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Box className="w-full  h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">

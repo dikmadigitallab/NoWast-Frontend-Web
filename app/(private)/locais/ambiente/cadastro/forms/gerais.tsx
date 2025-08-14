@@ -46,14 +46,26 @@ export default function FormDadosGerais() {
         setOpen(false);
     };
 
+
     const action = (
         <React.Fragment>
-            <Button sx={{ ...buttonTheme, mr: 1 }} href='/locais/setor/cadastro' color="secondary" size="small" onClick={handleClose}>
-                Cadastrar Setor
-            </Button>
-            <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose} sx={{ mr: 1 }}>
-                <GridCloseIcon fontSize="small" />
-            </IconButton>
+            <Box className="flex items-start p-2">
+                <Box className="flex flex-col gap-4 items-start">
+                    <Box className="w-[90%] text-[1rem]">Nenhum setor cadastrado! Necessário para cadastro de ambiente.</Box>
+                    <Button sx={buttonTheme} href='/locais/setor/cadastro' color="secondary" onClick={handleClose}>
+                        Cadastrar Setor
+                    </Button>
+                </Box>
+                <IconButton
+                    size="small"
+                    aria-label="close"
+                    color="inherit"
+                    onClick={handleClose}
+                    sx={{ mr: 1, border: '2px solid', borderRadius: '50%' }}
+                    className="custom-border">
+                    <GridCloseIcon fontSize="small" />
+                </IconButton>
+            </Box>
         </React.Fragment>
     );
 
@@ -67,10 +79,15 @@ export default function FormDadosGerais() {
             <Snackbar
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                 open={open}
-                autoHideDuration={6000}
+                autoHideDuration={116000}
                 onClose={handleClose}
-                message="Nenhum setor cadastrado! Necessário para cadastro de ambiente."
                 action={action}
+                ContentProps={{
+                    sx: {
+                        backgroundColor: '#009d78',
+                        color: 'white',
+                    }
+                }}
             />
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
                 <Box className="w-full flex flex-col gap-5">

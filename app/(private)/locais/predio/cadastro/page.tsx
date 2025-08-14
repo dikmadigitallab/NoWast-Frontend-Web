@@ -1,12 +1,12 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Box, Button, Modal, CircularProgress, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { TextField, Box, Button, Modal, CircularProgress } from "@mui/material";
 import { StyledMainContainer } from "@/app/styles/container/container";
+import { useCreate } from "@/app/hooks/crud/create/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
 import { useAuthStore } from "@/app/store/storeApp";
 import { Controller } from "react-hook-form";
@@ -14,7 +14,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
-import { useCreate } from "@/app/hooks/crud/create/create";
 
 const predioSchema = z.object({
     name: z.string().min(1, "Nome do Predio é obrigatório"),
@@ -22,11 +21,7 @@ const predioSchema = z.object({
     longitude: z.string().min(1, "Longitude é obrigatória"),
     description: z.string().min(1, "Descrição é obrigatória"),
     radius: z.number().int().min(1, "Raio é obrigatório"),
-    contract: z.object({
-        connect: z.object({
-            id: z.number().int().min(1, "ID do contrato é obrigatório")
-        })
-    })
+    contractId: z.number().int()
 });
 
 type PredioFormValues = z.infer<typeof predioSchema>;
@@ -37,13 +32,13 @@ export default function CadastroPredio() {
 
     const { control, handleSubmit, formState: { errors, } } = useForm<PredioFormValues>({
         resolver: zodResolver(predioSchema),
-        defaultValues: { name: "", latitude: "", longitude: "", description: "", contract: { connect: { id: Number(userInfo?.contractId) } }, radius: 0 },
+        defaultValues: { name: "", latitude: "", longitude: "", description: "", contractId: Number(userInfo?.contractId), radius: 0 },
         mode: "onChange"
     });
 
     const router = useRouter();
-    const { data: contratos } = useGet({ url: "contract" });
     const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
     const { create, loading } = useCreate("building", "/locais/predio/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
@@ -59,8 +54,9 @@ export default function CadastroPredio() {
         router.push('/locais/predio/listagem');
     };
 
-    const onSubmit = (data: any) => {
-        create(data);
+    const onSubmit = (formData: any) => {
+        const newObject = { ...formData, image: file };
+        create(newObject, true);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,6 +70,7 @@ export default function CadastroPredio() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+        setFile(file);
     };
 
     return (

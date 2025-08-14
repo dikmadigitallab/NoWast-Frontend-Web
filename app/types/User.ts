@@ -23,3 +23,12 @@ interface User {
   llowed_edit_minutes?: boolean;
   allowed_create_meetin?: boolean;
 }
+
+interface UseGetUsuarioParams {
+  page?: number;
+  pageSize?: number | null;
+  query?: string | null;
+  supervisorId?: number | null;
+  position?: number | null;
+  managerId?: number | null;
+}

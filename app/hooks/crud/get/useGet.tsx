@@ -4,6 +4,7 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../../api";
 import { useGetIDStore } from "@/app/store/getIDStore";
+import { useAuthStore } from "@/app/store/storeApp";
 
 
 export interface UseGetParams {
@@ -21,10 +22,11 @@ export interface UseGetParams {
 
 export const useGet = ({ url, page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
+    const { userInfo } = useAuthStore();
+    const { setIdService } = useGetIDStore();
+    const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const { setIdService, setId } = useGetIDStore();
-    const [data, setData] = useState<any>(null);
 
     const get = async () => {
 
@@ -45,6 +47,8 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
 
             params.append("disablePagination", "true");
             params.append("page", String(page));
+            params.append("contractId", String(userInfo.contractId));
+
 
             if (query !== null) params.append("query", query.trim());
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
@@ -64,7 +68,13 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
                 },
             });
 
-            setData(response.data.data.items);
+            if (url === "service") {
+                const refactorData = response.data.data.items.map((item: any) => item.serviceItems);
+                setData(refactorData[0]);
+            } else {
+                setData(response.data.data.items);
+            }
+
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {

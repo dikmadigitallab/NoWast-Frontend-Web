@@ -16,10 +16,10 @@ import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
 
 const produtoSchema = z.object({
-    name: z.string().min(1, "Nome do Produto é obrigatório"),
+    name: z.string().min(1, "Nome do EPI é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
     buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
-    responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) }),
+    responsibleManagerId: z.number().int().min(1, "ID do gestor é obrigatório")
 });
 
 type ProdutoFormValues = z.infer<typeof produtoSchema>;
@@ -36,7 +36,7 @@ export default function CadastroProduto() {
 
     const { control, handleSubmit, formState: { errors }, reset } = useForm<ProdutoFormValues>({
         resolver: zodResolver(produtoSchema),
-        defaultValues: { name: "", description: "", buildingId: 0, responsibleManager: { connect: { id: 0 } } },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManagerId: undefined },
         mode: "onChange"
     });
 
@@ -45,7 +45,7 @@ export default function CadastroProduto() {
     const handleDisableConfirm = () => router.push('/items/transporte/listagem');
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, file: file, buildingId: 12 };
+        const newObject = { ...formData, image: file };
         create(newObject, true);
     };
 
@@ -90,13 +90,13 @@ export default function CadastroProduto() {
 
                     <Box className="flex flex-row gap-2">
                         <Controller
-                            name="responsibleManager.connect.id"
+                            name="responsibleManagerId"
                             control={control}
                             render={({ field }) => (
                                 <FormControl
                                     sx={formTheme}
                                     fullWidth
-                                    error={!!errors.responsibleManager?.connect?.id}
+                                    error={!!errors.responsibleManagerId}
                                 >
                                     <InputLabel id="responsible-label">Gestor Responsável</InputLabel>
                                     <Select
@@ -108,15 +108,15 @@ export default function CadastroProduto() {
                                         <MenuItem value="" disabled>
                                             Clique e selecione...
                                         </MenuItem>
-                                        {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.id}>
-                                                {person.name}
+                                        {pessoas?.map((pessoa: any) => (
+                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.name}
                                             </MenuItem>
                                         ))}
                                     </Select>
-                                    {errors.responsibleManager?.connect?.id && (
+                                    {errors.responsibleManagerId && (
                                         <p className="text-red-500 text-xs mt-1">
-                                            {errors.responsibleManager.connect.id.message}
+                                            {errors.responsibleManagerId.message}
                                         </p>
                                     )}
                                 </FormControl>

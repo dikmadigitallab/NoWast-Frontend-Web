@@ -27,40 +27,43 @@ export const useUpdate = (url: string, redirect: string) => {
         }
 
         try {
-            const response = await api.put(`/${url}/${id}`, data, {
-                headers: {
-                    Authorization: `Bearer ${authToken?.split("=")[1]}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-
             if (containsImg) {
                 const formData = new FormData();
+
                 Object.entries(data).forEach(([key, value]) => {
                     if (value !== undefined && value !== null) {
-                        formData.append(key, typeof value === "object" ? JSON.stringify(value) : value as string | Blob);
+                        if (key === "file" && value instanceof File) {
+                            formData.append(key, value);
+                        } else if (typeof value === "object" && !(value instanceof File)) {
+                            formData.append(key, JSON.stringify(value));
+                        } else {
+                            formData.append(key, value as string | Blob);
+                        }
                     }
                 });
 
-                formData.append("file", containsImg);
-
-                const response = await api.patch(`/${url}`, formData, {
+                await api.put(`/${url}/${id}`, formData, {
                     headers: {
                         Authorization: `Bearer ${authToken?.split("=")[1]}`,
                         "Content-Type": "multipart/form-data",
                     },
                 });
 
-                setData(response.data.data);
-                toast.success("Atualização feita com sucesso");
-            }
-            setData(response.data.data);
-            toast.success("Atualização feita com sucesso");
+                toast.success("Cadastro feito com sucesso");
+                setTimeout(() => router.push(redirect));
 
-            setTimeout(() => {
-                router.push(redirect);
-            })
+            } else {
+                await api.put(`/${url}/${id}`, data, {
+                    headers: {
+                        Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                toast.success("Cadastro feito com sucesso");
+                setTimeout(() => router.push(redirect));
+            }
+
         } catch (error) {
             setLoading(false);
             const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";

@@ -17,19 +17,18 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
 import { GoTrash } from "react-icons/go";
 import { IoMdClose } from 'react-icons/io';
-
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from "@/app/styles/tableTheme/theme";
-import { useGetServiceEnvironment } from '@/app/hooks/servicos/get';
 import { useGetIDStore } from '@/app/store/getIDStore';
+import { useGet } from '@/app/hooks/crud/get/useGet';
 
 type Service = { id: number, name: string };
 
 export default function FormCheckList({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any } }) {
 
     const { id } = useGetIDStore();
-    const { data: services, loading } = useGetServiceEnvironment({ environmentId: id });
+    const { data: services, loading } = useGet({ url: "service", environmentId: id });
     const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
 
     // console.log("Selected State:", services);

@@ -7,6 +7,7 @@ import { StyledMainContainer } from "@/app/styles/container/container";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useUpdate } from "@/app/hooks/crud/update/update";
 import { formTheme } from "@/app/styles/formTheme/theme";
+import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGet } from "@/app/hooks/crud/get/useGet";
@@ -15,13 +16,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { z } from "zod";
-import { useGetUsuario } from "@/app/hooks/usuarios/get";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
     buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
-    responsibleManager: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do gestor é obrigatório") }) })
+    responsibleManagerId: z.number().int().min(1, "ID do gestor é obrigatório")
 });
 
 type EpiFormValues = z.infer<typeof epiSchema>;
@@ -41,7 +41,7 @@ export default function EditarEPI() {
 
     const { control, handleSubmit, formState: { errors }, reset } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
-        defaultValues: { name: "", description: "", buildingId: 0, responsibleManager: { connect: { id: 0 } } },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManagerId: undefined },
         mode: "onChange"
     });
 
@@ -58,12 +58,12 @@ export default function EditarEPI() {
     };
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, file: file };
+        const newObject = { ...formData, image: file };
         update(newObject, true);
     };
 
     useEffect(() => {
-        if (data) reset({ ...data, responsibleManager: { connect: { id: data?.responsibleManagerId } }, buildingId: 1 });
+        if (data) reset({ ...data, responsibleManagerId: data?.responsibleManager?.id, buildingId: 1 });
 
         setImageInfo({
             name: data?.ppeFiles[0]?.file?.fileName,
@@ -114,13 +114,13 @@ export default function EditarEPI() {
 
                     <Box className="flex flex-row gap-2">
                         <Controller
-                            name="responsibleManager.connect.id"
+                            name="responsibleManagerId"
                             control={control}
                             render={({ field }) => (
                                 <FormControl
                                     sx={formTheme}
                                     fullWidth
-                                    error={!!errors.responsibleManager?.connect?.id}
+                                    error={!!errors.responsibleManagerId}
                                 >
                                     <InputLabel id="responsible-label">Gestor Responsável</InputLabel>
                                     <Select
@@ -132,15 +132,15 @@ export default function EditarEPI() {
                                         <MenuItem value="" disabled>
                                             Clique e selecione...
                                         </MenuItem>
-                                        {pessoas?.map((person: any) => (
-                                            <MenuItem key={person.id} value={person.id}>
-                                                {person.name}
+                                        {pessoas?.map((pessoa: any) => (
+                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.name}
                                             </MenuItem>
                                         ))}
                                     </Select>
-                                    {errors.responsibleManager?.connect?.id && (
+                                    {errors.responsibleManagerId && (
                                         <p className="text-red-500 text-xs mt-1">
-                                            {errors.responsibleManager.connect.id.message}
+                                            {errors.responsibleManagerId.message}
                                         </p>
                                     )}
                                 </FormControl>

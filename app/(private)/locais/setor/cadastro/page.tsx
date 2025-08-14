@@ -23,11 +23,7 @@ const setorSchema = z.object({
     latitude: z.string().min(1, "Latitude é obrigatória"),
     longitude: z.string().min(1, "Longitude é obrigatória"),
     description: z.string().min(1, "Descrição é obrigatória"),
-    building: z.object({
-        connect: z.object({
-            id: z.number().int().min(1, "ID do edifício é obrigatório").nullable()
-        })
-    })
+    buildingId: z.number().int().min(1, "ID do edifício é obrigatório")
 });
 
 type SetorFormValues = z.infer<typeof setorSchema>;
@@ -42,22 +38,19 @@ export default function CadastroSetor() {
             latitude: "",
             longitude: "",
             description: "",
-            building: {
-                connect: {
-                    id: null
-                }
-            }
+            buildingId: 0
         },
         mode: "onChange"
     });
 
 
     const router = useRouter();
+    const [open, setOpen] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
     const { data: predios } = useGet({ url: "building" });
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("sector", "/locais/setor/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
-    const [open, setOpen] = useState(false);
 
     const handleClose = (event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
         if (reason === 'clickaway') {
@@ -65,17 +58,6 @@ export default function CadastroSetor() {
         }
         setOpen(false);
     };
-
-    const action = (
-        <React.Fragment>
-            <Button sx={{ ...buttonTheme, mr: 1 }} href='/locais/predio/cadastro' color="secondary" size="small" onClick={handleClose}>
-                Cadastrar Prédio
-            </Button>
-            <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose} sx={{ mr: 1 }}>
-                <GridCloseIcon fontSize="small" />
-            </IconButton>
-        </React.Fragment>
-    );
 
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
@@ -90,7 +72,10 @@ export default function CadastroSetor() {
     };
 
     const onSubmit = async (formData: any) => {
-        create(formData);
+        const radius = Number(formData.radius);
+        if (isNaN(radius) || radius < 1) return;
+        const newObject = { ...formData, image: file, radius };
+        create(newObject, true);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +89,30 @@ export default function CadastroSetor() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+        setFile(file);
     };
+
+    const action = (
+        <React.Fragment>
+            <Box className="flex items-start p-2">
+                <Box className="flex flex-col gap-4 items-start">
+                    <Box className="w-[90%] text-[1rem]">Nenhum prédio cadastrado! Necessário para cadastro de setor.</Box>
+                    <Button sx={buttonTheme} href='/locais/predio/cadastro' color="secondary" onClick={handleClose}>
+                        Cadastrar Prédio
+                    </Button>
+                </Box>
+                <IconButton
+                    size="small"
+                    aria-label="close"
+                    color="inherit"
+                    onClick={handleClose}
+                    sx={{ mr: 1, border: '2px solid', borderRadius: '50%' }}
+                    className="custom-border">
+                    <GridCloseIcon fontSize="small" />
+                </IconButton>
+            </Box>
+        </React.Fragment>
+    );
 
     useEffect(() => {
         if (predios?.length <= 0) setOpen(true);
@@ -115,10 +123,15 @@ export default function CadastroSetor() {
             <Snackbar
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                 open={open}
-                autoHideDuration={6000}
+                autoHideDuration={116000}
                 onClose={handleClose}
-                message="Nenhum prédio cadastrado! Necessário para cadastro de setor."
                 action={action}
+                ContentProps={{
+                    sx: {
+                        backgroundColor: '#009d78',
+                        color: 'white',
+                    }
+                }}
             />
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
                 <Box className="flex gap-2">
@@ -192,10 +205,10 @@ export default function CadastroSetor() {
                 </Box>
 
                 <Box className="w-full flex gap-2">
-                    <FormControl fullWidth error={!!errors.building?.connect?.id}>
+                    <FormControl fullWidth error={!!errors.buildingId}>
                         <InputLabel id="building-label">Prédio</InputLabel>
                         <Controller
-                            name="building.connect.id"
+                            name="buildingId"
                             control={control}
                             render={({ field }) => (
                                 <Select
@@ -203,7 +216,7 @@ export default function CadastroSetor() {
                                     labelId="building-label"
                                     label="Prédios"
                                     value={field.value || ""}
-                                    error={!!errors.building?.connect?.id}
+                                    error={!!errors.buildingId}
                                 >
                                     <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
                                     {predios?.map((building: any) => (
@@ -214,9 +227,9 @@ export default function CadastroSetor() {
                                 </Select>
                             )}
                         />
-                        {errors.building?.connect?.id && (
+                        {errors.buildingId && (
                             <p className="text-red-500 text-xs mt-1">
-                                {errors.building?.connect?.id.message}
+                                {errors.buildingId.message}
                             </p>
                         )}
                     </FormControl>

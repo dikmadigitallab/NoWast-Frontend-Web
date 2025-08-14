@@ -47,6 +47,7 @@ export default function AtualizarPredio() {
     const router = useRouter();
     const { data: predio } = useGetOneById('building');
     const { data: contratos } = useGetContratos(false);
+    const [file, setFile] = useState<File | null>(null);
     const handleOpenCancelModal = () => setOpenCancelModal(true);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
@@ -64,8 +65,9 @@ export default function AtualizarPredio() {
         setOpenDeleteModal(false);
     };
 
-    const onSubmit = (data: any) => {
-        update(data);
+    const onSubmit = (formData: any) => {
+        const newObject = { ...formData, image: file };
+        update(newObject, true);
     };
 
     useEffect(() => {
@@ -90,8 +92,8 @@ export default function AtualizarPredio() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+        setFile(file);
     };
-
 
     return (
         <StyledMainContainer>

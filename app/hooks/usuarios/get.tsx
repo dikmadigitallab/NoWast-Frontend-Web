@@ -3,13 +3,15 @@
 import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
+import { useAuthStore } from "@/app/store/storeApp";
 
-export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervisorId = null, position = null, managerId = null }: { page?: number, pageSize?: number | null, query?: string | null, supervisorId?: number | null, position?: number | null, managerId?: number | null }) => {
-   
+export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervisorId = null, position = null, managerId = null }: UseGetUsuarioParams) => {
+
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
     const [users, setUsers] = useState<any>(null);
+    const { userInfo } = useAuthStore();
 
     const getUsuario = async () => {
         setError(null);
@@ -30,6 +32,7 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
 
             params.append("disablePagination", "true");
             params.append("page", String(page));
+            params.append("contractId", String(userInfo.contractId));
 
             if (query !== null) params.append("query", query.trim());
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
