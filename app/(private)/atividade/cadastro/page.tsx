@@ -70,6 +70,7 @@ export default function Atividade() {
 
     const router = useRouter();
     const { create } = useCreateActivity();
+    const [file, setFile] = useState<File | null>(null);
     const { setSection, section } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -78,6 +79,7 @@ export default function Atividade() {
 
         const newData = {
             ...data,
+            images: file,
             hasRecurrence: data.hasRecurrence === "true" ? true : false,
             usersIds: convertToString(data.usersIds),
             epiIds: convertToString(data.epiIds),
@@ -89,7 +91,6 @@ export default function Atividade() {
 
         create(newData);
     };
-
 
 
     const handleNext = () => {
@@ -176,7 +177,7 @@ export default function Atividade() {
                 </Box>
 
                 {section === 1 && (
-                    <FormDadosGerais control={control} formState={{ errors }} watch={watch} />
+                    <FormDadosGerais file={file} setFile={setFile} control={control} formState={{ errors }}  />
                 )}
                 {section === 2 && (
                     <FormPessoas control={control} formState={{ errors }} setValue={setValue} watch={watch} />

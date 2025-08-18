@@ -30,7 +30,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
 
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     return (
         <Box className="mt-6 border-b border-gray-200 pb-4 last:border-0">

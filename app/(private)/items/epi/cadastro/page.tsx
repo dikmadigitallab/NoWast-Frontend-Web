@@ -51,6 +51,7 @@ export default function CadastroEPI() {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+        console.log(file);
         if (!file) return;
 
         const imageData = {

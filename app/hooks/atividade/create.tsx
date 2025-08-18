@@ -5,7 +5,6 @@ import { useState } from "react";
 import api from "../api";
 
 export const useCreateActivity = () => {
-
     const router = useRouter();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -25,31 +24,46 @@ export const useCreateActivity = () => {
 
         const formData = new FormData();
 
-        Object.entries(data).forEach(([key, value]) => {
+        if (data.images && Array.isArray(data.images)) {
+            data.images.forEach((file: File, index: number) => {
+                formData.append(`images`, file); 
+            });
+        }
+
+        for (const [key, value] of Object.entries(data)) {
+            if (key === 'images') continue;
+            
             if (value !== undefined && value !== null) {
-                formData.append(key, typeof value === "object" ? JSON.stringify(value) : value as string | Blob);
+                if (typeof value === 'object' && !(value instanceof Blob)) {
+                    formData.append(key, JSON.stringify(value));
+                } else {
+                    formData.append(key, value as string | Blob);
+                }
             }
-        });
+        }
 
         try {
             const response = await api.post(`/activity`, formData, {
                 headers: {
-                    Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                    Authorization: `Bearer ${authToken.split("=")[1]}`,
+                    'Content-Type': 'multipart/form-data', 
                 },
             });
 
             setData(response.data.data);
-            toast.success("Cadastro feito com sucesso");
+            toast.success("Atividade criada com sucesso!");
 
             setTimeout(() => {
                 router.push("/atividade/listagem");
-            });
+            }, 1000); 
 
         } catch (error) {
             setLoading(false);
-            const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
+            const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro ao criar atividade";
             setError(errorMessage);
             toast.error(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -57,6 +71,6 @@ export const useCreateActivity = () => {
         create,
         loading,
         error,
-        data
+        data,
     };
 };
