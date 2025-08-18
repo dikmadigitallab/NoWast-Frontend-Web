@@ -13,7 +13,6 @@ interface Module {
   image: string;
   status: string,
 }
-
 export default function Home() {
   const { userType } = useAuthStore();
   const { SetisSelectModule } = useSelectModule();
@@ -30,6 +29,9 @@ export default function Home() {
         window.location.href = 'dashboard/atividades';
         SetisSelectModule(true);
       } else if (userType === 'ADM_CLIENTE') {
+        window.location.href = 'dashboard/atividades';
+        SetisSelectModule(true);
+      }else{
         window.location.href = 'dashboard/atividades';
         SetisSelectModule(true);
       }
