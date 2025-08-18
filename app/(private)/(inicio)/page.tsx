@@ -21,7 +21,7 @@ export default function Home() {
   const redirect = (module: number) => {
     if (module === 1) {
       if (userType === 'GESTAO') {
-        window.location.href = 'modulos/predios';
+         window.location.href = 'modulos/predios';
         SetisSelectModule(true);
       } else if (userType === 'DIKMA_DIRECTOR') {
         window.location.href = 'modulos/empresas';
