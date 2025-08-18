@@ -15,21 +15,7 @@ export default function FormDadosGerais({ setFile, control, formState: { errors 
     const [imageInfos, setImageInfos] = useState<Array<{ name: string; type: string; size: number; previewUrl: string }> | null>(null);
     const { data: ambientes } = useGet({ url: "environment" });
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (!files || files.length === 0) return;
-
-        const filesToAdd = Array.from(files).slice(0, 3 - (imageInfos?.length || 0));
-        const newImageInfos = filesToAdd.map(file => ({
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            previewUrl: URL.createObjectURL(file),
-            file: file
-        }));
-        setFile(filesToAdd);
-        setImageInfos(prev => [...(prev || []), ...newImageInfos]);
-    };
+    
 
     const removeImage = (index: number) => {
         if (!imageInfos) return;
@@ -209,54 +195,6 @@ export default function FormDadosGerais({ setFile, control, formState: { errors 
                         </FormControl>
                     )}
                 />
-            </Box>
-
-            <Box className="w-full min-h-[57px] flex flex-col border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
-                <input
-                    type="file"
-                    accept="image/*"
-                    className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-                    onChange={handleFileChange}
-                    multiple
-                    disabled={imageInfos?.length !== undefined && imageInfos.length >= 3 || false}
-                />
-                {imageInfos ? (
-                    <Box className="w-full p-3">
-                        {imageInfos.map((imageInfo, index) => (
-                            <Box key={index} className="w-full flex justify-between items-center p-2 mb-2 bg-gray-50 rounded">
-                                <Box className="flex flex-row items-center gap-3">
-                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
-                                    <Box className="flex flex-col">
-                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
-                                    </Box>
-                                </Box>
-                                <IoMdClose
-                                    color="#5E5873"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeImage(index);
-                                    }}
-                                    className="cursor-pointer z-[99999]"
-                                />
-                            </Box>
-                        ))}
-                        {imageInfos.length < 3 && (
-                            <Box className="w-full flex justify-center items-center p-2 gap-2">
-                                <IoImagesOutline color="#5E5873" size={25} />
-                                <p className="text-[.8rem] text-[#000000]">
-                                    Adicionar mais fotos ({imageInfos.length}/3)
-                                </p>
-                            </Box>
-                        )}
-                    </Box>
-                ) : (
-                    <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
-                        <IoImagesOutline color="#5E5873" size={25} />
-                        <p className="text-[.8rem] text-[#000000]">Selecione até 3 fotos da atividade</p>
-                    </Box>
-                )}
             </Box>
 
             <Controller

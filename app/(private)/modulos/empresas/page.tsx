@@ -17,7 +17,7 @@ export default function Empresas() {
     const { SetisSelectModule } = useSelectModule();
 
     const redirect = () => {
-        window.location.href = 'dashboard/atividades';
+        window.location.href = '/modulos/predios';
         SetisSelectModule(true);
     }
 
