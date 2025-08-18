@@ -49,7 +49,6 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
             params.append("page", String(page));
             params.append("contractId", String(userInfo.contractId));
 
-
             if (query !== null) params.append("query", query.trim());
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
             if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());

@@ -88,7 +88,7 @@ export default function Sidebar() {
     if (!mounted || !userType) return null;
 
     return (
-        <aside className="w-[100%] h-full bg-[#fff] text-white flex flex-col justify-between p-3">
+        <aside className="hidden xl:flex w-[100%] h-full bg-[#fff] text-white flex-col justify-between p-3 md:hidden:!flex">
             <Box className="flex flex-col gap-10">
                 <Box
                     onClick={() => handleAccordionToggle("/")}

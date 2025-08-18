@@ -62,17 +62,6 @@ export default function EditarEPI() {
         update(newObject, true);
     };
 
-    useEffect(() => {
-        if (data) reset({ ...data, responsibleManagerId: data?.responsibleManager?.id, buildingId: 1 });
-
-        setImageInfo({
-            name: data?.ppeFiles[0]?.file?.fileName,
-            type: data?.ppeFiles[0]?.file?.fileType,
-            size: data?.ppeFiles[0]?.file?.size,
-            previewUrl: data?.ppeFiles[0]?.file?.url,
-        });
-    }, [data, reset]);
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -86,6 +75,17 @@ export default function EditarEPI() {
         setImageInfo(imageData);
         setFile(file);
     };
+
+    useEffect(() => {
+        if (data) reset({ ...data, responsibleManagerId: data?.responsibleManager?.id, buildingId: data?.building[0]?.id });
+
+        setImageInfo({
+            name: data?.ppeFiles[0]?.file?.fileName,
+            type: data?.ppeFiles[0]?.file?.fileType,
+            size: data?.ppeFiles[0]?.file?.size,
+            previewUrl: data?.ppeFiles[0]?.file?.url,
+        });
+    }, [data, reset]);
 
     return (
         <StyledMainContainer>

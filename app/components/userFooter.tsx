@@ -24,8 +24,8 @@ export default function UserFooter() {
     };
 
     return (
-        <Box className="flex flex-row items-center justify-between w-[100%]">
-            <Box className="flex flex-row gap-3 items-center">
+        <Box className="w-[100%] flex flex-row items-center justify-between">
+            <Box className="flex flex-row gap-1 items-center">
                 <Box className="relative">
                     <img className="w-[50px] h-[50px] rounded-full object-cover" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg" alt="User" />
                     <Box className="absolute bottom-0 right-0 w-[22px] h-[22px] bg-[#00B288] rounded-full flex justify-center items-center z-10">

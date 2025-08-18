@@ -31,7 +31,6 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
     const { data: services, loading } = useGet({ url: "service", environmentId: id });
     const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
 
-    // console.log("Selected State:", services);
     const handleRemoveSelected = (value: string, field: keyof typeof selectedState, setSelectedState: any) => {
         setSelectedState((prev: any) => ({
             ...prev,

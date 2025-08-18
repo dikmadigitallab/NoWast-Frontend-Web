@@ -14,7 +14,6 @@ interface Empresa {
 }
 
 export default function Empresas() {
-
     const { SetisSelectModule } = useSelectModule();
 
     const redirect = () => {
@@ -45,36 +44,47 @@ export default function Empresas() {
 
     return (
         <StyledMainContainer>
-            <Box className="flex gap-2 mb-8">
-                <a href='/' className="text-[#B9B9C3] text-[1.4rem] font-normal">Início</a>
-                <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Empresas</h1>
+            <Box className="flex gap-2 mb-4 sm:mb-6 md:mb-8 px-2 sm:px-0">
+                <a href='/' className="text-[#B9B9C3] text-sm sm:text-base md:text-xl font-normal">Início</a>
+                <span className="text-[#B9B9C3] text-sm sm:text-base md:text-xl font-normal">/</span>
+                <span className="text-[#5E5873] text-sm sm:text-base md:text-xl font-normal">Empresas</span>
             </Box>
 
             <Header />
 
-            <Box className="w-full flex flex-col">
-
-                <Box className="w-full flex flex-wrap flex-row justify-between">
+            <Box className="w-full px-2 sm:px-4 md:px-0">
+                <Box className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {empresas.map(empresa => (
-                        <Box key={empresa.id} className="md:w-[100%] lg:w-[32%] flex flex-col items-center justify-between overflow-hidden gap-2 p-4 rounded-sm h-[400px] border-1 border-[#5e58731f]">
+                        <Box
+                            key={empresa.id}
+                            className="w-full flex flex-col items-center justify-between overflow-hidden gap-3 p-4 rounded-sm border border-[#5e58731f]
+                            h-[350px] sm:h-[380px] md:h-[400px]"
+                        >
                             <img
-                                className="w-full h-[50%] object-cover transition duration-500 ease-in-out hover:scale-102 hover:rounded-sm"
+                                className="w-full h-[120px] sm:h-[150px] md:h-[180px] object-cover transition duration-500 ease-in-out hover:scale-102 hover:rounded-sm"
                                 src={empresa.image}
                                 alt={empresa.name}
                             />
-                            <span className='text-[#3b3b3b] text-[1.4rem] font-medium'>{empresa.name}</span>
-                            <span className='text-[#5E5873] text-[.8rem] text-center'>
+                            <span className='text-[#3b3b3b] text-lg sm:text-xl md:text-2xl font-medium text-center'>
+                                {empresa.name}
+                            </span>
+                            <span className='text-[#5E5873] text-xs sm:text-sm text-center line-clamp-3'>
                                 {empresa.name} é uma empresa parceira que busca excelência e inovação em seus processos. Clique para saber mais.
                             </span>
                             <Button
                                 onClick={redirect}
                                 disabled={empresa.status === "inativo"}
-                                sx={[buttonTheme, { width: "100%" }]}
+                                sx={[
+                                    buttonTheme,
+                                    {
+                                        width: "100%",
+                                        marginTop: "auto",
+                                        fontSize: "0.875rem",
+                                        padding: "0.5rem"
+                                    }
+                                ]}
                                 variant="contained"
                                 color="primary"
-                                className="mt-4"
-                                href="/dashboard/atividades"
                             >
                                 {empresa.status === "inativo" ? "Pedir Acesso" : "Acessar"}
                             </Button>

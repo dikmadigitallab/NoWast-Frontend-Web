@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/app/components/userHeader";
+import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useSelectModule } from "@/app/store/isSelectModule";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
@@ -14,7 +15,6 @@ interface Predio {
 }
 
 export default function Predios() {
-
     const { SetisSelectModule } = useSelectModule();
 
     const redirect = () => {
@@ -45,35 +45,29 @@ export default function Predios() {
 
     return (
         <StyledMainContainer>
-            <Box className="flex gap-2 mb-8">
-                <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">Prédios</h1>
-                <h1 className="text-[#B9B9C3] text-[1.4rem] font-normal">/</h1>
-                <h1 className="text-[#5E5873] text-[1.4rem] font-normal">Listagem</h1>
+            <Box className="flex gap-2 mb-4 sm:mb-6 md:mb-8 px-2 sm:px-0">
+                <span className="text-[#B9B9C3] text-sm sm:text-base md:text-xl font-normal">Prédios</span>
+                <span className="text-[#B9B9C3] text-sm sm:text-base md:text-xl font-normal">/</span>
+                <span className="text-[#5E5873] text-sm sm:text-base md:text-xl font-normal">Listagem</span>
             </Box>
-
             <Header />
-
-            <Box className="w-full flex flex-col">
-                <Box className="w-full flex flex-wrap flex-row justify-between">
+            <Box className="w-full px-2 sm:px-4 md:px-0">
+                <Box className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {predios.map(predio => (
-                        <Box key={predio.id} className="md:w-[100%] lg:w-[32%] flex flex-col items-center justify-between overflow-hidden gap-2 p-4 rounded-sm h-[400px] border-1 border-[#5e58731f]">
-                            <img
-                                className="w-full h-[50%] object-cover transition duration-500 ease-in-out hover:scale-102 hover:rounded-sm"
-                                src={predio.image}
-                                alt={predio.name}
-                            />
-                            <span className='text-[#3b3b3b] text-[1.4rem] font-medium'>{predio.name}</span>
-                            <span className='text-[#5E5873] text-[.8rem] text-center'>
+                        <Box key={predio.id} className="w-full flex flex-col items-center justify-between overflow-hidden gap-3 p-4 rounded-sm border border-[#5e58731f] h-[350px] sm:h-[380px] md:h-[400px] transition-all duration-300 hover:shadow-md">
+                            <img className="w-full h-[120px] sm:h-[150px] md:h-[180px] object-cover rounded-sm transition duration-500 ease-in-out hover:scale-102" src={predio.image} alt={predio.name} />
+                            <span className='text-[#3b3b3b] text-lg sm:text-xl md:text-2xl font-medium text-center'>
+                                {predio.name}
+                            </span>
+                            <span className='text-[#5E5873] text-xs sm:text-sm text-center line-clamp-3'>
                                 O prédio {predio.name} é fundamental no processo industrial. Clique para saber mais e acessar detalhes operacionais.
                             </span>
                             <Button
                                 onClick={redirect}
                                 disabled={predio.status === "inativo"}
-                                sx={[buttonTheme, { width: "100%" }]}
+                                sx={[buttonTheme, { width: "100%", marginTop: "auto", fontSize: "0.875rem", padding: "0.5rem" }]}
                                 variant="contained"
                                 color="primary"
-                                className="mt-4"
-                                href="/dashboard/atividades"
                             >
                                 {predio.status === "inativo" ? "Pedir Acesso" : "Acessar"}
                             </Button>

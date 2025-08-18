@@ -63,17 +63,6 @@ export default function EditarTransport() {
         update(newObject, true);
     };
 
-    useEffect(() => {
-        if (data) reset({ ...data, responsibleManager: { connect: { id: data?.responsibleManagerId } }, buildingId: 1 });
-
-        setImageInfo({
-            name: data?.transportFiles[0]?.file?.fileName,
-            type: data?.transportFiles[0]?.file?.fileType,
-            size: data?.transportFiles[0]?.file?.size,
-            previewUrl: data?.transportFiles[0]?.file?.url,
-        });
-    }, [data, reset]);
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -87,6 +76,17 @@ export default function EditarTransport() {
         setImageInfo(imageData);
         setFile(file);
     };
+
+    useEffect(() => {
+        if (data) reset({ ...data, responsibleManager: { connect: { id: data?.responsibleManagerId, buildingId: data?.building[0]?.id } } });
+
+        setImageInfo({
+            name: data?.toolsFiles[0]?.file?.fileName,
+            type: data?.toolsFiles[0]?.file?.fileType,
+            size: data?.toolsFiles[0]?.file?.size,
+            previewUrl: data?.toolsFiles[0]?.file?.url,
+        });
+    }, [data, reset]);
 
     return (
         <StyledMainContainer>

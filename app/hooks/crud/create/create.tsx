@@ -28,9 +28,7 @@ export const useCreate = (url: string, redirect: string) => {
 
                 Object.entries(data).forEach(([key, value]) => {
                     if (value !== undefined && value !== null) {
-                        if (key === "file" && value instanceof File) {
-                            formData.append(key, value);
-                        } else if (key === "image" && value instanceof File) {
+                        if (key === "image" && value instanceof File) {
                             formData.append(key, value);
                         } else if (typeof value === "object" && !(value instanceof File)) {
                             formData.append(key, JSON.stringify(value));
@@ -65,7 +63,6 @@ export const useCreate = (url: string, redirect: string) => {
         } catch (error) {
             setLoading(false);
             const errorMessage = (error as any)?.response?.data?.messages?.[0] || "Erro desconhecido";
-            setError(errorMessage);
             toast.error(errorMessage);
         }
     };
