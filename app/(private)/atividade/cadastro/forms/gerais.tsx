@@ -2,35 +2,19 @@
 
 import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetIDStore } from "@/app/store/getIDStore";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { useGetIDStore } from "@/app/store/getIDStore";
-import { useState } from "react";
-import { IoMdClose } from "react-icons/io";
-import { IoImagesOutline } from "react-icons/io5";
 
-export default function FormDadosGerais({ setFile, control, formState: { errors } }: { setFile: any, file: any, control: any, formState: { errors: any, } }) {
+export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
 
     const { setId } = useGetIDStore();
-    const [imageInfos, setImageInfos] = useState<Array<{ name: string; type: string; size: number; previewUrl: string }> | null>(null);
     const { data: ambientes } = useGet({ url: "environment" });
-
-    
-
-    const removeImage = (index: number) => {
-        if (!imageInfos) return;
-        const newImageInfos = [...imageInfos];
-        newImageInfos.splice(index, 1);
-        setImageInfos(newImageInfos.length > 0 ? newImageInfos : null);
-    };
-
-
 
     return (
         <Box className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
 
             <Box className="flex flex-row gap-2">
-
 
                 <Controller
                     name="environmentId"
@@ -87,8 +71,9 @@ export default function FormDadosGerais({ setFile, control, formState: { errors 
                     control={control}
                     render={({ field }) => (
                         <TextField
+                            disabled={watch("hasRecurrence") === "true" ? false : true}
                             variant="outlined"
-                            label="Repete todo dia / hora:"
+                            label="Data e hora do fim da recorrência"
                             type="datetime-local"
                             InputLabelProps={{ shrink: true }}
                             {...field}
@@ -101,6 +86,7 @@ export default function FormDadosGerais({ setFile, control, formState: { errors 
                         />
                     )}
                 />
+
             </Box>
 
             <Box className="flex flex-row gap-2">

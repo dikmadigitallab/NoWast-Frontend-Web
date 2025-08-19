@@ -5,12 +5,14 @@ import { useState } from "react";
 import api from "../api";
 
 export const useCreateActivity = () => {
+
     const router = useRouter();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const create = async (data: any) => {
+
         setError(null);
         setLoading(true);
 
@@ -24,15 +26,7 @@ export const useCreateActivity = () => {
 
         const formData = new FormData();
 
-        if (data.images && Array.isArray(data.images)) {
-            data.images.forEach((file: File, index: number) => {
-                formData.append(`images`, file); 
-            });
-        }
-
         for (const [key, value] of Object.entries(data)) {
-            if (key === 'images') continue;
-            
             if (value !== undefined && value !== null) {
                 if (typeof value === 'object' && !(value instanceof Blob)) {
                     formData.append(key, JSON.stringify(value));
@@ -46,7 +40,7 @@ export const useCreateActivity = () => {
             const response = await api.post(`/activity`, formData, {
                 headers: {
                     Authorization: `Bearer ${authToken.split("=")[1]}`,
-                    'Content-Type': 'multipart/form-data', 
+                    'Content-Type': 'multipart/form-data',
                 },
             });
 
@@ -55,7 +49,7 @@ export const useCreateActivity = () => {
 
             setTimeout(() => {
                 router.push("/atividade/listagem");
-            }, 1000); 
+            }, 1000);
 
         } catch (error) {
             setLoading(false);

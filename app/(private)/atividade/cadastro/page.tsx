@@ -26,8 +26,8 @@ const activitySchema = z.object({
     observation: z.string().optional(),
     hasRecurrence: z.enum(["true", "false"]),
     recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]),
+    recurrenceFinalDate: z.string().optional(),
     approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]),
-    recurrenceFinalDate: z.string().min(1, "Campo Obrigatório"),
     dateTime: z.string().min(1, "Campo Obrigatório"),
     approvalDate: z.string().optional(),
     approvalUpdatedByUserId: z.union([z.number(), z.null()]).optional(),
@@ -50,11 +50,11 @@ export default function Atividade() {
                 description: "",
                 environmentId: undefined,
                 dateTime: "",
-                recurrenceFinalDate: "",
                 statusEnum: "OPEN",
                 approvalStatus: "PENDING",
                 activityTypeEnum: "NORMAL",
                 supervisorId: undefined,
+                recurrenceFinalDate: "",
                 managerId: undefined,
                 hasRecurrence: "false",
                 recurrenceType: "DAILY",
@@ -70,7 +70,6 @@ export default function Atividade() {
 
     const router = useRouter();
     const { create } = useCreateActivity();
-    const [file, setFile] = useState<File | null>(null);
     const { setSection, section } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -79,7 +78,6 @@ export default function Atividade() {
 
         const newData = {
             ...data,
-            images: file,
             hasRecurrence: data.hasRecurrence === "true" ? true : false,
             usersIds: convertToString(data.usersIds),
             epiIds: convertToString(data.epiIds),
@@ -98,7 +96,6 @@ export default function Atividade() {
         const requiredFields = [
             { field: "environmentId", condition: watch("environmentId") === undefined },
             { field: "hasRecurrence", condition: watch("hasRecurrence") === undefined },
-            { field: "recurrenceFinalDate", condition: watch("recurrenceFinalDate") === "" },
             { field: "dateTime", condition: watch("dateTime") === "" },
             { field: "statusEnum", condition: watch("statusEnum") === undefined },
             { field: "activityTypeEnum", condition: watch("activityTypeEnum") === undefined },
@@ -177,7 +174,7 @@ export default function Atividade() {
                 </Box>
 
                 {section === 1 && (
-                    <FormDadosGerais file={file} setFile={setFile} control={control} formState={{ errors }}  />
+                    <FormDadosGerais control={control} formState={{ errors }} watch={watch} />
                 )}
                 {section === 2 && (
                     <FormPessoas control={control} formState={{ errors }} setValue={setValue} watch={watch} />

@@ -71,8 +71,9 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     control={control}
                     render={({ field }) => (
                         <TextField
+                            disabled={watch("hasRecurrence") === "true" ? false : true}
                             variant="outlined"
-                            label="Repete todo dia / hora:"
+                            label="Data e hora do fim da recorrência"
                             type="datetime-local"
                             InputLabelProps={{ shrink: true }}
                             {...field}
@@ -85,6 +86,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                         />
                     )}
                 />
+
             </Box>
 
             <Box className="flex flex-row gap-2">
