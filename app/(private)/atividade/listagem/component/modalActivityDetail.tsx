@@ -4,7 +4,7 @@ import { useState } from "react";
 
 function DetailItem({ label, value }: { label: string; value: string }) {
     return (
-        <Box className="flex flex-col w-[50%]">
+        <Box className="flex flex-col w-[100%]">
             <Box className="text-sm font-semibold text-[#4B5563]">{label}</Box>
             <Box className="text-sm text-[#6E6B7B]">{value || "-"}</Box>
         </Box>
@@ -12,6 +12,7 @@ function DetailItem({ label, value }: { label: string; value: string }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+
     const statusColors: Record<string, string> = {
         approved: "bg-green-100 text-green-800 border-green-200",
         pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -30,6 +31,8 @@ function StatusBadge({ status }: { status: string }) {
 
 function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
 
+    if (items.length === 0) return null;
+
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -42,7 +45,7 @@ function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
                 <Box className="grid gap-3 mt-3">
                     {items.map((item) => (
                         <Box key={item.id} className="p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-                            <Box className="flex flex-row gap-3">
+                            <Box className="flex flex-col gap-3">
                                 <DetailItem label="Nome:" value={item.name} />
                                 <DetailItem label="Descrição:" value={item.description} />
                             </Box>
@@ -84,7 +87,7 @@ export default function ModalVisualizeDetail({
 
                     <Box className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
                         <Box className="flex flex-row gap-3 mb-3">
-                            <DetailItem label="ID:" value={modalVisualize?.id} />
+                            <DetailItem label="ID:" value={`#${modalVisualize?.id}`} />
                             <DetailItem label="Ambiente:" value={modalVisualize?.environment} />
                         </Box>
                         <Box className="flex flex-row gap-3 mb-3">

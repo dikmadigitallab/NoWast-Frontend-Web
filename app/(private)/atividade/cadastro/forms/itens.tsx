@@ -168,6 +168,7 @@ export default function FormItens({ control, setValue, watch, formState: { error
                             <FormControl sx={formTheme} fullWidth error={!!error}>
                                 <InputLabel>{label}</InputLabel>
                                 <Select
+                                    disabled={loading}
                                     multiple
                                     label={label}
                                     value={selectedItems[idField as keyof typeof selectedItems]}

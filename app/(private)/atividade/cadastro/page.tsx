@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { Box, Button, Modal } from "@mui/material";
+import { Box, Button, CircularProgress, Modal } from "@mui/material";
 import FormDadosGerais from "./forms/gerais";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import FormPessoas from "./forms/pessoas";
@@ -15,6 +15,7 @@ import FormCheckList from "./forms/checklist";
 import { useRouter } from "next/navigation";
 import { useSectionStore } from "@/app/store/renderSection";
 import { useCreateActivity } from "@/app/hooks/atividade/create";
+import { toast } from "react-toastify";
 
 const activitySchema = z.object({
     description: z.string().min(1, "Campo Obrigatório"),
@@ -25,7 +26,7 @@ const activitySchema = z.object({
     managerId: z.preprocess((val) => val === "" ? undefined : val, z.number({ required_error: "Campo Obrigatório" }).min(1, "Campo Obrigatório")),
     observation: z.string().optional(),
     hasRecurrence: z.enum(["true", "false"]),
-    recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]),
+    recurrenceType: z.string().min(0, "Campo Obrigatório").optional(),
     recurrenceFinalDate: z.string().optional(),
     approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]),
     dateTime: z.string().min(1, "Campo Obrigatório"),
@@ -57,7 +58,7 @@ export default function Atividade() {
                 recurrenceFinalDate: "",
                 managerId: undefined,
                 hasRecurrence: "false",
-                recurrenceType: "DAILY",
+                recurrenceType: "",
                 usersIds: [],
                 epiIds: [],
                 equipmentIds: [],
@@ -69,7 +70,7 @@ export default function Atividade() {
         });
 
     const router = useRouter();
-    const { create } = useCreateActivity();
+    const { create, loading } = useCreateActivity();
     const { setSection, section } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
@@ -99,8 +100,18 @@ export default function Atividade() {
             { field: "dateTime", condition: watch("dateTime") === "" },
             { field: "statusEnum", condition: watch("statusEnum") === undefined },
             { field: "activityTypeEnum", condition: watch("activityTypeEnum") === undefined },
-            { field: "approvalStatus", condition: watch("approvalStatus") === undefined }
+            { field: "approvalStatus", condition: watch("approvalStatus") === undefined },
+            { field: "description", condition: watch("description") === "" },
+
         ];
+
+        if (watch("hasRecurrence") === "true") {
+            requiredFields.push(
+                { field: "recurrenceType", condition: watch("hasRecurrence") === "true" ? watch("recurrenceType") === "" : true },
+                { field: "recurrenceFinalDate", condition: watch("hasRecurrence") === "true" ? watch("recurrenceFinalDate") === "" : true }
+            );
+        }
+
 
         const personnelFields = [
             { field: "managerId", condition: watch("managerId") === undefined },
@@ -112,11 +123,13 @@ export default function Atividade() {
         const hasMissingPersonnelField = personnelFields.some(item => item.condition);
 
         if (hasMissingRequiredField && section === 1) {
+            toast.info("Por favor, preencha todos os campos obrigatórios.");
             trigger();
             return;
         }
 
         if (hasMissingPersonnelField && section === 2) {
+            toast.info("Por favor, preencha todos os campos obrigatórios.");
             trigger();
             return;
         }
@@ -128,6 +141,7 @@ export default function Atividade() {
             handleSubmit(onSubmit)();
         }
     }
+
     const handleCloseDisableModal = () => {
         setOpenDisableModal(false);
     };
@@ -192,7 +206,7 @@ export default function Atividade() {
                         section <= 3 ? (
                             <Button variant="outlined" sx={buttonTheme} onClick={handleNext}>Próximo</Button>
                         ) : (
-                            <Button variant="outlined" sx={buttonTheme} onClick={handleSubmit(onSubmit)}>Enviar</Button>
+                            <Button onClick={handleSubmit(onSubmit)} variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>{loading ? <CircularProgress size={24} color="inherit" /> : "Cadastrar"}</Button>
                         )
                     }
                 </Box>

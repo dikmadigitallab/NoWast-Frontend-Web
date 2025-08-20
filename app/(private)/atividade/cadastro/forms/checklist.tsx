@@ -142,6 +142,7 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                         <FormControl sx={formTheme} fullWidth>
                             <InputLabel>Checklist</InputLabel>
                             <Select
+                                disabled={loading}
                                 label="Checklist"
                                 multiple
                                 value={selectedState.services}

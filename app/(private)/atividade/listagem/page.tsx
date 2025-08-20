@@ -67,7 +67,7 @@ export default function DataGridAtividades() {
         {
             field: 'approvalStatus',
             headerName: 'Status de Aprovação',
-            width: 150,
+            width: 180,
         },
         {
             field: 'environment',

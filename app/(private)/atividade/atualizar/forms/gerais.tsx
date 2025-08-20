@@ -67,6 +67,27 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                 />
 
                 <Controller
+                    name="recurrenceType"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl fullWidth sx={formTheme}>
+                            <InputLabel>Tipo de recorrência</InputLabel>
+                            <Select label="Tipo de recorrência" {...field} error={!!errors.recurrenceType}>
+                                <MenuItem value="DAILY">Diaria</MenuItem>
+                                <MenuItem value="WEEKLY">Semanal</MenuItem>
+                                <MenuItem value="MONTHLY">Mensal</MenuItem>
+                                <MenuItem value="YEARLY">Anual</MenuItem>
+                            </Select>
+                            {errors.recurrenceType && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.recurrenceType.message}
+                                </p>
+                            )}
+                        </FormControl>
+                    )}
+                />
+
+                <Controller
                     name="recurrenceFinalDate"
                     control={control}
                     render={({ field }) => (

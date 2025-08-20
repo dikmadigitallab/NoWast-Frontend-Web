@@ -2,6 +2,10 @@ export const filterStatusActivity = (status: string): string => {
     switch (status) {
         case 'OPEN':
             return 'Aberto';
+        case 'APPROVED':
+            return 'Aprovado';
+        case 'REJECTED':
+            return 'Rejeitado';
         case 'COMPLETED':
             return 'Concluído';
         case 'UNDER_REVIEW':

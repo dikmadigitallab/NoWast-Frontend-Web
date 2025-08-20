@@ -18,7 +18,6 @@ import Box from '@mui/material/Box';
 import { useSectionStore } from '@/app/store/renderSection';
 import ModalVisualizeDetail from './component/modalAmbienteDetail';
 
-
 export default function DataGridAmbientes() {
 
     const router = useRouter();
@@ -29,6 +28,7 @@ export default function DataGridAmbientes() {
     const [search, setSearch] = useState<any>({ query: '' });
     const [modalVisualize, setModalVisualize] = useState(false);
     const { data: ambientes } = useGet({ url: "environment", query: search.query });
+
 
     const handleChangeModalVisualize = (data: any) => {
         setVisualize(data);
@@ -85,10 +85,22 @@ export default function DataGridAmbientes() {
             ),
         },
         {
-            field: 'sectorId',
-            headerName: 'ID do Setor',
+            field: 'setor',
+            headerName: 'Setor',
             width: 150,
+            renderCell: (params) => (
+                <span>{params.row.setor?.name ?? '-'}</span>
+            ),
         },
+        {
+            field: 'predio',
+            headerName: 'Prédio',
+            width: 150,
+            renderCell: (params) => (
+                <span>{params.row.predio?.name ?? '-'}</span>
+            ),
+        },
+
     ];
 
     useEffect(() => {
@@ -97,9 +109,7 @@ export default function DataGridAmbientes() {
 
     return (
         <StyledMainContainer>
-
             <ModalVisualizeDetail modalVisualize={visualize} handleChangeModalVisualize={handleChangeModalVisualize} />
-
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">

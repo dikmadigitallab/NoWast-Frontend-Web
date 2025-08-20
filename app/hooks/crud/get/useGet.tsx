@@ -70,7 +70,34 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
             if (url === "service") {
                 const refactorData = response.data.data.items.map((item: any) => item.serviceItems);
                 setData(refactorData[0]);
-            } else {
+            } else if (url === "environment") {
+
+                const refactorData = response.data.data.items.map((item: any) => {
+                    return {
+                        id: item?.id,
+                        name: item?.name,
+                        description: item?.description,
+                        areaM2: item?.areaM2,
+                        setor: {
+                            id: item?.sector?.id,
+                            name: item?.sector?.name,
+                            description: item?.sector?.description,
+                            areaM2: item?.sector?.radius
+                        },
+                        predio: {
+                            id: item?.sector?.building?.id,
+                            name: item?.sector?.building?.name,
+                            description: item?.sector?.building?.description,
+                            areaM2: item?.sector?.building?.radius
+
+                        }
+                    };
+                });
+
+                setData(refactorData);
+            }
+
+            else {
                 setData(response.data.data.items);
             }
 
