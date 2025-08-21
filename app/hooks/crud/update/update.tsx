@@ -10,7 +10,6 @@ export const useUpdate = (url: string, redirect: string) => {
     const { id } = useGetIDStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState(null);
     const router = useRouter();
 
     const update = async (data: any, containsImg?: any) => {
@@ -75,7 +74,6 @@ export const useUpdate = (url: string, redirect: string) => {
     return {
         update,
         loading,
-        error,
-        data
+        error
     };
 };

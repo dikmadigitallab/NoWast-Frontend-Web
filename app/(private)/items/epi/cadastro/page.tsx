@@ -9,11 +9,10 @@ import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { IoImagesOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
-import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
 import { z } from "zod";
+import { ImageUploader } from "@/app/components/imageGet";
 
 const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -32,7 +31,6 @@ export default function CadastroEPI() {
     const { data: predios } = useGet({ url: 'building' });
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("ppe", "/items/epi/listagem");
-    const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const { control, handleSubmit, formState: { errors } } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
@@ -47,21 +45,6 @@ export default function CadastroEPI() {
     const onSubmit = (formData: any) => {
         const newObject = { ...formData, image: file };
         create(newObject, true);
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        console.log(file);
-        if (!file) return;
-
-        const imageData = {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            previewUrl: URL.createObjectURL(file),
-        };
-        setImageInfo(imageData);
-        setFile(file);
     };
 
     return (
@@ -152,33 +135,10 @@ export default function CadastroEPI() {
                         </FormControl>
                     </Box>
 
-                    <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-                            onChange={handleFileChange}
-                        />
-                        {imageInfo ? (
-                            <Box className="absolute w-full flex justify-between items-center p-3">
-                                <Box className="flex flex-row items-center gap-3">
-                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
-                                    <Box className="flex flex-col">
-                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
-                                    </Box>
-                                </Box>
-                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
-                            </Box>
-                        )
-                            :
-                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
-                                <IoImagesOutline color="#5E5873" size={25} />
-                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
-                            </Box>
-                        }
-                    </Box>
+                    <ImageUploader
+                        label="Selecione uma foto do EPI"
+                        onChange={(file: any) => setFile(file)}
+                    />
 
                     <Controller
                         name="description"

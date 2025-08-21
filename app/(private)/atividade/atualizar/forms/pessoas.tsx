@@ -40,10 +40,6 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
         setValue("usersIds", updatedUsers.map((user: any) => user.id));
     };
 
-    const handleDeleteChip = (userId: number) => {
-        handleRemoveUser(userId.toString());
-    };
-
     const columns: GridColDef<any>[] = [
         {
             field: 'acoes',
@@ -134,6 +130,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                             <FormControl sx={formTheme} fullWidth error={!!errors.supervisorId}>
                                 <InputLabel>Encarregado</InputLabel>
                                 <Select
+                                    disabled={loading}
                                     label="Encarregado"
                                     {...field}
                                     value={field.value || ""}
@@ -158,6 +155,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                             <FormControl sx={formTheme} fullWidth error={!!errors?.managerId}>
                                 <InputLabel>Líder/Gestor</InputLabel>
                                 <Select
+                                    disabled={loading}
                                     label="Líder/Gestor"
                                     {...field}
                                     value={field.value || ""}

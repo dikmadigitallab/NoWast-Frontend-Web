@@ -100,9 +100,7 @@ export default function ModalVisualizeDetail({
                         </Box>
                         <Box className="flex items-center gap-2">
                             <Box className="text-sm font-semibold text-[#4B5563]">Aprovação:</Box>
-                            {modalVisualize?.approvalStatus && (
-                                <StatusBadge status={modalVisualize.approvalStatus} />
-                            )}
+                            {modalVisualize?.approvalStatus && <Box sx={{color: modalVisualize.approvalStatus.color , borderWidth: 1, borderColor: modalVisualize.approvalStatus.color, borderRadius: '100px', padding: '3px 8px' }}>{modalVisualize.approvalStatus.title}</Box>}
                         </Box>
                     </Box>
 

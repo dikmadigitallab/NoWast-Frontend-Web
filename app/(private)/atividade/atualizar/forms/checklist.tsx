@@ -1,17 +1,27 @@
 "use client";
 
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, CircularProgress, Chip } from "@mui/material";
-import { buttonTheme } from "@/app/styles/buttonTheme/theme";
-import { tableTheme } from "@/app/styles/tableTheme/theme";
-import { formTheme } from "@/app/styles/formTheme/theme";
+import { useState } from 'react';
+import {
+    Box,
+    Button,
+    FormControl,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Select,
+    CircularProgress,
+    Chip
+} from "@mui/material";
+import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { ptBR } from "@mui/x-data-grid/locales";
+import { GoTrash } from "react-icons/go";
+import { IoMdClose } from 'react-icons/io';
+import { buttonTheme } from "@/app/styles/buttonTheme/theme";
+import { formTheme } from "@/app/styles/formTheme/theme";
+import { tableTheme } from "@/app/styles/tableTheme/theme";
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useGet } from '@/app/hooks/crud/get/useGet';
-import { ptBR } from "@mui/x-data-grid/locales";
-import { IoMdClose } from 'react-icons/io';
-import { FiPlus } from "react-icons/fi";
-import { GoTrash } from "react-icons/go";
-import { useState } from 'react';
 
 type Service = { id: number, name: string };
 
@@ -132,6 +142,7 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                         <FormControl sx={formTheme} fullWidth>
                             <InputLabel>Checklist</InputLabel>
                             <Select
+                                disabled={loading}
                                 label="Checklist"
                                 multiple
                                 value={selectedState.services}

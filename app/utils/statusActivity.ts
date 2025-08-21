@@ -1,22 +1,23 @@
-export const filterStatusActivity = (status: string): string => {
+export const filterStatusActivity = (status: string): { title: string; color: string } => {
     switch (status) {
         case 'OPEN':
-            return 'Aberto';
+            return { title: 'Aberto', color: 'blue' };
         case 'APPROVED':
-            return 'Aprovado';
+            return { title: 'Aprovado', color: 'green' };
         case 'REJECTED':
-            return 'Rejeitado';
+            return { title: 'Reprovado', color: 'red' };
         case 'COMPLETED':
-            return 'Concluído';
+            return { title: 'Concluído', color: 'gray' };
         case 'UNDER_REVIEW':
-            return 'Em revisão';
+            return { title: 'Em revisão', color: 'yellow' };
         case 'PENDING':
-            return 'Pendente';
+            return { title: 'Pendente', color: 'orange' };
         case 'JUSTIFIED':
-            return 'Justificado';
+            return { title: 'Justificado', color: 'purple' };
         case 'INTERNAL_JUSTIFICATION':
-            return 'Justificação interna';
+            return { title: 'Justificação interna', color: 'pink' };
         default:
-            return status;
+            return { title: status, color: 'black' };
     }
 };
+

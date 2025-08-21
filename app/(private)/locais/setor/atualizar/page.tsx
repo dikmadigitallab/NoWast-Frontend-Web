@@ -36,31 +36,21 @@ export default function EditarSetor() {
 
     const { control, handleSubmit, formState: { errors }, reset } = useForm<SetorFormValues>({
         resolver: zodResolver(setorSchema),
-        defaultValues: {
-            name: "",
-            radius: 0,
-            latitude: "",
-            longitude: "",
-            description: "",
-            building: {
-                connect: {
-                    id: null
-                }
-            }
-        },
+        defaultValues: { name: "", radius: 0, latitude: "", longitude: "", description: "", building: { connect: { id: null } } },
         mode: "onChange"
     });
 
     const router = useRouter();
     const { data: setor } = useGetOneById("sector");
+    const [file, setFile] = useState<File | null>(null);
     const { data: predios } = useGet({ url: "building" });
     const handleOpenCancelModal = () => setOpenCancelModal(true);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const handleCloseCancelModal = () => setOpenCancelModal(false);
     const { handleDelete } = useDelete("sector", "/locais/setor/listagem");
-    const { update, loading } = useUpdate("sector", "/locais/setor/listagem");
     const handleCancelConfirm = () => router.push("/locais/setor/listagem");
+    const { update, loading } = useUpdate("sector", "/locais/setor/listagem");
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenDeleteModal = () => {
@@ -71,8 +61,9 @@ export default function EditarSetor() {
         setOpenDeleteModal(false);
     };
 
-    const onSubmit = async (formData: SetorFormValues) => {
-        update(formData);
+    const onSubmit = (formData: any) => {
+        const newObject = { ...formData, image: file };
+        update(newObject, true);
     };
 
     useEffect(() => {
@@ -90,8 +81,9 @@ export default function EditarSetor() {
             previewUrl: URL.createObjectURL(file),
         };
         setImageInfo(imageData);
+        setFile(file);
     };
-
+    
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">

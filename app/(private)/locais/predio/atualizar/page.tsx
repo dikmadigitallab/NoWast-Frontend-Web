@@ -7,10 +7,9 @@ import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground, buttonThemeNoBackgroundError } from "@/app/styles/buttonTheme/theme";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useUpdate } from "@/app/hooks/crud/update/update";
@@ -46,7 +45,6 @@ export default function AtualizarPredio() {
 
     const router = useRouter();
     const { data: predio } = useGetOneById('building');
-    const { data: contratos } = useGetContratos(false);
     const [file, setFile] = useState<File | null>(null);
     const handleOpenCancelModal = () => setOpenCancelModal(true);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -173,35 +171,6 @@ export default function AtualizarPredio() {
                 </Box>
 
                 <Box className="w-full flex gap-2">
-                    <FormControl fullWidth error={!!errors.contract}>
-                        <InputLabel id="contract-label">Contrato</InputLabel>
-                        <Controller
-                            name="contract.connect.id"
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    {...field}
-                                    labelId="contract-label"
-                                    label="Contrato"
-                                    fullWidth
-                                    value={field.value || ""}
-                                    error={!!errors.contract}
-                                >
-                                    {contratos?.map((contract: any) => (
-                                        <MenuItem key={contract.id} value={contract.id}>
-                                            {contract.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            )}
-                        />
-                        {errors.contract && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.contract.connect?.id?.message}
-                            </p>
-                        )}
-                    </FormControl>
-
                     <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
                         <input
                             type="file"
@@ -230,8 +199,6 @@ export default function AtualizarPredio() {
                         }
                     </Box>
                 </Box>
-
-
 
                 <Box className="w-[100%] flex flex-row justify-between">
                     <Controller

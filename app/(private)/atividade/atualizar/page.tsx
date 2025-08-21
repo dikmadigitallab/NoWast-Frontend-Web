@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import FormPessoas from "./forms/pessoas";
 import FormItens from "./forms/itens";
 import { z } from "zod";
+import { toast } from "react-toastify";
 
 const activitySchema = z.object({
     description: z.string().min(1, "Campo Obrigatório"),
@@ -27,9 +28,9 @@ const activitySchema = z.object({
     managerId: z.preprocess((val) => val === "" ? undefined : val, z.number({ required_error: "Campo Obrigatório" }).min(1, "Campo Obrigatório")),
     observation: z.string().optional(),
     hasRecurrence: z.enum(["true", "false"]),
-    recurrenceType: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]),
+    recurrenceType: z.string().min(0, "Campo Obrigatório").optional(),
+    recurrenceFinalDate: z.string().optional(),
     approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]),
-    recurrenceFinalDate: z.string().min(1, "Campo Obrigatório"),
     dateTime: z.string().min(1, "Campo Obrigatório"),
     approvalDate: z.string().optional(),
     approvalUpdatedByUserId: z.union([z.number(), z.null()]).optional(),
@@ -76,7 +77,7 @@ export default function AtividadeAtualizar() {
     const { setSection, section } = useSectionStore();
     const { data: atividade } = useGetOneById("activity");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
     const { handleDelete } = useDelete("activity", "/atividade/listagem");
 
     const onSubmit = (data: UserFormValues) => {
@@ -101,12 +102,21 @@ export default function AtividadeAtualizar() {
         const requiredFields = [
             { field: "environmentId", condition: watch("environmentId") === undefined },
             { field: "hasRecurrence", condition: watch("hasRecurrence") === undefined },
-            { field: "recurrenceFinalDate", condition: watch("recurrenceFinalDate") === "" },
             { field: "dateTime", condition: watch("dateTime") === "" },
             { field: "statusEnum", condition: watch("statusEnum") === undefined },
             { field: "activityTypeEnum", condition: watch("activityTypeEnum") === undefined },
-            { field: "approvalStatus", condition: watch("approvalStatus") === undefined }
+            { field: "approvalStatus", condition: watch("approvalStatus") === undefined },
+            { field: "description", condition: watch("description") === "" },
+
         ];
+
+        if (watch("hasRecurrence") === "true") {
+            requiredFields.push(
+                { field: "recurrenceType", condition: watch("hasRecurrence") === "true" ? watch("recurrenceType") === "" : true },
+                { field: "recurrenceFinalDate", condition: watch("hasRecurrence") === "true" ? watch("recurrenceFinalDate") === "" : true }
+            );
+        }
+
 
         const personnelFields = [
             { field: "managerId", condition: watch("managerId") === undefined },
@@ -118,11 +128,13 @@ export default function AtividadeAtualizar() {
         const hasMissingPersonnelField = personnelFields.some(item => item.condition);
 
         if (hasMissingRequiredField && section === 1) {
+            toast.info("Por favor, preencha todos os campos obrigatórios.");
             trigger();
             return;
         }
 
         if (hasMissingPersonnelField && section === 2) {
+            toast.info("Por favor, preencha todos os campos obrigatórios.");
             trigger();
             return;
         }
@@ -134,15 +146,17 @@ export default function AtividadeAtualizar() {
             handleSubmit(onSubmit)();
         }
     }
-    const handleCloseDisableModal = () => {
-        setOpenDisableModal(false);
+
+    const handleCloseCancelModal = () => {
+        setOpenCancelModal(false);
     };
 
-    const handleOpenDisableModal = () => {
-        setOpenDisableModal(true);
+    const handleOpenCancelModal = () => {
+        setOpenCancelModal(true);
     }
 
-    const handleDisableConfirm = () => {
+    const handleCancelConfirm = () => {
+        setSection(1);
         router.push('/atividade/listagem');
     };
 
@@ -184,6 +198,12 @@ export default function AtividadeAtualizar() {
         }
     }, [atividade, reset]);
 
+    useEffect(() => {
+        if (watch("hasRecurrence") === "false") {
+            setValue("recurrenceType", "");
+            setValue("recurrenceFinalDate", "");
+        }
+    }, [watch("hasRecurrence"), setValue]);
 
     return (
         <StyledMainContainer>
@@ -236,7 +256,7 @@ export default function AtividadeAtualizar() {
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenDeleteModal}>Excluir</Button>
                         <Box className="flex flex-row gap-5" >
                             <Box className="flex flex-row justify-end gap-4">
-                                <Button variant="outlined" onClick={handleOpenDisableModal} sx={buttonThemeNoBackground}>Cancelar</Button>
+                                <Button variant="outlined" onClick={handleOpenCancelModal} sx={buttonThemeNoBackground}>Cancelar</Button>
                                 {
                                     section <= 3 ? (
                                         <Button variant="outlined" sx={buttonTheme} onClick={handleNext}>Próximo</Button>
@@ -262,14 +282,14 @@ export default function AtividadeAtualizar() {
                     </Box>
                 </Box>
             </Modal>
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>

@@ -5,7 +5,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Button, CircularProgress, Modal } from "@mui/material";
 import FormDadosGerais from "./forms/gerais";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
@@ -72,7 +72,7 @@ export default function Atividade() {
     const router = useRouter();
     const { create, loading } = useCreateActivity();
     const { setSection, section } = useSectionStore();
-    const [openDisableModal, setOpenDisableModal] = useState(false);
+    const [openCancelModal, setOpenCancelModal] = useState(false);
 
     const onSubmit = (data: UserFormValues) => {
         const convertToString = (arr?: number[]) => arr && arr.length > 0 ? arr.join(",") : "";
@@ -90,7 +90,6 @@ export default function Atividade() {
 
         create(newData);
     };
-
 
     const handleNext = () => {
 
@@ -142,17 +141,25 @@ export default function Atividade() {
         }
     }
 
-    const handleCloseDisableModal = () => {
-        setOpenDisableModal(false);
+    const handleCloseCancelModal = () => {
+        setOpenCancelModal(false);
     };
 
-    const handleOpenDisableModal = () => {
-        setOpenDisableModal(true);
+    const handleOpenCancelModal = () => {
+        setOpenCancelModal(true);
     }
 
-    const handleDisableConfirm = () => {
+    const handleCancelConfirm = () => {
+        setSection(1);
         router.push('/atividade/listagem');
     };
+
+    useEffect(() => {
+        if (watch("hasRecurrence") === "false") {
+            setValue("recurrenceType", "");
+            setValue("recurrenceFinalDate", "");
+        }
+    }, [watch("hasRecurrence"), setValue]);
 
     return (
         <StyledMainContainer>
@@ -201,7 +208,7 @@ export default function Atividade() {
                 )}
 
                 <Box className="flex flex-row justify-end gap-4">
-                    <Button variant="outlined" onClick={handleOpenDisableModal} sx={buttonThemeNoBackground}>Cancelar</Button>
+                    <Button variant="outlined" onClick={handleOpenCancelModal} sx={buttonThemeNoBackground}>Cancelar</Button>
                     {
                         section <= 3 ? (
                             <Button variant="outlined" sx={buttonTheme} onClick={handleNext}>Próximo</Button>
@@ -212,14 +219,14 @@ export default function Atividade() {
                 </Box>
             </Box>
 
-            <Modal open={openDisableModal} onClose={handleCloseDisableModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
+            <Modal open={openCancelModal} onClose={handleCloseCancelModal} aria-labelledby="disable-confirmation-modal" aria-describedby="disable-confirmation-modal-description">
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">
                         <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Cancelamento</h2>
                         <p className="text-[#6E6B7B] text-center">Deseja realmente cancelar esse cadastro? todos os dados serão apagados.</p>
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
-                            <Button onClick={handleCloseDisableModal} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
-                            <Button onClick={handleDisableConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
+                            <Button onClick={handleCloseCancelModal} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
+                            <Button onClick={handleCancelConfirm} variant="outlined" sx={buttonTheme}>Confirmar</Button>
                         </Box>
                     </Box>
                 </Box>

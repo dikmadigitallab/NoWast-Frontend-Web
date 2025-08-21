@@ -11,7 +11,6 @@ import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/t
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
-import { useGetContratos } from "@/app/hooks/contrato/get";
 import { useGetUsuario } from "@/app/hooks/usuarios/get";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { IoImagesOutline } from "react-icons/io5";
@@ -128,7 +127,6 @@ export default function AtualizarPessoa() {
     const router = useRouter();
     const { users } = useGetUsuario({});
     const { data } = useGetOneById('users');
-    const { data: contrato } = useGetContratos();
     const { data: epis } = useGet({ url: 'ppe' });
     const [disable, setDisable] = useState(false);
     const [tempEndDate, setTempEndDate] = useState("");
@@ -845,29 +843,6 @@ export default function AtualizarPessoa() {
                                     <MenuItem value="OPERATIONAL">Operacional</MenuItem>
                                 </Select>
                                 <FormHelperText>{errors.userType?.message}</FormHelperText>
-                            </FormControl>
-                        )}
-                    />
-                    <Controller
-                        name="contract.connect.id"
-                        control={control}
-                        render={({ field }) => (
-                            <FormControl fullWidth error={!!errors.contract?.connect?.id} sx={formTheme}>
-                                <InputLabel>Contrato</InputLabel>
-                                <Select
-                                    label="Contrato"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um contrato...</MenuItem>
-                                    {contrato?.map((contract: any) => (
-                                        <MenuItem key={contract.id} value={contract.id}>
-                                            {contract.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                <FormHelperText>{errors.contract?.connect?.id?.message}</FormHelperText>
                             </FormControl>
                         )}
                     />

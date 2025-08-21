@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
 import { z } from "zod";
+import { ImageUploader } from "@/app/components/imageGet";
 
 const equipamentoSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -32,7 +33,6 @@ export default function CadastroEquipamento() {
     const { data: predios } = useGet({ url: 'building' });
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const { create, loading } = useCreate("tools", "/items/equipamento/listagem");
-    const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const { control, handleSubmit, formState: { errors } } = useForm<EquipamentoFormValues>({
         resolver: zodResolver(equipamentoSchema),
@@ -47,20 +47,6 @@ export default function CadastroEquipamento() {
     const onSubmit = (formData: any) => {
         const newObject = { ...formData, image: file };
         create(newObject, true);
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const imageData = {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            previewUrl: URL.createObjectURL(file),
-        };
-        setImageInfo(imageData);
-        setFile(file);
     };
 
     return (
@@ -152,33 +138,10 @@ export default function CadastroEquipamento() {
                         </FormControl>
                     </Box>
 
-                    <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-                            onChange={handleFileChange}
-                        />
-                        {imageInfo ? (
-                            <Box className="absolute w-full flex justify-between items-center p-3">
-                                <Box className="flex flex-row items-center gap-3">
-                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
-                                    <Box className="flex flex-col">
-                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
-                                    </Box>
-                                </Box>
-                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
-                            </Box>
-                        )
-                            :
-                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
-                                <IoImagesOutline color="#5E5873" size={25} />
-                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto do equipamento</p>
-                            </Box>
-                        }
-                    </Box>
+                    <ImageUploader
+                        label="Selecione uma foto do Equipamento"
+                        onChange={(file: any) => setFile(file)}
+                    />
 
                     <Controller
                         name="description"

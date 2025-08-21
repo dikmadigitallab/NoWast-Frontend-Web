@@ -1,6 +1,6 @@
 "use client";
 
-import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline } from 'react-icons/md';
+import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { Button, IconButton, TextField } from '@mui/material';
@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { FiPlus } from 'react-icons/fi';
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
+import DetailModal from './component/modalDetail';
 
 export default function ListagemSetores() {
 
@@ -23,6 +24,14 @@ export default function ListagemSetores() {
     const [isFilter, setIsFilter] = useState(false);
     const [search, setSearch] = useState<any>({ query: '' });
     const { data: setores } = useGet({ url: "sector", query: search.query });
+    const [modalDetail, setModalDetail] = useState(false);
+    const [detail, setDetail] = useState<any | null>(null);
+
+    const handleChangeModalDetail = (data: any) => {
+        setDetail(data);
+        setModalDetail(!modalDetail);
+    }
+
 
     const handleChangeModalEdit = (id: any) => {
         setId(id)
@@ -40,9 +49,14 @@ export default function ListagemSetores() {
             filterable: false,
             disableColumnMenu: true,
             renderCell: (params) => (
-                <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
-                    <MdOutlineModeEditOutline color='#635D77' />
-                </IconButton>
+                <Box>
+                    <IconButton aria-label="visualizar" size="small" onClick={() => handleChangeModalDetail(params.row)} >
+                        <MdOutlineVisibility color='#635D77' />
+                    </IconButton>
+                    <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)}>
+                        <MdOutlineModeEditOutline color='#635D77' />
+                    </IconButton>
+                </Box>
             ),
         },
         {
@@ -74,7 +88,7 @@ export default function ListagemSetores() {
 
     return (
         <StyledMainContainer>
-
+            <DetailModal handleChangeModalDetail={() => handleChangeModalDetail(null)} modalDetail={detail} />
             <Box className="flex flex-col gap-5">
                 <Box className="flex justify-between items-center w-full border-b border-[#F3F2F7] pb-2">
                     <Box className="flex gap-2">

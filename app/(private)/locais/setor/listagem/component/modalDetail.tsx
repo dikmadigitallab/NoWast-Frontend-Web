@@ -1,0 +1,78 @@
+import { Box, IconButton, Modal } from "@mui/material";
+import { IoMdClose } from "react-icons/io";
+
+export default function DetailModal({ modalDetail, handleChangeModalDetail }: any) {
+
+    console.log(modalDetail);
+   
+    return (
+        <Modal
+            open={modalDetail !== null}
+            onClose={() => handleChangeModalDetail(null)}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+        >
+            <Box className="absolute top-0 right-0 w-[600px] h-full bg-white z-10 overflow-y-auto">
+                <Box className="px-5">
+
+                    <Box className="flex justify-between items-center h-[45px] border-b border-[#E0E0E0]">
+                        <h2 className="text-[#6E6B7B] text-[1.2rem] font-semibold">Detalhes do Prédio</h2>
+                        <IconButton aria-label="fechar" size="small" onClick={() => handleChangeModalDetail(null)}>
+                            <IoMdClose />
+                        </IconButton>
+                    </Box>
+
+                    <Box className="mt-3 flex flex-col gap-3">
+                        <Box className="w-full h-[300px] rounded-2xl overflow-hidden">
+                            <img 
+                                src={modalDetail?.sectorFiles?.[0]?.file?.url} 
+                                alt={modalDetail?.name} 
+                                className="w-full h-full object-contain object-top" 
+                            />
+                        </Box>
+                        <Box className="flex flex-row gap-8">
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">ID#:</Box>
+                                <Box className="font-normal text-[#6E6B7B]">{modalDetail?.id}</Box>
+                            </Box>
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">Nome:</Box>
+                                <Box className="font-normal text-[#6E6B7B]">{modalDetail?.name}</Box>
+                            </Box>
+                        </Box>
+
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">Descrição:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{modalDetail?.description}</Box>
+                        </Box>
+
+                        <Box className="flex flex-row gap-8">
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">Latitude:</Box>
+                                <Box className="font-normal text-[#6E6B7B]">{modalDetail?.latitude}</Box>
+                            </Box>
+                            <Box className="flex flex-col mt-1">
+                                <Box className="font-semibold text-[#6E6B7B]">Longitude:</Box>
+                                <Box className="font-normal text-[#6E6B7B]">{modalDetail?.longitude}</Box>
+                            </Box>
+                        </Box>
+
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">Raio (m):</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{modalDetail?.radius}</Box>
+                        </Box>
+
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">Criado em:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{new Date(modalDetail?.createdAt).toLocaleString()}</Box>
+                        </Box>
+                        <Box className="flex flex-col mt-1">
+                            <Box className="font-semibold text-[#6E6B7B]">Atualizado em:</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{new Date(modalDetail?.updatedAt).toLocaleString()}</Box>
+                        </Box>
+                    </Box>
+                </Box>
+            </Box>
+        </Modal>
+    );
+}

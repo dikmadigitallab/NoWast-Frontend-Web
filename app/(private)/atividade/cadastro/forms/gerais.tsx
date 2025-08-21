@@ -195,7 +195,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             >
                                 <MenuItem value="PENDING">Pendente</MenuItem>
                                 <MenuItem value="APPROVED">Aprovado</MenuItem>
-                                <MenuItem value="REJECTED">Rejeitado</MenuItem>
+                                <MenuItem value="REJECTED">Reprovado</MenuItem>
                             </Select>
                             <FormHelperText error={!!errors.approvalStatus}>
                                 {errors.approvalStatus?.message}
