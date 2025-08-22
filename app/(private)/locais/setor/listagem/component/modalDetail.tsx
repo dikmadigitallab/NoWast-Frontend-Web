@@ -3,8 +3,7 @@ import { IoMdClose } from "react-icons/io";
 
 export default function DetailModal({ modalDetail, handleChangeModalDetail }: any) {
 
-    console.log(modalDetail);
-   
+
     return (
         <Modal
             open={modalDetail !== null}
@@ -24,10 +23,10 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
 
                     <Box className="mt-3 flex flex-col gap-3">
                         <Box className="w-full h-[300px] rounded-2xl overflow-hidden">
-                            <img 
-                                src={modalDetail?.sectorFiles?.[0]?.file?.url} 
-                                alt={modalDetail?.name} 
-                                className="w-full h-full object-contain object-top" 
+                            <img
+                                src={modalDetail?.sectorFiles?.[0]?.file?.url}
+                                alt={modalDetail?.name}
+                                className="w-full h-full object-contain object-top"
                             />
                         </Box>
                         <Box className="flex flex-row gap-8">
