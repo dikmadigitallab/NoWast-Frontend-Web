@@ -4,100 +4,85 @@ import { ApexOptions } from 'apexcharts';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-const CadastroColumnChart = () => {
+interface UserData {
+  date: string;
+  activeUsers: number;
+  createdUsers: number;
+  deletedUsers: number;
+}
 
-    const [state, setState] = React.useState<{
-        series: ApexAxisChartSeries;
-        options: ApexOptions;
-    }>({
-        series: [{
-            name: 'Inicio de Contrato',
-            data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
-            type: 'column'
-        }, {
-            name: 'Fim de Contrato',
-            data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
-            type: 'area'
-        }, {
-            name: 'Pessoas Ativas',
-            data: [35, 41, 36, 26, 45, 48, 52, 53, 41],
-            type: 'line'
-        }],
+interface CadastroColumnChartProps {
+  data: UserData[];
+}
+
+const CadastroColumnChart = ({ data }: CadastroColumnChartProps) => {
+  const processedData = React.useMemo(() => {
+    const labels = data?.map(item => item.date) || [];
+    const createdUsers = data?.map(item => item.createdUsers) || [];
+    const deletedUsers = data?.map(item => item.deletedUsers) || [];
+    const activeUsers = data?.map(item => item.activeUsers) || [];
+
+    return { labels, createdUsers, deletedUsers, activeUsers };
+  }, [data]);
+
+  const chartOptions = React.useMemo<ApexOptions>(() => ({
+    chart: {
+      type: 'line',
+      height: 350,
+      stacked: false,
+      locales: [{
+        name: 'pt-BR',
         options: {
-            chart: {
-                type: 'line',
-                height: 350,
-                stacked: false,
-                locales: [{
-                    name: 'pt-BR',
-                    options: {
-                        months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-                        shortMonths: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                        days: ['Domingo', 'Segunda-feira', 'Ter a-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
-                        shortDays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
-                        toolbar: {
-                            exportToCSV: 'Exportar para CSV',
-                            exportToSVG: 'Exportar para SVG',
-                            selection: 'Selec o',
-                            selectionZoom: 'Zoom de selec o',
-                            zoomIn: 'Ampliar',
-                            zoomOut: 'Reduzir',
-                            pan: 'Mover',
-                            reset: 'Reset'
-                        }
-                    }
-                }],
-                defaultLocale: 'pt-BR'
-            },
-            colors: ['#2196F3', '#C5F7E3', '#f39c12'],
-            stroke: {
-                width: [0, 2, 5],
-                curve: 'smooth'
-            },
-            plotOptions: {
-                bar: {
-                    columnWidth: '50%'
-                }
-            },
-            fill: {
-                opacity: [0.85, 0.25, 1],
-                gradient: {
-                    inverseColors: false,
-                    shade: 'light',
-                    type: 'vertical',
-                    opacityFrom: 0.85,
-                    opacityTo: 0.55,
-                    stops: [0, 100, 100, 100]
-                }
-            },
-            labels: ['04/03/2025', '05/03/2025', '06/03/2025', '07/03/2025', '08/03/2025', '09/03/2025', '10/03/2025', '11/03/2025', '12/03/2025'],
-            markers: {
-                size: 0
-            },
-            xaxis: {
-                type: 'datetime'
-            },
-            tooltip: {
-                shared: true,
-                intersect: false,
-                y: {
-                    formatter: function (y: number) {
-                        if (typeof y !== "undefined") {
-                            return y.toFixed(0) + " Contratos";
-                        }
-                        return y;
-                    }
-                }
-            }
-        },
+          months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+          shortMonths: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+          days: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+          shortDays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+          toolbar: {
+            exportToCSV: 'Exportar para CSV',
+            exportToSVG: 'Exportar para SVG',
+            selection: 'Seleção',
+            selectionZoom: 'Zoom de seleção',
+            zoomIn: 'Ampliar',
+            zoomOut: 'Reduzir',
+            pan: 'Mover',
+            reset: 'Resetar'
+          }
+        }
+      }],
+      defaultLocale: 'pt-BR'
+    },
+    colors: ['#2196F3', '#C5F7E3', '#f39c12'],
+    stroke: { width: [0, 2, 5], curve: 'smooth' },
+    plotOptions: { bar: { columnWidth: '50%' } },
+    fill: {
+      opacity: [0.85, 0.25, 1],
+      gradient: { inverseColors: false, shade: 'light', type: 'vertical', opacityFrom: 0.85, opacityTo: 0.55, stops: [0, 100, 100, 100] }
+    },
+    labels: processedData.labels,
+    markers: { size: 0 },
+    xaxis: { type: 'datetime', labels: { datetimeFormatter: { year: 'yyyy', month: 'MMM/yy', day: 'dd/MM', hour: 'HH:mm' } } },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      x: { format: 'dd/MM/yyyy' },
+      y: { formatter: (y: number) => y !== undefined ? `${y.toFixed(0)} Contratos` : y }
+    }
+  }), [processedData]);
 
-    });
+  const chartSeries = React.useMemo(() => [
+    { name: 'Inicio de Contrato', data: processedData.createdUsers, type: 'column' },
+    { name: 'Fim de Contrato', data: processedData.deletedUsers, type: 'area' },
+    { name: 'Pessoas Ativas', data: processedData.activeUsers, type: 'line' }
+  ], [processedData]);
 
-
-    return (
-        <ReactApexChart options={state.options} series={state.series} type="line" height={350} />
-    );
+  return (
+    <ReactApexChart
+      options={chartOptions}
+      series={chartSeries}
+      type="line"
+      height={350}
+    />
+  );
 }
 
 export default CadastroColumnChart;
-

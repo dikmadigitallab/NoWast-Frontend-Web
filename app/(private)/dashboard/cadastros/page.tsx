@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
@@ -8,21 +8,19 @@ import { FaHelmetSafety } from "react-icons/fa6";
 import { RiToolsFill } from "react-icons/ri";
 import { IoCarOutline } from 'react-icons/io5';
 import { FiBox } from 'react-icons/fi';
-import CadastroColumnChart from './components/column';
-import ReverceChart from '../components/reverseBar';
 import { useAuthStore } from '@/app/store/storeApp';
+import { useGetDashboardItems } from '@/app/hooks/dashboard/useGetItems';
+import { useGetDashboardRegistrations } from '@/app/hooks/dashboard/useGetRegistrations';
+import ReverseChart from './components/reverseBar';
+import CadastroColumnChart from './components/column';
+import BasicDateRangePicker from '@/app/components/dateRange';
 
 export default function Atividades() {
 
     const { userType } = useAuthStore();
-
-    const [filters, setFilters] = useState({
-        data: '',
-        predio: '',
-        setor: '',
-        ambiente: '',
-        empresa: ''
-    });
+    const [filters, setFilters] = useState({ endDate: '', startDate: '', colaborador: '', setor: '', ambiente: '', predio: '', empresa: '' });
+    const { data: cadastros } = useGetDashboardItems({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
+    const { dailyStats, usersByPosition } = useGetDashboardRegistrations({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
 
     const handleFilterChange = (event: any) => {
         const { name, value } = event.target;
@@ -33,26 +31,11 @@ export default function Atividades() {
     };
 
     const cards = [
-        { title: "Equipamento", value: 925, icon: <RiToolsFill size={25} color="#5E5873" /> },
-        { title: "Transporte", value: 925, icon: <IoCarOutline size={25} color="#5E5873" /> },
-        { title: "EPI", value: 925, icon: <FaHelmetSafety size={25} color="#5E5873" /> },
-        { title: "Produtos", value: 925, icon: <FiBox size={25} color="#5E5873" /> }
+        { title: "Equipamento", value: cadastros?.totalTools, icon: <RiToolsFill size={25} color="#5E5873" /> },
+        { title: "Transporte", value: cadastros?.totalTransports, icon: <IoCarOutline size={25} color="#5E5873" /> },
+        { title: "EPI", value: cadastros?.totalPpes, icon: <FaHelmetSafety size={25} color="#5E5873" /> },
+        { title: "Produtos", value: cadastros?.totalProducts, icon: <FiBox size={25} color="#5E5873" /> }
     ];
-
-    const data3 = {
-        data: [2200, 2000, 1800, 1600, 1400, 1200, 1000, 800],
-        categories: [
-            "ADM",
-            "Operador",
-            "Analista de Gestão e Estrutura",
-            "Operador de Área",
-            "Gestão",
-            "Operador 2",
-            "Operador 3",
-            "Operador 4"
-        ],
-        color: '#7367F0'
-    }
 
     const predioOptions = [
         "Predio 1",
@@ -95,16 +78,11 @@ export default function Atividades() {
                 </h1>
 
                 <Box className="w-[80%] flex flex-wrap justify-end gap-2">
-                    <FormControl sx={formTheme} className="w-[16%]">
-                        <TextField
-                            label="Data"
-                            type="date"
-                            name="data"
-                            value={filters.data}
-                            onChange={handleFilterChange}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
+                    <FormControl sx={formTheme} className="w-[30%]">
+                        <BasicDateRangePicker
+                            startDate={filters.startDate}
+                            endDate={filters.endDate}
+                            onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
                         />
                     </FormControl>
                     <FormControl sx={formTheme} className='w-[16%]'>
@@ -197,14 +175,13 @@ export default function Atividades() {
 
             <Box className="gap-5 p-7 w-[100%]  bg-white rounded-lg mb-5 mt-5">
                 <h1 className="text-2xl font-medium text-[#5E5873] mb-5">Início e Fim do Contrado</h1>
-                <CadastroColumnChart />
+                <CadastroColumnChart data={dailyStats || []} />
             </Box>
 
             <Box className="gap-5 p-7 w-[100%]  bg-white rounded-lg mb-5">
                 <h1 className="text-2xl font-medium text-[#5E5873] mb-5">Total de Pessoas Por Cargo</h1>
-                <ReverceChart chart={data3} />
+                <ReverseChart data={usersByPosition} />
             </Box>
-
         </StyledMainContainer >
     );
 }

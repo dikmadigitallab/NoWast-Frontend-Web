@@ -5,19 +5,16 @@ import { formTheme } from '@/app/styles/formTheme/theme';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdKeyboardDoubleArrowDown, MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
-import ReverceChart from '../components/reverseBar';
 import { useAuthStore } from '@/app/store/storeApp';
+import { useGetDashboardLocation } from '@/app/hooks/dashboard/useGetLocation';
+import ReverseBar from './components/reverseBar';
+import BasicDateRangePicker from '@/app/components/dateRange';
 
 export default function Atividades() {
 
   const { userType } = useAuthStore();
-
-  const [filters, setFilters] = useState({
-    data: '',
-    colaborador: '',
-    empresa: '',
-    predio: '',
-  });
+  const [filters, setFilters] = useState({ endDate: '', startDate: '', colaborador: '', setor: '', ambiente: '', empresa: '', predio: '' });
+  const { environmentActivities, sectorActivities } = useGetDashboardLocation({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
@@ -27,20 +24,6 @@ export default function Atividades() {
     }));
   };
 
-  const data1 = {
-    data: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500],
-    categories: [
-      'Falta',
-      'Atestado',
-      'Falta de máquina',
-      'Mudança de prioridade cliente',
-      'Mudança de prioridade dikma',
-      'Quebra',
-      'Manutenção',
-      'Outro'
-    ],
-    color: '#29C770'
-  }
 
   const data2 = {
     data: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
@@ -112,16 +95,11 @@ export default function Atividades() {
         </h1>
 
         <Box className="w-[70%] flex flex-wrap justify-end gap-2">
-          <FormControl sx={formTheme} className="w-[23%]">
-            <TextField
-              label="Data"
-              type="date"
-              name="data"
-              value={filters.data}
-              onChange={handleFilterChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
+          <FormControl sx={formTheme} className="w-[30%]">
+            <BasicDateRangePicker
+              startDate={filters.startDate}
+              endDate={filters.endDate}
+              onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
             />
           </FormControl>
           <FormControl sx={formTheme} className="w-[23%]">
@@ -344,17 +322,12 @@ export default function Atividades() {
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
           <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por SETOR</h1>
-          <ReverceChart chart={data1} />
+          <ReverseBar data={environmentActivities || []} />
         </Box>
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
           <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por AMBIENTE</h1>
-          <ReverceChart chart={data2} />
-        </Box>
-
-        <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
-          <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por TIPO</h1>
-          <ReverceChart chart={data3} />
+          <ReverseBar data={sectorActivities || []} />
         </Box>
 
       </Box>

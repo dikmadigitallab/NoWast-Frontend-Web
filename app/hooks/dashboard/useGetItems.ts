@@ -4,13 +4,13 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetDashboardActivities = ({ startDate = null, endDate = null }: any) => {
+export const useGetDashboardItems = ({ startDate = null, endDate = null }: any) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
-    const getDashboardActivities = async () => {
+    const getDashboardItems = async () => {
         setError(null);
         setLoading(true);
 
@@ -27,12 +27,10 @@ export const useGetDashboardActivities = ({ startDate = null, endDate = null }: 
 
             const params = new URLSearchParams();
 
-            console.log(startDate, endDate)
-
             if (startDate !== null) params.append("startDate", startDate.trim());
             if (endDate !== null) params.append("endDate", String(endDate).trim());
 
-            const url = `/dashboard/activities?${params.toString()}`;
+            const url = `/dashboard/registrations/items?${params.toString()}`;
 
             const response = await api.get<any>(url,
                 {
@@ -56,16 +54,17 @@ export const useGetDashboardActivities = ({ startDate = null, endDate = null }: 
 
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
-            getDashboardActivities();
+            getDashboardItems();
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
     }, [startDate, endDate]);
 
     return {
-        getDashboardActivities,
+        getDashboardItems,
         loading,
         error,
         data
     };
 };
+

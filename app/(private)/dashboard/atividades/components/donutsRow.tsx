@@ -16,6 +16,9 @@ type DonutChartProps = {
 };
 
 export default function DonutsRow({ data }: DonutChartProps) {
+
+    console.log(data);
+    
     const series = data.map(item => item.total ?? 0);
     const labels = data.map(item => item.name);
     const colors = data.map(item => item.color);
@@ -50,7 +53,6 @@ export default function DonutsRow({ data }: DonutChartProps) {
                 type="donut"
                 width={380}
             />
-
             <Box className="flex flex-row gap-5 flex-wrap justify-center">
                 {data.map((item, index) => (
                     <Box key={index} className="flex flex-col items-center justify-center gap-2">

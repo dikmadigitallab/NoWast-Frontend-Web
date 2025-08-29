@@ -14,15 +14,14 @@ import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
 import { useAuthStore } from '@/app/store/storeApp';
 import { useGetDashboardActivities } from '@/app/hooks/dashboard/useGetActivities';
 import { useGetDashboardJustifications } from '@/app/hooks/dashboard/useGetJustifications';
+import BasicDateRangePicker from '@/app/components/dateRange';
 
 export default function Atividades() {
 
   const { userType } = useAuthStore();
-  const { data: atividades } = useGetDashboardActivities({ startDate: "2025-01-01", endDate: "2027-01-01" });
-  const { data: justifications } = useGetDashboardJustifications({ startDate: "2025-01-01", endDate: "2027-01-01" });
-  const [filters, setFilters] = useState({ data: '', colaborador: '', setor: '', ambiente: '' });
-
-  console.log(justifications)
+  const [filters, setFilters] = useState({ endDate: '', startDate: '', colaborador: '', setor: '', ambiente: '' });
+  const { data: atividades } = useGetDashboardActivities({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" });
+  const { data: justifications } = useGetDashboardJustifications({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" });
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
@@ -66,8 +65,6 @@ export default function Atividades() {
       ]
     }
   ];
-
-
 
   const sectorOptions = [
     "Administrativo",
@@ -119,6 +116,8 @@ export default function Atividades() {
   if (!mount) return
 
 
+
+
   return (
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
 
@@ -128,17 +127,13 @@ export default function Atividades() {
         </h1>
 
         <Box className="w-[90%] flex flex-wrap justify-end gap-2">
-          <FormControl sx={formTheme} className="w-[12%]">
-            <TextField
-              label="Data"
-              type="date"
-              name="data"
-              value={filters.data}
-              onChange={handleFilterChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
+          <FormControl sx={formTheme} className="w-[30%]">
+            <BasicDateRangePicker
+              startDate={filters.startDate}
+              endDate={filters.endDate}
+              onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
             />
+
           </FormControl>
           <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Colaborador</InputLabel>
@@ -237,9 +232,13 @@ export default function Atividades() {
           {dataDonuts.map((donut, index) => (
             <Box key={index} className="mb-10 w-[32%] h-full">
               <h2 className="text-xl font-bold mb-4 text-center">{donut.title}</h2>
-              {donut.data.some(item => item.total > 0) && (
+              {donut.data.some(item => item.total > 0) ? (
                 <DonutsRow data={donut.data} />
-              )}
+              ):
+                <Box className="w-full h-[520px] flex items-center justify-center bg-white p-5 rounded-lg ">
+                  <span className="text-[#5E5873] font-semibold">Nenhum dado disponível para esse período</span>
+                </Box>
+            }
             </Box>
           ))}
         </Box>

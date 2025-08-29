@@ -4,13 +4,14 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetDashboardActivities = ({ startDate = null, endDate = null }: any) => {
+export const useGetDashboardLocation = ({ startDate = null, endDate = null }: any) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<any>(null);
+    const [sectorActivities, setSectorActivities] = useState<any>(null);
+    const [environmentActivities, setEnvironmentActivities] = useState<any>(null);
 
-    const getDashboardActivities = async () => {
+    const getDashboardLocation = async () => {
         setError(null);
         setLoading(true);
 
@@ -27,12 +28,10 @@ export const useGetDashboardActivities = ({ startDate = null, endDate = null }: 
 
             const params = new URLSearchParams();
 
-            console.log(startDate, endDate)
-
             if (startDate !== null) params.append("startDate", startDate.trim());
             if (endDate !== null) params.append("endDate", String(endDate).trim());
 
-            const url = `/dashboard/activities?${params.toString()}`;
+            const url = `/dashboard/locations?${params.toString()}`;
 
             const response = await api.get<any>(url,
                 {
@@ -43,7 +42,9 @@ export const useGetDashboardActivities = ({ startDate = null, endDate = null }: 
                 }
             );
 
-            setData(response.data.data);
+            setEnvironmentActivities(response.data.data.environmentActivities);
+            setSectorActivities(response.data.data.sectorActivities);
+
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
             if (error instanceof Error) {
@@ -56,16 +57,17 @@ export const useGetDashboardActivities = ({ startDate = null, endDate = null }: 
 
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
-            getDashboardActivities();
+            getDashboardLocation();
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
     }, [startDate, endDate]);
 
     return {
-        getDashboardActivities,
+        getDashboardLocation,
         loading,
         error,
-        data
+        sectorActivities,
+        environmentActivities
     };
 };
