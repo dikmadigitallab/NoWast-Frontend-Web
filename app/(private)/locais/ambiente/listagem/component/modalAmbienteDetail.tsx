@@ -42,7 +42,6 @@ function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
 
 export default function ModalVisualizeDetail({ modalVisualize, handleChangeModalVisualize }: any) {
 
-    console.log(modalVisualize)
 
     return (
         <Modal

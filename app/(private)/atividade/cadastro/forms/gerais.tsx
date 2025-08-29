@@ -2,13 +2,11 @@
 
 import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { useGetIDStore } from "@/app/store/getIDStore";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 
 export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
 
-    const { setId } = useGetIDStore();
     const { data: ambientes } = useGet({ url: "environment" });
 
     return (
@@ -28,7 +26,6 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                                 value={field.value || ""}
                                 error={!!errors.environmentId}
                                 onChange={(e) => {
-                                    setId(e.target.value);
                                     field.onChange(e.target.value)
                                 }}
                             >

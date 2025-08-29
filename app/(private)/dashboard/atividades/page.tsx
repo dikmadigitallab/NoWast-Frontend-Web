@@ -12,11 +12,17 @@ import { MdOutlineChecklist } from 'react-icons/md';
 import { CiCircleCheck } from 'react-icons/ci';
 import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
 import { useAuthStore } from '@/app/store/storeApp';
+import { useGetDashboardActivities } from '@/app/hooks/dashboard/useGetActivities';
+import { useGetDashboardJustifications } from '@/app/hooks/dashboard/useGetJustifications';
 
 export default function Atividades() {
 
   const { userType } = useAuthStore();
+  const { data: atividades } = useGetDashboardActivities({ startDate: "2025-01-01", endDate: "2027-01-01" });
+  const { data: justifications } = useGetDashboardJustifications({ startDate: "2025-01-01", endDate: "2027-01-01" });
   const [filters, setFilters] = useState({ data: '', colaborador: '', setor: '', ambiente: '' });
+
+  console.log(justifications)
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
@@ -37,29 +43,30 @@ export default function Atividades() {
     {
       title: "Atividades",
       data: [
-        { name: 'Concluídas', total: 80, data: [11, 32, 45], color: '#00CB65' },
-        { name: 'Em Aberto', total: 150, data: [31, 40, 28], color: '#2090FF' },
-        { name: 'Pendentes', total: 120, data: [50, 90, 40], color: '#FF9920' },
-        { name: 'Justificativas Internas', total: 70, data: [50, 90, 40], color: '#d35400' },
-        { name: 'Justificativas Externas', total: 80, data: [50, 90, 40], color: '#27ae60' },
+        { name: 'Concluídas', total: atividades?.completedActivities ?? 0, color: '#00CB65' },
+        { name: 'Em Aberto', total: atividades?.openActivities ?? 0, color: '#2090FF' },
+        { name: 'Pendentes', total: atividades?.pendingActivities ?? 0, color: '#FF9920' },
+        { name: 'Justificativas Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#d35400' },
+        { name: 'Justificativas Externas', total: atividades?.justifiedActivities ?? 0, color: '#27ae60' },
       ]
     },
     {
       title: "Execuções",
       data: [
-        { name: 'No Prazo', total: 250, data: [31, 40, 28], color: '#00CB65' },
-        { name: 'Fora do Prazo', total: 140, data: [11, 32, 45], color: '#2090FF' },
+        { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#00CB65' },
+        { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#2090FF' },
       ]
     },
     {
       title: "Aprovações",
       data: [
-        { name: 'Aprovadas', total: 180, data: [11, 32, 45], color: '#00CB65' },
-        { name: 'Não Aprovadas', total: 250, data: [31, 40, 28], color: '#2090FF' },
-        { name: 'Reprovadas', total: 120, data: [50, 90, 40], color: '#FF9920' },
+        { name: 'Aprovadas', total: atividades?.approvedActivities ?? 0, color: '#00CB65' },
+        { name: 'Pendentes de Aprovação', total: atividades?.pendingApprovalActivities ?? 0, color: '#2090FF' },
+        { name: 'Reprovadas', total: atividades?.rejectedActivities ?? 0, color: '#FF9920' },
       ]
     }
   ];
+
 
 
   const sectorOptions = [
@@ -227,10 +234,12 @@ export default function Atividades() {
           <SpilinesRow data={dataSpilines} />
         </Box>
         <Box className="flex w-[100%] justify-between gap-5">
-          {dataDonuts.map((donutData, index) => (
-            <Box key={index} className="flex flex-col items-center gap-5 w-[33.3%] justify-center bg-white p-5 rounded-lg shadow-md">
-              <h1 className="text-2xl font-medium text-[#5E5873]">{donutData.title}</h1>
-              <DonutsRow data={donutData.data} />
+          {dataDonuts.map((donut, index) => (
+            <Box key={index} className="mb-10 w-[32%] h-full">
+              <h2 className="text-xl font-bold mb-4 text-center">{donut.title}</h2>
+              {donut.data.some(item => item.total > 0) && (
+                <DonutsRow data={donut.data} />
+              )}
             </Box>
           ))}
         </Box>
@@ -240,7 +249,7 @@ export default function Atividades() {
         </Box>
         <Box className="w-[100%] bg-white rounded-lg p-5">
           <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>
-          <ReverseBar />
+          <ReverseBar {...justifications} />
         </Box>
 
       </Box>
