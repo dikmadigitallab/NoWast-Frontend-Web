@@ -13,9 +13,8 @@ import { useEffect, useState } from "react";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useUpdate } from "@/app/hooks/crud/update/update";
-import { IoMdClose } from "react-icons/io";
-import { IoImagesOutline } from "react-icons/io5";
 import { useAuthStore } from "@/app/store/storeApp";
+import { ImageUploader } from "@/app/components/imageGet";
 
 const predioSchema = z.object({
     id: z.number().int().min(1, "ID do Predio é obrigatório"),
@@ -24,11 +23,7 @@ const predioSchema = z.object({
     longitude: z.string().min(1, "Longitude é obrigatória"),
     description: z.string().min(1, "Descrição é obrigatória"),
     radius: z.number().int().min(1, "Raio é obrigatório"),
-    contract: z.object({
-        connect: z.object({
-            id: z.number().int().min(1, "ID do contrato é obrigatório")
-        })
-    })
+    contractId: z.number().int().min(1, "ID do contrato é obrigatório"),
 });
 
 type PredioFormValues = z.infer<typeof predioSchema>;
@@ -39,7 +34,7 @@ export default function AtualizarPredio() {
 
     const { control, handleSubmit, formState: { errors }, reset } = useForm<PredioFormValues>({
         resolver: zodResolver(predioSchema),
-        defaultValues: { name: "", latitude: "", longitude: "", description: "", contract: { connect: { id: Number(userInfo?.contractId) } }, radius: 0 },
+        defaultValues: { name: "", latitude: "", longitude: "", description: "", contractId: Number(userInfo?.contractId), radius: 0 },
         mode: "onChange"
     });
 
@@ -75,23 +70,17 @@ export default function AtualizarPredio() {
                 id: predio.id,
                 contract: { connect: { id: predio.contractId } }
             });
+
+            setImageInfo({
+                name: predio?.buildingFiles[0]?.file?.fileName,
+                type: predio?.buildingFiles[0]?.file?.fileType,
+                size: predio?.buildingFiles[0]?.file?.size,
+                previewUrl: predio?.buildingFiles[0]?.file?.url,
+            });
         }
+
+
     }, [predio, reset]);
-
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const imageData = {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            previewUrl: URL.createObjectURL(file),
-        };
-        setImageInfo(imageData);
-        setFile(file);
-    };
 
     return (
         <StyledMainContainer>
@@ -170,35 +159,11 @@ export default function AtualizarPredio() {
                     </Box>
                 </Box>
 
-                <Box className="w-full flex gap-2">
-                    <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-                            onChange={handleFileChange}
-                        />
-                        {imageInfo ? (
-                            <Box className="absolute w-full flex justify-between items-center p-3">
-                                <Box className="flex flex-row items-center gap-3">
-                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
-                                    <Box className="flex flex-col">
-                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
-                                    </Box>
-                                </Box>
-                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
-                            </Box>
-                        )
-                            :
-                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
-                                <IoImagesOutline color="#5E5873" size={25} />
-                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
-                            </Box>
-                        }
-                    </Box>
-                </Box>
+                <ImageUploader
+                    defaultValue={imageInfo}
+                    label="Selecione uma foto do EPI"
+                    onChange={(file: any) => setFile(file)}
+                />
 
                 <Box className="w-[100%] flex flex-row justify-between">
                     <Controller

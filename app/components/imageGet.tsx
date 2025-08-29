@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { IoImagesOutline} from "react-icons/io5";
+import { IoImagesOutline } from "react-icons/io5";
 import { Box } from "@mui/material";
 import { toast } from "react-toastify";
 import { IoMdClose } from "react-icons/io";
@@ -26,11 +26,13 @@ export function ImageUploader({
   defaultValue,
   maxSizeMB = 2,
 }: ImageUploaderProps) {
+
   const [file, setFile] = useState<File | null>(null);
   const [imageInfo, setImageInfo] = useState<ImageInfo | null>(defaultValue || null);
 
   useEffect(() => {
     if (defaultValue) {
+      console.log(defaultValue)
       setImageInfo(defaultValue);
     }
   }, [defaultValue]);
@@ -42,7 +44,7 @@ export function ImageUploader({
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     if (newFile.size > maxSizeBytes) {
       toast.error(`O arquivo excede o limite de ${maxSizeMB}MB`);
-      e.target.value = ""; 
+      e.target.value = "";
       return;
     }
 
