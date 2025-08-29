@@ -61,12 +61,13 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Porta
-EXPOSE 18649
-ENV PORT=18649
+EXPOSE 3000
+ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+CMD ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
 # Inicia o Next.js
-CMD ["npm", "run", "start"]
+#CMD ["npm", "run", "start"]
 
 
 # docker build -t meu-app .
