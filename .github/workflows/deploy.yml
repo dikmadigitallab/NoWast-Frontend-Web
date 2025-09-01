@@ -34,5 +34,7 @@ jobs:
             cd /var/www/nowaste-front-end
             docker stop  nowaste-front-end || true
             docker rm  nowaste-front-end || true
-            docker build -t nowaste-front-end .
+            docker build --no-cache -t nowaste-front-end .   
             docker run -d -p 9003:18649 --name nowaste-front-end nowaste-front-end
+
+        
