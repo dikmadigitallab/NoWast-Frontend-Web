@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import SpilinesRow from './components/spilinesRow';
 import DonutsRow from './components/donutsRow';
 import ColumnChart from './components/column';
@@ -12,16 +12,51 @@ import { MdOutlineChecklist } from 'react-icons/md';
 import { CiCircleCheck } from 'react-icons/ci';
 import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
 import { useAuthStore } from '@/app/store/storeApp';
-import { useGetDashboardActivities } from '@/app/hooks/dashboard/useGetActivities';
-import { useGetDashboardJustifications } from '@/app/hooks/dashboard/useGetJustifications';
+import { useGetDashboard } from '@/app/hooks/dashboard/useGet';
 import BasicDateRangePicker from '@/app/components/dateRange';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+
+const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
 export default function Atividades() {
 
   const { userType } = useAuthStore();
-  const [filters, setFilters] = useState({ endDate: '', startDate: '', colaborador: '', setor: '', ambiente: '' });
-  const { data: atividades } = useGetDashboardActivities({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" });
-  const { data: justifications } = useGetDashboardJustifications({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" });
+  const { data: setor } = useGet({ url: 'sector' });
+  const { data: predio } = useGet({ url: 'building' });
+  const { data: ambiente } = useGet({ url: 'environment' });
+  const { data: pessoas, loading } = useGetUsuario({});
+  const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '' });
+  const { data: justifications } = useGetDashboard({
+    url: 'dashboard/justifications',
+    startDate: filters.startDate ,
+    endDate: filters.endDate,
+    userId: filters.userId,
+    sectorId: filters.sectorId,
+    environmentId: filters.environmentId,
+    buildingId: filters.buildingId
+  });
+  const { data: atividades } = useGetDashboard({
+    url: 'dashboard/activities',
+    startDate: filters.startDate ,
+    endDate: filters.endDate,
+    userId: filters.userId,
+    sectorId: filters.sectorId,
+    environmentId: filters.environmentId,
+    buildingId: filters.buildingId
+  });
+
+  const { data: ocorrencias } = useGetDashboard({
+    url: 'dashboard/occurrences',
+    startDate: filters.startDate ,
+    endDate: filters.endDate,
+    userId: filters.userId,
+    sectorId: filters.sectorId,
+    environmentId: filters.environmentId,
+    buildingId: filters.buildingId
+  });
+
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
@@ -66,30 +101,6 @@ export default function Atividades() {
     }
   ];
 
-  const sectorOptions = [
-    "Administrativo",
-    "Operacional",
-    "Financeiro",
-    "RH",
-    "Engenharia"
-  ];
-
-  const environmentOptions = [
-    "Produção",
-    "Desenvolvimento",
-    "Testes",
-    "Homologação",
-    "Todos os ambientes"
-  ];
-
-  const collaboratorOptions = [
-    "Todos os colaboradores",
-    "João Paulo",
-    "Maria Silva",
-    "Pedro Henrique",
-    "Ana Luiza"
-  ];
-
 
   const empresaOptions = [
     "todas",
@@ -97,15 +108,6 @@ export default function Atividades() {
     "Acelormittal",
     "Nemak"
   ];
-
-  const predioOptions = [
-    "todos",
-    "Coqueria",
-    "Sinterização",
-    "Alto Forno"
-  ];
-
-
 
   const [mount, setMount] = useState(false);
 
@@ -135,17 +137,19 @@ export default function Atividades() {
             />
 
           </FormControl>
+
           <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Colaborador</InputLabel>
             <Select
+              disabled={loading}
               label="Colaborador"
-              name="colaborador"
-              value={filters.colaborador}
-              onChange={handleFilterChange}
+              value={filters.userId}
+              onChange={(e) => setFilters(prev => ({ ...prev, userId: e.target.value }))}
             >
-              {collaboratorOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
+              <MenuItem value="" disabled>Selecione um colaborador...</MenuItem>
+              {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
+                <MenuItem key={pessoa?.id} value={pessoa?.id}>
+                  {pessoa?.name}
                 </MenuItem>
               ))}
             </Select>
@@ -176,15 +180,22 @@ export default function Atividades() {
               <FormControl sx={formTheme} className="w-[12%]">
                 <InputLabel>Prédio</InputLabel>
                 <Select
+                  disabled={loading}
                   label="Prédio"
-                  name="predio"
-                  onChange={handleFilterChange}
+                  value={filters.buildingId}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, buildingId: e.target.value }))
+                  }
                 >
-                  {predioOptions.map(option => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="" disabled>
+                    Selecione um setor...
+                  </MenuItem>
+                  {Array?.isArray(predio) &&
+                    predio.map((predio) => (
+                      <MenuItem key={predio?.id} value={predio?.id}>
+                        {predio?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             ) :
@@ -194,31 +205,44 @@ export default function Atividades() {
           <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Setor</InputLabel>
             <Select
+              disabled={loading}
               label="Setor"
-              name="setor"
-              value={filters.setor}
-              onChange={handleFilterChange}
+              value={filters.sectorId}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, sectorId: e.target.value }))
+              }
             >
-              {sectorOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
+              <MenuItem value="" disabled>
+                Selecione um setor...
+              </MenuItem>
+              {Array?.isArray(setor) &&
+                setor.map((setor) => (
+                  <MenuItem key={setor?.id} value={setor?.id}>
+                    {setor?.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
+
           <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Ambiente</InputLabel>
             <Select
+              disabled={loading}
               label="Ambiente"
-              name="ambiente"
-              value={filters.ambiente}
-              onChange={handleFilterChange}
+              value={filters.environmentId}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, environmentId: e.target.value }))
+              }
             >
-              {environmentOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
+              <MenuItem value="" disabled>
+                Selecione um setor...
+              </MenuItem>
+              {Array?.isArray(ambiente) &&
+                ambiente.map((ambiente) => (
+                  <MenuItem key={ambiente?.id} value={ambiente?.id}>
+                    {ambiente?.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
         </Box>
@@ -234,17 +258,17 @@ export default function Atividades() {
               <h2 className="text-xl font-bold mb-4 text-center">{donut.title}</h2>
               {donut.data.some(item => item.total > 0) ? (
                 <DonutsRow data={donut.data} />
-              ):
+              ) :
                 <Box className="w-full h-[520px] flex items-center justify-center bg-white p-5 rounded-lg ">
                   <span className="text-[#5E5873] font-semibold">Nenhum dado disponível para esse período</span>
                 </Box>
-            }
+              }
             </Box>
           ))}
         </Box>
         <Box className="w-[100%] bg-white rounded-lg p-5">
           <h1 className="text-2xl font-medium text-[#5E5873]">Ocorrências</h1>
-          <ColumnChart />
+          <ColumnChart data={ocorrencias} />
         </Box>
         <Box className="w-[100%] bg-white rounded-lg p-5">
           <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>

@@ -9,11 +9,18 @@ import { useAuthStore } from '@/app/store/storeApp';
 import { useGetDashboardLocation } from '@/app/hooks/dashboard/useGetLocation';
 import ReverseBar from './components/reverseBar';
 import BasicDateRangePicker from '@/app/components/dateRange';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+
+const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
 export default function Atividades() {
 
   const { userType } = useAuthStore();
-  const [filters, setFilters] = useState({ endDate: '', startDate: '', colaborador: '', setor: '', ambiente: '', empresa: '', predio: '' });
+  const { data: predio } = useGet({ url: 'building' });
+  const { data: pessoas, loading } = useGetUsuario({});
+  const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '', empresa: 'todas' });
   const { environmentActivities, sectorActivities } = useGetDashboardLocation({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
 
   const handleFilterChange = (event: any) => {
@@ -23,36 +30,6 @@ export default function Atividades() {
       [name]: value
     }));
   };
-
-
-  const data2 = {
-    data: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
-    categories: [
-      "Pátio de Carvão",
-      "Tratamento de Gás",
-      "Exemplo de nome",
-      "Exemplo de nome",
-      "Exemplo de nome",
-      "Exemplo de nome",
-      "Exemplo de nome"
-    ],
-    color: '#7367F0'
-  }
-
-  const data3 = {
-    data: [2200, 2000, 1800, 1600, 1400, 1200, 1000, 800, 600, 400],
-    categories: [
-      "Pátio de Carvão",
-      "Tratamento de Gás",
-      "Falta de máquinas",
-      "Mudança de prioridade ... cliente",
-      "Mudança de prioridade Dikma",
-      "Quebra",
-      "Manutenção",
-      "Outros"
-    ],
-    color: '#2190FF'
-  }
 
   const collaboratorOptions = [
     "todos",
@@ -102,17 +79,19 @@ export default function Atividades() {
               onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
             />
           </FormControl>
-          <FormControl sx={formTheme} className="w-[23%]">
+
+          <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Colaborador</InputLabel>
             <Select
+              disabled={loading}
               label="Colaborador"
-              name="colaborador"
-              value={filters.colaborador}
-              onChange={handleFilterChange}
+              value={filters.userId}
+              onChange={(e) => setFilters(prev => ({ ...prev, userId: e.target.value }))}
             >
-              {collaboratorOptions.map(option => (
-                <MenuItem key={option} value={option}>
-                  {option}
+              <MenuItem value="" disabled>Selecione um colaborador...</MenuItem>
+              {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
+                <MenuItem key={pessoa?.id} value={pessoa?.id}>
+                  {pessoa?.name}
                 </MenuItem>
               ))}
             </Select>
@@ -138,22 +117,27 @@ export default function Atividades() {
             ) :
               null
           }
-
           {
             userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
-              <FormControl sx={formTheme} className="w-[23%]">
+              <FormControl sx={formTheme} className="w-[12%]">
                 <InputLabel>Prédio</InputLabel>
                 <Select
+                  disabled={loading}
                   label="Prédio"
-                  name="predio"
-                  value={filters.predio}
-                  onChange={handleFilterChange}
+                  value={filters.buildingId}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, buildingId: e.target.value }))
+                  }
                 >
-                  {predioOptions.map(option => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="" disabled>
+                    Selecione um setor...
+                  </MenuItem>
+                  {Array?.isArray(predio) &&
+                    predio.map((predio) => (
+                      <MenuItem key={predio?.id} value={predio?.id}>
+                        {predio?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             ) :

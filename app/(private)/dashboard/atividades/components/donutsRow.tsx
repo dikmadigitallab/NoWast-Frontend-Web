@@ -17,8 +17,6 @@ type DonutChartProps = {
 
 export default function DonutsRow({ data }: DonutChartProps) {
 
-    console.log(data);
-    
     const series = data.map(item => item.total ?? 0);
     const labels = data.map(item => item.name);
     const colors = data.map(item => item.color);

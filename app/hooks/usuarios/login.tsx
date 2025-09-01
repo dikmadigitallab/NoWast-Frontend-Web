@@ -17,6 +17,7 @@ export const useLogin = () => {
 
         try {
             const clearFormatedData = data?.replace(/[.\-]/g, '')
+
             const response = await api.post('/auth', { document: clearFormatedData, password });
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
 

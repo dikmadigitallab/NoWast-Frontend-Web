@@ -32,7 +32,6 @@ export function ImageUploader({
 
   useEffect(() => {
     if (defaultValue) {
-      console.log(defaultValue)
       setImageInfo(defaultValue);
     }
   }, [defaultValue]);

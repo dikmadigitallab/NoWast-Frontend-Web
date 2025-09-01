@@ -4,10 +4,12 @@ import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
 export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
 
     const { data: ambientes } = useGet({ url: "environment" });
+
 
     return (
         <Box className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">

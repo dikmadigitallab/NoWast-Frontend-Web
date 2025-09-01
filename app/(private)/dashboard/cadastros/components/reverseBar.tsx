@@ -15,7 +15,6 @@ type Props = {
 };
 
 export default function ReverseBar({ data }: Props) {
-    console.log(data)
 
     const categories = data?.map((item) => item.positionName) || [];
     const values = data?.map((item) => item.userCount) || [];

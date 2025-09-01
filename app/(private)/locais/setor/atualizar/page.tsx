@@ -65,7 +65,6 @@ export default function EditarSetor() {
 
     useEffect(() => {
         if (setor) reset({ ...setor, id: setor.id, buildingId: setor.buildingId });
-        console.log(setor)
 
         setImageInfo({
             name: setor?.sectorFiles[0]?.file?.fileName,

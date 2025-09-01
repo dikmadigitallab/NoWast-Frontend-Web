@@ -4,13 +4,13 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetDashboardActivities = ({ startDate = null, endDate = null }: any) => {
+export const useGetDashboard = ({url = '', startDate = '', endDate = '', userId = '', environmentId = '', buildingId = '', sectorId = '' }: any) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
 
-    const getDashboardActivities = async () => {
+    const getDashboard = async () => {
         setError(null);
         setLoading(true);
 
@@ -27,14 +27,16 @@ export const useGetDashboardActivities = ({ startDate = null, endDate = null }: 
 
             const params = new URLSearchParams();
 
-            console.log(startDate, endDate)
+            if (startDate !== '') params.append("startDate", startDate.trim());
+            if (endDate !== '') params.append("endDate", String(endDate).trim());
+            if (userId !== '') params.append("userId", String(userId).trim());
+            if (environmentId !== '') params.append("environmentId", String(environmentId).trim());
+            if (buildingId !== '') params.append("buildingId", String(buildingId).trim());
+            if (sectorId !== '') params.append("sectorId", String(sectorId).trim());
 
-            if (startDate !== null) params.append("startDate", startDate.trim());
-            if (endDate !== null) params.append("endDate", String(endDate).trim());
+            const endpoint = `/${url}?${params.toString()}`;
 
-            const url = `/dashboard/activities?${params.toString()}`;
-
-            const response = await api.get<any>(url,
+            const response = await api.get<any>(endpoint,
                 {
                     headers: {
                         Authorization: `Bearer ${authToken.split("=")[1]}`,
@@ -56,14 +58,13 @@ export const useGetDashboardActivities = ({ startDate = null, endDate = null }: 
 
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
-            getDashboardActivities();
+            getDashboard();
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [startDate, endDate]);
+    }, [startDate, endDate, userId, environmentId, buildingId, sectorId]);
 
     return {
-        getDashboardActivities,
         loading,
         error,
         data

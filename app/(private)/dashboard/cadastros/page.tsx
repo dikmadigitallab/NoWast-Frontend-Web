@@ -14,11 +14,18 @@ import { useGetDashboardRegistrations } from '@/app/hooks/dashboard/useGetRegist
 import ReverseChart from './components/reverseBar';
 import CadastroColumnChart from './components/column';
 import BasicDateRangePicker from '@/app/components/dateRange';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+
+const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
 export default function Atividades() {
 
     const { userType } = useAuthStore();
-    const [filters, setFilters] = useState({ endDate: '', startDate: '', colaborador: '', setor: '', ambiente: '', predio: '', empresa: '' });
+    const { data: setor } = useGet({ url: 'sector' });
+    const { data: ambiente } = useGet({ url: 'environment' });
+    const { data: predio, loading } = useGet({ url: 'building' });
+    const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '', empresa: '' });
     const { data: cadastros } = useGetDashboardItems({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
     const { dailyStats, usersByPosition } = useGetDashboardRegistrations({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
 
@@ -36,31 +43,6 @@ export default function Atividades() {
         { title: "EPI", value: cadastros?.totalPpes, icon: <FaHelmetSafety size={25} color="#5E5873" /> },
         { title: "Produtos", value: cadastros?.totalProducts, icon: <FiBox size={25} color="#5E5873" /> }
     ];
-
-    const predioOptions = [
-        "Predio 1",
-        "Predio 2",
-        "Predio 3",
-        "Predio 4",
-        "Predio 5"
-    ];
-
-    const setorOptions = [
-        "Setor 1",
-        "Setor 2",
-        "Setor 3",
-        "Setor 4",
-        "Setor 5"
-    ];
-
-    const ambienteOptions = [
-        "Ambiente 1",
-        "Ambiente 2",
-        "Ambiente 3",
-        "Ambiente 4",
-        "Ambiente 5"
-    ];
-
 
     const empresaOptions = [
         "todas",
@@ -85,21 +67,34 @@ export default function Atividades() {
                             onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
                         />
                     </FormControl>
-                    <FormControl sx={formTheme} className='w-[16%]'>
-                        <InputLabel>Predio</InputLabel>
-                        <Select
-                            label="Predio"
-                            name="predio"
-                            value={filters.predio}
-                            onChange={handleFilterChange}
-                        >
-                            {predioOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+
+                    {
+                        userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
+                            <FormControl sx={formTheme} className="w-[12%]">
+                                <InputLabel>Prédio</InputLabel>
+                                <Select
+                                    disabled={loading}
+                                    label="Prédio"
+                                    value={filters.buildingId}
+                                    onChange={(e) =>
+                                        setFilters((prev) => ({ ...prev, buildingId: e.target.value }))
+                                    }
+                                >
+                                    <MenuItem value="" disabled>
+                                        Selecione um setor...
+                                    </MenuItem>
+                                    {Array?.isArray(predio) &&
+                                        predio.map((predio) => (
+                                            <MenuItem key={predio?.id} value={predio?.id}>
+                                                {predio?.name}
+                                            </MenuItem>
+                                        ))}
+                                </Select>
+                            </FormControl>
+                        ) :
+                            null
+                    }
+
 
                     {
                         userType === "DIKMA_DIRECTOR" ? (
@@ -121,39 +116,47 @@ export default function Atividades() {
                         ) : null
                     }
 
-                    {
-                        userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
-                            <FormControl sx={formTheme} className='w-[16%]'>
-                                <InputLabel>Setor</InputLabel>
-                                <Select
-                                    label="Setor"
-                                    name="setor"
-                                    value={filters.setor}
-                                    onChange={handleFilterChange}
-                                >
-                                    {setorOptions.map((option) => (
-                                        <MenuItem key={option} value={option}>
-                                            {option}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        ) : null
-                    }
+                    <FormControl sx={formTheme} className="w-[12%]">
+                        <InputLabel>Setor</InputLabel>
+                        <Select
+                            disabled={loading}
+                            label="Setor"
+                            value={filters.sectorId}
+                            onChange={(e) =>
+                                setFilters((prev) => ({ ...prev, sectorId: e.target.value }))
+                            }
+                        >
+                            <MenuItem value="" disabled>
+                                Selecione um setor...
+                            </MenuItem>
+                            {Array?.isArray(setor) &&
+                                setor.map((setor) => (
+                                    <MenuItem key={setor?.id} value={setor?.id}>
+                                        {setor?.name}
+                                    </MenuItem>
+                                ))}
+                        </Select>
+                    </FormControl>
 
-                    <FormControl sx={formTheme} className='w-[16%]'>
+                    <FormControl sx={formTheme} className="w-[12%]">
                         <InputLabel>Ambiente</InputLabel>
                         <Select
+                            disabled={loading}
                             label="Ambiente"
-                            name="ambiente"
-                            value={filters.ambiente}
-                            onChange={handleFilterChange}
+                            value={filters.environmentId}
+                            onChange={(e) =>
+                                setFilters((prev) => ({ ...prev, environmentId: e.target.value }))
+                            }
                         >
-                            {ambienteOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
+                            <MenuItem value="" disabled>
+                                Selecione um setor...
+                            </MenuItem>
+                            {Array?.isArray(ambiente) &&
+                                ambiente.map((ambiente) => (
+                                    <MenuItem key={ambiente?.id} value={ambiente?.id}>
+                                        {ambiente?.name}
+                                    </MenuItem>
+                                ))}
                         </Select>
                     </FormControl>
                 </Box>
