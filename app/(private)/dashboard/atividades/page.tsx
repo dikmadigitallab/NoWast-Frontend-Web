@@ -1,21 +1,21 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import SpilinesRow from './components/spilinesRow';
-import DonutsRow from './components/donutsRow';
-import ColumnChart from './components/column';
-import { StyledMainContainer } from '@/app/styles/container/container';
-import { formTheme } from '@/app/styles/formTheme/theme';
-import ReverseBar from './components/reverseBar';
-import { MdOutlineChecklist } from 'react-icons/md';
-import { CiCircleCheck } from 'react-icons/ci';
+import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
-import { useAuthStore } from '@/app/store/storeApp';
+import { StyledMainContainer } from '@/app/styles/container/container';
 import { useGetDashboard } from '@/app/hooks/dashboard/useGet';
 import BasicDateRangePicker from '@/app/components/dateRange';
+import { formTheme } from '@/app/styles/formTheme/theme';
 import { useGetUsuario } from '@/app/hooks/usuarios/get';
 import { useGet } from '@/app/hooks/crud/get/useGet';
+import { MdOutlineChecklist } from 'react-icons/md';
+import { useAuthStore } from '@/app/store/storeApp';
+import React, { useEffect, useState } from 'react';
+import SpilinesRow from './components/spilinesRow';
+import ReverseBar from './components/reverseBar';
+import { CiCircleCheck } from 'react-icons/ci';
+import DonutsRow from './components/donutsRow';
+import ColumnChart from './components/column';
 
 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
@@ -28,18 +28,26 @@ export default function Atividades() {
   const { data: ambiente } = useGet({ url: 'environment' });
   const { data: pessoas, loading } = useGetUsuario({});
   const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '' });
+
+  // Estado unificado para os filtros de ocorrências
+  const [ocorrenciaFilters, setOcorrenciaFilters] = useState({
+    mes: (new Date().getMonth() + 1).toString().padStart(2, '0'),
+    ano: new Date().getFullYear().toString()
+  });
+
   const { data: justifications } = useGetDashboard({
     url: 'dashboard/justifications',
-    startDate: filters.startDate ,
+    startDate: filters.startDate,
     endDate: filters.endDate,
     userId: filters.userId,
     sectorId: filters.sectorId,
     environmentId: filters.environmentId,
     buildingId: filters.buildingId
   });
+
   const { data: atividades } = useGetDashboard({
     url: 'dashboard/activities',
-    startDate: filters.startDate ,
+    startDate: filters.startDate,
     endDate: filters.endDate,
     userId: filters.userId,
     sectorId: filters.sectorId,
@@ -49,18 +57,26 @@ export default function Atividades() {
 
   const { data: ocorrencias } = useGetDashboard({
     url: 'dashboard/occurrences',
-    startDate: filters.startDate ,
-    endDate: filters.endDate,
+    startDate: `${ocorrenciaFilters.ano}-${ocorrenciaFilters.mes}-01`,
+    endDate: `${ocorrenciaFilters.ano}-${ocorrenciaFilters.mes}-31`,
     userId: filters.userId,
     sectorId: filters.sectorId,
     environmentId: filters.environmentId,
     buildingId: filters.buildingId
   });
 
-
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
     setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Função única para manipular mudanças nos filtros de ocorrências
+  const handleOcorrenciaFilterChange = (event: any) => {
+    const { name, value } = event.target;
+    setOcorrenciaFilters(prev => ({
       ...prev,
       [name]: value
     }));
@@ -101,13 +117,35 @@ export default function Atividades() {
     }
   ];
 
-
   const empresaOptions = [
     "todas",
     "Adcos",
     "Acelormittal",
     "Nemak"
   ];
+
+  // Opções para os selects de mês e ano
+  const monthOptions = [
+    { value: '01', label: 'Janeiro' },
+    { value: '02', label: 'Fevereiro' },
+    { value: '03', label: 'Março' },
+    { value: '04', label: 'Abril' },
+    { value: '05', label: 'Maio' },
+    { value: '06', label: 'Junho' },
+    { value: '07', label: 'Julho' },
+    { value: '08', label: 'Agosto' },
+    { value: '09', label: 'Setembro' },
+    { value: '10', label: 'Outubro' },
+    { value: '11', label: 'Novembro' },
+    { value: '12', label: 'Dezembro' }
+  ];
+
+  // Gerar opções de anos (dos últimos 5 anos até o ano atual)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 5 }, (_, i) => ({
+    value: (currentYear - i).toString(),
+    label: (currentYear - i).toString()
+  }));
 
   const [mount, setMount] = useState(false);
 
@@ -116,9 +154,6 @@ export default function Atividades() {
   }, []);
 
   if (!mount) return
-
-
-
 
   return (
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
@@ -135,7 +170,6 @@ export default function Atividades() {
               endDate={filters.endDate}
               onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
             />
-
           </FormControl>
 
           <FormControl sx={formTheme} className="w-[12%]">
@@ -266,15 +300,51 @@ export default function Atividades() {
             </Box>
           ))}
         </Box>
+
+        {/* Seção de Ocorrências com filtros de mês e ano */}
         <Box className="w-[100%] bg-white rounded-lg p-5">
-          <h1 className="text-2xl font-medium text-[#5E5873]">Ocorrências</h1>
+          <Box className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-medium text-[#5E5873]">Ocorrências</h1>
+            <Box className="flex gap-2">
+              <FormControl sx={formTheme} className="w-[120px]">
+                <InputLabel>Mês</InputLabel>
+                <Select
+                  name="mes"
+                  value={ocorrenciaFilters.mes}
+                  label="Mês"
+                  onChange={handleOcorrenciaFilterChange}
+                >
+                  {monthOptions.map(month => (
+                    <MenuItem key={month.value} value={month.value}>
+                      {month.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl sx={formTheme} className="w-[100px]">
+                <InputLabel>Ano</InputLabel>
+                <Select
+                  name="ano"
+                  value={ocorrenciaFilters.ano}
+                  label="Ano"
+                  onChange={handleOcorrenciaFilterChange}
+                >
+                  {yearOptions.map(year => (
+                    <MenuItem key={year.value} value={year.value}>
+                      {year.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
           <ColumnChart data={ocorrencias} />
         </Box>
+
         <Box className="w-[100%] bg-white rounded-lg p-5">
           <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>
           <ReverseBar {...justifications} />
         </Box>
-
       </Box>
     </StyledMainContainer>
   );
