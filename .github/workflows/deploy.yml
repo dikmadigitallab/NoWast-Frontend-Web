@@ -19,7 +19,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}            # exemplo: 189.50.3.3
           username: ${{ secrets.SERVER_USER }}         # exemplo: dikma
           key: ${{ secrets.DEPLOY_KEY }}               # sua chave privada (sem senha)
-          port: 18649 #22206                                  # porta correta para acesso remoto
+          port: 22206                                  # porta correta para acesso remoto
           source: "."
           target: "/var/www/nowaste-front-end"
 
@@ -29,7 +29,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
-          port: 18649 #22206
+          port: 22206
           script: |
             cd /var/www/nowaste-front-end
             docker stop  nowaste-front-end || true
