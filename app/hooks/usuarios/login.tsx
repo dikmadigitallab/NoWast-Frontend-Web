@@ -20,7 +20,7 @@ export const useLogin = () => {
 
         try {
             const clearFormatedData = data?.replace(/[.\-]/g, '')
-            const response = await axios.post('dhttps://nowastev2.api.dikmadigital.com.br/auth', { document: clearFormatedData, password,Credentials: 'include' });
+            const response = await axios.post('https://nowastev2.api.dikmadigital.com.br/auth', { document: clearFormatedData, password,Credentials: 'include' });
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
 
             if (response.data.data.user.role.name === "Administrador Dikma") {
