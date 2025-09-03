@@ -23,12 +23,17 @@ export const useGetDashboardItems = ({ startDate = null, endDate = null, userId 
             return;
         }
 
+        console.log('teste')
         try {
 
             const params = new URLSearchParams();
 
-            if (startDate !== null) params.append("startDate", startDate.trim());
-            if (endDate !== null) params.append("endDate", String(endDate).trim());
+            if (startDate !== '') params.append("startDate", startDate.trim());
+            if (endDate !== '') params.append("endDate", String(endDate).trim());
+            if (userId !== '') params.append("userId", String(userId).trim());
+            if (environmentId !== '') params.append("environmentId", String(environmentId).trim());
+            if (buildingId !== '') params.append("buildingId", String(buildingId).trim());
+            if (sectorId !== '') params.append("sectorId", String(sectorId).trim());
 
             const url = `/dashboard/registrations/items?${params.toString()}`;
 
