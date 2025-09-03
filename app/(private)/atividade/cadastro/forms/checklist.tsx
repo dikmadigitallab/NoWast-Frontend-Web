@@ -167,7 +167,7 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                 rows={watch("serviceItems") || []}
                 columns={columns}
                 localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                pageSizeOptions={[5, 10, 25]}
+                pageSizeOptions={[5, 25, 100]}
                 disableRowSelectionOnClick
                 sx={tableTheme}
                 getRowId={(row) => row.id}

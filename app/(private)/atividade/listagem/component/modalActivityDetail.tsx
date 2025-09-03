@@ -11,24 +11,6 @@ function DetailItem({ label, value }: { label: string; value: string }) {
     );
 }
 
-function StatusBadge({ status }: { status: string }) {
-
-    const statusColors: Record<string, string> = {
-        approved: "bg-green-100 text-green-800 border-green-200",
-        pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-        rejected: "bg-red-100 text-red-800 border-red-200",
-        default: "bg-blue-100 text-blue-800 border-blue-200"
-    };
-
-    const colorClass = statusColors[status.toLowerCase()] || statusColors.default;
-
-    return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${colorClass}`}>
-            {status}
-        </span>
-    );
-}
-
 function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
 
     if (items.length === 0) return null;
@@ -57,10 +39,7 @@ function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
     );
 }
 
-export default function ModalVisualizeDetail({
-    modalVisualize,
-    handleChangeModalVisualize,
-}: any) {
+export default function ModalVisualizeDetail({ modalVisualize, handleChangeModalVisualize }: any) {
     return (
         <Modal
             open={modalVisualize !== null}
@@ -100,7 +79,7 @@ export default function ModalVisualizeDetail({
                         </Box>
                         <Box className="flex items-center gap-2">
                             <Box className="text-sm font-semibold text-[#4B5563]">Aprovação:</Box>
-                            {modalVisualize?.approvalStatus && <Box sx={{color: modalVisualize.approvalStatus.color , borderWidth: 1, borderColor: modalVisualize.approvalStatus.color, borderRadius: '100px', padding: '3px 8px' }}>{modalVisualize.approvalStatus.title}</Box>}
+                            {modalVisualize?.approvalStatus && <Box sx={{ color: modalVisualize.approvalStatus.color, borderWidth: 1, borderColor: modalVisualize.approvalStatus.color, borderRadius: '100px', padding: '3px 8px' }}>{modalVisualize.approvalStatus.title}</Box>}
                         </Box>
                     </Box>
 

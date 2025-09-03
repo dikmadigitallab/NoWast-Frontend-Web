@@ -96,8 +96,8 @@ export default function Atividades() {
         { name: 'Concluídas', total: atividades?.completedActivities ?? 0, color: '#00CB65' },
         { name: 'Em Aberto', total: atividades?.openActivities ?? 0, color: '#2090FF' },
         { name: 'Pendentes', total: atividades?.pendingActivities ?? 0, color: '#FF9920' },
-        { name: 'Justificativas Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#d35400' },
-        { name: 'Justificativas Externas', total: atividades?.justifiedActivities ?? 0, color: '#27ae60' },
+        { name: 'Just/ Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#d35400' },
+        { name: 'Just/ Externas', total: atividades?.justifiedActivities ?? 0, color: '#27ae60' },
       ]
     },
     {
@@ -164,7 +164,7 @@ export default function Atividades() {
         </h1>
 
         <Box className="w-[90%] flex flex-wrap justify-end gap-2">
-          <FormControl sx={formTheme} className="w-[30%]">
+          <FormControl sx={formTheme}>
             <BasicDateRangePicker
               startDate={filters.startDate}
               endDate={filters.endDate}

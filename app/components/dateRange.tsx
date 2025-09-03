@@ -38,7 +38,7 @@ export default function BasicDateRangePicker({ startDate, endDate, onChange }: P
           }}
           slotProps={{
             textField: {
-              sx: { width: "45%", height: "100%" },
+              sx: { width: "50%", height: "100%" },
             },
           }}
         />
@@ -55,7 +55,7 @@ export default function BasicDateRangePicker({ startDate, endDate, onChange }: P
           }}
           slotProps={{
             textField: {
-              sx: { width: "45%", height: "100%" },
+              sx: { width: "50%", height: "100%" },
             },
           }}
         />

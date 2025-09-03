@@ -207,7 +207,7 @@ export default function FormItens({ control, setValue, watch, formState: { error
                             rows={watch(watchField) || []}
                             columns={columns(type)}
                             localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                            pageSizeOptions={[5, 10, 25]}
+                            pageSizeOptions={[5, 25, 100]}
                             disableRowSelectionOnClick
                             sx={tableTheme}
                             getRowId={(row) => row.id}

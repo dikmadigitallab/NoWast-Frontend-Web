@@ -78,7 +78,7 @@ export default function Atividades() {
                 </h1>
 
                 <Box className="w-[80%] flex flex-wrap justify-end gap-2">
-                    <FormControl sx={formTheme} className="w-[30%]">
+                    <FormControl sx={formTheme}>
                         <BasicDateRangePicker
                             startDate={filters.startDate}
                             endDate={filters.endDate}

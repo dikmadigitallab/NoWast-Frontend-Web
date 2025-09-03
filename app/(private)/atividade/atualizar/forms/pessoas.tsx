@@ -207,7 +207,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 rows={watch("users") || []}
                 columns={columns}
                 localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                pageSizeOptions={[5, 10, 25]}
+                pageSizeOptions={[5, 25, 100]}
                 disableRowSelectionOnClick
                 sx={tableTheme}
                 getRowId={(row) => row.id}
