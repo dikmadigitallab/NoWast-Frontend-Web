@@ -4,7 +4,7 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export const useGetDashboardItems = ({ startDate = null, endDate = null }: any) => {
+export const useGetDashboardItems = ({ startDate = null, endDate = null, userId = null, environmentId = null, buildingId = null, sectorId = null }: any) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export const useGetDashboardItems = ({ startDate = null, endDate = null }: any) 
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [startDate, endDate]);
+    }, [startDate, endDate, userId, environmentId, buildingId, sectorId]);
 
     return {
         getDashboardItems,

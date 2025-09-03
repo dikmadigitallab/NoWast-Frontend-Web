@@ -26,8 +26,26 @@ export default function Atividades() {
     const { data: ambiente } = useGet({ url: 'environment' });
     const { data: predio, loading } = useGet({ url: 'building' });
     const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '', empresa: '' });
-    const { data: cadastros } = useGetDashboardItems({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
-    const { dailyStats, usersByPosition } = useGetDashboardRegistrations({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
+
+
+    const { data: cadastros } = useGetDashboardItems({
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        userId: filters.userId,
+        sectorId: filters.sectorId,
+        environmentId: filters.environmentId,
+        buildingId: filters.buildingId
+    })
+
+
+    const { dailyStats, usersByPosition } = useGetDashboardRegistrations({
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        userId: filters.userId,
+        sectorId: filters.sectorId,
+        environmentId: filters.environmentId,
+        buildingId: filters.buildingId
+    })
 
     const handleFilterChange = (event: any) => {
         const { name, value } = event.target;

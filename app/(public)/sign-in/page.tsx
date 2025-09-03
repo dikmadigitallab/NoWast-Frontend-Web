@@ -18,7 +18,6 @@ export default function SignIn() {
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     login(user.document, user.password);
-    console.log(user)
   };
 
   return (

@@ -6,28 +6,28 @@ import { ApexOptions } from 'apexcharts';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-interface OccurrenceByHour {
-  hour: string;
+interface OccurrenceByDay {
+  date: string;
+  totalOccurrences: number;
   totalSevere: number;
   totalMild: number;
   totalNone: number;
 }
 
-interface OccurrenceByDay {
-  day: string;
-  occurrenceByHour: OccurrenceByHour[];
-}
-
 interface ChartData {
   totalOccurrences: number;
-  occurrenceByDay: OccurrenceByDay[];
+  totalSevere: number;
+  totalMild: number;
+  totalNone: number;
+  occurrencesByDay: OccurrenceByDay[];
 }
 
 export default function ColumnChart({ data }: { data?: ChartData }) {
+  console.log('Dados recebidos para o gráfico:', data);
 
   // Processar os dados para o formato necessário pelo chart
   const processChartData = () => {
-    if (!data?.occurrenceByDay) {
+    if (!data?.occurrencesByDay) {
       return {
         series: [
           { name: 'Nenhum', data: [] },
@@ -38,33 +38,24 @@ export default function ColumnChart({ data }: { data?: ChartData }) {
       };
     }
 
-    // Extrair apenas o dia do formato ISO (ex: "2025-08-27" -> "27/08")
-    const categories = data.occurrenceByDay.map(item => {
-      const date = new Date(item.day);
-      return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+    // Extrair apenas o dia do formato ISO (ex: "2025-09-01" -> "01/09")
+    const categories = data.occurrencesByDay.map(item => {
+      const date = new Date(item.date);
+      return `${String(date.getDate()).padStart(2, '0')}/${String(
+        date.getMonth() + 1
+      ).padStart(2, '0')}`;
     });
 
-    // Inicializar arrays para cada tipo de ocorrência
+    // Arrays para cada tipo de ocorrência
     const noneData: number[] = [];
     const mildData: number[] = [];
     const severeData: number[] = [];
 
-    // Preencher os dados para cada dia
-    data.occurrenceByDay.forEach(day => {
-      let totalNone = 0;
-      let totalMild = 0;
-      let totalSevere = 0;
-
-      // Somar ocorrências por hora para este dia
-      day.occurrenceByHour.forEach(hour => {
-        totalNone += hour.totalNone;
-        totalMild += hour.totalMild;
-        totalSevere += hour.totalSevere;
-      });
-
-      noneData.push(totalNone);
-      mildData.push(totalMild);
-      severeData.push(totalSevere);
+    // Preencher os dados por dia
+    data.occurrencesByDay.forEach(day => {
+      noneData.push(day.totalNone);
+      mildData.push(day.totalMild);
+      severeData.push(day.totalSevere);
     });
 
     return {

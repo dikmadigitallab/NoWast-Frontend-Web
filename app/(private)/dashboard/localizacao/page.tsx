@@ -31,29 +31,12 @@ export default function Atividades() {
     }));
   };
 
-  const collaboratorOptions = [
-    "todos",
-    "Todos os colaboradores",
-    "João Paulo",
-    "Maria Silva",
-    "Pedro Henrique",
-    "Ana Luiza"
-  ];
-
   const empresaOptions = [
     "todas",
     "Adcos",
     "Acelormittal",
     "Nemak"
   ];
-
-  const predioOptions = [
-    "todos",
-    "Coqueria",
-    "Sinterização",
-    "Alto Forno"
-  ];
-
 
   const [mount, setMount] = useState(false);
 
