@@ -61,7 +61,7 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Porta
-EXPOSE 18649
+EXPOSE 9003
 ENV PORT=18649
 ENV HOSTNAME="0.0.0.0"
 
