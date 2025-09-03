@@ -20,7 +20,7 @@ export const useLogin = () => {
 
         try {
             const clearFormatedData = data?.replace(/[.\-]/g, '')
-            const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/login', { document: clearFormatedData, password,Credentials: 'include' });
+            const response = await axios.post('/auth', { document: clearFormatedData, password});
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
 
             if (response.data.data.user.role.name === "Administrador Dikma") {
