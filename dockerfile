@@ -72,3 +72,4 @@ CMD ["npm", "run", "start"]
 # docker build -t meu-app .
 
 #docker run -p 18649:18649 --name meu-app-container meu-app
+#novo teste
