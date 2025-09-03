@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
@@ -8,21 +8,26 @@ import { FaHelmetSafety } from "react-icons/fa6";
 import { RiToolsFill } from "react-icons/ri";
 import { IoCarOutline } from 'react-icons/io5';
 import { FiBox } from 'react-icons/fi';
-import CadastroColumnChart from './components/column';
-import ReverceChart from '../components/reverseBar';
 import { useAuthStore } from '@/app/store/storeApp';
+import { useGetDashboardItems } from '@/app/hooks/dashboard/useGetItems';
+import { useGetDashboardRegistrations } from '@/app/hooks/dashboard/useGetRegistrations';
+import ReverseChart from './components/reverseBar';
+import CadastroColumnChart from './components/column';
+import BasicDateRangePicker from '@/app/components/dateRange';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+
+const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
 export default function Atividades() {
 
     const { userType } = useAuthStore();
-
-    const [filters, setFilters] = useState({
-        data: '',
-        predio: '',
-        setor: '',
-        ambiente: '',
-        empresa: ''
-    });
+    const { data: setor } = useGet({ url: 'sector' });
+    const { data: ambiente } = useGet({ url: 'environment' });
+    const { data: predio, loading } = useGet({ url: 'building' });
+    const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '', empresa: '' });
+    const { data: cadastros } = useGetDashboardItems({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
+    const { dailyStats, usersByPosition } = useGetDashboardRegistrations({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
 
     const handleFilterChange = (event: any) => {
         const { name, value } = event.target;
@@ -33,51 +38,11 @@ export default function Atividades() {
     };
 
     const cards = [
-        { title: "Equipamento", value: 925, icon: <RiToolsFill size={25} color="#5E5873" /> },
-        { title: "Transporte", value: 925, icon: <IoCarOutline size={25} color="#5E5873" /> },
-        { title: "EPI", value: 925, icon: <FaHelmetSafety size={25} color="#5E5873" /> },
-        { title: "Produtos", value: 925, icon: <FiBox size={25} color="#5E5873" /> }
+        { title: "Equipamento", value: cadastros?.totalTools, icon: <RiToolsFill size={25} color="#5E5873" /> },
+        { title: "Transporte", value: cadastros?.totalTransports, icon: <IoCarOutline size={25} color="#5E5873" /> },
+        { title: "EPI", value: cadastros?.totalPpes, icon: <FaHelmetSafety size={25} color="#5E5873" /> },
+        { title: "Produtos", value: cadastros?.totalProducts, icon: <FiBox size={25} color="#5E5873" /> }
     ];
-
-    const data3 = {
-        data: [2200, 2000, 1800, 1600, 1400, 1200, 1000, 800],
-        categories: [
-            "ADM",
-            "Operador",
-            "Analista de Gestão e Estrutura",
-            "Operador de Área",
-            "Gestão",
-            "Operador 2",
-            "Operador 3",
-            "Operador 4"
-        ],
-        color: '#7367F0'
-    }
-
-    const predioOptions = [
-        "Predio 1",
-        "Predio 2",
-        "Predio 3",
-        "Predio 4",
-        "Predio 5"
-    ];
-
-    const setorOptions = [
-        "Setor 1",
-        "Setor 2",
-        "Setor 3",
-        "Setor 4",
-        "Setor 5"
-    ];
-
-    const ambienteOptions = [
-        "Ambiente 1",
-        "Ambiente 2",
-        "Ambiente 3",
-        "Ambiente 4",
-        "Ambiente 5"
-    ];
-
 
     const empresaOptions = [
         "todas",
@@ -95,33 +60,41 @@ export default function Atividades() {
                 </h1>
 
                 <Box className="w-[80%] flex flex-wrap justify-end gap-2">
-                    <FormControl sx={formTheme} className="w-[16%]">
-                        <TextField
-                            label="Data"
-                            type="date"
-                            name="data"
-                            value={filters.data}
-                            onChange={handleFilterChange}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
+                    <FormControl sx={formTheme} className="w-[30%]">
+                        <BasicDateRangePicker
+                            startDate={filters.startDate}
+                            endDate={filters.endDate}
+                            onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
                         />
                     </FormControl>
-                    <FormControl sx={formTheme} className='w-[16%]'>
-                        <InputLabel>Predio</InputLabel>
-                        <Select
-                            label="Predio"
-                            name="predio"
-                            value={filters.predio}
-                            onChange={handleFilterChange}
-                        >
-                            {predioOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+
+                    {
+                        userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
+                            <FormControl sx={formTheme} className="w-[12%]">
+                                <InputLabel>Prédio</InputLabel>
+                                <Select
+                                    disabled={loading}
+                                    label="Prédio"
+                                    value={filters.buildingId}
+                                    onChange={(e) =>
+                                        setFilters((prev) => ({ ...prev, buildingId: e.target.value }))
+                                    }
+                                >
+                                    <MenuItem value="" disabled>
+                                        Selecione um setor...
+                                    </MenuItem>
+                                    {Array?.isArray(predio) &&
+                                        predio.map((predio) => (
+                                            <MenuItem key={predio?.id} value={predio?.id}>
+                                                {predio?.name}
+                                            </MenuItem>
+                                        ))}
+                                </Select>
+                            </FormControl>
+                        ) :
+                            null
+                    }
+
 
                     {
                         userType === "DIKMA_DIRECTOR" ? (
@@ -143,39 +116,47 @@ export default function Atividades() {
                         ) : null
                     }
 
-                    {
-                        userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
-                            <FormControl sx={formTheme} className='w-[16%]'>
-                                <InputLabel>Setor</InputLabel>
-                                <Select
-                                    label="Setor"
-                                    name="setor"
-                                    value={filters.setor}
-                                    onChange={handleFilterChange}
-                                >
-                                    {setorOptions.map((option) => (
-                                        <MenuItem key={option} value={option}>
-                                            {option}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        ) : null
-                    }
+                    <FormControl sx={formTheme} className="w-[12%]">
+                        <InputLabel>Setor</InputLabel>
+                        <Select
+                            disabled={loading}
+                            label="Setor"
+                            value={filters.sectorId}
+                            onChange={(e) =>
+                                setFilters((prev) => ({ ...prev, sectorId: e.target.value }))
+                            }
+                        >
+                            <MenuItem value="" disabled>
+                                Selecione um setor...
+                            </MenuItem>
+                            {Array?.isArray(setor) &&
+                                setor.map((setor) => (
+                                    <MenuItem key={setor?.id} value={setor?.id}>
+                                        {setor?.name}
+                                    </MenuItem>
+                                ))}
+                        </Select>
+                    </FormControl>
 
-                    <FormControl sx={formTheme} className='w-[16%]'>
+                    <FormControl sx={formTheme} className="w-[12%]">
                         <InputLabel>Ambiente</InputLabel>
                         <Select
+                            disabled={loading}
                             label="Ambiente"
-                            name="ambiente"
-                            value={filters.ambiente}
-                            onChange={handleFilterChange}
+                            value={filters.environmentId}
+                            onChange={(e) =>
+                                setFilters((prev) => ({ ...prev, environmentId: e.target.value }))
+                            }
                         >
-                            {ambienteOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
+                            <MenuItem value="" disabled>
+                                Selecione um setor...
+                            </MenuItem>
+                            {Array?.isArray(ambiente) &&
+                                ambiente.map((ambiente) => (
+                                    <MenuItem key={ambiente?.id} value={ambiente?.id}>
+                                        {ambiente?.name}
+                                    </MenuItem>
+                                ))}
                         </Select>
                     </FormControl>
                 </Box>
@@ -197,14 +178,13 @@ export default function Atividades() {
 
             <Box className="gap-5 p-7 w-[100%]  bg-white rounded-lg mb-5 mt-5">
                 <h1 className="text-2xl font-medium text-[#5E5873] mb-5">Início e Fim do Contrado</h1>
-                <CadastroColumnChart />
+                <CadastroColumnChart data={dailyStats || []} />
             </Box>
 
             <Box className="gap-5 p-7 w-[100%]  bg-white rounded-lg mb-5">
                 <h1 className="text-2xl font-medium text-[#5E5873] mb-5">Total de Pessoas Por Cargo</h1>
-                <ReverceChart chart={data3} />
+                <ReverseChart data={usersByPosition} />
             </Box>
-
         </StyledMainContainer >
     );
 }

@@ -5,31 +5,32 @@ import { Box } from '@mui/material';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-type Justification = {
-  reasonType: string;
-  justification: number;
-  internalJustification: number;
-  totalJustifications: number;
+type EnvironmentOrSector = {
+  environmentId?: number;
+  environmentName?: string;
+  sectorId?: number;
+  sectorName?: string;
+  totalActivities: number;
+  totalAreaM2: number;
 };
 
 type Props = {
-  justificationsByReasonType: Justification[];
-  totalInternalJustifiedActivities: number;
-  totalJustifications: number;
-  totalJustifiedActivities: number;
+  data: EnvironmentOrSector[];
 };
 
-export default function ReverseBar({
-  justificationsByReasonType,
-}: Props) {
-  
-  const categories = justificationsByReasonType?.map((item) => item.reasonType) || [];
-  const values = justificationsByReasonType?.map((item) => item.totalJustifications) || [];
+export default function ReverseBar({ data }: Props) {
+  const categories = data.map((item) => item.environmentName || item.sectorName || '');
+  const values = data.map((item) => item.totalActivities);
+
+  // Define cores fixas dependendo se é environment ou sector
+  const colors = data.map((item) =>
+    item.environmentId ? '#29c770' : '#7367F0'
+  );
 
   const chartData: { series: ApexAxisChartSeries; options: ApexOptions } = {
     series: [
       {
-        name: 'Total de justificativas',
+        name: 'Total de atividades',
         data: values,
       },
     ],
@@ -46,8 +47,17 @@ export default function ReverseBar({
           horizontal: true,
         },
       },
+      colors: colors,
       dataLabels: {
-        enabled: false,
+        enabled: true, // habilita labels dentro das barras
+        style: {
+          colors: ['#ffffff'], // branco
+          fontSize: '14px',
+          fontWeight: 'bold',
+        },
+        formatter: function (val: number) {
+          return `Atividades: ${val.toString()}`; // mostra o valor dentro da barra
+        },
       },
       tooltip: {
         theme: 'dark',
@@ -56,12 +66,17 @@ export default function ReverseBar({
         },
         y: {
           formatter: function (val: number) {
-            return val + ' justificativas';
+            return val + ' atividades';
           },
         },
       },
       xaxis: {
         categories: categories,
+        labels: {
+          formatter: function (value: string) {
+            return Math.round(Number(value)).toString();
+          },
+        },
       },
     },
   };

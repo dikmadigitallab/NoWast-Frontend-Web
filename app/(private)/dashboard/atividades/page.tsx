@@ -1,26 +1,82 @@
 'use client';
 
+import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
+import { StyledMainContainer } from '@/app/styles/container/container';
+import { useGetDashboard } from '@/app/hooks/dashboard/useGet';
+import BasicDateRangePicker from '@/app/components/dateRange';
+import { formTheme } from '@/app/styles/formTheme/theme';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+import { MdOutlineChecklist } from 'react-icons/md';
+import { useAuthStore } from '@/app/store/storeApp';
 import React, { useEffect, useState } from 'react';
-import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import SpilinesRow from './components/spilinesRow';
+import ReverseBar from './components/reverseBar';
+import { CiCircleCheck } from 'react-icons/ci';
 import DonutsRow from './components/donutsRow';
 import ColumnChart from './components/column';
-import { StyledMainContainer } from '@/app/styles/container/container';
-import { formTheme } from '@/app/styles/formTheme/theme';
-import ReverseBar from './components/reverseBar';
-import { MdOutlineChecklist } from 'react-icons/md';
-import { CiCircleCheck } from 'react-icons/ci';
-import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
-import { useAuthStore } from '@/app/store/storeApp';
+
+const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
 export default function Atividades() {
 
   const { userType } = useAuthStore();
-  const [filters, setFilters] = useState({ data: '', colaborador: '', setor: '', ambiente: '' });
+  const { data: setor } = useGet({ url: 'sector' });
+  const { data: predio } = useGet({ url: 'building' });
+  const { data: ambiente } = useGet({ url: 'environment' });
+  const { data: pessoas, loading } = useGetUsuario({});
+  const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '' });
+
+  // Estado unificado para os filtros de ocorrências
+  const [ocorrenciaFilters, setOcorrenciaFilters] = useState({
+    mes: (new Date().getMonth() + 1).toString().padStart(2, '0'),
+    ano: new Date().getFullYear().toString()
+  });
+
+  const { data: justifications } = useGetDashboard({
+    url: 'dashboard/justifications',
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    userId: filters.userId,
+    sectorId: filters.sectorId,
+    environmentId: filters.environmentId,
+    buildingId: filters.buildingId
+  });
+
+  const { data: atividades } = useGetDashboard({
+    url: 'dashboard/activities',
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    userId: filters.userId,
+    sectorId: filters.sectorId,
+    environmentId: filters.environmentId,
+    buildingId: filters.buildingId
+  });
+
+  const { data: ocorrencias } = useGetDashboard({
+    url: 'dashboard/occurrences',
+    startDate: `${ocorrenciaFilters.ano}-${ocorrenciaFilters.mes}-01`,
+    endDate: `${ocorrenciaFilters.ano}-${ocorrenciaFilters.mes}-31`,
+    userId: filters.userId,
+    sectorId: filters.sectorId,
+    environmentId: filters.environmentId,
+    buildingId: filters.buildingId
+  });
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
     setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Função única para manipular mudanças nos filtros de ocorrências
+  const handleOcorrenciaFilterChange = (event: any) => {
+    const { name, value } = event.target;
+    setOcorrenciaFilters(prev => ({
       ...prev,
       [name]: value
     }));
@@ -37,55 +93,29 @@ export default function Atividades() {
     {
       title: "Atividades",
       data: [
-        { name: 'Concluídas', total: 80, color: '#00CB65' },
-        { name: 'Em Aberto', total: 150, color: '#2090FF' },
-        { name: 'Pendentes', total: 120, color: '#FF9920' },
-        { name: 'Justificativas Internas', total: 70, color: '#d35400' },
-        { name: 'Justificativas Externas', total: 80, color: '#27ae60' },
+        { name: 'Concluídas', total: atividades?.completedActivities ?? 0, color: '#00CB65' },
+        { name: 'Em Aberto', total: atividades?.openActivities ?? 0, color: '#2090FF' },
+        { name: 'Pendentes', total: atividades?.pendingActivities ?? 0, color: '#FF9920' },
+        { name: 'Justificativas Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#d35400' },
+        { name: 'Justificativas Externas', total: atividades?.justifiedActivities ?? 0, color: '#27ae60' },
       ]
     },
     {
       title: "Execuções",
       data: [
-        { name: 'No Prazo', total: 250, color: '#00CB65' },
-        { name: 'Fora do Prazo', total: 140, color: '#2090FF' },
+        { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#00CB65' },
+        { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#2090FF' },
       ]
     },
     {
       title: "Aprovações",
       data: [
-        { name: 'Aprovadas', total: 180, color: '#00CB65' },
-        { name: 'Não Aprovadas', total: 250, color: '#2090FF' },
-        { name: 'Reprovadas', total: 120, color: '#FF9920' },
+        { name: 'Aprovadas', total: atividades?.approvedActivities ?? 0, color: '#00CB65' },
+        { name: 'Pendentes de Aprovação', total: atividades?.pendingApprovalActivities ?? 0, color: '#2090FF' },
+        { name: 'Reprovadas', total: atividades?.rejectedActivities ?? 0, color: '#FF9920' },
       ]
     }
   ];
-
-
-  const sectorOptions = [
-    "Administrativo",
-    "Operacional",
-    "Financeiro",
-    "RH",
-    "Engenharia"
-  ];
-
-  const environmentOptions = [
-    "Produção",
-    "Desenvolvimento",
-    "Testes",
-    "Homologação",
-    "Todos os ambientes"
-  ];
-
-  const collaboratorOptions = [
-    "Todos os colaboradores",
-    "João Paulo",
-    "Maria Silva",
-    "Pedro Henrique",
-    "Ana Luiza"
-  ];
-
 
   const empresaOptions = [
     "todas",
@@ -94,14 +124,28 @@ export default function Atividades() {
     "Nemak"
   ];
 
-  const predioOptions = [
-    "todos",
-    "Coqueria",
-    "Sinterização",
-    "Alto Forno"
+  // Opções para os selects de mês e ano
+  const monthOptions = [
+    { value: '01', label: 'Janeiro' },
+    { value: '02', label: 'Fevereiro' },
+    { value: '03', label: 'Março' },
+    { value: '04', label: 'Abril' },
+    { value: '05', label: 'Maio' },
+    { value: '06', label: 'Junho' },
+    { value: '07', label: 'Julho' },
+    { value: '08', label: 'Agosto' },
+    { value: '09', label: 'Setembro' },
+    { value: '10', label: 'Outubro' },
+    { value: '11', label: 'Novembro' },
+    { value: '12', label: 'Dezembro' }
   ];
 
-
+  // Gerar opções de anos (dos últimos 5 anos até o ano atual)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 5 }, (_, i) => ({
+    value: (currentYear - i).toString(),
+    label: (currentYear - i).toString()
+  }));
 
   const [mount, setMount] = useState(false);
 
@@ -110,7 +154,6 @@ export default function Atividades() {
   }, []);
 
   if (!mount) return
-
 
   return (
     <StyledMainContainer style={{ background: "#f8f8f8" }}>
@@ -121,29 +164,26 @@ export default function Atividades() {
         </h1>
 
         <Box className="w-[90%] flex flex-wrap justify-end gap-2">
-          <FormControl sx={formTheme} className="w-[12%]">
-            <TextField
-              label="Data"
-              type="date"
-              name="data"
-              value={filters.data}
-              onChange={handleFilterChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
+          <FormControl sx={formTheme} className="w-[30%]">
+            <BasicDateRangePicker
+              startDate={filters.startDate}
+              endDate={filters.endDate}
+              onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
             />
           </FormControl>
+
           <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Colaborador</InputLabel>
             <Select
+              disabled={loading}
               label="Colaborador"
-              name="colaborador"
-              value={filters.colaborador}
-              onChange={handleFilterChange}
+              value={filters.userId}
+              onChange={(e) => setFilters(prev => ({ ...prev, userId: e.target.value }))}
             >
-              {collaboratorOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
+              <MenuItem value="" disabled>Selecione um colaborador...</MenuItem>
+              {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
+                <MenuItem key={pessoa?.id} value={pessoa?.id}>
+                  {pessoa?.name}
                 </MenuItem>
               ))}
             </Select>
@@ -174,15 +214,22 @@ export default function Atividades() {
               <FormControl sx={formTheme} className="w-[12%]">
                 <InputLabel>Prédio</InputLabel>
                 <Select
+                  disabled={loading}
                   label="Prédio"
-                  name="predio"
-                  onChange={handleFilterChange}
+                  value={filters.buildingId}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, buildingId: e.target.value }))
+                  }
                 >
-                  {predioOptions.map(option => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="" disabled>
+                    Selecione um setor...
+                  </MenuItem>
+                  {Array?.isArray(predio) &&
+                    predio.map((predio) => (
+                      <MenuItem key={predio?.id} value={predio?.id}>
+                        {predio?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             ) :
@@ -192,31 +239,44 @@ export default function Atividades() {
           <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Setor</InputLabel>
             <Select
+              disabled={loading}
               label="Setor"
-              name="setor"
-              value={filters.setor}
-              onChange={handleFilterChange}
+              value={filters.sectorId}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, sectorId: e.target.value }))
+              }
             >
-              {sectorOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
+              <MenuItem value="" disabled>
+                Selecione um setor...
+              </MenuItem>
+              {Array?.isArray(setor) &&
+                setor.map((setor) => (
+                  <MenuItem key={setor?.id} value={setor?.id}>
+                    {setor?.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
+
           <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Ambiente</InputLabel>
             <Select
+              disabled={loading}
               label="Ambiente"
-              name="ambiente"
-              value={filters.ambiente}
-              onChange={handleFilterChange}
+              value={filters.environmentId}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, environmentId: e.target.value }))
+              }
             >
-              {environmentOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
+              <MenuItem value="" disabled>
+                Selecione um setor...
+              </MenuItem>
+              {Array?.isArray(ambiente) &&
+                ambiente.map((ambiente) => (
+                  <MenuItem key={ambiente?.id} value={ambiente?.id}>
+                    {ambiente?.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
         </Box>
@@ -227,22 +287,64 @@ export default function Atividades() {
           <SpilinesRow data={dataSpilines} />
         </Box>
         <Box className="flex w-[100%] justify-between gap-5">
-          {dataDonuts.map((donutData, index) => (
-            <Box key={index} className="flex flex-col items-center gap-5 w-[33.3%] justify-center bg-white p-5 rounded-lg shadow-md">
-              <h1 className="text-2xl font-medium text-[#5E5873]">{donutData.title}</h1>
-              <DonutsRow data={donutData.data} />
+          {dataDonuts.map((donut, index) => (
+            <Box key={index} className="mb-10 w-[32%] h-full">
+              <h2 className="text-xl font-bold mb-4 text-center">{donut.title}</h2>
+              {donut.data.some(item => item.total > 0) ? (
+                <DonutsRow data={donut.data} />
+              ) :
+                <Box className="w-full h-[520px] flex items-center justify-center bg-white p-5 rounded-lg ">
+                  <span className="text-[#5E5873] font-semibold">Nenhum dado disponível para esse período</span>
+                </Box>
+              }
             </Box>
           ))}
         </Box>
+
+        {/* Seção de Ocorrências com filtros de mês e ano */}
         <Box className="w-[100%] bg-white rounded-lg p-5">
-          <h1 className="text-2xl font-medium text-[#5E5873]">Ocorrências</h1>
-          <ColumnChart />
-        </Box>
-        <Box className="w-[100%] bg-white rounded-lg p-5">
-          <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>
-          <ReverseBar />
+          <Box className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-medium text-[#5E5873]">Ocorrências</h1>
+            <Box className="flex gap-2">
+              <FormControl sx={formTheme} className="w-[120px]">
+                <InputLabel>Mês</InputLabel>
+                <Select
+                  name="mes"
+                  value={ocorrenciaFilters.mes}
+                  label="Mês"
+                  onChange={handleOcorrenciaFilterChange}
+                >
+                  {monthOptions.map(month => (
+                    <MenuItem key={month.value} value={month.value}>
+                      {month.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl sx={formTheme} className="w-[100px]">
+                <InputLabel>Ano</InputLabel>
+                <Select
+                  name="ano"
+                  value={ocorrenciaFilters.ano}
+                  label="Ano"
+                  onChange={handleOcorrenciaFilterChange}
+                >
+                  {yearOptions.map(year => (
+                    <MenuItem key={year.value} value={year.value}>
+                      {year.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
+          <ColumnChart data={ocorrencias} />
         </Box>
 
+        <Box className="w-[100%] bg-white rounded-lg p-5">
+          <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>
+          <ReverseBar {...justifications} />
+        </Box>
       </Box>
     </StyledMainContainer>
   );

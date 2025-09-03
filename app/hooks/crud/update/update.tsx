@@ -7,10 +7,10 @@ import { useGetIDStore } from "@/app/store/getIDStore";
 
 export const useUpdate = (url: string, redirect: string) => {
 
+    const router = useRouter();
     const { id } = useGetIDStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
 
     const update = async (data: any, containsImg?: any) => {
 
@@ -48,7 +48,7 @@ export const useUpdate = (url: string, redirect: string) => {
                     },
                 });
 
-                toast.success("Cadastro feito com sucesso");
+                toast.success("Atialização feita com sucesso");
                 setTimeout(() => router.push(redirect));
 
             } else {
@@ -59,7 +59,7 @@ export const useUpdate = (url: string, redirect: string) => {
                     },
                 });
 
-                toast.success("Cadastro feito com sucesso");
+                toast.success("Atialização feita com sucesso");
                 setTimeout(() => router.push(redirect));
             }
 
