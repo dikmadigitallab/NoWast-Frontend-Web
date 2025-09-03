@@ -32,9 +32,11 @@ jobs:
           port: 22206
           script: |
             cd /var/www/nowaste-front-end
-            docker stop  nowaste-front-end || true
-            docker rm  nowaste-front-end || true
+            docker stop nowaste-front-end || true
+            docker rm nowaste-front-end || true
             docker build -t nowaste-front-end .
-            docker run -d  
-            -e NEXT_PUBLIC_API_URL=https://nowastev2.api.dikmadigital.com.br `
-            -p 9003:18649 --name nowaste-front-end nowaste-front-end
+            docker run -d \
+              -e NEXT_PUBLIC_API_URL=https://nowastev2.api.dikmadigital.com.br \
+              -p 9003:18649 \
+              --name nowaste-front-end \
+              nowaste-front-end
