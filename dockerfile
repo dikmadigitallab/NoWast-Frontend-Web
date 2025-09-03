@@ -1,4 +1,6 @@
+# ========================
 # Etapa base
+# ========================
 FROM node:20-alpine AS base
 
 # Dependências necessárias para Prisma e Next.js
@@ -23,8 +25,12 @@ RUN \
 # ========================
 FROM base AS builder
 WORKDIR /app
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Copia o arquivo .env (necessário para o build do Next.js)
+COPY .env.production .env
 
 # (Opcional) Prisma generate se houver prisma/schema.prisma
 # RUN npx prisma generate
@@ -43,27 +49,27 @@ RUN \
 FROM base AS runner
 WORKDIR /app
 
-# Configuração do ambiente
 ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
 
-# Copia arquivos essenciais
+# Copia arquivos essenciais da build
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 
-# Permissões corretas
+# Permissões
 RUN chown -R nextjs:nodejs /app
-
 USER nextjs
 
-# Porta
+# Configuração de porta
 EXPOSE 18649
 ENV PORT=18649
 ENV HOSTNAME="0.0.0.0"
+
+
 
 # Inicia o Next.js
 CMD ["npm", "run", "start"]
@@ -72,3 +78,4 @@ CMD ["npm", "run", "start"]
 # docker build -t meu-app .
 
 #docker run -p 18649:18649 --name meu-app-container meu-app
+#novo teste
