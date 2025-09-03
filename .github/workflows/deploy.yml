@@ -35,4 +35,5 @@ jobs:
             docker stop  nowaste-front-end || true
             docker rm  nowaste-front-end || true
             docker build -t nowaste-front-end .
+            -e NEXT_PUBLIC_API_URL=https://nowastev2.api.dikmadigital.com.br `
             docker run -d -p 9003:18649 --name nowaste-front-end nowaste-front-end
