@@ -7,13 +7,12 @@ import { StyledMainContainer } from "@/app/styles/container/container";
 import { useCreate } from "@/app/hooks/crud/create/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IoImagesOutline } from "react-icons/io5";
 import { useAuthStore } from "@/app/store/storeApp";
 import { Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { IoMdClose } from "react-icons/io";
 import { useState } from "react";
+import { ImageUploader } from "@/app/components/imageGet";
 
 const predioSchema = z.object({
     name: z.string().min(1, "Nome do Predio é obrigatório"),
@@ -40,7 +39,6 @@ export default function CadastroPredio() {
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const { create, loading } = useCreate("building", "/locais/predio/listagem");
-    const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenDisableModal = () => {
         setOpenDisableModal(true);
@@ -57,20 +55,6 @@ export default function CadastroPredio() {
     const onSubmit = (formData: any) => {
         const newObject = { ...formData, image: file };
         create(newObject, true);
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const imageData = {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            previewUrl: URL.createObjectURL(file),
-        };
-        setImageInfo(imageData);
-        setFile(file);
     };
 
     return (
@@ -150,35 +134,10 @@ export default function CadastroPredio() {
                     </Box>
                 </Box>
 
-                <Box className="w-full flex gap-2">
-                    <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-                            onChange={handleFileChange}
-                        />
-                        {imageInfo ? (
-                            <Box className="absolute w-full flex justify-between items-center p-3">
-                                <Box className="flex flex-row items-center gap-3">
-                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
-                                    <Box className="flex flex-col">
-                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
-                                    </Box>
-                                </Box>
-                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
-                            </Box>
-                        )
-                            :
-                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
-                                <IoImagesOutline color="#5E5873" size={25} />
-                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
-                            </Box>
-                        }
-                    </Box>
-                </Box>
+                <ImageUploader
+                    label="Selecione uma foto do EPI"
+                    onChange={(file: any) => setFile(file)}
+                />
 
                 <Box className="w-[100%] flex flex-row justify-between">
                     <Controller

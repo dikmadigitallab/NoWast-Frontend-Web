@@ -5,19 +5,23 @@ import { formTheme } from '@/app/styles/formTheme/theme';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdKeyboardDoubleArrowDown, MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
-import ReverceChart from '../components/reverseBar';
 import { useAuthStore } from '@/app/store/storeApp';
+import { useGetDashboardLocation } from '@/app/hooks/dashboard/useGetLocation';
+import ReverseBar from './components/reverseBar';
+import BasicDateRangePicker from '@/app/components/dateRange';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+
+const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
 export default function Atividades() {
 
   const { userType } = useAuthStore();
-
-  const [filters, setFilters] = useState({
-    data: '',
-    colaborador: '',
-    empresa: '',
-    predio: '',
-  });
+  const { data: predio } = useGet({ url: 'building' });
+  const { data: pessoas, loading } = useGetUsuario({});
+  const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '', empresa: 'todas' });
+  const { environmentActivities, sectorActivities } = useGetDashboardLocation({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
@@ -27,73 +31,12 @@ export default function Atividades() {
     }));
   };
 
-  const data1 = {
-    data: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500],
-    categories: [
-      'Falta',
-      'Atestado',
-      'Falta de máquina',
-      'Mudança de prioridade cliente',
-      'Mudança de prioridade dikma',
-      'Quebra',
-      'Manutenção',
-      'Outro'
-    ],
-    color: '#29C770'
-  }
-
-  const data2 = {
-    data: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
-    categories: [
-      "Pátio de Carvão",
-      "Tratamento de Gás",
-      "Exemplo de nome",
-      "Exemplo de nome",
-      "Exemplo de nome",
-      "Exemplo de nome",
-      "Exemplo de nome"
-    ],
-    color: '#7367F0'
-  }
-
-  const data3 = {
-    data: [2200, 2000, 1800, 1600, 1400, 1200, 1000, 800, 600, 400],
-    categories: [
-      "Pátio de Carvão",
-      "Tratamento de Gás",
-      "Falta de máquinas",
-      "Mudança de prioridade ... cliente",
-      "Mudança de prioridade Dikma",
-      "Quebra",
-      "Manutenção",
-      "Outros"
-    ],
-    color: '#2190FF'
-  }
-
-  const collaboratorOptions = [
-    "todos",
-    "Todos os colaboradores",
-    "João Paulo",
-    "Maria Silva",
-    "Pedro Henrique",
-    "Ana Luiza"
-  ];
-
   const empresaOptions = [
     "todas",
     "Adcos",
     "Acelormittal",
     "Nemak"
   ];
-
-  const predioOptions = [
-    "todos",
-    "Coqueria",
-    "Sinterização",
-    "Alto Forno"
-  ];
-
 
   const [mount, setMount] = useState(false);
 
@@ -112,29 +55,26 @@ export default function Atividades() {
         </h1>
 
         <Box className="w-[70%] flex flex-wrap justify-end gap-2">
-          <FormControl sx={formTheme} className="w-[23%]">
-            <TextField
-              label="Data"
-              type="date"
-              name="data"
-              value={filters.data}
-              onChange={handleFilterChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
+          <FormControl sx={formTheme} >
+            <BasicDateRangePicker
+              startDate={filters.startDate}
+              endDate={filters.endDate}
+              onChange={(start, end) => setFilters(prev => ({ ...prev, startDate: start, endDate: end }))}
             />
           </FormControl>
-          <FormControl sx={formTheme} className="w-[23%]">
+
+          <FormControl sx={formTheme} className="w-[12%]">
             <InputLabel>Colaborador</InputLabel>
             <Select
+              disabled={loading}
               label="Colaborador"
-              name="colaborador"
-              value={filters.colaborador}
-              onChange={handleFilterChange}
+              value={filters.userId}
+              onChange={(e) => setFilters(prev => ({ ...prev, userId: e.target.value }))}
             >
-              {collaboratorOptions.map(option => (
-                <MenuItem key={option} value={option}>
-                  {option}
+              <MenuItem value="" disabled>Selecione um colaborador...</MenuItem>
+              {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
+                <MenuItem key={pessoa?.id} value={pessoa?.id}>
+                  {pessoa?.name}
                 </MenuItem>
               ))}
             </Select>
@@ -160,22 +100,27 @@ export default function Atividades() {
             ) :
               null
           }
-
           {
             userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
-              <FormControl sx={formTheme} className="w-[23%]">
+              <FormControl sx={formTheme} className="w-[12%]">
                 <InputLabel>Prédio</InputLabel>
                 <Select
+                  disabled={loading}
                   label="Prédio"
-                  name="predio"
-                  value={filters.predio}
-                  onChange={handleFilterChange}
+                  value={filters.buildingId}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, buildingId: e.target.value }))
+                  }
                 >
-                  {predioOptions.map(option => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="" disabled>
+                    Selecione um setor...
+                  </MenuItem>
+                  {Array?.isArray(predio) &&
+                    predio.map((predio) => (
+                      <MenuItem key={predio?.id} value={predio?.id}>
+                        {predio?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             ) :
@@ -344,17 +289,12 @@ export default function Atividades() {
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
           <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por SETOR</h1>
-          <ReverceChart chart={data1} />
+          <ReverseBar data={environmentActivities || []} />
         </Box>
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
           <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por AMBIENTE</h1>
-          <ReverceChart chart={data2} />
-        </Box>
-
-        <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
-          <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por TIPO</h1>
-          <ReverceChart chart={data3} />
+          <ReverseBar data={sectorActivities || []} />
         </Box>
 
       </Box>

@@ -38,6 +38,11 @@ export const useCreate = (url: string, redirect: string) => {
                     }
                 });
 
+
+                for (var pair of formData.entries()) {
+                    console.log(pair)
+                }
+
                 await api.post(`/${url}`, formData, {
                     headers: {
                         Authorization: `Bearer ${authToken?.split("=")[1]}`,
