@@ -17,7 +17,7 @@ interface Predio {
 
 export default function Predios() {
     const { SetisSelectModule } = useSelectModule();
-    const { data: predios = [], loading } = useGet({ url: "building" });
+    const { data: predios } = useGet({ url: "building" });
 
     const redirect = () => {
         window.location.href = "/dashboard/atividades";
@@ -41,9 +41,7 @@ export default function Predios() {
             <Box className="w-full px-2 sm:px-4 md:px-0">
                 <Box className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {predios?.map((predio: Predio) => {
-                        const image =
-                            predio.buildingFiles?.[0]?.url ||
-                            "https://via.placeholder.com/400x200.png?text=Sem+Imagem";
+                        const image = predio.buildingFiles?.[0]?.url;
                         const status = predio.deletedAt ? "inativo" : "ativo";
 
                         return (
