@@ -10,10 +10,7 @@ export default function ColumnChart() {
 
     const daysInMonth = Array.from({ length: 31 }, (_, i) => `${String(i + 1).padStart(2, '0')}/07`);
 
-    const [chartData] = React.useState<{
-        series: Array<{ name: string; data: number[] }>;
-        options: ApexOptions;
-    }>({
+    const [chartData] = React.useState<{ series: Array<{ name: string; data: number[] }>; options: ApexOptions }>({
         series: [
             {
                 name: 'Nenhum',

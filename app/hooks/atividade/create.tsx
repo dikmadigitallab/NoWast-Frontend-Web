@@ -3,12 +3,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import api from "../api";
+import { useSectionStore } from "@/app/store/renderSection";
 
 export const useCreateActivity = () => {
 
     const router = useRouter();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const { setSection } = useSectionStore();
     const [error, setError] = useState<string | null>(null);
 
     const create = async (data: any) => {
@@ -23,7 +25,6 @@ export const useCreateActivity = () => {
             Logout();
             return;
         }
-
         const formData = new FormData();
 
         for (const [key, value] of Object.entries(data)) {
@@ -48,6 +49,7 @@ export const useCreateActivity = () => {
             toast.success("Atividade criada com sucesso!");
 
             setTimeout(() => {
+                setSection(1);
                 router.push("/atividade/listagem");
             }, 1000);
 

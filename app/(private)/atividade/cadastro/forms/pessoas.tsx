@@ -83,36 +83,6 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
         },
     ];
 
-
-    const renderChips = (selected: number[], fieldName: string, onDelete: (value: number) => void, items: { id: number, name: string }[] = []) => {
-        const safeItems = Array.isArray(items) ? items : [];
-        return (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginTop: 1 }}>
-                {selected?.map((value) => {
-                    const selectedItem = safeItems.find(item => item.id === value);
-                    return (
-                        <Chip
-                            key={value}
-                            label={selectedItem ? selectedItem.name : `ID: ${value}`}
-                            onDelete={() => onDelete(value)}
-                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                            sx={{
-                                backgroundColor: '#00B288',
-                                color: 'white',
-                                borderRadius: '4px',
-                                fontSize: '.7rem',
-                                '& .MuiChip-deleteIcon': {
-                                    color: 'white',
-                                    fontSize: '.8rem',
-                                },
-                            }}
-                        />
-                    );
-                })}
-            </Box>
-        );
-    };
-
     return (
         <Box className="w-[100%] flex flex-col gap-5">
             <Box className="w-[100%] flex flex-col gap-5">
@@ -121,7 +91,6 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                     <span className="text-[#3aba8a] font-bold">Responsáveis</span>
                     <Box className="flex-1 h-[1px] bg-[#3aba8a] " />
                 </Box>
-
                 <Box className="flex flex-row gap-3 h-[60px]">
                     <Controller
                         name="supervisorId"
@@ -175,7 +144,6 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                     />
                 </Box>
             </Box>
-
             <Box className="w-[100%] flex flex-col gap-5 ">
                 <Box className="flex items-center gap-2">
                     <Box className="w-[15px] h-[15px] bg-[#3aba8a] " />
@@ -225,13 +193,9 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {/* <FormHelperText>{errors?.usersIds?.message}</FormHelperText> */}
                             {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
                         </FormControl>
-                        <Button
-                            sx={[buttonTheme, { height: 55 }]}
-                            onClick={handleAddUsers}
-                        >
+                        <Button sx={[buttonTheme, { height: 55 }]} onClick={handleAddUsers}>
                             <FiPlus size={25} color="#fff" />
                         </Button>
                     </Box>

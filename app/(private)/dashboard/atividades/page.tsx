@@ -37,26 +37,26 @@ export default function Atividades() {
     {
       title: "Atividades",
       data: [
-        { name: 'Concluídas', total: 80, data: [11, 32, 45], color: '#00CB65' },
-        { name: 'Em Aberto', total: 150, data: [31, 40, 28], color: '#2090FF' },
-        { name: 'Pendentes', total: 120, data: [50, 90, 40], color: '#FF9920' },
-        { name: 'Justificativas Internas', total: 70, data: [50, 90, 40], color: '#d35400' },
-        { name: 'Justificativas Externas', total: 80, data: [50, 90, 40], color: '#27ae60' },
+        { name: 'Concluídas', total: 80, color: '#00CB65' },
+        { name: 'Em Aberto', total: 150, color: '#2090FF' },
+        { name: 'Pendentes', total: 120, color: '#FF9920' },
+        { name: 'Justificativas Internas', total: 70, color: '#d35400' },
+        { name: 'Justificativas Externas', total: 80, color: '#27ae60' },
       ]
     },
     {
       title: "Execuções",
       data: [
-        { name: 'No Prazo', total: 250, data: [31, 40, 28], color: '#00CB65' },
-        { name: 'Fora do Prazo', total: 140, data: [11, 32, 45], color: '#2090FF' },
+        { name: 'No Prazo', total: 250, color: '#00CB65' },
+        { name: 'Fora do Prazo', total: 140, color: '#2090FF' },
       ]
     },
     {
       title: "Aprovações",
       data: [
-        { name: 'Aprovadas', total: 180, data: [11, 32, 45], color: '#00CB65' },
-        { name: 'Não Aprovadas', total: 250, data: [31, 40, 28], color: '#2090FF' },
-        { name: 'Reprovadas', total: 120, data: [50, 90, 40], color: '#FF9920' },
+        { name: 'Aprovadas', total: 180, color: '#00CB65' },
+        { name: 'Não Aprovadas', total: 250, color: '#2090FF' },
+        { name: 'Reprovadas', total: 120, color: '#FF9920' },
       ]
     }
   ];

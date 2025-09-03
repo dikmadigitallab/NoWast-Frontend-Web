@@ -7,7 +7,6 @@ const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
 type ChartItem = {
     name: string;
-    data: number[];
     color: string;
     total: number;
 };
