@@ -1,3 +1,4 @@
+
 import { useAuthStore } from '@/app/store/storeApp';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
@@ -19,6 +20,7 @@ export const useLogin = () => {
             const clearFormatedData = data?.replace(/[.\-]/g, '')
             const response = await api.post('/auth', { document: clearFormatedData, password});
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
+           
 
             if (response.data.data.user.role.name === "Administrador Dikma") {
                 setUserType("ADM_DIKMA");
