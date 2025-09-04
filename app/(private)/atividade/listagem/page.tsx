@@ -40,7 +40,6 @@ export default function DataGridAtividades() {
         setModalVisualize(!modalVisualize);
     }
 
-
     const columns: GridColDef[] = [
         {
             field: 'acoes',

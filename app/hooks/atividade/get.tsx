@@ -16,10 +16,13 @@ export interface UseGetParams {
     managerId?: number | null,
     responsibleManagerId?: number | null
     buildingId?: number | null,
-    environmentId?: number | null
+    environmentId?: number | null,
+    disablePagination?: boolean | null
+    startDate?: string | null,
+    endDate?: string | null
 }
 
-export const useGetActivity = ({ pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
+export const useGetActivity = ({ startDate = null, endDate = null, disablePagination = null, pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -46,6 +49,9 @@ export const useGetActivity = ({ pageNumber = null, pageSize = null, query = nul
 
             params.append("pageNumber", String(pageNumber));
 
+            if (startDate !== null) params.append("startDate", String(startDate).trim());
+            if (endDate !== null) params.append("endDate", String(endDate).trim());
+            if (disablePagination !== null) params.append("disablePagination", String(disablePagination).trim());
             if (query !== null) params.append("query", query.trim());
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
             if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
@@ -70,6 +76,7 @@ export const useGetActivity = ({ pageNumber = null, pageSize = null, query = nul
                 dimension: item.environment?.areaM2,
                 supervisor: item?.supervisor?.person?.name,
                 manager: item?.manager?.person?.name,
+                statusEnum: filterStatusActivity(item?.statusEnum),
                 approvalStatus: filterStatusActivity(item?.approvalStatus),
                 ppe: item?.ppe,
                 tools: item?.tools,
@@ -97,7 +104,6 @@ export const useGetActivity = ({ pageNumber = null, pageSize = null, query = nul
         }
     };
 
-
     useEffect(() => {
         setLoading(true);
 
@@ -106,7 +112,7 @@ export const useGetActivity = ({ pageNumber = null, pageSize = null, query = nul
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [query, supervisorId, positionId, managerId, pageNumber, pageSize, responsibleManagerId, buildingId, environmentId]);
+    }, [startDate, endDate, query, supervisorId, positionId, managerId, pageNumber, pageSize, responsibleManagerId, buildingId, environmentId]);
 
 
     return {
