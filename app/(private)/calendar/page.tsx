@@ -1,15 +1,22 @@
 'use client';
 
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay, eachDayOfInterval, addMonths, subMonths, addWeeks, subWeeks, addDays as addDay, subDays, isToday, parse } from 'date-fns';
+import { filterStatusCalendarActivity } from '@/app/utils/calendarStatus';
+import { StyledMainContainer } from '@/app/styles/container/container';
+import ModalVisualizeDetail from "./component/ModalVisualizeDetail";
 import React, { useState, useMemo } from 'react';
 import { ptBR } from 'date-fns/locale';
 import { Box } from '@mui/material';
-import ModalVisualizeDetail from "./component/ModalVisualizeDetail";
 import { Data } from './data';
-import { StyledMainContainer } from '@/app/styles/container/container';
+
 
 // Definindo tipos para os dados recebidos
 interface ApprovalStatus {
+    title: string;
+    color: string;
+}
+
+interface StatusEnum {
     title: string;
     color: string;
 }
@@ -20,27 +27,19 @@ interface ActivityData {
     dimension: number;
     supervisor: string;
     manager: string;
+    statusEnum: StatusEnum;
     approvalStatus: ApprovalStatus;
     dateTime: string;
 }
 
-// Mapeamento de cores para status baseado nos dados recebidos
-const statusColors: Record<string, string> = {
-    'Aprovado': 'bg-green-100 border-green-500 text-green-800',
-    'Pendente': 'bg-yellow-100 border-yellow-500 text-yellow-800',
-    'Recusado': 'bg-red-100 border-red-500 text-red-800',
-    'DEFAULT': 'bg-gray-100 border-gray-300 text-gray-600'
-};
 
 export default function Calendar() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<'month' | 'week' | 'day'>('month');
     const [selectedActivity, setSelectedActivity] = useState<ActivityData | null>(null);
-    const [selectedDay, setSelectedDay] = useState<Date | null>(null);
 
     // Converter string de Data para objeto Date
     const parseActivityDate = (dateTimeString: string): Date => {
-        // Formato: "DD/MM/YYYY, HH:mm:ss"
         const [datePart, timePart] = dateTimeString.split(', ');
         const [day, month, year] = datePart.split('/');
         return parse(`${day}/${month}/${year} ${timePart}`, 'dd/MM/yyyy HH:mm:ss', new Date());
@@ -229,7 +228,6 @@ export default function Calendar() {
                         key={day.toString()}
                         className={`min-h-[170px] p-2 border border-gray-200 ${!isSameMonth(day, monthStart) ? 'bg-gray-50 text-gray-400' : ''
                             } ${isToday(day) ? 'bg-blue-50' : ''}`}
-                        onClick={() => dayActivities.length > 0 && setSelectedDay(cloneDay)}
                     >
                         <Box className="flex justify-between">
                             <span className={`text-sm font-medium ${isToday(day) ? 'bg-[#00b288] text-white rounded-full w-6 h-6 flex items-center justify-center' : ''}`}>
@@ -245,7 +243,7 @@ export default function Calendar() {
                             {dayActivities.slice(0, 4).map(activity => (
                                 <Box
                                     key={activity.id}
-                                    className={`text-xs p-1 rounded border cursor-pointer ${statusColors[activity.approvalStatus.title] || statusColors.DEFAULT}`}
+                                    className={`text-xs p-1 rounded border cursor-pointer ${filterStatusCalendarActivity(activity.statusEnum.title).color || filterStatusCalendarActivity('DEFAULT').color}`}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedActivity(activity);
@@ -264,7 +262,6 @@ export default function Calendar() {
                                     className="text-xs text-blue-500 text-center py-1 cursor-pointer hover:underline"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setSelectedDay(cloneDay);
                                     }}
                                 >
                                     +{dayActivities.length - 4} mais
@@ -296,7 +293,6 @@ export default function Calendar() {
                         <Box
                             key={day.toString()}
                             className={`min-h-32 p-3 rounded-lg border ${isToday(day) ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}
-                            onClick={() => dayActivities.length > 0 && setSelectedDay(day)}
                         >
                             <Box className="font-medium text-center mb-2">
                                 <Box className="text-gray-600 text-sm">{format(day, 'EEEE', { locale: ptBR })}</Box>
@@ -316,7 +312,8 @@ export default function Calendar() {
                                 {dayActivities.slice(0, 3).map(activity => (
                                     <Box
                                         key={activity.id}
-                                        className={`p-2 rounded text-sm cursor-pointer ${statusColors[activity.approvalStatus.title] || statusColors.DEFAULT
+                                        className={`p-2 rounded text-sm cursor-pointer ${filterStatusCalendarActivity(activity.statusEnum.title)?.color ||
+                                            filterStatusCalendarActivity('DEFAULT').color
                                             }`}
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -334,7 +331,6 @@ export default function Calendar() {
                                         className="text-xs text-blue-500 text-center py-1 cursor-pointer hover:underline"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setSelectedDay(day);
                                         }}
                                     >
                                         +{dayActivities.length - 3} mais atividades
@@ -365,40 +361,42 @@ export default function Calendar() {
                     </Box>
                 ) : (
                     <Box className="space-y-4">
-                        {dayActivities.map(activity => (
-                            <Box
-                                key={activity.id}
-                                className={`p-4 rounded-lg border cursor-pointer ${statusColors[activity.approvalStatus.title] || statusColors.DEFAULT
-                                    }`}
-                                onClick={() => setSelectedActivity(activity)}
-                            >
-                                <Box className="flex justify-between items-start">
-                                    <Box>
-                                        <h3 className="font-semibold">{activity.environment}</h3>
-                                        <p className="text-sm opacity-75 mt-1">
-                                            Dimensão: {activity.dimension}m²
-                                        </p>
-                                        <p className="text-sm opacity-75 mt-1">
-                                            {format(parseActivityDate(activity.dateTime), 'HH:mm')}
+                        {dayActivities.map(activity => {
+                            const statusInfo = filterStatusCalendarActivity(activity.statusEnum.title) ||
+                                filterStatusCalendarActivity('DEFAULT');
+
+                            return (
+                                <Box
+                                    key={activity.id}
+                                    className={`p-4 rounded-lg border cursor-pointer ${statusInfo.color}`}
+                                    onClick={() => setSelectedActivity(activity)}
+                                >
+                                    <Box className="flex justify-between items-start">
+                                        <Box>
+                                            <h3 className="font-semibold">{activity.environment}</h3>
+                                            <p className="text-sm opacity-75 mt-1">
+                                                Dimensão: {activity.dimension}m²
+                                            </p>
+                                            <p className="text-sm opacity-75 mt-1">
+                                                {format(parseActivityDate(activity.dateTime), 'HH:mm')}
+                                            </p>
+                                        </Box>
+                                    </Box>
+                                    <Box className="text-sm mt-2">
+                                        <p>Supervisor: {activity.supervisor}</p>
+                                        <p>Gerente: {activity.manager}</p>
+                                        <p className={`inline-block px-2 py-1 text-xs font-medium rounded-full mt-1 ${statusInfo.color}`}>
+                                            {statusInfo.title}
                                         </p>
                                     </Box>
-                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-white bg-opacity-50">
-                                        {activity.approvalStatus.title}
-                                    </span>
                                 </Box>
-                                <Box className="text-sm mt-2">
-                                    <p>Supervisor: {activity.supervisor}</p>
-                                    <p>Gerente: {activity.manager}</p>
-                                </Box>
-                            </Box>
-                        ))}
+                            );
+                        })}
                     </Box>
                 )}
             </Box>
         );
     };
-
-
 
     return (
         <StyledMainContainer>
@@ -419,7 +417,5 @@ export default function Calendar() {
                 handleChangeModalVisualize={setSelectedActivity}
             />
         </StyledMainContainer>
-
-
     );
 };

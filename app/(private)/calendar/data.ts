@@ -1,200 +1,173 @@
 export const Data = [
     {
-        id: 1,
+        id: 113,
         environment: "Ambiente 1",
         dimension: 10,
+        supervisor: "Warllei da Silva Martins",
+        manager: "Warllei da Silva Martins",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Pendente", color: "#FFA44D" },
         dateTime: "21/08/2025, 15:54:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Pendente",
-            color: "orange"
-        },
     },
     {
-        id: 2,
-        environment: "Ambiente 2",
-        dimension: 20,
-        dateTime: "22/08/2025, 10:00:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Aprovado",
-            color: "green"
-        },
-    },
-    {
-        id: 3,
-        environment: "Ambiente 3",
-        dimension: 30,
-        dateTime: "23/08/2025, 12:00:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Recusado",
-            color: "red"
-        },
-    },
-    {
-        id: 4,
-        environment: "Ambiente 4",
-        dimension: 40,
-        dateTime: "24/08/2025, 14:00:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Pendente",
-            color: "orange"
-        },
-    },
-    {
-        id: 5,
-        environment: "Ambiente 5",
-        dimension: 50,
-        dateTime: "25/08/2025, 16:00:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Aprovado",
-            color: "green"
-        },
-    },
-    // Mesma data do id 2
-    {
-        id: 6,
-        environment: "Ambiente 6",
-        dimension: 60,
-        dateTime: "22/08/2025, 11:30:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Pendente",
-            color: "orange"
-        },
-    },
-    // Mesma data do id 3
-    {
-        id: 7,
-        environment: "Ambiente 7",
-        dimension: 70,
-        dateTime: "23/08/2025, 17:45:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Aprovado",
-            color: "green"
-        },
-    },
-    // Mesma data do id 5
-    {
-        id: 8,
-        environment: "Ambiente 8",
-        dimension: 80,
-        dateTime: "25/08/2025, 09:15:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Recusado",
-            color: "red"
-        },
-    },
-    {
-        id: 9,
+        id: 114,
         environment: "Ambiente 1",
         dimension: 10,
-        dateTime: "21/08/2025, 15:54:00",
         supervisor: "Warllei da Silva Martins",
         manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Pendente",
-            color: "orange"
-        },
+        statusEnum: { title: "Justificativa Externa", color: "#FFA44D" },
+        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        dateTime: "29/08/2025, 17:08:00",
     },
     {
-        id: 10,
+        id: 140,
         environment: "Ambiente 2",
-        dimension: 20,
-        dateTime: "22/08/2025, 10:00:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Aprovado",
-            color: "green"
-        },
+        dimension: 10,
+        supervisor: "Ray Silva",
+        manager: "Ray Silva",
+        statusEnum: { title: "Justificativa Interna", color: "#FFA44D" },
+        approvalStatus: { title: "Pendente", color: "#FFA44D" },
+        dateTime: "29/08/2025, 18:56:00",
     },
     {
-        id: 11,
+        id: 141,
+        environment: "Ambiente 2",
+        dimension: 10,
+        supervisor: "Ray Silva",
+        manager: "Warllei da Silva Martins",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Pendente", color: "#FFA44D" },
+        dateTime: "30/08/2025, 18:57:00",
+    },
+    {
+        id: 142,
+        environment: "Ambiente 1",
+        dimension: 10,
+        supervisor: "Ray Silva",
+        manager: "Ray Silva",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Pendente", color: "#FFA44D" },
+        dateTime: "30/08/2025, 14:54:00",
+    },
+    {
+        id: 146,
+        environment: "Ambiente 1",
+        dimension: 10,
+        supervisor: "Ray Silva",
+        manager: "Warllei da Silva Martins",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Aprovado", color: "#00A614" },
+        dateTime: "23/08/2025, 12:18:00",
+    },
+    {
+        id: 147,
+        environment: "Ambiente 1",
+        dimension: 10,
+        supervisor: "Ray Silva",
+        manager: "Warllei da Silva Martins",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        dateTime: "24/08/2025, 12:18:00",
+    },
+    {
+        id: 148,
+        environment: "Ambiente 1",
+        dimension: 10,
+        supervisor: "Ray Silva",
+        manager: "Warllei da Silva Martins",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Aprovado", color: "#00A614" },
+        dateTime: "25/08/2025, 12:18:00",
+    },
+    {
+        id: 149,
+        environment: "Ambiente 1",
+        dimension: 10,
+        supervisor: "Ray Silva",
+        manager: "Warllei da Silva Martins",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        dateTime: "26/08/2025, 12:18:00",
+    },
+    {
+        id: 150,
+        environment: "Ambiente 1",
+        dimension: 10,
+        supervisor: "Ray Silva",
+        manager: "Warllei da Silva Martins",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Pendente", color: "#FFA44D" },
+        dateTime: "27/08/2025, 12:18:00",
+    },
+    // Novos itens para cobrir todos os status
+    {
+        id: 151,
         environment: "Ambiente 3",
-        dimension: 30,
-        dateTime: "23/08/2025, 12:00:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Recusado",
-            color: "red"
-        },
+        dimension: 5,
+        supervisor: "Ana Costa",
+        manager: "Ana Costa",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        dateTime: "04/09/2025, 08:00:00",
     },
     {
-        id: 12,
+        id: 152,
+        environment: "Ambiente 3",
+        dimension: 8,
+        supervisor: "Carlos Lima",
+        manager: "Carlos Lima",
+        statusEnum: { title: "Aberto", color: "#2E97FC" },
+        approvalStatus: { title: "Pendente", color: "#FFA44D" },
+        dateTime: "04/09/2025, 08:00:00",
+    },
+    {
+        id: 153,
         environment: "Ambiente 4",
-        dimension: 40,
-        dateTime: "24/08/2025, 14:00:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Pendente",
-            color: "orange"
-        },
+        dimension: 12,
+        supervisor: "Beatriz Souza",
+        manager: "Beatriz Souza",
+        statusEnum: { title: "Em Revisão", color: "#FFD400" },
+        approvalStatus: { title: "Aprovado", color: "#00A614" },
+        dateTime: "05/09/2025, 10:30:00",
     },
     {
-        id: 13,
+        id: 154,
+        environment: "Ambiente 4",
+        dimension: 15,
+        supervisor: "João Pedro",
+        manager: "João Pedro",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Aprovado", color: "#00A614" },
+        dateTime: "05/09/2025, 10:30:00",
+    },
+    {
+        id: 155,
         environment: "Ambiente 5",
-        dimension: 50,
-        dateTime: "25/08/2025, 16:00:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Aprovado",
-            color: "green"
-        },
+        dimension: 7,
+        supervisor: "Luana Martins",
+        manager: "Luana Martins",
+        statusEnum: { title: "Concluído", color: "#00A614" },
+        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        dateTime: "06/09/2025, 14:15:00",
     },
-    // Mesma data do id 2
     {
-        id: 14,
+        id: 156,
+        environment: "Ambiente 5",
+        dimension: 9,
+        supervisor: "Marcelo Lima",
+        manager: "Marcelo Lima",
+        statusEnum: { title: "Justificativa Interna", color: "#FFA44D" },
+        approvalStatus: { title: "Pendente", color: "#FFA44D" },
+        dateTime: "06/09/2025, 14:15:00",
+    },
+    {
+        id: 157,
         environment: "Ambiente 6",
-        dimension: 60,
-        dateTime: "22/08/2025, 11:30:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Pendente",
-            color: "orange"
-        },
-    },
-    // Mesma data do id 3
-    {
-        id: 15,
-        environment: "Ambiente 7",
-        dimension: 70,
-        dateTime: "23/08/2025, 17:45:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Aprovado",
-            color: "green"
-        },
-    },
-    // Mesma data do id 5
-    {
-        id: 16,
-        environment: "Ambiente 8",
-        dimension: 80,
-        dateTime: "25/08/2025, 09:15:00",
-        supervisor: "Warllei da Silva Martins",
-        manager: "Warllei da Silva Martins",
-        approvalStatus: {
-            title: "Recusado",
-            color: "red"
-        },
-    },
+        dimension: 11,
+        supervisor: "Patricia Souza",
+        manager: "Patricia Souza",
+        statusEnum: { title: "Justificativa Externa", color: "#FFA44D" },
+        approvalStatus: { title: "Pendente", color: "#FFA44D" },
+        dateTime: "07/09/2025, 09:45:00",
+    }
 ];

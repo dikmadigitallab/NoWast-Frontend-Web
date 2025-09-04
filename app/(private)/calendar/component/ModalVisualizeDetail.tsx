@@ -59,13 +59,20 @@ export default function ModalVisualizeDetail({
                         <DetailItem label="Supervisor:" value={modalVisualize?.supervisor} />
                         <DetailItem label="Gerente:" value={modalVisualize?.manager} />
                     </Box>
-
-                    <Box className="px-3 py-2 mb-5 rounded-md font-medium text-white inline-block" style={{ color: modalVisualize?.approvalStatus?.color, borderWidth: 1, borderColor: modalVisualize?.approvalStatus?.color, borderRadius: '100px', padding: '3px 8px' }} >
-                        {modalVisualize?.approvalStatus?.title}
+                    <Box className="flex flex-col gap-3 ">
+                        <Box className="text-sm font-semibold text-[#4B5563]">Status:</Box>
+                        <Box className="px-3 py-2 mb-5 rounded-md w-[fit-content] font-medium text-white inline-block" style={{ color: modalVisualize?.statusEnum?.color, borderWidth: 1, borderColor: modalVisualize?.statusEnum?.color, borderRadius: '100px', padding: '3px 8px' }} >
+                            {modalVisualize?.statusEnum?.title}
+                        </Box>
                     </Box>
+                    <Box className="flex flex-col gap-3 ">
+                        <Box className="text-sm font-semibold text-[#4B5563]">Aprovação:</Box>
+                        <Box className="px-3 py-2 mb-5 rounded-md w-[fit-content] font-medium text-white inline-block" style={{ color: modalVisualize?.approvalStatus?.color, borderWidth: 1, borderColor: modalVisualize?.approvalStatus?.color, borderRadius: '100px', padding: '3px 8px' }} >
+                            {modalVisualize?.approvalStatus?.title}
+                        </Box>
+                    </Box>
+
                 </Box>
-
-
             </Box>
         </Modal >
     );

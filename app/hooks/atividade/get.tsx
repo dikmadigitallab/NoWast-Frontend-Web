@@ -70,14 +70,13 @@ export const useGetActivity = ({ startDate = null, endDate = null, disablePagina
                 },
             });
 
-            console.log(response.data.data.items)
-
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
                 environment: item.environment?.name,
                 dimension: item.environment?.areaM2,
                 supervisor: item?.supervisor?.person?.name,
                 manager: item?.manager?.person?.name,
+                statusEnum: filterStatusActivity(item?.statusEnum),
                 approvalStatus: filterStatusActivity(item?.approvalStatus),
                 ppe: item?.ppe,
                 tools: item?.tools,
