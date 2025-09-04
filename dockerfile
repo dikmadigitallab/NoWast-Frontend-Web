@@ -1,7 +1,5 @@
 # Etapa base
 FROM node:20-alpine AS base
-
-# Dependências necessárias para Prisma e Next.js
 RUN apk add --no-cache libc6-compat openssl3 openssl-dev libssl3
 
 # ========================
@@ -10,13 +8,12 @@ RUN apk add --no-cache libc6-compat openssl3 openssl-dev libssl3
 FROM base AS deps
 WORKDIR /app
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-
 RUN \
-    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
-    else echo "Lockfile not found." && exit 1; \
-    fi
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
 # ========================
 # Etapa 2: Build
@@ -25,43 +22,37 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# (Opcional) Prisma generate se houver prisma/schema.prisma
-# RUN npx prisma generate
-
-# Build da aplicação
-RUN \
-  if [ -f yarn.lock ]; then yarn build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then pnpm build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+COPY .env.production .env  
+# garante que NEXT_PUBLIC_API_URL seja usado no build
+RUN if [ -f yarn.lock ]; then yarn build; \
+    elif [ -f package-lock.json ]; then npm run build; \
+    elif [ -f pnpm-lock.yaml ]; then pnpm build; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
 
 # ========================
 # Etapa 3: Produção
 # ========================
 FROM base AS runner
 WORKDIR /app
-
-# Configuração do ambiente
 ENV NODE_ENV=production
+ENV PORT=3001
 
 RUN addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 nextjs
+    && adduser --system --uid 1001 nextjs
 
-# Copia arquivos essenciais
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 
-# Permissões corretas
 RUN chown -R nextjs:nodejs /app
-
 USER nextjs
 
+#EXPOSE 3001
 # Porta
 EXPOSE 18649
+#EXPOSE 3001
 ENV PORT=18649
 ENV HOSTNAME="0.0.0.0"
 
