@@ -3,11 +3,13 @@
 import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
 export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
 
-    const { data: ambientes } = useGet({ url: "environment" });
+    const { setId } = useGetIDStore();
+    const { data: ambientes, loading } = useGet({ url: "environment" });
 
     return (
         <Box className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
@@ -21,12 +23,14 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                         <FormControl sx={formTheme} fullWidth error={!!errors.environmentId}>
                             <InputLabel id="ambiente-label">Ambiente</InputLabel>
                             <Select
+                                disabled={loading}
                                 label="Ambiente"
                                 {...field}
                                 value={field.value || ""}
                                 error={!!errors.environmentId}
                                 onChange={(e) => {
                                     field.onChange(e.target.value)
+                                    setId(e.target.value)
                                 }}
                             >
                                 {ambientes?.map((ambiente: any) => (
@@ -35,6 +39,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                                     </MenuItem>
                                 ))}
                             </Select>
+                            {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
                             {errors.environmentId && (
                                 <p className="text-red-500 text-xs mt-1">
                                     {errors.environmentId.message}

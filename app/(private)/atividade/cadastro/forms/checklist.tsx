@@ -1,17 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import {
-    Box,
-    Button,
-    FormControl,
-    IconButton,
-    InputLabel,
-    MenuItem,
-    Select,
-    CircularProgress,
-    Chip
-} from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, CircularProgress, Chip } from "@mui/material";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
@@ -20,15 +10,13 @@ import { IoMdClose } from 'react-icons/io';
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from "@/app/styles/tableTheme/theme";
-import { useGetIDStore } from '@/app/store/getIDStore';
 import { useGet } from '@/app/hooks/crud/get/useGet';
 
 type Service = { id: number, name: string };
 
 export default function FormCheckList({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any } }) {
 
-    const { id } = useGetIDStore();
-    const { data: services, loading } = useGet({ url: "service", environmentId: id });
+    const { data: services, loading } = useGet({ url: "service", environmentId: watch("environmentId") });
     const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
 
     const handleRemoveSelected = (value: string, field: keyof typeof selectedState, setSelectedState: any) => {
@@ -38,12 +26,7 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
         }));
     };
 
-    const renderChips = (
-        selected: string[],
-        field: keyof typeof selectedState,
-        setSelectedState: any,
-        items: Service[] = []
-    ) => {
+    const renderChips = (selected: string[], field: keyof typeof selectedState, setSelectedState: any, items: Service[] = []) => {
         const safeItems = Array.isArray(items) ? items : [];
         return (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -184,7 +167,7 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                 rows={watch("serviceItems") || []}
                 columns={columns}
                 localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                pageSizeOptions={[5, 10, 25]}
+                pageSizeOptions={[5, 25, 100]}
                 disableRowSelectionOnClick
                 sx={tableTheme}
                 getRowId={(row) => row.id}

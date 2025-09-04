@@ -3,6 +3,7 @@ name: Deploy Front-End Docker
 on:
   push:
     branches:
+      - main
       - dev
 
 jobs:
@@ -13,17 +14,33 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Copiar arquivos para o servidor
+      # Copiar arquivos main para a máquina 1
+      - name: Copiar arquivos main para o servidor
+        if: github.ref == 'refs/heads/main'
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST }}            # exemplo: 189.50.3.3
-          username: ${{ secrets.SERVER_USER }}         # exemplo: dikma
-          key: ${{ secrets.DEPLOY_KEY }}               # sua chave privada (sem senha)
-          port: 22206                                  # porta correta para acesso remoto
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22206
           source: "."
           target: "/var/www/nowaste-front-end"
 
-      - name: SSH e construir container Docker no servidor
+      # Copiar arquivos dev para a máquina 2
+      - name: Copiar arquivos dev para o servidor
+        if: github.ref == 'refs/heads/dev'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22207
+          source: "."
+          target: "/var/www/nowaste-front-end-homologacao"
+
+      # SSH e rodar Docker na máquina 1 (main)
+      - name: SSH e rodar Docker main
+        if: github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -32,7 +49,23 @@ jobs:
           port: 22206
           script: |
             cd /var/www/nowaste-front-end
-            docker stop  nowaste-front-end || true
-            docker rm  nowaste-front-end || true
+            docker stop nowaste-front-end || true
+            docker rm nowaste-front-end || true
             docker build -t nowaste-front-end .
             docker run -d -p 9003:18649 --name nowaste-front-end nowaste-front-end
+
+      # SSH e rodar Docker na máquina 2 (dev)
+      - name: SSH e rodar Docker dev
+        if: github.ref == 'refs/heads/dev'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22207
+          script: |
+            cd /var/www/nowaste-front-end-homologacao
+            docker stop nowaste-front-end-homologacao || true
+            docker rm nowaste-front-end-homologacao || true
+            docker build -t nowaste-front-end-homologacao .
+            docker run -d -p 9003:18649 --name nowaste-front-end-homologacao nowaste-front-end-homologacao

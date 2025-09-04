@@ -24,8 +24,9 @@ export default function DataGridAtividades() {
     const { setId } = useGetIDStore()
     const [isFilter, setIsFilter] = useState(false);
     const [visualize, setVisualize] = useState<any>(null);
-    const { data: activity, loading } = useGetActivity({});
     const [modalVisualize, setModalVisualize] = useState(false);
+    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 10 });
+    const { data: atividades, loading, pages } = useGetActivity({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize });
 
     const handleChangeModalEdit = (id: any) => {
         setId(id)
@@ -68,8 +69,12 @@ export default function DataGridAtividades() {
             field: 'approvalStatus',
             headerName: 'Status de Aprovação',
             width: 180,
-             renderCell: (params) => (
-                <span>{params.row?.approvalStatus.title}</span>
+            renderCell: (params) => (
+                <Box className="w-[fit-content] m-auto px-2 py-1 rounded-full  text-sm">
+                    <Box sx={{ color: params.row?.approvalStatus.color, borderWidth: 1, borderColor: params.row?.approvalStatus.color, borderRadius: '100px', padding: '3px 8px' }}>
+                        {params.row?.approvalStatus.title}
+                    </Box>
+                </Box>
             ),
         },
         {
@@ -148,19 +153,24 @@ export default function DataGridAtividades() {
                     )
                 }
 
-                {activity && !loading ?
+                {atividades && !loading ?
                     (<DataGrid
-                        rows={activity}
+                        rows={atividades || []}
                         columns={columns}
-                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                        initialState={{
-                            pagination: {
-                                paginationModel: {
-                                    pageSize: 10,
-                                },
-                            },
+                        rowCount={pages?.totalItems || 0} // total de registros da API
+                        paginationMode="server" // paginação no servidor
+                        paginationModel={{
+                            page: (pages?.pageNumber || 1) - 1, // DataGrid usa zero-based
+                            pageSize: pages?.pageSize || 10,
                         }}
-                        pageSizeOptions={[5, 10, 25]}
+                        onPaginationModelChange={(model) => {
+                            setPagination({
+                                pageNumber: model.page + 1, // volta para 1-based antes de mandar para API
+                                pageSize: model.pageSize,
+                            });
+                        }}
+                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+                        pageSizeOptions={[5, 10, 25, 100]}
                         disableRowSelectionOnClick
                         sx={{
                             '& .MuiDataGrid-columnHeaders': {
@@ -174,7 +184,9 @@ export default function DataGridAtividades() {
                                 backgroundColor: '#f0f0f0',
                             },
                         }}
-                    />) :
+                    />
+
+                    ) :
                     (<LoadingComponent />)
                 }
 

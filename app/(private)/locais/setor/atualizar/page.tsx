@@ -5,17 +5,18 @@ import { TextField, Box, FormControl, InputLabel, Select, MenuItem, Button, Moda
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useUpdate } from "@/app/hooks/crud/update/update";
-import { IoMdClose } from "react-icons/io";
-import { IoImagesOutline } from "react-icons/io5";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { StyledMainContainer } from "@/app/styles/container/container";
+import { IoImagesOutline } from "react-icons/io5";
+import { IoMdClose } from "react-icons/io";
+import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
+import { ImageUploader } from "@/app/components/imageGet";
 
 const setorSchema = z.object({
     name: z.string().min(1, "Nome do Setor é obrigatório"),
@@ -23,11 +24,7 @@ const setorSchema = z.object({
     latitude: z.string().min(1, "Latitude é obrigatória"),
     longitude: z.string().min(1, "Longitude é obrigatória"),
     description: z.string().min(1, "Descrição é obrigatória"),
-    building: z.object({
-        connect: z.object({
-            id: z.number().int().min(1, "ID do edifício é obrigatório").nullable()
-        })
-    })
+    buildingId: z.number().int().min(1, "ID do edifício é obrigatório")
 });
 
 type SetorFormValues = z.infer<typeof setorSchema>;
@@ -36,7 +33,7 @@ export default function EditarSetor() {
 
     const { control, handleSubmit, formState: { errors }, reset } = useForm<SetorFormValues>({
         resolver: zodResolver(setorSchema),
-        defaultValues: { name: "", radius: 0, latitude: "", longitude: "", description: "", building: { connect: { id: null } } },
+        defaultValues: { name: "", radius: 0, latitude: "", longitude: "", description: "", buildingId: 0 },
         mode: "onChange"
     });
 
@@ -67,23 +64,19 @@ export default function EditarSetor() {
     };
 
     useEffect(() => {
-        if (setor) reset({ ...setor, id: setor.id, building: { connect: { id: setor.buildingId } } });
+        if (setor) reset({ ...setor, id: setor.id, buildingId: setor.buildingId });
+
+        setImageInfo({
+            name: setor?.sectorFiles[0]?.file?.fileName,
+            type: setor?.sectorFiles[0]?.file?.fileType,
+            size: setor?.sectorFiles[0]?.file?.size,
+            previewUrl: setor?.sectorFiles[0]?.file?.url,
+        });
+
     }, [setor, reset]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
 
-        const imageData = {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            previewUrl: URL.createObjectURL(file),
-        };
-        setImageInfo(imageData);
-        setFile(file);
-    };
-    
+
     return (
         <StyledMainContainer>
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col gap-5 p-5 border border-[#5e58731f] rounded-lg">
@@ -158,10 +151,10 @@ export default function EditarSetor() {
                 </Box>
 
                 <Box className="w-full flex gap-2">
-                    <FormControl fullWidth error={!!errors.building?.connect?.id}>
+                    <FormControl fullWidth error={!!errors.buildingId}>
                         <InputLabel id="building-label">Prédio</InputLabel>
                         <Controller
-                            name="building.connect.id"
+                            name="buildingId"
                             control={control}
                             render={({ field }) => (
                                 <Select
@@ -169,7 +162,7 @@ export default function EditarSetor() {
                                     labelId="building-label"
                                     label="Prédios"
                                     value={field.value || ""}
-                                    error={!!errors.building?.connect?.id}
+                                    error={!!errors.buildingId}
                                 >
                                     <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
                                     {predios?.map((building: any) => (
@@ -180,39 +173,18 @@ export default function EditarSetor() {
                                 </Select>
                             )}
                         />
-                        {errors.building?.connect?.id && (
+                        {errors.buildingId && (
                             <p className="text-red-500 text-xs mt-1">
-                                {errors.building?.connect?.id.message}
+                                {errors.buildingId.message}
                             </p>
                         )}
                     </FormControl>
-                    <Box className="w-full h-[57px] flex  items-center border border-dashed relative border-[#5e58731f] rounded-lg cursor-pointer">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
-                            onChange={handleFileChange}
-                        />
-                        {imageInfo ? (
-                            <Box className="absolute w-full flex justify-between items-center p-3">
-                                <Box className="flex flex-row items-center gap-3">
-                                    <img src={imageInfo.previewUrl} alt="Preview" className="w-[30px] h-[30px]" />
-                                    <Box className="flex flex-col">
-                                        <p className="text-[.8rem] text-[#000000]">Nome: {imageInfo.name}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tipo: {imageInfo.type}</p>
-                                        <p className="text-[.6rem] text-[#242424]">Tamanho: {(imageInfo.size / 1024).toFixed(2)} KB</p>
-                                    </Box>
-                                </Box>
-                                <IoMdClose color="#5E5873" onClick={() => setImageInfo(null)} />
-                            </Box>
-                        )
-                            :
-                            <Box className="absolute w-full flex justify-center items-center p-3 gap-2 pointer-events-none">
-                                <IoImagesOutline color="#5E5873" size={25} />
-                                <p className="text-[.8rem] text-[#000000]">Selecione uma foto do EPI</p>
-                            </Box>
-                        }
-                    </Box>
+
+                    <ImageUploader
+                        defaultValue={imageInfo}
+                        label="Selecione uma foto do EPI"
+                        onChange={(file: any) => setFile(file)}
+                    />
                 </Box>
 
                 <Controller

@@ -1,3 +1,4 @@
+
 import { useAuthStore } from '@/app/store/storeApp';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
@@ -11,14 +12,15 @@ export const useLogin = () => {
     const { setId, setUserInfo, setUserType } = useAuthStore();
 
     const login = async (data: string, password: string) => {
-
+       alert('origin branch dev')
         setIsLoading(true);
         setError(null);
 
         try {
             const clearFormatedData = data?.replace(/[.\-]/g, '')
-            const response = await api.post('/auth', { document: clearFormatedData, password });
+            const response = await api.post('/auth', { document: clearFormatedData, password});
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
+           
 
             if (response.data.data.user.role.name === "Administrador Dikma") {
                 setUserType("ADM_DIKMA");

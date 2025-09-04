@@ -135,10 +135,7 @@ export default function CadastroEPI() {
                         </FormControl>
                     </Box>
 
-                    <ImageUploader
-                        label="Selecione uma foto do EPI"
-                        onChange={(file: any) => setFile(file)}
-                    />
+                    <ImageUploader label="Selecione uma foto do EPI" onChange={(file: any) => setFile(file)} />
 
                     <Controller
                         name="description"
@@ -164,7 +161,6 @@ export default function CadastroEPI() {
                 </Box>
             </form>
 
-            {/* Modal de cancelamento */}
             <Modal open={openDisableModal} onClose={handleCloseDisableModal}>
                 <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
                     <Box className="flex flex-col gap-[30px]">

@@ -8,7 +8,7 @@ import { filterStatusActivity } from "@/app/utils/statusActivity";
 
 
 export interface UseGetParams {
-    page?: number,
+    pageNumber?: number | null,
     pageSize?: number | null,
     query?: string | null,
     supervisorId?: number | null,
@@ -19,12 +19,13 @@ export interface UseGetParams {
     environmentId?: number | null
 }
 
-export const useGetActivity = ({ page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
+export const useGetActivity = ({ pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const { setIdService, setId } = useGetIDStore();
     const [data, setData] = useState<any>(null);
+    const [pages, setPages] = useState({ pageNumber: 0, pageSize: 0, totalItems: 0, totalPages: 0 });
 
     const get = async () => {
 
@@ -43,8 +44,7 @@ export const useGetActivity = ({ page = 1, pageSize = null, query = null, superv
         try {
             const params = new URLSearchParams();
 
-            params.append("disablePagination", "true");
-            params.append("page", String(page));
+            params.append("pageNumber", String(pageNumber));
 
             if (query !== null) params.append("query", query.trim());
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
@@ -78,6 +78,12 @@ export const useGetActivity = ({ page = 1, pageSize = null, query = null, superv
                 dateTime: new Date(item.dateTime).toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
             })) || [];
 
+            setPages({
+                pageNumber: response?.data?.data?.pageNumber,
+                pageSize: response?.data?.data?.pageSize,
+                totalItems: response?.data?.data?.totalCount,
+                totalPages: response?.data?.data?.totalPages,
+            });
             setData(refactory);
         } catch (error) {
             setError("Erro ao buscar setores empresariais");
@@ -100,12 +106,13 @@ export const useGetActivity = ({ page = 1, pageSize = null, query = null, superv
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId, environmentId]);
+    }, [query, supervisorId, positionId, managerId, pageNumber, pageSize, responsibleManagerId, buildingId, environmentId]);
 
 
     return {
         loading,
         error,
-        data
+        data,
+        pages
     };
 };

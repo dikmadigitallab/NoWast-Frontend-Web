@@ -331,7 +331,7 @@ export default function FormServicos() {
                                 },
                             },
                         }}
-                        pageSizeOptions={[5, 10, 25]}
+                        pageSizeOptions={[5, 25, 100]}
                         disableRowSelectionOnClick
                         sx={{
                             '& .MuiDataGrid-columnHeaders': {
