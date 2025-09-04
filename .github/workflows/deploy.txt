@@ -1,0 +1,38 @@
+name: Deploy Front-End Docker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Copiar arquivos para o servidor
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}            # exemplo: 189.50.3.3
+          username: ${{ secrets.SERVER_USER }}         # exemplo: dikma
+          key: ${{ secrets.DEPLOY_KEY }}               # sua chave privada (sem senha)
+          port: 22206                                  # porta correta para acesso remoto
+          source: "."
+          target: "/var/www/nowaste-front-end"
+
+      - name: SSH e construir container Docker no servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22206
+          script: |
+            cd /var/www/nowaste-front-end
+            docker stop  nowaste-front-end || true
+            docker rm  nowaste-front-end || true
+            docker build -t nowaste-front-end .
+            docker run -d -p 9003:18649 --name nowaste-front-end nowaste-front-end
