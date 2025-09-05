@@ -9,6 +9,8 @@ import { ptBR } from 'date-fns/locale';
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { useGetActivity } from '@/app/hooks/atividade/get';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+import { useAuthStore } from '@/app/store/storeApp';
 
 // Definindo tipos para os dados recebidos
 interface ApprovalStatus {
@@ -33,13 +35,13 @@ interface ActivityData {
 }
 
 export default function Calendar() {
+
+    const { data: setor } = useGet({ url: 'sector' });
+    const [isLoading, setIsLoading] = useState(false);
+    const [filters, setFilters] = useState({ sectorId: '' });
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedActivity, setSelectedActivity] = useState<ActivityData | null>(null);
-    const [atividadeFilters, setAtividadeFilters] = useState({
-        mes: (new Date().getMonth() + 1).toString().padStart(2, '0'),
-        ano: new Date().getFullYear().toString()
-    });
-    const [isLoading, setIsLoading] = useState(false);
+    const [atividadeFilters, setAtividadeFilters] = useState({ mes: (new Date().getMonth() + 1).toString().padStart(2, '0'), ano: new Date().getFullYear().toString() });
 
     const { data: atividades, loading } = useGetActivity({
         disablePagination: true,
@@ -184,7 +186,7 @@ export default function Calendar() {
         const dateFormat = "MMMM 'de' yyyy";
 
         return (
-            <Box className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg shadow">
+            <Box className="flex items-center justify-between mb-6 p-4 bg-white rounded-[2px] border border-gray-200">
                 <Box className="flex items-center space-x-4">
                     <button
                         onClick={goToPrevious}
@@ -220,7 +222,30 @@ export default function Calendar() {
                 </Box>
 
                 <Box className="flex space-x-2">
+
+
                     <Box className="flex gap-2">
+                        <FormControl sx={formTheme} className="w-[120px]">
+                            <InputLabel>Setor</InputLabel>
+                            <Select
+                                disabled={loading}
+                                label="Setor"
+                                value={filters.sectorId}
+                                onChange={(e) =>
+                                    setFilters((prev) => ({ ...prev, sectorId: e.target.value }))
+                                }
+                            >
+                                <MenuItem value="" disabled>
+                                    Selecione um setor...
+                                </MenuItem>
+                                {Array?.isArray(setor) &&
+                                    setor.map((setor) => (
+                                        <MenuItem key={setor?.id} value={setor?.id}>
+                                            {setor?.name}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                        </FormControl>
                         <FormControl sx={formTheme} className="w-[120px]">
                             <InputLabel>Mês</InputLabel>
                             <Select
@@ -237,7 +262,7 @@ export default function Calendar() {
                                 ))}
                             </Select>
                         </FormControl>
-                        <FormControl sx={formTheme} className="w-[100px]">
+                        <FormControl sx={formTheme} className="w-[120px]">
                             <InputLabel>Ano</InputLabel>
                             <Select
                                 name="ano"
@@ -326,7 +351,7 @@ export default function Calendar() {
                             {dayActivities.slice(0, 4).map(activity => (
                                 <Box
                                     key={activity.id}
-                                    className={`text-xs p-1 rounded border cursor-pointer ${filterStatusCalendarActivity(activity.statusEnum.title).color || filterStatusCalendarActivity('DEFAULT').color}`}
+                                    className={`text-xs p-1 rounded-[5px] border cursor-pointer ${filterStatusCalendarActivity(activity.approvalStatus.title).color || filterStatusCalendarActivity('DEFAULT').color}`}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedActivity(activity);

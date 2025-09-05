@@ -172,7 +172,6 @@ export default function AtividadeAtualizar() {
 
         if (atividade) {
 
-            console.log(atividade);
             setValue('description', atividade?.description);
             setValue('environmentId', atividade?.environmentId);
             setValue('statusEnum', atividade?.statusEnum);
