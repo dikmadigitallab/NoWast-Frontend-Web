@@ -26,7 +26,7 @@ jobs:
           source: "."
           target: "/var/www/nowaste-front-end"
 
-      # Copiar arquivos dev para a máquina 2
+      # Copiar arquivos dev para a máquina 2 (DEV)
       - name: Copiar arquivos dev para o servidor
         if: github.ref == 'refs/heads/dev'
         uses: appleboy/scp-action@v0.1.7
