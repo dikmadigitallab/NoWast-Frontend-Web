@@ -23,8 +23,6 @@ export const useGetDashboardItems = ({ startDate = null, endDate = null, userId 
             return;
         }
 
-        console.log("teste")
-
         try {
 
             const params = new URLSearchParams();

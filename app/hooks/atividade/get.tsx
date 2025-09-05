@@ -47,8 +47,7 @@ export const useGetActivity = ({ startDate = null, endDate = null, disablePagina
         try {
             const params = new URLSearchParams();
 
-            params.append("pageNumber", String(pageNumber));
-
+            if (pageNumber === null) params.append("pageNumber", "1");
             if (startDate !== null) params.append("startDate", String(startDate).trim());
             if (endDate !== null) params.append("endDate", String(endDate).trim());
             if (disablePagination !== null) params.append("disablePagination", String(disablePagination).trim());

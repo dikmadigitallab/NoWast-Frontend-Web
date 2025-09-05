@@ -4,14 +4,13 @@ export const statusColors: Record<string, string> = {
     'Aberto': 'bg-[#2E97FC] border-[#2E97FC] text-white',
     'Aprovado': 'bg-[#00A614] border-[#00A614] text-white',
     'Rejeitado': 'bg-[#FF0000] border-[#FF0000] text-white',
-    'Justificativa Interna': 'bg-[#FFA44D] border-[#FFA44D] text-white',
-    'Justificativa Externa': 'bg-[#FFA44D] border-[#FFA44D] text-white',
+    'Justificativa Interna': 'bg-[#00708e] border-[#00708e] text-white',
+    'Justificativa Externa': 'bg-[#008e78] border-[#008e78] text-white',
     'Em Revisão': 'bg-[#ffd507] border-[#ffd507] text-black',
     'DEFAULT': 'bg-gray-100 border-gray-300 text-gray-600'
 };
 
 export const filterStatusCalendarActivity = (status: string): { title: string; color: string } => {
-    console.log('Filtering status:', status); // Log do status recebido
     switch (status) {
         case 'Aberto':
             return { title: 'Aberto', color: statusColors['Aberto'] };

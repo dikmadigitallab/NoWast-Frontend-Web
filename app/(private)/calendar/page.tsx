@@ -4,11 +4,11 @@ import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSa
 import { filterStatusCalendarActivity } from '@/app/utils/calendarStatus';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import ModalVisualizeDetail from "./component/ModalVisualizeDetail";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ptBR } from 'date-fns/locale';
-import { Box } from '@mui/material';
-import { Data } from './data';
-
+import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { formTheme } from '@/app/styles/formTheme/theme';
+import { useGetActivity } from '@/app/hooks/atividade/get';
 
 // Definindo tipos para os dados recebidos
 interface ApprovalStatus {
@@ -32,107 +32,164 @@ interface ActivityData {
     dateTime: string;
 }
 
-
 export default function Calendar() {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [view, setView] = useState<'month' | 'week' | 'day'>('month');
     const [selectedActivity, setSelectedActivity] = useState<ActivityData | null>(null);
+    const [atividadeFilters, setAtividadeFilters] = useState({
+        mes: (new Date().getMonth() + 1).toString().padStart(2, '0'),
+        ano: new Date().getFullYear().toString()
+    });
+    const [isLoading, setIsLoading] = useState(false);
+
+    const { data: atividades, loading } = useGetActivity({
+        disablePagination: true,
+        startDate: `${atividadeFilters.ano}-${atividadeFilters.mes}-01`,
+        endDate: `${atividadeFilters.ano}-${atividadeFilters.mes}-${new Date(parseInt(atividadeFilters.ano), parseInt(atividadeFilters.mes), 0).getDate()}`,
+    });
 
     // Converter string de Data para objeto Date
     const parseActivityDate = (dateTimeString: string): Date => {
-        const [datePart, timePart] = dateTimeString.split(', ');
-        const [day, month, year] = datePart.split('/');
-        return parse(`${day}/${month}/${year} ${timePart}`, 'dd/MM/yyyy HH:mm:ss', new Date());
+        try {
+            const [datePart, timePart] = dateTimeString.split(', ');
+            const [day, month, year] = datePart.split('/');
+            return parse(`${day}/${month}/${year} ${timePart}`, 'dd/MM/yyyy HH:mm:ss', new Date());
+        } catch (error) {
+            console.error('Erro ao parsear data:', dateTimeString, error);
+            return new Date();
+        }
     };
 
     const filteredActivities = useMemo(() => {
-        if (view === 'day') {
-            return Data.filter(activity =>
-                isSameDay(parseActivityDate(activity.dateTime), currentDate)
-            );
-        } else if (view === 'week') {
-            const weekStart = startOfWeek(currentDate);
-            const weekEnd = endOfWeek(currentDate);
-            return Data.filter(activity => {
-                const activityDate = parseActivityDate(activity.dateTime);
-                return activityDate >= weekStart && activityDate <= weekEnd;
-            });
-        } else {
-            // Vista mensal - filtrar atividades do mês atual
-            const monthStart = startOfMonth(currentDate);
-            const monthEnd = endOfMonth(currentDate);
-            return Data.filter(activity => {
+        if (!atividades) return [];
+
+        const monthStart = startOfMonth(currentDate);
+        const monthEnd = endOfMonth(currentDate);
+
+        return atividades.filter((activity: ActivityData) => {
+            try {
                 const activityDate = parseActivityDate(activity.dateTime);
                 return activityDate >= monthStart && activityDate <= monthEnd;
-            });
-        }
-    }, [currentDate, view]);
+            } catch (error) {
+                console.error('Erro ao filtrar atividade:', activity, error);
+                return false;
+            }
+        });
+    }, [atividades, currentDate]);
 
     // Agrupar atividades por data para facilitar o acesso
     const activitiesByDate = useMemo(() => {
         const grouped: Record<string, ActivityData[]> = {};
 
-        filteredActivities.forEach(activity => {
-            const dateKey = format(parseActivityDate(activity.dateTime), 'yyyy-MM-dd');
-            if (!grouped[dateKey]) {
-                grouped[dateKey] = [];
+        filteredActivities.forEach((activity: ActivityData) => {
+            try {
+                const dateKey = format(parseActivityDate(activity.dateTime), 'yyyy-MM-dd');
+                if (!grouped[dateKey]) {
+                    grouped[dateKey] = [];
+                }
+                grouped[dateKey].push(activity);
+            } catch (error) {
+                console.error('Erro ao agrupar atividade:', activity, error);
             }
-            grouped[dateKey].push(activity);
         });
 
         return grouped;
     }, [filteredActivities]);
 
-    // Navegação no calendário
+    // Navegação no calendário - Corrigido para aguardar a requisição
     const goToPrevious = () => {
-        if (view === 'day') {
-            setCurrentDate(prev => subDays(prev, 1));
-        } else if (view === 'week') {
-            setCurrentDate(prev => subWeeks(prev, 1));
-        } else {
-            setCurrentDate(prev => subMonths(prev, 1));
-        }
+        setIsLoading(true);
+        const newDate = subMonths(currentDate, 1);
+        setCurrentDate(newDate);
+        setAtividadeFilters(prev => ({
+            ...prev,
+            mes: (newDate.getMonth() + 1).toString().padStart(2, '0'),
+            ano: newDate.getFullYear().toString()
+        }));
     };
 
     const goToNext = () => {
-        if (view === 'day') {
-            setCurrentDate(prev => addDay(prev, 1));
-        } else if (view === 'week') {
-            setCurrentDate(prev => addWeeks(prev, 1));
-        } else {
-            setCurrentDate(prev => addMonths(prev, 1));
-        }
+        setIsLoading(true);
+        const newDate = addMonths(currentDate, 1);
+        setCurrentDate(newDate);
+        setAtividadeFilters(prev => ({
+            ...prev,
+            mes: (newDate.getMonth() + 1).toString().padStart(2, '0'),
+            ano: newDate.getFullYear().toString()
+        }));
     };
 
     const goToToday = () => {
-        setCurrentDate(new Date());
+        setIsLoading(true);
+        const today = new Date();
+        setCurrentDate(today);
+        setAtividadeFilters({
+            mes: (today.getMonth() + 1).toString().padStart(2, '0'),
+            ano: today.getFullYear().toString()
+        });
+    };
+
+    // Resetar loading quando os dados chegarem
+    useEffect(() => {
+        if (!loading && atividades) {
+            setIsLoading(false);
+        }
+    }, [loading, atividades]);
+
+    // Opções para os selects de mês e ano
+    const monthOptions = [
+        { value: '01', label: 'Janeiro' },
+        { value: '02', label: 'Fevereiro' },
+        { value: '03', label: 'Março' },
+        { value: '04', label: 'Abril' },
+        { value: '05', label: 'Maio' },
+        { value: '06', label: 'Junho' },
+        { value: '07', label: 'Julho' },
+        { value: '08', label: 'Agosto' },
+        { value: '09', label: 'Setembro' },
+        { value: '10', label: 'Outubro' },
+        { value: '11', label: 'Novembro' },
+        { value: '12', label: 'Dezembro' }
+    ];
+
+    // Gerar opções de anos (dos últimos 5 anos até o ano atual)
+    const currentYear = new Date().getFullYear();
+    const yearOptions = Array.from({ length: 5 }, (_, i) => ({
+        value: (currentYear - i).toString(),
+        label: (currentYear - i).toString()
+    }));
+
+    const handleAtividadeFilterChange = (event: any) => {
+        const { name, value } = event.target;
+        setIsLoading(true);
+
+        // Obter os novos valores baseados na mudança atual
+        const newMes = name === 'mes' ? value : atividadeFilters.mes;
+        const newAno = name === 'ano' ? value : atividadeFilters.ano;
+
+        setAtividadeFilters(prev => ({
+            ...prev,
+            [name]: value
+        }));
+
+        const newDate = new Date(
+            parseInt(newAno),
+            parseInt(newMes) - 1,
+            1
+        );
+        setCurrentDate(newDate);
     };
 
     // Renderizar cabeçalho com controles de navegação
     const renderHeader = () => {
-        let dateFormat = '';
-
-        if (view === 'day') {
-            dateFormat = "d 'de' MMMM 'de' yyyy";
-        } else if (view === 'week') {
-            const weekStart = startOfWeek(currentDate);
-            const weekEnd = endOfWeek(currentDate);
-
-            if (isSameMonth(weekStart, weekEnd)) {
-                dateFormat = "d 'a' d 'de' MMMM 'de' yyyy";
-            } else {
-                dateFormat = "d 'de' MMMM 'a' d 'de' MMMM 'de' yyyy";
-            }
-        } else {
-            dateFormat = "MMMM 'de' yyyy";
-        }
+        const dateFormat = "MMMM 'de' yyyy";
 
         return (
             <Box className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg shadow">
                 <Box className="flex items-center space-x-4">
                     <button
                         onClick={goToPrevious}
-                        className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                        disabled={isLoading}
+                        className="p-2 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -141,14 +198,16 @@ export default function Calendar() {
 
                     <button
                         onClick={goToToday}
-                        className="px-4 py-2 bg-[#00b288] text-white rounded-md hover:bg-[#00b288] transition-colors"
+                        disabled={isLoading}
+                        className="px-4 py-2 bg-[#00b288] text-white rounded-md hover:bg-[#00b288] transition-colors disabled:opacity-50"
                     >
                         Hoje
                     </button>
 
                     <button
                         onClick={goToNext}
-                        className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                        disabled={isLoading}
+                        className="p-2 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
@@ -161,27 +220,40 @@ export default function Calendar() {
                 </Box>
 
                 <Box className="flex space-x-2">
-                    <button
-                        onClick={() => setView('day')}
-                        className={`px-4 py-2 rounded-md transition-colors ${view === 'day' ? 'bg-[#00b288] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                    >
-                        Dia
-                    </button>
-                    <button
-                        onClick={() => setView('week')}
-                        className={`px-4 py-2 rounded-md transition-colors ${view === 'week' ? 'bg-[#00b288] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                    >
-                        Semana
-                    </button>
-                    <button
-                        onClick={() => setView('month')}
-                        className={`px-4 py-2 rounded-md transition-colors ${view === 'month' ? 'bg-[#00b288] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                    >
-                        Mês
-                    </button>
+                    <Box className="flex gap-2">
+                        <FormControl sx={formTheme} className="w-[120px]">
+                            <InputLabel>Mês</InputLabel>
+                            <Select
+                                name="mes"
+                                value={atividadeFilters.mes}
+                                label="Mês"
+                                onChange={handleAtividadeFilterChange}
+                                disabled={isLoading}
+                            >
+                                {monthOptions.map(month => (
+                                    <MenuItem key={month.value} value={month.value}>
+                                        {month.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <FormControl sx={formTheme} className="w-[100px]">
+                            <InputLabel>Ano</InputLabel>
+                            <Select
+                                name="ano"
+                                value={atividadeFilters.ano}
+                                label="Ano"
+                                onChange={handleAtividadeFilterChange}
+                                disabled={isLoading}
+                            >
+                                {yearOptions.map(year => (
+                                    <MenuItem key={year.value} value={year.value}>
+                                        {year.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
                 </Box>
             </Box>
         );
@@ -190,13 +262,16 @@ export default function Calendar() {
     // Renderizar dias da semana
     const renderDays = () => {
         const days = [];
-        const dateFormat = "EEEEEE"; // Formato abreviado (2 letras)
+        const dateFormat = "EEEEEE";
         const startDate = startOfWeek(currentDate);
 
         for (let i = 0; i < 7; i++) {
             const day = addDays(startDate, i);
             days.push(
-                <Box key={i} className="text-center py-2 font-medium text-gray-600">
+                <Box
+                    key={i}
+                    className="text-center py-2 font-medium text-gray-600 border-r border-gray-200 last:border-r-0"
+                >
                     {format(day, dateFormat, { locale: ptBR })}
                 </Box>
             );
@@ -205,8 +280,16 @@ export default function Calendar() {
         return <Box className="grid grid-cols-7 mb-2">{days}</Box>;
     };
 
-    // Renderizar células do mês com melhor visualização para múltiplas atividades
+    // Renderizar células do mês
     const renderCells = () => {
+        if (isLoading) {
+            return (
+                <Box className="flex justify-center items-center h-64">
+                    <Box className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00b288]"></Box>
+                </Box>
+            );
+        }
+
         const monthStart = startOfMonth(currentDate);
         const monthEnd = endOfMonth(monthStart);
         const startDate = startOfWeek(monthStart);
@@ -258,12 +341,7 @@ export default function Calendar() {
                                 </Box>
                             ))}
                             {dayActivities.length > 4 && (
-                                <Box
-                                    className="text-xs text-blue-500 text-center py-1 cursor-pointer hover:underline"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                    }}
-                                >
+                                <Box className="text-xs text-blue-500 text-center py-1">
                                     +{dayActivities.length - 4} mais
                                 </Box>
                             )}
@@ -278,139 +356,11 @@ export default function Calendar() {
         return <Box className="calendar-body">{rows}</Box>;
     };
 
-    // Renderizar vista de semana
-    const renderWeekView = () => {
-        const weekStart = startOfWeek(currentDate);
-        const days = eachDayOfInterval({ start: weekStart, end: endOfWeek(weekStart) });
-
-        return (
-            <Box className="grid grid-cols-7 gap-4">
-                {days.map((day) => {
-                    const dateKey = format(day, 'yyyy-MM-dd');
-                    const dayActivities = activitiesByDate[dateKey] || [];
-
-                    return (
-                        <Box
-                            key={day.toString()}
-                            className={`min-h-32 p-3 rounded-lg border ${isToday(day) ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}
-                        >
-                            <Box className="font-medium text-center mb-2">
-                                <Box className="text-gray-600 text-sm">{format(day, 'EEEE', { locale: ptBR })}</Box>
-                                <Box className="flex items-center justify-center">
-                                    <Box className={`text-lg ${isToday(day) ? 'text-blue-600 font-bold' : ''}`}>
-                                        {format(day, 'd')}
-                                    </Box>
-                                    {dayActivities.length > 0 && (
-                                        <span className="ml-1 text-xs bg-blue-100 text-blue-800 rounded-full px-1.5">
-                                            {dayActivities.length}
-                                        </span>
-                                    )}
-                                </Box>
-                            </Box>
-
-                            <Box className="space-y-2 mt-2">
-                                {dayActivities.slice(0, 3).map(activity => (
-                                    <Box
-                                        key={activity.id}
-                                        className={`p-2 rounded text-sm cursor-pointer ${filterStatusCalendarActivity(activity.statusEnum.title)?.color ||
-                                            filterStatusCalendarActivity('DEFAULT').color
-                                            }`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedActivity(activity);
-                                        }}
-                                    >
-                                        <Box className="font-medium truncate">{activity.environment}</Box>
-                                        <Box className="text-xs opacity-75">
-                                            {format(parseActivityDate(activity.dateTime), 'HH:mm')}
-                                        </Box>
-                                    </Box>
-                                ))}
-                                {dayActivities.length > 3 && (
-                                    <Box
-                                        className="text-xs text-blue-500 text-center py-1 cursor-pointer hover:underline"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                    >
-                                        +{dayActivities.length - 3} mais atividades
-                                    </Box>
-                                )}
-                            </Box>
-                        </Box>
-                    );
-                })}
-            </Box>
-        );
-    };
-
-    // Renderizar vista de dia
-    const renderDayView = () => {
-        const dateKey = format(currentDate, 'yyyy-MM-dd');
-        const dayActivities = activitiesByDate[dateKey] || [];
-
-        return (
-            <Box className="bg-white rounded-lg shadow p-4">
-                <Box className="text-xl font-bold text-center mb-6">
-                    {format(currentDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                </Box>
-
-                {dayActivities.length === 0 ? (
-                    <Box className="text-center text-gray-500 py-8">
-                        Nenhuma atividade para este dia
-                    </Box>
-                ) : (
-                    <Box className="space-y-4">
-                        {dayActivities.map(activity => {
-                            const statusInfo = filterStatusCalendarActivity(activity.statusEnum.title) ||
-                                filterStatusCalendarActivity('DEFAULT');
-
-                            return (
-                                <Box
-                                    key={activity.id}
-                                    className={`p-4 rounded-lg border cursor-pointer ${statusInfo.color}`}
-                                    onClick={() => setSelectedActivity(activity)}
-                                >
-                                    <Box className="flex justify-between items-start">
-                                        <Box>
-                                            <h3 className="font-semibold">{activity.environment}</h3>
-                                            <p className="text-sm opacity-75 mt-1">
-                                                Dimensão: {activity.dimension}m²
-                                            </p>
-                                            <p className="text-sm opacity-75 mt-1">
-                                                {format(parseActivityDate(activity.dateTime), 'HH:mm')}
-                                            </p>
-                                        </Box>
-                                    </Box>
-                                    <Box className="text-sm mt-2">
-                                        <p>Supervisor: {activity.supervisor}</p>
-                                        <p>Gerente: {activity.manager}</p>
-                                        <p className={`inline-block px-2 py-1 text-xs font-medium rounded-full mt-1 ${statusInfo.color}`}>
-                                            {statusInfo.title}
-                                        </p>
-                                    </Box>
-                                </Box>
-                            );
-                        })}
-                    </Box>
-                )}
-            </Box>
-        );
-    };
-
     return (
         <StyledMainContainer>
             {renderHeader()}
-
-            {view === 'month' && (
-                <>
-                    {renderDays()}
-                    {renderCells()}
-                </>
-            )}
-
-            {view === 'week' && renderWeekView()}
-            {view === 'day' && renderDayView()}
+            {renderDays()}
+            {renderCells()}
 
             <ModalVisualizeDetail
                 modalVisualize={selectedActivity}

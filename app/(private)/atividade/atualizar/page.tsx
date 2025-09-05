@@ -171,6 +171,8 @@ export default function AtividadeAtualizar() {
     useEffect(() => {
 
         if (atividade) {
+
+            console.log(atividade);
             setValue('description', atividade?.description);
             setValue('environmentId', atividade?.environmentId);
             setValue('statusEnum', atividade?.statusEnum);
@@ -180,6 +182,8 @@ export default function AtividadeAtualizar() {
             setValue('managerId', atividade?.managerId);
             setValue('observation', atividade?.observation || '');
             setValue('hasRecurrence', atividade?.recurrenceId ? 'true' : 'false');
+            setValue("recurrenceFinalDate", atividade?.recurrence?.endDateTime || '');
+            setValue("recurrenceType", atividade?.recurrence?.type || '');
             setValue('approvalStatus', atividade?.approvalStatus);
             setValue('approvalDate', atividade?.approvalDate ? atividade?.approvalDate : '');
             setValue('approvalUpdatedByUserId', atividade?.approvalUpdatedByUserId || null);

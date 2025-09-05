@@ -6,8 +6,8 @@ export const statusColors: Record<string, string> = {
     'Leve': '#FFD400',
     'Aprovado': '#00A614',
     'Rejeitado': '#FF0000',
-    'Justificativa Interna': '#FFA44D',
-    'Justificativa Externa': '#FFA44D',
+    'Justificativa Interna': '#00708e',
+    'Justificativa Externa': '#008e78',
     'DEFAULT': 'bg-gray-100'
 };
 

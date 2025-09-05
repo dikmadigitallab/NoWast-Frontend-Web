@@ -96,15 +96,15 @@ export default function Atividades() {
         { name: 'Concluídas', total: atividades?.completedActivities ?? 0, color: '#00CB65' },
         { name: 'Em Aberto', total: atividades?.openActivities ?? 0, color: '#2090FF' },
         { name: 'Pendentes', total: atividades?.pendingActivities ?? 0, color: '#FF9920' },
-        { name: 'Just/ Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#d35400' },
-        { name: 'Just/ Externas', total: atividades?.justifiedActivities ?? 0, color: '#27ae60' },
+        { name: 'Just/Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#00708e' },
+        { name: 'Just/Externas', total: atividades?.justifiedActivities ?? 0, color: '#008e78' },
       ]
     },
     {
       title: "Execuções",
       data: [
-        { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#00CB65' },
-        { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#2090FF' },
+        { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#7367f0' },
+        { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#ea5455' },
       ]
     },
     {
@@ -287,7 +287,7 @@ export default function Atividades() {
           <SpilinesRow data={dataSpilines} />
         </Box>
         <Box className="flex w-[100%] justify-between gap-5">
-          {dataDonuts.map((donut, index) => (
+          {dataDonuts?.map((donut, index) => (
             <Box key={index} className="mb-10 w-[32%] h-full">
               <h2 className="text-xl font-bold mb-4 text-center">{donut.title}</h2>
               {donut.data.some(item => item.total > 0) ? (

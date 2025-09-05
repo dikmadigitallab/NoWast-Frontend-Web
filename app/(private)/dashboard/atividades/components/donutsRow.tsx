@@ -17,7 +17,7 @@ type DonutChartProps = {
 
 export default function DonutsRow({ data }: DonutChartProps) {
 
-    const series = data.map(item => item.total ?? 0);
+    const series = data.map(item => item.total);
     const labels = data.map(item => item.name);
     const colors = data.map(item => item.color);
 
@@ -34,7 +34,7 @@ export default function DonutsRow({ data }: DonutChartProps) {
                         total: {
                             show: true,
                             label: 'Total Geral',
-                            formatter: () => series.reduce((a, b) => a + b, 0).toString(),
+                            formatter: () => series.reduce((acc, val) => acc + val, 0).toString(),
                         },
                     },
                 },
