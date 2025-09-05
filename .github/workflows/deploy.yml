@@ -34,7 +34,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           # ALTERAÇÃO: usar o conteúdo da chave privada em DEPLOY_KEY, não o caminho local
-          key: ${{ secrets.DEPLOY_KEY }}
+          key: ${{ secrets.DEPLOY_KEY_DEV }}
           port: 22207
           source: "."
           target: "/var/www/nowaste-front-end-homologacao"
@@ -64,7 +64,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           # ALTERAÇÃO: usar o conteúdo da chave privada em DEPLOY_KEY, não o caminho local
-          key: ${{ secrets.DEPLOY_KEY }}
+          key: ${{ secrets.DEPLOY_KEY_DEV }}
           port: 22207
           script: |
             cd /var/www/nowaste-front-end-homologacao
