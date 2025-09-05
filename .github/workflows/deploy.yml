@@ -39,6 +39,8 @@ jobs:
           source: "."
           target: "/var/www/nowastev2-homologa"
           debug: true   # DEBUG ativado para verificar se a chave está sendo usada
+          overwrite: true
+          
 
       # SSH e rodar Docker na máquina 1 (main)
       - name: SSH e rodar Docker main
