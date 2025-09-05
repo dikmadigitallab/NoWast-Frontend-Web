@@ -73,6 +73,7 @@ jobs:
             docker stop nowastev2-homologa || true
             docker rm nowastev2-homologa || true
             docker build -t nowastev2-homologa.
-            docker run -d -p 9004:18649 --name nowastev2-homologa nowastev2-homologa
+            docker run -d -p 9004:3000 --name nowastev2-homologa nowastev2-homologa
+    # teste:  docker run -d -p 3000:18649 --name nowastev2-homologa nowastev2-homologa
 
 
