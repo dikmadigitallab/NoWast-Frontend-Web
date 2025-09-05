@@ -68,4 +68,4 @@ jobs:
             docker stop nowaste-front-end-homologacao || true
             docker rm nowaste-front-end-homologacao || true
             docker build -t nowaste-front-end-homologacao .
-            docker run -d -p 9003:18649 --name nowaste-front-end-homologacao nowaste-front-end-homologacao
+            docker run -d -p 9004:18649 --name nowaste-front-end-homologacao nowaste-front-end-homologacao
