@@ -8,7 +8,7 @@ import { useGetIDStore } from "@/app/store/getIDStore";
 
 export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
 
-    const { setId } = useGetIDStore();
+    const { setIdEnvironment } = useGetIDStore();
     const { data: ambientes, loading } = useGet({ url: "environment" });
 
     return (
@@ -30,7 +30,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                                 error={!!errors.environmentId}
                                 onChange={(e) => {
                                     field.onChange(e.target.value)
-                                    setId(e.target.value)
+                                    setIdEnvironment(e.target.value)
                                 }}
                             >
                                 {ambientes?.map((ambiente: any) => (
