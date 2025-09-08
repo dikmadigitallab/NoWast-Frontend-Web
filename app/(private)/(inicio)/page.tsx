@@ -6,6 +6,7 @@ import { useAuthStore } from "@/app/store/storeApp";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { Box, Button } from "@mui/material";
+import { useEffect } from "react";
 
 interface Module {
   id: number
@@ -14,6 +15,7 @@ interface Module {
   status: string,
 }
 export default function Home() {
+
   const { userType } = useAuthStore();
   const { SetisSelectModule } = useSelectModule();
 
@@ -58,6 +60,10 @@ export default function Home() {
       status: "inativo"
     }
   ]
+
+  useEffect(() => {
+    SetisSelectModule(false);
+  }, [SetisSelectModule]);
 
   return (
     <StyledMainContainer>

@@ -1,17 +1,15 @@
 "use client";
 
-
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import ModalVisualizeDetail from './component/modalActivityDetail';
-import { Button, IconButton, TextField } from '@mui/material';
+import { Button, IconButton, TextField, Pagination, PaginationItem, Typography } from '@mui/material';
 import { useGetActivity } from '@/app/hooks/atividade/get';
 import { LoadingComponent } from '@/app/components/loading';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useGetIDStore } from '@/app/store/getIDStore';
-import { ptBR } from '@mui/x-data-grid/locales';
 import { GoDownload } from 'react-icons/go';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -25,7 +23,7 @@ export default function DataGridAtividades() {
     const [isFilter, setIsFilter] = useState(false);
     const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
-    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 10 });
+    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
     const { data: atividades, loading, pages } = useGetActivity({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize });
 
     const handleChangeModalEdit = (id: any) => {
@@ -38,6 +36,13 @@ export default function DataGridAtividades() {
     const handleChangeModalVisualize = (data: any) => {
         setVisualize(data);
         setModalVisualize(!modalVisualize);
+    }
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+        setPagination(prev => ({
+            ...prev,
+            pageNumber: page
+        }));
     }
 
     const columns: GridColDef[] = [
@@ -75,6 +80,11 @@ export default function DataGridAtividades() {
                     </Box>
                 </Box>
             ),
+        },
+        {
+            field: 'activityTypeEnum',
+            headerName: 'Recorrência',
+            width: 190,
         },
         {
             field: 'environment',
@@ -153,39 +163,69 @@ export default function DataGridAtividades() {
                 }
 
                 {atividades && !loading ?
-                    (<DataGrid
-                        rows={atividades || []}
-                        columns={columns}
-                        rowCount={pages?.totalItems || 0} // total de registros da API
-                        paginationMode="server" // paginação no servidor
-                        paginationModel={{
-                            page: (pages?.pageNumber || 1) - 1, // DataGrid usa zero-based
-                            pageSize: pages?.pageSize || 10,
-                        }}
-                        onPaginationModelChange={(model) => {
-                            setPagination({
-                                pageNumber: model.page + 1, // volta para 1-based antes de mandar para API
-                                pageSize: model.pageSize,
-                            });
-                        }}
-                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                        pageSizeOptions={[5, 10, 25, 100]}
-                        disableRowSelectionOnClick
-                        sx={{
-                            '& .MuiDataGrid-columnHeaders': {
-                                backgroundColor: 'unset',
-                                color: 'unset',
-                            },
-                            '& .MuiDataGrid-row:nth-of-type(odd)': {
-                                backgroundColor: '#FAFAFA',
-                            },
-                            '& .MuiDataGrid-row:hover': {
-                                backgroundColor: '#f0f0f0',
-                            },
-                        }}
-                    />
+                    (<>
+                        <DataGrid
+                            rows={atividades || []}
+                            columns={columns}
+                            disableRowSelectionOnClick
+                            hideFooterPagination
+                            hideFooter
+                            slots={{
+                                noRowsOverlay: () => (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: '100%',
+                                            color: '#666',
+                                        }}
+                                    >
+                                        <Typography variant="h6">Nenhum dado encontrado</Typography>
+                                        <Typography variant="body2">Tente ajustar os filtros ou adicionar novos registros.</Typography>
+                                    </Box>
 
-                    ) :
+                                )
+                            }}
+                            sx={{
+                                '& .MuiDataGrid-columnHeaders': {
+                                    backgroundColor: 'unset',
+                                    color: 'unset',
+                                },
+                                '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                    backgroundColor: '#FAFAFA',
+                                },
+                                '& .MuiDataGrid-row:hover': {
+                                    backgroundColor: '#f0f0f0',
+                                },
+                            }}
+                        />
+
+                        <Box className="h-10 flex justify-center items-center  mt-4">
+                            <Pagination
+                                hidden={pages?.totalPages <= 1}
+                                count={pages?.totalPages || 1}
+                                page={pagination.pageNumber}
+                                onChange={handlePageChange}
+                                color="primary"
+                                renderItem={(item) => (
+                                    <PaginationItem
+                                        {...item}
+                                        sx={{
+                                            '&.Mui-selected': {
+                                                backgroundColor: '#00b288',
+                                                color: 'white',
+                                                '&:hover': {
+                                                    backgroundColor: '#00755a',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                )}
+                            />
+                        </Box>
+                    </>) :
                     (<LoadingComponent />)
                 }
 

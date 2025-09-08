@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, Collapse, Chip, CircularProgress } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, Collapse, Chip, CircularProgress, Typography } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -212,6 +212,24 @@ export default function FormItens({ control, setValue, watch, formState: { error
                             sx={tableTheme}
                             getRowId={(row) => row.id}
                             hideFooter
+                            slots={{
+                                noRowsOverlay: () => (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: '100%',
+                                            color: '#666',
+                                        }}
+                                    >
+                                        <Typography variant="h6">Nenhum dado encontrado</Typography>
+                                        <Typography variant="body2">Tente ajustar os filtros ou adicionar novos registros.</Typography>
+                                    </Box>
+
+                                )
+                            }}
                         />
                     </Box>
                 </Collapse>

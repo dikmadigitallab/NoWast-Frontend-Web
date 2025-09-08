@@ -7,15 +7,8 @@ import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { Box, Button } from "@mui/material";
 
-interface Predio {
-    id: number;
-    name: string;
-    description: string;
-    buildingFiles: { url?: string }[];
-    deletedAt: string | null;
-}
-
 export default function Predios() {
+
     const { SetisSelectModule } = useSelectModule();
     const { data: predios } = useGet({ url: "building" });
 
@@ -40,8 +33,9 @@ export default function Predios() {
             <Header />
             <Box className="w-full px-2 sm:px-4 md:px-0">
                 <Box className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    {predios?.map((predio: Predio) => {
-                        const image = predio.buildingFiles?.[0]?.url;
+                    {predios?.map((predio: any) => {
+
+                        const image = predio.buildingFiles[0]?.file?.url;
                         const status = predio.deletedAt ? "inativo" : "ativo";
 
                         return (
