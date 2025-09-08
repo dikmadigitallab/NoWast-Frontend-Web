@@ -12,7 +12,7 @@ export const useLogin = () => {
     const { setId, setUserInfo, setUserType } = useAuthStore();
 
     const login = async (data: string, password: string) => {
-       alert('origin branch dev')
+       alert('teste deploy')
         setIsLoading(true);
         setError(null);
 
