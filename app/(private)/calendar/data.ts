@@ -16,7 +16,7 @@ export const Data = [
         supervisor: "Warllei da Silva Martins",
         manager: "Warllei da Silva Martins",
         statusEnum: { title: "Justificativa Externa", color: "#FFA44D" },
-        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        approvalStatus: { title: "Reprovado", color: "#FF0000" },
         dateTime: "29/08/2025, 17:08:00",
     },
     {
@@ -66,7 +66,7 @@ export const Data = [
         supervisor: "Ray Silva",
         manager: "Warllei da Silva Martins",
         statusEnum: { title: "Concluído", color: "#00A614" },
-        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        approvalStatus: { title: "Reprovado", color: "#FF0000" },
         dateTime: "24/08/2025, 12:18:00",
     },
     {
@@ -86,7 +86,7 @@ export const Data = [
         supervisor: "Ray Silva",
         manager: "Warllei da Silva Martins",
         statusEnum: { title: "Concluído", color: "#00A614" },
-        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        approvalStatus: { title: "Reprovado", color: "#FF0000" },
         dateTime: "26/08/2025, 12:18:00",
     },
     {
@@ -107,7 +107,7 @@ export const Data = [
         supervisor: "Ana Costa",
         manager: "Ana Costa",
         statusEnum: { title: "Concluído", color: "#00A614" },
-        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        approvalStatus: { title: "Reprovado", color: "#FF0000" },
         dateTime: "04/09/2025, 08:00:00",
     },
     {
@@ -147,7 +147,7 @@ export const Data = [
         supervisor: "Luana Martins",
         manager: "Luana Martins",
         statusEnum: { title: "Concluído", color: "#00A614" },
-        approvalStatus: { title: "Rejeitado", color: "#FF0000" },
+        approvalStatus: { title: "Reprovado", color: "#FF0000" },
         dateTime: "06/09/2025, 14:15:00",
     },
     {

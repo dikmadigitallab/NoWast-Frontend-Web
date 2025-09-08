@@ -1,19 +1,16 @@
 'use client';
 
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { BsExclamationDiamond, BsExclamationSquare } from "react-icons/bs";
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { useGetDashboard } from '@/app/hooks/dashboard/useGet';
 import BasicDateRangePicker from '@/app/components/dateRange';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { useGetUsuario } from '@/app/hooks/usuarios/get';
 import { useGet } from '@/app/hooks/crud/get/useGet';
-import { MdOutlineChecklist } from 'react-icons/md';
 import { useAuthStore } from '@/app/store/storeApp';
 import React, { useEffect, useState } from 'react';
 import SpilinesRow from './components/spilinesRow';
 import ReverseBar from './components/reverseBar';
-import { CiCircleCheck } from 'react-icons/ci';
 import DonutsRow from './components/donutsRow';
 import ColumnChart from './components/column';
 
@@ -82,12 +79,6 @@ export default function Atividades() {
     }));
   };
 
-  const dataSpilines = [
-    { name: 'Total', icon: <MdOutlineChecklist size={24} color='#fff' />, data: [61, 31, 61, 131, 31, 71, 131], color: '#e74c3c', tension: 0.9 },
-    { name: 'Concluídas', icon: <CiCircleCheck size={27} color='#fff' />, data: [11, 32, 45, 32, 34, 52, 41], color: '#00CB65', tension: 0.9 },
-    { name: 'Em Aberto', icon: <BsExclamationSquare size={24} color='#fff' />, data: [50, 90, 40, 60, 80, 75, 55], color: '#2090FF', tension: 0.9 },
-    { name: 'Pendentes', icon: <BsExclamationDiamond size={24} color='#fff' />, data: [25, 50, 75, 25, 50, 75, 25], color: '#FF9920', tension: 0.9 },
-  ];
 
   const dataDonuts = [
     {
@@ -96,15 +87,15 @@ export default function Atividades() {
         { name: 'Concluídas', total: atividades?.completedActivities ?? 0, color: '#00CB65' },
         { name: 'Em Aberto', total: atividades?.openActivities ?? 0, color: '#2090FF' },
         { name: 'Pendentes', total: atividades?.pendingActivities ?? 0, color: '#FF9920' },
-        { name: 'Just/ Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#d35400' },
-        { name: 'Just/ Externas', total: atividades?.justifiedActivities ?? 0, color: '#27ae60' },
+        { name: 'Just/Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#00708e' },
+        { name: 'Just/Externas', total: atividades?.justifiedActivities ?? 0, color: '#008e78' },
       ]
     },
     {
       title: "Execuções",
       data: [
-        { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#00CB65' },
-        { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#2090FF' },
+        { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#7367f0' },
+        { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#ea5455' },
       ]
     },
     {
@@ -152,6 +143,7 @@ export default function Atividades() {
   useEffect(() => {
     setMount(true);
   }, []);
+
 
   if (!mount) return
 
@@ -222,7 +214,7 @@ export default function Atividades() {
                   }
                 >
                   <MenuItem value="" disabled>
-                    Selecione um setor...
+                    Selecione um predio...
                   </MenuItem>
                   {Array?.isArray(predio) &&
                     predio.map((predio) => (
@@ -284,10 +276,12 @@ export default function Atividades() {
 
       <Box className="flex flex-col gap-5 w-[100%]">
         <Box className="flex gap-5 w-[100%] items-center justify-between">
-          <SpilinesRow data={dataSpilines} />
+          {atividades?.activitiesByDay &&
+            <SpilinesRow data={atividades?.activitiesByDay} />
+          }
         </Box>
         <Box className="flex w-[100%] justify-between gap-5">
-          {dataDonuts.map((donut, index) => (
+          {dataDonuts?.map((donut, index) => (
             <Box key={index} className="mb-10 w-[32%] h-full">
               <h2 className="text-xl font-bold mb-4 text-center">{donut.title}</h2>
               {donut.data.some(item => item.total > 0) ? (

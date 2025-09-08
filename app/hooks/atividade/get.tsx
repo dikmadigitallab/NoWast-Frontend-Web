@@ -47,8 +47,7 @@ export const useGetActivity = ({ startDate = null, endDate = null, disablePagina
         try {
             const params = new URLSearchParams();
 
-            params.append("pageNumber", String(pageNumber));
-
+            if (pageNumber === null) params.append("pageNumber", "1");
             if (startDate !== null) params.append("startDate", String(startDate).trim());
             if (endDate !== null) params.append("endDate", String(endDate).trim());
             if (disablePagination !== null) params.append("disablePagination", String(disablePagination).trim());
@@ -81,6 +80,7 @@ export const useGetActivity = ({ startDate = null, endDate = null, disablePagina
                 ppe: item?.ppe,
                 tools: item?.tools,
                 products: item?.products,
+                userActivities: item?.userActivities || [],
                 transports: item?.transports,
                 dateTime: new Date(item.dateTime).toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
             })) || [];

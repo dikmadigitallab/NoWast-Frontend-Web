@@ -5,9 +5,9 @@ export const statusColors: Record<string, string> = {
     'Aberto': '#2E97FC',
     'Leve': '#FFD400',
     'Aprovado': '#00A614',
-    'Rejeitado': '#FF0000',
-    'Justificativa Interna': '#FFA44D',
-    'Justificativa Externa': '#FFA44D',
+    'Reprovado': '#FF0000',
+    'Justificativa Interna': '#00708e',
+    'Justificativa Externa': '#008e78',
     'DEFAULT': 'bg-gray-100'
 };
 
@@ -18,7 +18,7 @@ export const filterStatusActivity = (status: string) => {
         case 'APPROVED':
             return { title: 'Aprovado', color: statusColors['Aprovado'] };
         case 'REJECTED':
-            return { title: 'Rejeitado', color: statusColors['Rejeitado'] };
+            return { title: 'Reprovado', color: statusColors['Reprovado'] };
         case 'COMPLETED':
             return { title: 'Concluído', color: statusColors['Concluído'] };
         case 'UNDER_REVIEW':
