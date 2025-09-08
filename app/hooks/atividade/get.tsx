@@ -47,12 +47,12 @@ export const useGetActivity = ({ startDate = null, endDate = null, disablePagina
         try {
             const params = new URLSearchParams();
 
-            if (pageNumber === null) params.append("pageNumber", "1");
+            if (pageNumber !== null) params.append("pageNumber", String(pageNumber).trim());
+            if (disablePagination !== null) params.append("disablePagination", String(disablePagination).trim());
+            if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
             if (startDate !== null) params.append("startDate", String(startDate).trim());
             if (endDate !== null) params.append("endDate", String(endDate).trim());
-            if (disablePagination !== null) params.append("disablePagination", String(disablePagination).trim());
             if (query !== null) params.append("query", query.trim());
-            if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
             if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
             if (positionId !== null) params.append("positionId", String(positionId).trim());
             if (managerId !== null) params.append("managerId", String(managerId).trim());
@@ -71,6 +71,7 @@ export const useGetActivity = ({ startDate = null, endDate = null, disablePagina
 
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
+                activityTypeEnum: item.activityTypeEnum === "RECURRING" ? "Recorrente" : "Não Recorrente",
                 environment: item.environment?.name,
                 dimension: item.environment?.areaM2,
                 supervisor: item?.supervisor?.person?.name,

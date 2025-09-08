@@ -5,13 +5,15 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import { useAuthStore } from "@/app/store/storeApp";
 
-export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervisorId = null, position = null, managerId = null }: UseGetUsuarioParams) => {
+export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pageSize = null, page = 1, query = null, supervisorId = null, position = null, managerId = null }: UseGetUsuarioParams) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
     const [users, setUsers] = useState<any>(null);
     const { userInfo } = useAuthStore();
+    const [pages, setPages] = useState({ pageNumber: 0, pageSize: 0, totalItems: 0, totalPages: 0 });
+
 
     const getUsuario = async () => {
         setError(null);
@@ -30,15 +32,13 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
 
             const params = new URLSearchParams();
 
-            params.append("disablePagination", "true");
-            params.append("page", String(page));
-            params.append("contractId", String(userInfo.contractId));
-
-            if (query !== null) params.append("query", query.trim());
+            if (disablePagination !== null) params.append("disablePagination", String(disablePagination).trim());
+            if (pageNumber !== null) params.append("pageNumber", String(pageNumber).trim());
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
+            if (query !== null && query !== '') params.append("query", query.trim());
             if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
-            if (position !== null) params.append("positionId", String(position).trim());
             if (managerId !== null) params.append("managerId", String(managerId).trim());
+            if (userInfo.contractId) params.append("contractId", String(userInfo.contractId).trim());
 
             const url = `/users?${params.toString()}`;
 
@@ -70,6 +70,12 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
                 img: item.userFiles[0]?.file.url,
             })) || [];
 
+            setPages({
+                pageNumber: response?.data?.data?.pageNumber,
+                pageSize: response?.data?.data?.pageSize,
+                totalItems: response?.data?.data?.totalCount,
+                totalPages: response?.data?.data?.totalPages,
+            });
             setUsers(response.data.data.items);
             setData(refactory);
         } catch (error) {
@@ -88,9 +94,10 @@ export const useGetUsuario = ({ page = 1, pageSize = null, query = null, supervi
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [query, supervisorId, position, managerId, page, pageSize]);
+    }, [query, supervisorId, position, managerId, page, pageNumber, disablePagination, pageSize, pageSize]);
 
     return {
+        pages,
         getUsuario,
         loading,
         error,

@@ -1,7 +1,7 @@
 "use client";
 
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
-import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Button, FormControl, IconButton, InputLabel, MenuItem, Pagination, PaginationItem, Select, TextField, Typography } from '@mui/material';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { LoadingComponent } from '@/app/components/loading';
@@ -27,8 +27,9 @@ export default function ListagemProduto() {
     const [modalDetail, setModalDetail] = useState(false);
     const { data: predios } = useGet({ url: 'building' });
     const [detail, setDetail] = useState<any | null>(null);
+    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
     const [search, setSearch] = useState<any>({ query: '', responsibleManagerId: null, buildingId: null });
-    const { data: produtos } = useGet({ url: 'product', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
+    const { data: produtos, pages } = useGet({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize, url: 'product', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
@@ -40,6 +41,13 @@ export default function ListagemProduto() {
         setTimeout(() => {
             router.push(`/items/produto/atualizar`);
         }, 500)
+    }
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+        setPagination(prev => ({
+            ...prev,
+            pageNumber: page
+        }));
     }
 
     const columns: GridColDef<any>[] = [
@@ -173,32 +181,69 @@ export default function ListagemProduto() {
                 }
 
                 {produtos ?
-                    (<DataGrid
-                        rows={produtos}
-                        columns={columns}
-                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                        initialState={{
-                            pagination: {
-                                paginationModel: {
-                                    pageSize: 10,
+                    (<>
+                        <DataGrid
+                            rows={produtos || []}
+                            columns={columns}
+                            disableRowSelectionOnClick
+                            hideFooterPagination
+                            hideFooter
+                            slots={{
+                                noRowsOverlay: () => (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: '100%',
+                                            color: '#666',
+                                        }}
+                                    >
+                                        <Typography variant="h6">Nenhum dado encontrado</Typography>
+                                        <Typography variant="body2">Tente ajustar os filtros ou adicionar novos registros.</Typography>
+                                    </Box>
+
+                                )
+                            }}
+                            sx={{
+                                '& .MuiDataGrid-columnHeaders': {
+                                    backgroundColor: 'unset',
+                                    color: 'unset',
                                 },
-                            },
-                        }}
-                        pageSizeOptions={[5, 25, 100]}
-                        disableRowSelectionOnClick
-                        sx={{
-                            '& .MuiDataGrid-columnHeaders': {
-                                backgroundColor: 'unset',
-                                color: 'unset',
-                            },
-                            '& .MuiDataGrid-row:nth-of-type(odd)': {
-                                backgroundColor: '#FAFAFA',
-                            },
-                            '& .MuiDataGrid-row:hover': {
-                                backgroundColor: '#f0f0f0',
-                            },
-                        }}
-                    />) :
+                                '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                    backgroundColor: '#FAFAFA',
+                                },
+                                '& .MuiDataGrid-row:hover': {
+                                    backgroundColor: '#f0f0f0',
+                                },
+                            }}
+                        />
+
+                        <Box className="h-10 flex justify-center items-center  mt-4">
+                            <Pagination
+                                hidden={pages?.totalPages <= 1}
+                                count={pages?.totalPages || 1}
+                                page={pagination.pageNumber}
+                                onChange={handlePageChange}
+                                color="primary"
+                                renderItem={(item) => (
+                                    <PaginationItem
+                                        {...item}
+                                        sx={{
+                                            '&.Mui-selected': {
+                                                backgroundColor: '#00b288',
+                                                color: 'white',
+                                                '&:hover': {
+                                                    backgroundColor: '#00755a',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                )}
+                            />
+                        </Box>
+                    </>) :
                     (<LoadingComponent />)
                 }
             </Box>

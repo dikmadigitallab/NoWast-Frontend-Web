@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, CircularProgress, Chip } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, CircularProgress, Chip, Typography } from "@mui/material";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
@@ -179,6 +179,24 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                 sx={tableTheme}
                 getRowId={(row) => row.id}
                 hideFooter
+                slots={{
+                    noRowsOverlay: () => (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%',
+                                color: '#666',
+                            }}
+                        >
+                            <Typography variant="h6">Nenhum dado encontrado</Typography>
+                            <Typography variant="body2">Tente ajustar os filtros ou adicionar novos registros.</Typography>
+                        </Box>
+
+                    )
+                }}
             />
         </Box>
     );

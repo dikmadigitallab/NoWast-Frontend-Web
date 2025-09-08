@@ -169,7 +169,7 @@ export default function MobileNavigation() {
                                                             <Link
                                                                 key={nestedName}
                                                                 href={nestedHref[0]}
-                                                                className={`group flex items-center mb-2 px-10 py-2 gap-2 rounded transition-colors hover:bg-[#00B288] ${nestedHref.includes(pathname) ? 'bg-[#00B288]/10' : ''}`}
+                                                                className={`group flex items-center mb-2  px-10 py-2 gap-2 rounded transition-colors hover:bg-[#00B288] ${nestedHref.includes(pathname) ? 'bg-[#00B288]/10' : ''}`}
                                                             >
                                                                 {NestedIcon && <FaCircle className={`${nestedHref.includes(pathname) ? 'text-[#1e876e] animate-pulse' : 'text-[#dbdbdb]'}`} size={10} />}
                                                                 <span className={`font-medium text-[1rem] ${nestedHref.includes(pathname) ? 'text-[#1e876e]' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>
@@ -183,7 +183,7 @@ export default function MobileNavigation() {
                                                 <Link
                                                     key={subName}
                                                     href={subHref[0]}
-                                                    className={`group flex items-center mb-2 px-8 py-2 gap-2 rounded transition-colors hover:bg-[#00B288] ${subHref.includes(pathname) ? 'bg-[#00B288]/10' : ''}`}
+                                                    className={`group flex mt-2 items-center mb-2 px-8 py-2 gap-2 rounded transition-colors hover:bg-[#00B288] ${subHref.includes(pathname) ? 'bg-[#00B288]/10' : ''}`}
                                                 >
                                                     {SubIcon && <FaCircle className={`${subHref.includes(pathname) ? 'text-[#1e876e] animate-pulse' : 'text-[#dbdbdb]'}`} size={10} />}
                                                     <span className={`font-medium text-[1rem] ${subHref.includes(pathname) ? 'text-[#1e876e]' : 'text-[#5E5873]'} group-hover:text-white transition-colors tracking-3`}>

@@ -351,7 +351,7 @@ export default function FormServicos() {
                 <Box className="flex flex-row justify-end gap-4">
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={handleOpenCancelModal}>Cancelar</Button>
                     <Button variant="outlined" disabled={loading} type="submit" sx={[buttonTheme, { alignSelf: "end" }]}>
-                        {loading ? <CircularProgress size={24} color="inherit" /> : "Atualizar"}
+                        {loading ? <CircularProgress size={24} color="inherit" /> : "Salvar"}
                     </Button>
                 </Box>
             </form>

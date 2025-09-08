@@ -1,4 +1,5 @@
 import { Box, Modal } from "@mui/material";
+import { FaUserTie } from "react-icons/fa";
 
 function DetailItem({ label, value }: { label: string; value: string | number }) {
     return (
@@ -13,24 +14,10 @@ function DetailItem({ label, value }: { label: string; value: string | number })
 
 export default function ModalVisualizeDetail({ modalVisualize, handleChangeModalVisualize }: { modalVisualize: any | null; handleChangeModalVisualize: (val: any | null) => void }) {
 
-    console.log(modalVisualize);
-
     return (
         <Modal open={modalVisualize !== null} onClose={() => handleChangeModalVisualize(null)} aria-labelledby="modal-title" aria-describedby="modal-description" className="flex items-center justify-center">
             <Box className="bg-white shadow-xl rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto  p-6 relative">
-                {/* Botão fechar */}
-                {/* <IconButton
-                    aria-label="fechar"
-                    size="small"
-                    onClick={() => handleChangeModalVisualize(null)}
-                    className="absolute top-4 right-4 hover:bg-gray-100"
-                >
-                    <IoMdClose size={20} className="text-gray-500" />
-                </IconButton> */}
 
-
-
-                {/* Título */}
                 <h2 id="modal-title" className="text-[#374151] text-[1.4rem] font-bold mb-6">
                     Detalhes da Atividade
                 </h2>
@@ -60,35 +47,42 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                             {modalVisualize?.approvalStatus?.title}
                         </Box>
                     </Box>
-                    <Box className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                    <Box className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200 ">
                         <Box className="text-sm font-semibold text-[#4B5563] mb-3">Participantes:</Box>
-
                         {modalVisualize?.userActivities?.length > 0 ? (
                             <Box className="flex flex-col gap-2">
-                                {modalVisualize.userActivities.map((item: any) => (
-                                    <Box
-                                        key={item.id}
-                                        className="flex flex-row justify-between items-center border-b border-gray-200 pb-2"
-                                    >
-                                        <Box className="text-sm text-[#374151]">
-                                            {item.user.person.name}
-                                        </Box>
-                                        <Box className="flex flex-row gap-2 items-center">
-                                            <span className={`text-xs px-2 py-1 rounded-full ${item.justification === null ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}>
-                                                {item.justification === null ? "Presente" : "Ausente"}
-                                            </span>
-                                            {item.justificationId && (
-                                                <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-600">
-                                                    Justificado
+                                {modalVisualize.userActivities.map((item: any, index: number) => {
+                                    console.log(item)
+                                    return (
+                                        <Box
+                                            key={item.id}
+                                            className={`flex h-[50px] flex-row justify-between items-center ${index !== modalVisualize.userActivities.length - 1 ? "border-b border-gray-200" : ""}`}
+                                        >
+                                            <Box className="flex flex-row gap-3 items-center">
+                                                {modalVisualize?.file?.url ? (
+                                                    <img src={modalVisualize?.file?.url} className="w-[40px] h-[40px] object-cover rounded-full" />
+                                                ) :
+                                                    <FaUserTie color="#a7a7a7" />
+                                                }
+                                                <Box className="text-sm text-[#374151]">
+                                                    {item.user.person.name}
+                                                </Box>
+                                            </Box>
+                                            <Box className="flex flex-row gap-2 items-center">
+                                                <span className={`text-xs px-2 py-1 rounded-full ${item.justification === null ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}>
+                                                    {item.justification === null ? "Presente" : "Ausente"}
                                                 </span>
-                                            )}
+                                                {item.justificationId && (
+                                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-600">
+                                                        Justificado
+                                                    </span>
+                                                )}
+                                            </Box>
                                         </Box>
-                                    </Box>
-                                ))}
+                                    )
+                                })}
                             </Box>
-                        ) : (
-                            <Box className="text-sm text-[#6E6B7B]">Nenhum participante</Box>
-                        )}
+                        ) : (<Box className="text-sm text-[#6E6B7B]">Nenhum participante</Box>)}
                     </Box>
 
                 </Box>
