@@ -7,6 +7,7 @@ interface UserInfo {
     name: string | null;
     position: string | null;
     contractId: string | number | null
+    contractName?: string | null;
 }
 
 type UserType = 'DEFAULT' | 'ADM_DIKMA' | 'OPERATIONAL' | 'GESTAO' | 'ADM_CLIENTE' | 'DIKMA_DIRECTOR' | null;

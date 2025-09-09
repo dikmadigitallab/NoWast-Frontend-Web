@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Skeleton } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { useGetDashboard } from '@/app/hooks/dashboard/useGet';
 import BasicDateRangePicker from '@/app/components/dateRange';
@@ -32,7 +32,7 @@ export default function Atividades() {
     ano: new Date().getFullYear().toString()
   });
 
-  const { data: justifications } = useGetDashboard({
+  const { data: justifications, loading: loadingCadastros } = useGetDashboard({
     url: 'dashboard/justifications',
     startDate: filters.startDate,
     endDate: filters.endDate,
@@ -42,7 +42,7 @@ export default function Atividades() {
     buildingId: filters.buildingId
   });
 
-  const { data: atividades } = useGetDashboard({
+  const { data: atividades, loading: loadingAtividades } = useGetDashboard({
     url: 'dashboard/activities',
     startDate: filters.startDate,
     endDate: filters.endDate,
@@ -52,7 +52,7 @@ export default function Atividades() {
     buildingId: filters.buildingId
   });
 
-  const { data: ocorrencias } = useGetDashboard({
+  const { data: ocorrencias, loading: loadingOcorrencias } = useGetDashboard({
     url: 'dashboard/occurrences',
     startDate: `${ocorrenciaFilters.ano}-${ocorrenciaFilters.mes}-01`,
     endDate: `${ocorrenciaFilters.ano}-${ocorrenciaFilters.mes}-31`,
@@ -276,26 +276,54 @@ export default function Atividades() {
 
       <Box className="flex flex-col gap-5 w-[100%]">
         <Box className="flex gap-5 w-[100%] items-center justify-between">
-          {atividades?.activitiesByDay &&
-            <SpilinesRow data={atividades?.activitiesByDay} />
+          {
+            loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? (
+              [...Array(4)].map((_, index) => (
+                <Box key={index} className="flex flex-row items-center gap-3 pl-5 w-[24%] h-[150px] bg-[#fff] rounded-sm">
+                  <Skeleton variant="circular" height={50} width={50} />
+                  <Box className="flex flex-col w-[20%]">
+                    <Skeleton height={30} width={"50%"} />
+                    <Skeleton height={20} width={"100%"} />
+                  </Box>
+                </Box>
+              ))
+            ) : (
+              atividades?.activitiesByDay &&
+              <SpilinesRow data={atividades?.activitiesByDay} />
+            )
           }
         </Box>
         <Box className="flex w-[100%] justify-between gap-5">
-          {dataDonuts?.map((donut, index) => (
-            <Box key={index} className="mb-10 w-[32%] h-full">
-              <h2 className="text-xl font-bold mb-4 text-center">{donut.title}</h2>
-              {donut.data.some(item => item.total > 0) ? (
-                <DonutsRow data={donut.data} />
-              ) :
-                <Box className="w-full h-[520px] flex items-center justify-center bg-white p-5 rounded-lg ">
-                  <span className="text-[#5E5873] font-semibold">Nenhum dado disponível para esse período</span>
+          {
+            loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? (
+              [...Array(3)].map((_, index) => (
+                <Box className="mb-10 w-[32%] h-full" key={index}>
+                  <Box className="flex flex-col items-center justify-center bg-white p-5 rounded-lg shadow-md h-[520px]">
+                    <Skeleton variant="circular" width={180} height={180} className="mb-6" />
+                    <Skeleton variant="text" width="50%" height={25} />
+                    <Skeleton variant="text" width="40%" height={25} />
+                  </Box>
                 </Box>
-              }
-            </Box>
-          ))}
+              ))
+            ) : (
+              dataDonuts?.map((donut, index) => (
+                <Box key={index} className="mb-10 w-[32%] h-full">
+                  <h2 className="text-xl font-bold mb-4 text-center">{donut.title}</h2>
+                  {donut.data.some(item => item.total > 0) ? (
+                    <DonutsRow data={donut.data} />
+                  ) : (
+                    <Box className="w-full h-[520px] flex items-center justify-center bg-white p-5 rounded-lg">
+                      <span className="text-[#5E5873] font-semibold">
+                        Nenhum dado disponível para esse período
+                      </span>
+                    </Box>
+                  )}
+                </Box>
+              ))
+            )
+          }
         </Box>
 
-        {/* Seção de Ocorrências com filtros de mês e ano */}
         <Box className="w-[100%] bg-white rounded-lg p-5">
           <Box className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-medium text-[#5E5873]">Ocorrências</h1>
@@ -332,12 +360,14 @@ export default function Atividades() {
               </FormControl>
             </Box>
           </Box>
-          <ColumnChart data={ocorrencias} />
+
+          {loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ColumnChart data={ocorrencias} />}
+
         </Box>
 
         <Box className="w-[100%] bg-white rounded-lg p-5">
           <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>
-          <ReverseBar {...justifications} />
+          {loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ReverseBar {...justifications} />}
         </Box>
       </Box>
     </StyledMainContainer>

@@ -26,7 +26,7 @@ export default function DataGridAmbientes() {
     const [visualize, setVisualize] = useState<any>(null);
     const [search, setSearch] = useState<any>({ query: '' });
     const [modalVisualize, setModalVisualize] = useState(false);
-    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 1 });
+    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
     const { data: ambientes, pages } = useGet({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize, disablePagination: false, url: "environment", query: search.query });
 
 

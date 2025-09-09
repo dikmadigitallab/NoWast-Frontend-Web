@@ -20,9 +20,10 @@ export interface UseGetParams {
     disablePagination?: boolean | null
     startDate?: string | null,
     endDate?: string | null
+    sectorId?: string | null
 }
 
-export const useGetActivity = ({ startDate = null, endDate = null, disablePagination = null, pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
+export const useGetActivity = ({ sectorId = null, startDate = null, endDate = null, disablePagination = null, pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -59,6 +60,7 @@ export const useGetActivity = ({ startDate = null, endDate = null, disablePagina
             if (responsibleManagerId !== null) params.append("responsibleManagerId", String(responsibleManagerId).trim());
             if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
             if (environmentId !== null) params.append("environmentId", String(environmentId).trim());
+            if (sectorId !== '') params.append("sectorId", String(sectorId).trim());
 
             const paramUrl = `/activity?${params.toString()}`;
 
@@ -113,7 +115,7 @@ export const useGetActivity = ({ startDate = null, endDate = null, disablePagina
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [startDate, endDate, query, supervisorId, positionId, managerId, pageNumber, pageSize, responsibleManagerId, buildingId, environmentId]);
+    }, [sectorId, startDate, endDate, query, supervisorId, positionId, managerId, pageNumber, pageSize, responsibleManagerId, buildingId, environmentId]);
 
 
     return {

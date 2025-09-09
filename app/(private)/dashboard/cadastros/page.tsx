@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Skeleton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { FaHelmetSafety } from "react-icons/fa6";
 import { RiToolsFill } from "react-icons/ri";
@@ -28,7 +28,7 @@ export default function Atividades() {
     const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '', empresa: '' });
 
 
-    const { data: cadastros } = useGetDashboardItems({
+    const { data: cadastros, loading: loadingCadastros } = useGetDashboardItems({
         startDate: filters.startDate,
         endDate: filters.endDate,
         userId: filters.userId,
@@ -38,7 +38,7 @@ export default function Atividades() {
     })
 
 
-    const { dailyStats, usersByPosition } = useGetDashboardRegistrations({
+    const { dailyStats, usersByPosition, loading: loadingDashboard } = useGetDashboardRegistrations({
         startDate: filters.startDate,
         endDate: filters.endDate,
         userId: filters.userId,
@@ -181,27 +181,48 @@ export default function Atividades() {
             </Box>
 
             <Box className="w-[100%] flex flex-row justify-between items-center rounded-lg flex-wrap">
-                {cards.map((card, index) => (
-                    <Box key={index} className="flex flex-row items-center gap-3 pl-5 w-[24%] h-[150px] bg-[#fff] rounded-sm">
-                        <Box className="p-2 rounded-full bg-[#2A51631F]">
-                            {card.icon}
-                        </Box>
-                        <Box className="flex flex-col">
-                            <span className='text-[#5E5873] text-[1.5rem] font-bold'>{card.value}</span>
-                            <span className='text-[#5E5873] text-[1.1rem] font-normal mt-[-5px]'>{card.title}</span>
-                        </Box>
-                    </Box>
-                ))}
+                {
+                    loading || loadingCadastros || loadingDashboard ? (
+                        [...Array(4)].map((_, index) => (
+                            <Box key={index} className="flex flex-row items-center gap-3 pl-5 w-[24%] h-[150px] bg-[#fff] rounded-sm">
+                                <Skeleton variant="circular" height={50} width={50} />
+                                <Box className="flex flex-col w-[20%]">
+                                    <Skeleton height={30} width={"50%"} />
+                                    <Skeleton height={20} width={"100%"} />
+                                </Box>
+                            </Box>
+                        ))
+                    ) :
+                        cards.map((card, index) => (
+                            <Box key={index} className="flex flex-row items-center gap-3 pl-5 w-[24%] h-[150px] bg-[#fff] rounded-sm">
+                                <Box className="p-2 rounded-full bg-[#2A51631F]">
+                                    {card.icon}
+                                </Box>
+                                <Box className="flex flex-col">
+                                    <span className='text-[#5E5873] text-[1.5rem] font-bold'>{card.value}</span>
+                                    <span className='text-[#5E5873] text-[1.1rem] font-normal mt-[-5px]'>{card.title}</span>
+                                </Box>
+                            </Box>
+                        ))}
+
             </Box>
 
             <Box className="gap-5 p-7 w-[100%]  bg-white rounded-lg mb-5 mt-5">
                 <h1 className="text-2xl font-medium text-[#5E5873] mb-5">Início e Fim do Contrado</h1>
-                <CadastroColumnChart data={dailyStats || []} />
+                {loading || loadingCadastros || loadingDashboard ? (
+                    <Skeleton variant="rectangular" height={300} width={"100%"} />
+                ) : (
+                    <CadastroColumnChart data={dailyStats || []} />
+                )}
             </Box>
 
             <Box className="gap-5 p-7 w-[100%]  bg-white rounded-lg mb-5">
                 <h1 className="text-2xl font-medium text-[#5E5873] mb-5">Total de Pessoas Por Cargo</h1>
-                <ReverseChart data={usersByPosition} />
+                {loading || loadingCadastros || loadingDashboard ? (
+                    <Skeleton variant="rectangular" height={300} width={"100%"} />
+                ) : (
+                    <ReverseChart data={usersByPosition} />
+                )}
             </Box>
         </StyledMainContainer >
     );
