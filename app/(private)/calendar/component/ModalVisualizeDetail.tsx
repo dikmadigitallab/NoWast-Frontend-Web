@@ -52,7 +52,6 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                         {modalVisualize?.userActivities?.length > 0 ? (
                             <Box className="flex flex-col gap-2">
                                 {modalVisualize.userActivities.map((item: any, index: number) => {
-                                    console.log(item)
                                     return (
                                         <Box
                                             key={item.id}

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import api from "../api";
 import { filterStatusActivity } from "@/app/utils/statusActivity";
+import { useSectionStore } from "@/app/store/renderSection";
 
 
 export interface UseGetParams {
@@ -14,21 +15,22 @@ export interface UseGetParams {
     supervisorId?: number | null,
     positionId?: number | null,
     managerId?: number | null,
-    responsibleManagerId?: number | null
     buildingId?: number | null,
     environmentId?: number | null,
     disablePagination?: boolean | null
     startDate?: string | null,
     endDate?: string | null
     sectorId?: string | null
+    approvalStatus?: string | null
 }
 
-export const useGetActivity = ({ sectorId = null, startDate = null, endDate = null, disablePagination = null, pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
+export const useGetActivity = ({ approvalStatus = null, sectorId = null, startDate = null, endDate = null, disablePagination = null, pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
+    const [data, setData] = useState<any>(null);
+    const { setIdService, setId } = useGetIDStore();
+    const { setSection } = useSectionStore();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const { setIdService, setId } = useGetIDStore();
-    const [data, setData] = useState<any>(null);
     const [pages, setPages] = useState({ pageNumber: 0, pageSize: 0, totalItems: 0, totalPages: 0 });
 
     const get = async () => {
@@ -53,14 +55,14 @@ export const useGetActivity = ({ sectorId = null, startDate = null, endDate = nu
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
             if (startDate !== null) params.append("startDate", String(startDate).trim());
             if (endDate !== null) params.append("endDate", String(endDate).trim());
-            if (query !== null) params.append("query", query.trim());
             if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
             if (positionId !== null) params.append("positionId", String(positionId).trim());
             if (managerId !== null) params.append("managerId", String(managerId).trim());
-            if (responsibleManagerId !== null) params.append("responsibleManagerId", String(responsibleManagerId).trim());
             if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
             if (environmentId !== null) params.append("environmentId", String(environmentId).trim());
-            if (sectorId !== '') params.append("sectorId", String(sectorId).trim());
+            if (query !== '' && query !== null) params.append("query", query.trim());
+            if (sectorId !== '' && sectorId !== null) params.append("sectorId", String(sectorId).trim());
+            if (approvalStatus !== '' && approvalStatus !== null) params.append("approvalStatus", String(approvalStatus).trim());
 
             const paramUrl = `/activity?${params.toString()}`;
 
@@ -109,13 +111,13 @@ export const useGetActivity = ({ sectorId = null, startDate = null, endDate = nu
 
     useEffect(() => {
         setLoading(true);
-
+        setSection(1);
         const delayDebounce = setTimeout(() => {
             get();
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [sectorId, startDate, endDate, query, supervisorId, positionId, managerId, pageNumber, pageSize, responsibleManagerId, buildingId, environmentId]);
+    }, [approvalStatus, sectorId, startDate, endDate, query, supervisorId, positionId, managerId, pageNumber, pageSize, managerId, buildingId, environmentId]);
 
 
     return {

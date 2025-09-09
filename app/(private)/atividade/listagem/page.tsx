@@ -4,7 +4,7 @@ import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, Md
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import ModalVisualizeDetail from './component/modalActivityDetail';
-import { Button, IconButton, TextField, Pagination, PaginationItem, Typography } from '@mui/material';
+import { Button, IconButton, TextField, Pagination, PaginationItem, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useGetActivity } from '@/app/hooks/atividade/get';
 import { LoadingComponent } from '@/app/components/loading';
 import { formTheme } from '@/app/styles/formTheme/theme';
@@ -15,16 +15,30 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { FiPlus } from 'react-icons/fi';
 import Box from '@mui/material/Box';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
 
 export default function DataGridAtividades() {
 
     const router = useRouter();
     const { setId } = useGetIDStore()
+    const { users: pessoas } = useGetUsuario({});
     const [isFilter, setIsFilter] = useState(false);
+    const { data: ambientes } = useGet({ url: "environment" });
     const [visualize, setVisualize] = useState<any>(null);
     const [modalVisualize, setModalVisualize] = useState(false);
     const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
-    const { data: atividades, loading, pages } = useGetActivity({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize });
+    const [search, setSearch] = useState<any>({ query: '', supervisorId: null, buildingId: null, managerId: null, approvalStatus: null, environmentId: null });
+    const { data: atividades, loading, pages } = useGetActivity({
+        query: search.query,
+        environmentId: search.environmentId,
+        approvalStatus: search.approvalStatus,
+        supervisorId: search.supervisorId,
+        managerId: search.managerId,
+        buildingId: search.buildingId,
+        pageNumber: pagination.pageNumber,
+        pageSize: pagination.pageSize
+    });
 
     const handleChangeModalEdit = (id: any) => {
         setId(id)
@@ -130,10 +144,10 @@ export default function DataGridAtividades() {
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
-                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#635D77' /> : <MdOutlineFilterAlt size={25} color='#635D77' />}
+                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#00b288' /> : <MdOutlineFilterAlt size={25} color='#00b288' />}
                         </Button>
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
-                            <GoDownload size={25} color='#635D77' />
+                            <GoDownload size={25} color='#00b288' />
                         </Button>
                         <Button href="/atividade/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
@@ -141,21 +155,73 @@ export default function DataGridAtividades() {
                         </Button>
                     </Box>
                 </Box>
+
                 {
                     isFilter && (
                         <Box>
                             <Box className="flex gap-3 justify-between items-center">
-                                <TextField variant="outlined" label="Nome, Email ou Usuário" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Cargo" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Encarregado Responsável" className="w-[100%]" sx={formTheme} />
-                                <TextField variant="outlined" label="Gestor Responsável" className="w-[100%]" sx={formTheme} />
+                                <FormControl fullWidth sx={formTheme}>
+                                    <InputLabel>Status de Aprovação</InputLabel>
+                                    <Select
+                                        value={search.approvalStatus || ""}
+                                        label="Status de Aprovação"
+                                        onChange={(e) => setSearch({ ...search, approvalStatus: e.target.value })}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um status de aprova o...</MenuItem>
+                                        <MenuItem value="APPROVED">Aprovado</MenuItem>
+                                        <MenuItem value="REJECTED">Reprovado</MenuItem>
+                                        <MenuItem value="PENDING">Pendente</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                <FormControl fullWidth sx={formTheme}>
+                                    <InputLabel>Supervisor</InputLabel>
+                                    <Select
+                                        value={search.supervisorId || ""}
+                                        label="Supervisor"
+                                        onChange={(e) => setSearch({ ...search, supervisorId: Number(e.target.value) })}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
+                                        {Array.isArray(pessoas) && pessoas?.map((pessoa) => (
+                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.person.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <FormControl fullWidth sx={formTheme}>
+                                    <InputLabel>Gerente</InputLabel>
+                                    <Select
+                                        value={search.managerId || ""}
+                                        label="Gerente"
+                                        onChange={(e) => setSearch({ ...search, managerId: Number(e.target.value) })}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
+                                        {Array.isArray(pessoas) && pessoas?.map((pessoa) => (
+                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.person.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <FormControl fullWidth sx={formTheme}>
+                                    <InputLabel>Ambiente</InputLabel>
+                                    <Select
+                                        value={search.environmentId || ""}
+                                        label="Ambiente"
+                                        onChange={(e) => setSearch({ ...search, environmentId: Number(e.target.value) })}
+                                    >
+                                        <MenuItem value="" disabled>Selecione um ambiente...</MenuItem>
+                                        {Array.isArray(ambientes) && ambientes?.map((ambiente) => (
+                                            <MenuItem key={ambiente.id} value={ambiente.id}>
+                                                {ambiente.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </Box>
                             <Box className="flex gap-2 items-center justify-end mt-2">
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(false)}>
+                                <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setSearch({ query: '', managerId: null, buildingId: null })}>
                                     Limpar
-                                </Button>
-                                <Button href="/pessoas/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
-                                    Pesquisar
                                 </Button>
                             </Box>
                         </Box>

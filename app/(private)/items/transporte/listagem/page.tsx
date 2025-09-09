@@ -18,13 +18,14 @@ import React, { useState } from 'react';
 import { FiPlus } from 'react-icons/fi';
 import Box from '@mui/material/Box';
 import { tr } from 'zod/dist/types/v4/locales';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
 
 
 export default function ListagemTransporte() {
 
     const { setId } = useGetIDStore()
     const [isFilter, setIsFilter] = useState(false);
-    const { data: pessoas } = useGet({ url: 'person' });
+    const { users: pessoas } = useGetUsuario({});
     const [modalDetail, setModalDetail] = useState(false);
     const { data: predios } = useGet({ url: 'building' });
     const [detail, setDetail] = useState<any | null>(null);
@@ -124,10 +125,10 @@ export default function ListagemTransporte() {
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
-                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#635D77' /> : <MdOutlineFilterAlt size={25} color='#635D77' />}
+                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#00b288' /> : <MdOutlineFilterAlt size={25} color='#00b288' />}
                         </Button>
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
-                            <GoDownload size={25} color='#635D77' />
+                            <GoDownload size={25} color='#00b288' />
                         </Button>
                         <Button href="/items/transporte/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
@@ -153,7 +154,7 @@ export default function ListagemTransporte() {
                                         <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
                                         {Array.isArray(pessoas) && pessoas?.map((pessoa) => (
                                             <MenuItem key={pessoa.id} value={pessoa.id}>
-                                                {pessoa.name}
+                                                {pessoa.person.name}
                                             </MenuItem>
                                         ))}
                                     </Select>

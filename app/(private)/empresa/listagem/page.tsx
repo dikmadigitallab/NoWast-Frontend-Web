@@ -77,10 +77,10 @@ export default function ListagemEmpresas() {
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
-                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#635D77' /> : <MdOutlineFilterAlt size={25} color='#635D77' />}
+                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#00b288' /> : <MdOutlineFilterAlt size={25} color='#00b288' />}
                         </Button>
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
-                            <GoDownload size={25} color='#635D77' />
+                            <GoDownload size={25} color='#00b288' />
                         </Button>
                         <Button href="/empresa/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />

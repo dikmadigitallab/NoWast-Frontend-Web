@@ -41,8 +41,6 @@ export const useLogin = () => {
                 },
             });
 
-            console.log(responseContract.data.data)
-
             const userInfo = {
                 name: response.data.data.user.person.name,
                 email: response.data.data.user.person.emails[0]?.email,
