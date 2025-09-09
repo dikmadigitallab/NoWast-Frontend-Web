@@ -4,7 +4,8 @@ import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useSelectModule } from "@/app/store/isSelectModule";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
-import { Alert, Box, Button, CircularProgress } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Tooltip } from "@mui/material";
+import { FaRegBuilding } from "react-icons/fa";
 
 export default function Empresas() {
 
@@ -48,28 +49,34 @@ export default function Empresas() {
                         return (
                             <Box
                                 key={empresa.id}
-                                className="w-[25vw] flex flex-col items-center justify-between overflow-hidden gap-3 p-4 rounded-sm border border-[#5e58731f] h-[350px] sm:h-[380px] md:h-[400px] transition-all duration-300 hover:shadow-md"
+                                className="w-[25vw] flex flex-col items-center justify-between overflow-hidden p-4 rounded-sm border border-[#5e58731f] h-[350px] sm:h-[380px] md:h-[400px] transition-all duration-300 hover:shadow-md"
                             >
-                                <img
-                                    className="w-full h-[120px] sm:h-[150px] md:h-[180px] object-cover rounded-sm transition duration-500 ease-in-out hover:scale-102"
-                                    alt={empresa.person.name}
-                                />
-                                <span className='text-[#3b3b3b] text-lg sm:text-xl md:text-2xl font-medium text-center'>
-                                    {empresa.person.name}
-                                </span>
-                                {empresa.acronym && (
-                                    <span className='text-[#6B7280] text-sm italic'>
-                                        ({empresa.acronym})
+
+                                <Box className="w-full h-[30%]  flex items-center justify-center rounded-sm bg-[#f6f6f694]">
+                                    <FaRegBuilding size={70} color="#a7a7a7" />
+                                </Box>
+
+                                <Box className="w-full h-[40%] p-4 flex flex-col items-center justify-start gap-1 ">
+                                    <span className='text-[#3b3b3b] text-lg sm:text-xl md:text-2xl font-medium text-center'>
+                                        {empresa.person.name}
                                     </span>
-                                )}
-                                <span className='text-[#5E5873] text-xs sm:text-sm text-center line-clamp-3'>
-                                    {empresa.description || empresa.person.briefDescription || `${empresa.person.name} é uma empresa parceira que busca excelência e inovação em seus processos.`}
-                                </span>
-                                {empresa.businessSector && (
-                                    <span className='text-[#6B7280] text-xs italic'>
-                                        Setor: {empresa.businessSector.description}
-                                    </span>
-                                )}
+                                    {empresa.acronym && (
+                                        <span className='text-[#6B7280] text-sm italic'>
+                                            ({empresa.acronym})
+                                        </span>
+                                    )}
+                                    {empresa.businessSector && (
+                                        <span className='text-[#6B7280] text-xs italic'>
+                                            Setor: {empresa.businessSector.description}
+                                        </span>
+                                    )}
+                                    <Tooltip title={empresa.description} arrow>
+                                        <span className='text-[#5E5873] text-xs sm:text-sm text-center line-clamp-3'>
+                                            {empresa.description.substring(0, 90)}...
+                                        </span>
+                                    </Tooltip>
+                                </Box>
+
                                 <Button
                                     onClick={() => redirect(empresa.id)}
                                     disabled={!isActive}
@@ -77,9 +84,7 @@ export default function Empresas() {
                                         buttonTheme,
                                         {
                                             width: "100%",
-                                            marginTop: "auto",
                                             fontSize: "0.875rem",
-                                            padding: "0.5rem",
                                             opacity: isActive ? 1 : 0.6
                                         }
                                     ]}
