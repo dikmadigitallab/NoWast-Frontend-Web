@@ -51,14 +51,14 @@ USER nextjs
 
 #EXPOSE 3001
 # Porta
-<<<<<<< HEAD
+
 EXPOSE 3000
 ENV PORT=3000
-=======
+
 EXPOSE 18649
 #EXPOSE 3001
 ENV PORT=18649
->>>>>>> 119c802ec92bb01c23ae3ec2c950284b2a523b29
+
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
