@@ -36,6 +36,7 @@ export default function Predios() {
                     {predios?.map((predio: any) => {
 
                         const image = predio.buildingFiles[0]?.file?.url;
+                        console.log(image);
                         const status = predio.deletedAt ? "inativo" : "ativo";
 
                         return (
