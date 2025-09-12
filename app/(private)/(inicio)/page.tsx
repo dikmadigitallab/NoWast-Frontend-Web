@@ -8,11 +8,13 @@ import { StyledMainContainer } from "@/app/styles/container/container";
 import { Box, Button } from "@mui/material";
 import { useEffect } from "react";
 
+
 interface Module {
   id: number
   name: string;
   image: string;
   status: string,
+  description:string
 }
 export default function Home() {
 
@@ -44,20 +46,23 @@ export default function Home() {
     {
       id: 1,
       name: "Queda Zero",
-      image: "https://images.pexels.com/photos/247763/pexels-photo-247763.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      status: "ativo"
+      image: "https://t9013368760.p.clickup-attachments.com/t9013368760/481d9a73-0ee3-427c-834a-f728141a0a3a/721e922f6875715f55d56bfaefaf5acb.jpg",
+      status: "ativo",
+      description:'Queda-Zero é uma solução voltada para limpezas pesadas industriais, com cronogramas de limpezas. Além de mapear e apontar quedas indevidas de materiais dentro das áreas operacionais. Ele não apenas registra atividades e ocorrências, mas também sugere pontos de manutenção e ajustes necessários para minimizar perdas, trazendo ganhos diretos em segurança, produtividade e redução de custos.'
     },
     {
       id: 2,
       name: "SDO",
-      image: "https://images.pexels.com/photos/247763/pexels-photo-247763.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      status: "inativo"
+      image: "https://t9013368760.p.clickup-attachments.com/t9013368760/36d33287-8d44-42af-abba-bb161228f27c/d8bf3288feab5131b493ee56eace859e-e1734718711978-qysqo3ieduumro0ntwjopivm246722e0ffso8cwja8.jpg",
+      status: "inativo",
+      description:'SDO (Sistema Dikma Operacional), criado para monitorar e organizar atividades de limpeza de forma personalizada. Ele garante rastreabilidade das operações, facilita o acompanhamento de resultados em tempo real e entrega maior confiabilidade à gestão dos contratos. Ganhando transparência, agilidade e cuidando dos colaboradores.'
     },
     {
       id: 3,
       name: "Coleta Seletiva",
-      image: "https://images.pexels.com/photos/247763/pexels-photo-247763.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      status: "inativo"
+      image: "https://t9013368760.p.clickup-attachments.com/t9013368760/ac274ef5-6fcb-472d-bdbe-0f930b349848/WhatsApp%20Image%202025-06-26%20at%2012.24.24.jpeg",
+      status: "inativo",
+      description:'Coleta Seletiva tem como foco identificar a coletas em todos os pontos obrigatórios e registrar problemas relacionados ao descarte incorreto de resíduos. Com ele, é possível acompanhar o comportamento dos usuários, apontar falhas na utilização das lixeiras e gerar insights para melhorar a conscientização e eficiência no processo de separação do lixo.'
     }
   ]
 
@@ -85,7 +90,7 @@ export default function Home() {
             >
               <img 
                 className="w-full h-[120px] sm:h-[150px] md:h-[180px] object-cover transition duration-500 ease-in-out hover:scale-102 hover:rounded-sm" 
-                src={module.image} 
+                src={module.image}
                 alt={module.name}
               />
               
@@ -94,7 +99,7 @@ export default function Home() {
               </span>
               
               <span className="text-[#5E5873] text-xs sm:text-sm text-center line-clamp-3">
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
+              {module.description}
               </span>
               
               <Button

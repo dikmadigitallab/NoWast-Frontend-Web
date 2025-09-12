@@ -80,9 +80,11 @@ export default function Atividades() {
   };
 
 
+
   const dataDonuts = [
     {
-      title: "Atividades",
+      title: <span style={{ color: '#363a38ed' }}>Atividades</span>,
+     // title: "Atividades",
       data: [
         { name: 'Concluídas', total: atividades?.completedActivities ?? 0, color: '#00CB65' },
         { name: 'Em Aberto', total: atividades?.openActivities ?? 0, color: '#2090FF' },
@@ -92,14 +94,16 @@ export default function Atividades() {
       ]
     },
     {
-      title: "Execuções",
+      title: <span style={{ color: '#363a38ed' }}>Execuções</span>,
+     // title: "Execuções",
       data: [
         { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#7367f0' },
         { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#ea5455' },
       ]
     },
     {
-      title: "Aprovações",
+      title: <span style={{ color: '#363a38ed' }}>Aprovações</span>,
+      //title: "Aprovações",
       data: [
         { name: 'Aprovadas', total: atividades?.approvedActivities ?? 0, color: '#00CB65' },
         { name: 'Pendentes de Aprovação', total: atividades?.pendingApprovalActivities ?? 0, color: '#2090FF' },
@@ -107,6 +111,7 @@ export default function Atividades() {
       ]
     }
   ];
+
 
   const empresaOptions = [
     "todas",
