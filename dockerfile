@@ -76,7 +76,7 @@ COPY --from=builder /app/.next ./.next
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-<<<<<<< HEAD
+
 #EXPOSE 3001
 # Porta
 
@@ -97,10 +97,10 @@ CMD ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
 # docker build -t meu-app .
 
 #docker run -p 18649:18649 --name meu-app-container meu-app
-=======
+
 # Expondo a porta correta (3000)
 EXPOSE 3000
 
 # Comando de start em produção
 CMD ["npm", "run", "start"]
->>>>>>> 78de3736a47b8d526475689f30674214f9eeec68
+
