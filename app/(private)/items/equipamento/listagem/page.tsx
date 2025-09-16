@@ -15,6 +15,7 @@ import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
 import { useGet } from '@/app/hooks/crud/get/useGet';
 import { LoadingComponent } from '@/app/components/loading';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
 
 
 export default function ListagemEquipamento() {
@@ -22,13 +23,15 @@ export default function ListagemEquipamento() {
     const router = useRouter();
     const { setId } = useGetIDStore();
     const [isFilter, setIsFilter] = useState(false);
-    const { data: pessoas } = useGet({ url: 'person' });
+    const { users: pessoas } = useGetUsuario({});
     const [modalDetail, setModalDetail] = useState(false);
     const { data: predios } = useGet({ url: 'building' });
     const [detail, setDetail] = useState<any | null>(null);
     const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
     const [search, setSearch] = useState<any>({ query: '', responsibleManagerId: null, buildingId: null });
     const { data: equipamentos, pages } = useGet({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize, url: 'tools', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
+
+    console.log(equipamentos);
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
@@ -120,10 +123,10 @@ export default function ListagemEquipamento() {
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
-                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#635D77' /> : <MdOutlineFilterAlt size={25} color='#635D77' />}
+                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#00b288' /> : <MdOutlineFilterAlt size={25} color='#00b288' />}
                         </Button>
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
-                            <GoDownload size={25} color='#635D77' />
+                            <GoDownload size={25} color='#00b288' />
                         </Button>
                         <Button href="/items/equipamento/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
@@ -148,7 +151,7 @@ export default function ListagemEquipamento() {
                                         <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
                                         {Array.isArray(pessoas) && pessoas?.map((pessoa) => (
                                             <MenuItem key={pessoa.id} value={pessoa.id}>
-                                                {pessoa.name}
+                                                {pessoa.person.name}
                                             </MenuItem>
                                         ))}
                                     </Select>

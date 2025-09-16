@@ -135,7 +135,7 @@ export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = n
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [   pageNumber, disablePagination, pageSize, query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId, environmentId]);
+    }, [pageNumber, disablePagination, pageSize, query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId, environmentId]);
 
 
     return {

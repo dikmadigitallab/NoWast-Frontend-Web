@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { formTheme } from '@/app/styles/formTheme/theme';
-import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Skeleton, TextField } from '@mui/material';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdKeyboardDoubleArrowDown, MdOutlineKeyboardDoubleArrowUp } from 'react-icons/md';
 import { useAuthStore } from '@/app/store/storeApp';
@@ -21,7 +21,14 @@ export default function Atividades() {
   const { data: predio } = useGet({ url: 'building' });
   const { data: pessoas, loading } = useGetUsuario({});
   const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '', empresa: 'todas' });
-  const { environmentActivities, sectorActivities } = useGetDashboardLocation({ startDate: filters.startDate ? filters.startDate : "2025-01-01", endDate: filters.endDate ? filters.endDate : "2025-12-31" })
+  const { environmentActivities, sectorActivities, loading: loadingCadastros } = useGetDashboardLocation({
+    startDate: filters.startDate ? filters.startDate : "2025-01-01",
+    endDate: filters.endDate ? filters.endDate : "2025-12-31",
+    userId: filters.userId,
+    sectorId: filters.sectorId,
+    environmentId: filters.environmentId,
+    buildingId: filters.buildingId,
+  })
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
@@ -289,12 +296,20 @@ export default function Atividades() {
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
           <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por SETOR</h1>
-          <ReverseBar data={environmentActivities || []} />
+          {loading || loadingCadastros ? (
+            <Skeleton variant="rectangular" height={300} width={"100%"} />
+          ) : (
+            <ReverseBar data={environmentActivities || []} />
+          )}
         </Box>
 
         <Box className="flex flex-col gap-5 p-7 w-[100%] items-start justify-between bg-white rounded-lg">
           <h1 className="text-2xl font-medium text-[#5E5873]">QTD. de M² Limpo por AMBIENTE</h1>
-          <ReverseBar data={sectorActivities || []} />
+          {loading || loadingCadastros ? (
+            <Skeleton variant="rectangular" height={300} width={"100%"} />
+          ) : (
+            <ReverseBar data={sectorActivities || []} />
+          )}
         </Box>
 
       </Box>

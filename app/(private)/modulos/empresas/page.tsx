@@ -12,8 +12,6 @@ export default function Empresas() {
     const { SetisSelectModule } = useSelectModule();
     const { data: empresas, loading } = useGet({ url: "company" });
 
-    console.log(empresas);
-
     const redirect = (empresaId: number) => {
         window.location.href = `/modulos/predios?empresa=${empresaId}`;
     };

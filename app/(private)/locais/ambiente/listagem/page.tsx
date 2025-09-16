@@ -26,7 +26,7 @@ export default function DataGridAmbientes() {
     const [visualize, setVisualize] = useState<any>(null);
     const [search, setSearch] = useState<any>({ query: '' });
     const [modalVisualize, setModalVisualize] = useState(false);
-    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 1 });
+    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
     const { data: ambientes, pages } = useGet({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize, disablePagination: false, url: "environment", query: search.query });
 
 
@@ -126,10 +126,10 @@ export default function DataGridAmbientes() {
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
-                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#635D77' /> : <MdOutlineFilterAlt size={25} color='#635D77' />}
+                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#00b288' /> : <MdOutlineFilterAlt size={25} color='#00b288' />}
                         </Button>
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
-                            <GoDownload size={25} color='#635D77' />
+                            <GoDownload size={25} color='#00b288' />
                         </Button>
                         <Button href="/locais/ambiente/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />

@@ -32,7 +32,7 @@ export default function UserHeader() {
                         Olá, {userInfo?.name}!
                     </h1>
                     <p className="text-[#00b288] text-base sm:text-lg md:text-xl font-semibold animate-pulse">
-                        {userTypes[userType!]}
+                        {userTypes[userType]} / {userInfo?.contractName}
                     </p>
                     <p className="text-[#5E5873] text-sm sm:text-base">
                         Escolha uma das empresas para iniciar sua jornada com a Dikma.

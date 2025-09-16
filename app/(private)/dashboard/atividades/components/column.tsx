@@ -76,7 +76,7 @@ export default function ColumnChart({ data }: { data?: ChartData }) {
       toolbar: { show: true },
       zoom: { enabled: true }
     },
-    colors: ['#768B95', '#FDE802', '#EA5455'],
+    colors: ['#22292c', '#FDE802', '#EA5455'],
     responsive: [
       {
         breakpoint: 480,
