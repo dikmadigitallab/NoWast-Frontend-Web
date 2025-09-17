@@ -25,6 +25,12 @@ jobs:
           port: 22206
           source: "."
           target: "/var/www/nowaste-front-end"
+          exclude: |
+            .git*
+            node_modules
+            *.log
+          strip_components: 1
+          overwrite: true
 
       # Copiar arquivos dev para a máquina 2 (DEV)
       - name: Copiar arquivos dev para o servidor
@@ -33,14 +39,17 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          # ALTERAÇÃO: usar o conteúdo da chave privada em DEPLOY_KEY, não o caminho local
           key: ${{ secrets.DEPLOY_KEY_DEV }}
           port: 22207
           source: "."
           target: "/var/www/nowastev2-homologa"
-          debug: true   # DEBUG ativado para verificar se a chave está sendo usada
+          debug: true
+          exclude: |
+            .git*
+            node_modules
+            *.log
+          strip_components: 1
           overwrite: true
-          
 
       # SSH e rodar Docker na máquina 1 (main)
       - name: SSH e rodar Docker main
@@ -65,15 +74,11 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          # ALTERAÇÃO: usar o conteúdo da chave privada em DEPLOY_KEY, não o caminho local
           key: ${{ secrets.DEPLOY_KEY_DEV }}
           port: 22207
           script: |
             cd /var/www/nowastev2-homologa
             docker stop nowastev2-homologa || true
             docker rm nowastev2-homologa || true
-            docker build -t nowastev2-homologa.
+            docker build -t nowastev2-homologa .
             docker run -d -p 9003:18649 --name nowastev2-homologa nowastev2-homologa
-    # teste:  docker run -d -p 3001:18649 --name nowastev2-homologa nowastev2-homologa
-
-
