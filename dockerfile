@@ -2,9 +2,9 @@
 # Etapa base
 # ========================
 FROM node:20-alpine AS base
-
-# Dependências de sistema necessárias
+# Instalando dependências de sistema necessárias
 RUN apk add --no-cache libc6-compat openssl3 openssl-dev libssl3
+
 
 # ========================
 # Etapa 1: Dependências
@@ -12,10 +12,10 @@ RUN apk add --no-cache libc6-compat openssl3 openssl-dev libssl3
 FROM base AS deps
 WORKDIR /app
 
-# Copia lockfiles
+# Copia lockfiles (yarn, npm, pnpm)
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 
-# Instala dependências conforme lockfile
+# Instala dependências de acordo com o lockfile detectado
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
@@ -23,46 +23,50 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+
 # ========================
 # Etapa 2: Build
 # ========================
 FROM base AS builder
 WORKDIR /app
 
-# Copia dependências
+# Copia dependências já instaladas
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Copia variáveis de ambiente específicas de produção
-COPY .env.production .env
+# Copia variáveis de ambiente específicas para produção
+COPY .env.production .env  
 
-# Build Next.js
+# Faz o build da aplicação Next.js
 RUN if [ -f yarn.lock ]; then yarn build; \
     elif [ -f package-lock.json ]; then npm run build; \
     elif [ -f pnpm-lock.yaml ]; then pnpm build; \
     else echo "Lockfile not found." && exit 1; \
     fi
 
+
 # ========================
-# Etapa 3: Runner (produção)
+# Etapa 3: Produção
 # ========================
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Porta padrão do Next.js
-ENV PORT=3001
+# Porta padrão do Next.js (corrigido para 3000)
+ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Variáveis para URLs públicas
+# 👇 Adicionamos variáveis que ajudam Next.js a gerar URLs corretas
+# BASE_URL pode ser usada internamente (API calls, configs)
+# NEXT_PUBLIC_BASE_URL é exposta no frontend (navegador)
 ENV BASE_URL=https://nowastev2-homologa.dikmadigital.com.br
 ENV NEXT_PUBLIC_BASE_URL=https://nowastev2-homologa.dikmadigital.com.br
 
-# Cria usuário não-root
+# Cria usuário não-root para segurança
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs
 
-# Copia build
+# Copia arquivos necessários do build
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
@@ -72,8 +76,31 @@ COPY --from=builder /app/.next ./.next
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-# Expõe porta correta
-EXPOSE 3001
 
-# Comando de start
-CMD ["npx", "next", "start", "-p", "3001", "-H", "0.0.0.0"]
+#EXPOSE 3001
+# Porta
+
+EXPOSE 3000
+ENV PORT=3000
+
+EXPOSE 18649
+#EXPOSE 3001
+ENV PORT=18649
+
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
+# Inicia o Next.js
+#CMD ["npm", "run", "start"]
+
+
+# docker build -t meu-app .
+
+#docker run -p 18649:18649 --name meu-app-container meu-app
+
+# Expondo a porta correta (3000)
+EXPOSE 3000
+
+# Comando de start em produção
+CMD ["npm", "run", "start"]
+
