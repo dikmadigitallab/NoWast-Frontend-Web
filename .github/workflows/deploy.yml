@@ -40,7 +40,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.DEPLOY_KEY_DEV }}
-          port: 22206
+          port: 22207
           source: "."
           target: "/var/www/nowastev2-homologa"
           debug: true
@@ -65,7 +65,7 @@ jobs:
             docker stop nowaste-front-end || true
             docker rm nowaste-front-end || true
             docker build -t nowaste-front-end .
-            docker run -d -p 9003:18649 --name nowaste-front-end nowaste-front-end
+            docker run -d   -p 9003:3000  --name nowaste-front-end nowaste-front-end
 
       # SSH e rodar Docker na máquina 2 (dev)
       - name: SSH e rodar Docker dev
@@ -75,10 +75,10 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.DEPLOY_KEY_DEV }}
-          port: 22206
+          port: 22207
           script: |
             cd /var/www/nowastev2-homologa
             docker stop nowastev2-homologa || true
             docker rm nowastev2-homologa || true
             docker build -t nowastev2-homologa .
-            docker run -d -p 9003:18649 --name nowastev2-homologa nowastev2-homologa
+            docker run -d -p -p 9003:3000 --name nowastev2-homologa nowastev2-homologa
