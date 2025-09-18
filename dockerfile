@@ -103,7 +103,7 @@ WORKDIR /app
 # Configurar ambiente
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
+ENV PORT=18649
 ENV HOSTNAME=0.0.0.0
 
 # Criar usuário não-root
@@ -237,7 +237,7 @@ RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
     chmod +x /docker-entrypoint.sh
 
 USER appuser
-EXPOSE 8080
+EXPOSE 18649
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
