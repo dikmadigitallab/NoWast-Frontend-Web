@@ -40,7 +40,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.DEPLOY_KEY_DEV }}
-          port: 22207
+          port: 22206
           source: "."
           target: "/var/www/nowastev2-homologa"
           debug: true
@@ -75,7 +75,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.DEPLOY_KEY_DEV }}
-          port: 22207
+          port: 22206
           script: |
             cd /var/www/nowastev2-homologa
             docker stop nowastev2-homologa || true
