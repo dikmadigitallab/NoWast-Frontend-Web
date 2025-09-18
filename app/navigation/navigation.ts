@@ -1,10 +1,9 @@
 import { MdOutlinePlace } from 'react-icons/md';
 import { RxDashboard } from 'react-icons/rx';
 import { IoHomeOutline, IoNotificationsCircleOutline } from "react-icons/io5";
-import { FaRegBuilding, FaRegCalendar, FaRegCircle } from 'react-icons/fa';
+import { FaRegBuilding, FaRegCalendar, FaRegCalendarAlt, FaRegCircle } from 'react-icons/fa';
 import { GrUserAdmin } from "react-icons/gr";
 import { FiBox } from 'react-icons/fi';
-import { BsBuildings } from 'react-icons/bs';
 
 type SubItem = {
     icon?: React.ComponentType<{ className?: string; color?: string; size?: number }>;
@@ -70,14 +69,19 @@ export const ADM_DIKMA: NavItem[] = [
         ]
     },
     {
-        name: 'Notificações',
-        href: ['/notificacoes'],
-        icon: IoNotificationsCircleOutline,
-    },
-    {
         name: 'Pessoas',
         icon: GrUserAdmin,
         href: ['/usuario/listagem']
+    },
+    {
+        name: 'Cronograma',
+        icon: FaRegCalendarAlt,
+        href: ['/calendar']
+    },
+    {
+        name: 'Notificações',
+        href: ['/notificacoes'],
+        icon: IoNotificationsCircleOutline,
     },
 ];
 

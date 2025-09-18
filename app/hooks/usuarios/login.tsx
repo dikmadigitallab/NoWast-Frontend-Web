@@ -12,15 +12,13 @@ export const useLogin = () => {
     const { setId, setUserInfo, setUserType } = useAuthStore();
 
     const login = async (data: string, password: string) => {
-
         setIsLoading(true);
         setError(null);
 
         try {
             const clearFormatedData = data?.replace(/[.\-]/g, '')
-            const response = await api.post('/auth', { document: clearFormatedData, password});
+            const response = await api.post('/auth', { document: clearFormatedData, password });
             document.cookie = `authToken=${response.data.data.token}; Path=/; Max-Age=3600; SameSite=Lax`;
-           
 
             if (response.data.data.user.role.name === "Administrador Dikma") {
                 setUserType("ADM_DIKMA");
@@ -34,11 +32,20 @@ export const useLogin = () => {
                 setUserType("OPERATIONAL");
             }
 
+            const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
+            const responseContract = await api.get(`/contract/${response.data.data.user.contractId}`, {
+                headers: {
+                    Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
             const userInfo = {
                 name: response.data.data.user.person.name,
                 email: response.data.data.user.person.emails[0]?.email,
                 document: response.data.data.user.person.document,
                 position: response.data.data.user.role.name,
+                contractName: responseContract.data.data.name,
                 contractId: response.data.data.user.contractId
             }
 

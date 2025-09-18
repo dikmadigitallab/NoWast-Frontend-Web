@@ -26,9 +26,11 @@ interface User {
 
 interface UseGetUsuarioParams {
   page?: number;
-  pageSize?: number | null;
   query?: string | null;
   supervisorId?: number | null;
   position?: number | null;
   managerId?: number | null;
+  pageNumber?: number | null,
+  pageSize?: number | null,
+  disablePagination?: boolean | null
 }

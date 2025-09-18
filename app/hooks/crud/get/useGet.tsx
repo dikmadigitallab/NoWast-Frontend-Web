@@ -10,7 +10,6 @@ import { useAuthStore } from "@/app/store/storeApp";
 export interface UseGetParams {
     url: string,
     page?: number,
-    pageSize?: number | null,
     query?: string | null,
     supervisorId?: number | null,
     positionId?: number | null,
@@ -18,15 +17,19 @@ export interface UseGetParams {
     responsibleManagerId?: number | null
     buildingId?: number | null,
     environmentId?: number | null
+    pageNumber?: number | null,
+    pageSize?: number | null,
+    disablePagination?: boolean | null
 }
 
-export const useGet = ({ url, page = 1, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
+export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null }: UseGetParams) => {
 
     const { userInfo } = useAuthStore();
     const { setIdService } = useGetIDStore();
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [pages, setPages] = useState({ pageNumber: 0, pageSize: 0, totalItems: 0, totalPages: 0 });
 
     const get = async () => {
 
@@ -45,18 +48,17 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
         try {
             const params = new URLSearchParams();
 
-            params.append("disablePagination", "true");
-            params.append("page", String(page));
-            params.append("contractId", String(userInfo.contractId));
-
-            if (query !== null) params.append("query", query.trim());
+            if (disablePagination !== null) params.append("disablePagination", String(disablePagination).trim());
+            if (pageNumber !== null) params.append("pageNumber", String(pageNumber).trim());
             if (pageSize !== null) params.append("pageSize", String(pageSize).trim());
+            if (query !== null && query !== '') params.append("query", query.trim());
             if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
             if (positionId !== null) params.append("positionId", String(positionId).trim());
             if (managerId !== null) params.append("managerId", String(managerId).trim());
             if (responsibleManagerId !== null) params.append("responsibleManagerId", String(responsibleManagerId).trim());
             if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
             if (environmentId !== null) params.append("environmentId", String(environmentId).trim());
+            if (userInfo.contractId) params.append("contractId", String(userInfo.contractId).trim());
 
             const paramUrl = `/${url}?${params.toString()}`;
 
@@ -94,10 +96,22 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
                     };
                 });
 
+                setPages({
+                    pageNumber: response?.data?.data?.pageNumber,
+                    pageSize: response?.data?.data?.pageSize,
+                    totalItems: response?.data?.data?.totalCount,
+                    totalPages: response?.data?.data?.totalPages,
+                });
                 setData(refactorData);
             }
 
             else {
+                setPages({
+                    pageNumber: response?.data?.data?.pageNumber,
+                    pageSize: response?.data?.data?.pageSize,
+                    totalItems: response?.data?.data?.totalCount,
+                    totalPages: response?.data?.data?.totalPages,
+                });
                 setData(response.data.data.items);
             }
 
@@ -121,10 +135,11 @@ export const useGet = ({ url, page = 1, pageSize = null, query = null, superviso
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId, environmentId]);
+    }, [pageNumber, disablePagination, pageSize, query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId, environmentId]);
 
 
     return {
+        pages,
         loading,
         error,
         data

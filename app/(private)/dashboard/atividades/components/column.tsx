@@ -23,8 +23,6 @@ interface ChartData {
 }
 
 export default function ColumnChart({ data }: { data?: ChartData }) {
-  console.log('Dados recebidos para o gráfico:', data);
-
   // Processar os dados para o formato necessário pelo chart
   const processChartData = () => {
     if (!data?.occurrencesByDay) {
@@ -78,7 +76,7 @@ export default function ColumnChart({ data }: { data?: ChartData }) {
       toolbar: { show: true },
       zoom: { enabled: true }
     },
-    colors: ['#768B95', '#FDE802', '#EA5455'],
+    colors: ['#22292c', '#FDE802', '#EA5455'],
     responsive: [
       {
         breakpoint: 480,

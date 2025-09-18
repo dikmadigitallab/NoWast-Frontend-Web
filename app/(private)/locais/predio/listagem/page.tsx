@@ -3,13 +3,12 @@
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { Button, IconButton, TextField } from '@mui/material';
+import { Button, IconButton, Pagination, PaginationItem, TextField, Typography } from '@mui/material';
 import { LoadingComponent } from '@/app/components/loading';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useGetIDStore } from '@/app/store/getIDStore';
 import { useGet } from '@/app/hooks/crud/get/useGet';
-import { ptBR } from '@mui/x-data-grid/locales';
 import { GoDownload } from 'react-icons/go';
 import { useRouter } from 'next/navigation';
 import { FiPlus } from 'react-icons/fi';
@@ -22,10 +21,11 @@ export default function ListagemPredios() {
     const router = useRouter();
     const { setId } = useGetIDStore();
     const [isFilter, setIsFilter] = useState(false);
-    const [search, setSearch] = useState<any>({ query: '' });
-    const { data: predios } = useGet({ url: "building", query: search.query });
     const [modalDetail, setModalDetail] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
+    const [search, setSearch] = useState<any>({ query: '' });
+    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
+    const { data: predios, pages } = useGet({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize, url: "building", query: search.query });
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
@@ -37,6 +37,13 @@ export default function ListagemPredios() {
         setTimeout(() => {
             router.push(`/locais/predio/atualizar`);
         }, 500)
+    }
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+        setPagination(prev => ({
+            ...prev,
+            pageNumber: page
+        }));
     }
 
     const columns: GridColDef<any>[] = [
@@ -107,10 +114,10 @@ export default function ListagemPredios() {
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
-                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#635D77' /> : <MdOutlineFilterAlt size={25} color='#635D77' />}
+                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#00b288' /> : <MdOutlineFilterAlt size={25} color='#00b288' />}
                         </Button>
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
-                            <GoDownload size={25} color='#635D77' />
+                            <GoDownload size={25} color='#00b288' />
                         </Button>
                         <Button href="/locais/predio/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
@@ -135,32 +142,69 @@ export default function ListagemPredios() {
                 }
 
                 {predios ?
-                    (<DataGrid
-                        rows={predios}
-                        columns={columns}
-                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                        initialState={{
-                            pagination: {
-                                paginationModel: {
-                                    pageSize: 10,
+                    (<>
+                        <DataGrid
+                            rows={predios || []}
+                            columns={columns}
+                            disableRowSelectionOnClick
+                            hideFooterPagination
+                            hideFooter
+                            slots={{
+                                noRowsOverlay: () => (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: '100%',
+                                            color: '#666',
+                                        }}
+                                    >
+                                        <Typography variant="h6">Nenhum dado encontrado</Typography>
+                                        <Typography variant="body2">Tente ajustar os filtros ou adicionar novos registros.</Typography>
+                                    </Box>
+
+                                )
+                            }}
+                            sx={{
+                                '& .MuiDataGrid-columnHeaders': {
+                                    backgroundColor: 'unset',
+                                    color: 'unset',
                                 },
-                            },
-                        }}
-                        pageSizeOptions={[5, 25, 100]}
-                        disableRowSelectionOnClick
-                        sx={{
-                            '& .MuiDataGrid-columnHeaders': {
-                                backgroundColor: 'unset',
-                                color: 'unset',
-                            },
-                            '& .MuiDataGrid-row:nth-of-type(odd)': {
-                                backgroundColor: '#FAFAFA',
-                            },
-                            '& .MuiDataGrid-row:hover': {
-                                backgroundColor: '#f0f0f0',
-                            },
-                        }}
-                    />) :
+                                '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                    backgroundColor: '#FAFAFA',
+                                },
+                                '& .MuiDataGrid-row:hover': {
+                                    backgroundColor: '#f0f0f0',
+                                },
+                            }}
+                        />
+
+                        <Box className="h-10 flex justify-center items-center  mt-4">
+                            <Pagination
+                                hidden={pages?.totalPages <= 1}
+                                count={pages?.totalPages || 1}
+                                page={pagination.pageNumber}
+                                onChange={handlePageChange}
+                                color="primary"
+                                renderItem={(item) => (
+                                    <PaginationItem
+                                        {...item}
+                                        sx={{
+                                            '&.Mui-selected': {
+                                                backgroundColor: '#00b288',
+                                                color: 'white',
+                                                '&:hover': {
+                                                    backgroundColor: '#00755a',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                )}
+                            />
+                        </Box>
+                    </>) :
                     (<LoadingComponent />)
                 }
             </Box>

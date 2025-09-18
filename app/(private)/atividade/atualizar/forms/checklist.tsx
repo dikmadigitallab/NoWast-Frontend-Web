@@ -1,17 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import {
-    Box,
-    Button,
-    FormControl,
-    IconButton,
-    InputLabel,
-    MenuItem,
-    Select,
-    CircularProgress,
-    Chip
-} from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, CircularProgress, Chip, Typography } from "@mui/material";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
@@ -27,8 +17,8 @@ type Service = { id: number, name: string };
 
 export default function FormCheckList({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any } }) {
 
-    const { id } = useGetIDStore();
-    const { data: services, loading } = useGet({ url: "service", environmentId: id });
+    const { id_environment } = useGetIDStore();
+    const { data: services, loading } = useGet({ url: "service", environmentId: id_environment });
     const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
 
     const handleRemoveSelected = (value: string, field: keyof typeof selectedState, setSelectedState: any) => {
@@ -189,6 +179,24 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                 sx={tableTheme}
                 getRowId={(row) => row.id}
                 hideFooter
+                slots={{
+                    noRowsOverlay: () => (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%',
+                                color: '#666',
+                            }}
+                        >
+                            <Typography variant="h6">Nenhum dado encontrado</Typography>
+                            <Typography variant="body2">Tente ajustar os filtros ou adicionar novos registros.</Typography>
+                        </Box>
+
+                    )
+                }}
             />
         </Box>
     );

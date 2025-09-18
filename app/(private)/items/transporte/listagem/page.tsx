@@ -2,7 +2,7 @@
 
 
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
-import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Button, FormControl, IconButton, InputLabel, MenuItem, Pagination, PaginationItem, Select, TextField, Typography } from '@mui/material';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { LoadingComponent } from '@/app/components/loading';
@@ -17,18 +17,21 @@ import { GoDownload } from 'react-icons/go';
 import React, { useState } from 'react';
 import { FiPlus } from 'react-icons/fi';
 import Box from '@mui/material/Box';
+import { tr } from 'zod/dist/types/v4/locales';
+import { useGetUsuario } from '@/app/hooks/usuarios/get';
 
 
 export default function ListagemTransporte() {
 
     const { setId } = useGetIDStore()
     const [isFilter, setIsFilter] = useState(false);
-    const { data: pessoas } = useGet({ url: 'person' });
+    const { users: pessoas } = useGetUsuario({});
     const [modalDetail, setModalDetail] = useState(false);
     const { data: predios } = useGet({ url: 'building' });
     const [detail, setDetail] = useState<any | null>(null);
+    const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
     const [search, setSearch] = useState<any>({ query: '', responsibleManagerId: null, buildingId: null });
-    const { data: transportes } = useGet({ url: 'transport', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
+    const { data: transportes, pages } = useGet({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize, url: 'transport', query: search.query, responsibleManagerId: search.responsibleManagerId, buildingId: search.buildingId });
 
     const router = useRouter();
 
@@ -42,6 +45,13 @@ export default function ListagemTransporte() {
         setTimeout(() => {
             router.push(`/items/transporte/atualizar`);
         }, 500)
+    }
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+        setPagination(prev => ({
+            ...prev,
+            pageNumber: page
+        }));
     }
 
     const columns: GridColDef<any>[] = [
@@ -115,10 +125,10 @@ export default function ListagemTransporte() {
                     </Box>
                     <Box className="flex  items-center self-end gap-3">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => setIsFilter(!isFilter)}>
-                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#635D77' /> : <MdOutlineFilterAlt size={25} color='#635D77' />}
+                            {isFilter ? <MdOutlineFilterAltOff size={25} color='#00b288' /> : <MdOutlineFilterAlt size={25} color='#00b288' />}
                         </Button>
                         <Button variant="outlined" sx={buttonThemeNoBackground}>
-                            <GoDownload size={25} color='#635D77' />
+                            <GoDownload size={25} color='#00b288' />
                         </Button>
                         <Button href="/items/transporte/cadastro" type="submit" variant="outlined" sx={buttonTheme}>
                             <FiPlus size={25} />
@@ -144,7 +154,7 @@ export default function ListagemTransporte() {
                                         <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
                                         {Array.isArray(pessoas) && pessoas?.map((pessoa) => (
                                             <MenuItem key={pessoa.id} value={pessoa.id}>
-                                                {pessoa.name}
+                                                {pessoa.person.name}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -175,32 +185,69 @@ export default function ListagemTransporte() {
                 }
 
                 {transportes ?
-                    (<DataGrid
-                        rows={transportes}
-                        columns={columns}
-                        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                        initialState={{
-                            pagination: {
-                                paginationModel: {
-                                    pageSize: 10,
+                    (<>
+                        <DataGrid
+                            rows={transportes || []}
+                            columns={columns}
+                            disableRowSelectionOnClick
+                            hideFooterPagination
+                            hideFooter
+                            slots={{
+                                noRowsOverlay: () => (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: '100%',
+                                            color: '#666',
+                                        }}
+                                    >
+                                        <Typography variant="h6">Nenhum dado encontrado</Typography>
+                                        <Typography variant="body2">Tente ajustar os filtros ou adicionar novos registros.</Typography>
+                                    </Box>
+
+                                )
+                            }}
+                            sx={{
+                                '& .MuiDataGrid-columnHeaders': {
+                                    backgroundColor: 'unset',
+                                    color: 'unset',
                                 },
-                            },
-                        }}
-                        pageSizeOptions={[5, 25, 100]}
-                        disableRowSelectionOnClick
-                        sx={{
-                            '& .MuiDataGrid-columnHeaders': {
-                                backgroundColor: 'unset',
-                                color: 'unset',
-                            },
-                            '& .MuiDataGrid-row:nth-of-type(odd)': {
-                                backgroundColor: '#FAFAFA',
-                            },
-                            '& .MuiDataGrid-row:hover': {
-                                backgroundColor: '#f0f0f0',
-                            },
-                        }}
-                    />) :
+                                '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                    backgroundColor: '#FAFAFA',
+                                },
+                                '& .MuiDataGrid-row:hover': {
+                                    backgroundColor: '#f0f0f0',
+                                },
+                            }}
+                        />
+
+                        <Box className="h-10 flex justify-center items-center  mt-4">
+                            <Pagination
+                                hidden={pages?.totalPages <= 1}
+                                count={pages?.totalPages || 1}
+                                page={pagination.pageNumber}
+                                onChange={handlePageChange}
+                                color="primary"
+                                renderItem={(item) => (
+                                    <PaginationItem
+                                        {...item}
+                                        sx={{
+                                            '&.Mui-selected': {
+                                                backgroundColor: '#00b288',
+                                                color: 'white',
+                                                '&:hover': {
+                                                    backgroundColor: '#00755a',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                )}
+                            />
+                        </Box>
+                    </>) :
                     (<LoadingComponent />)
                 }
             </Box>

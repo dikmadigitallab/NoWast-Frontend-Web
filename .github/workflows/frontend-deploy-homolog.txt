@@ -1,0 +1,181 @@
+name: Deploy Frontend - Homologação
+
+on:
+  push:
+    branches: [hml] 
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Forçar rebuild completo'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: nowast-frontend-web
+
+jobs:
+  build-and-push:
+    name: Build and Push Frontend Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=homolog-
+            type=raw,value=homolog-latest
+
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            REACT_APP_API_URL=https://nowastev2.api.homologa.dikmadigital.com.br
+            REACT_APP_MINIO_URL=https://minio.homologa.nowastev2.dikmadigital.com.br
+            NODE_ENV=production
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+  deploy-homolog:
+    name: Deploy to Homolog Server
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: 
+      name: homolog-frontend
+      url: https://nowastev2-homologa.dikmadigital.com.br
+
+    steps:
+      - name: Deploy Frontend to Homolog Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:  ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.DEPLOY_KEY_DEV }}
+          port: 22207
+          timeout: 300s
+          script: |
+            set -e
+            
+            echo "Iniciando deploy do frontend em homologação..."
+            
+            # Variáveis
+            FRONTEND_IMAGE="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:homolog-latest"
+            PROJECT_DIR="/home/dikma/nowaste-app"
+            CONTAINER_NAME="nowast-front-homolog"
+            CADDY_CONTAINER="caddy-proxy-homolog"
+            
+            mkdir -p $PROJECT_DIR && cd $PROJECT_DIR
+            
+            # Login no registry
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Configurar rede
+            docker network inspect nowast-network >/dev/null 2>&1 || docker network create nowast-network
+            
+            # Configurar Caddyfile
+            cat > Caddyfile << 'EOF'
+            :80 {
+                reverse_proxy frontend:8080
+                
+                header {
+                    X-Content-Type-Options nosniff
+                    X-Frame-Options DENY
+                    X-XSS-Protection "1; mode=block"
+                    Referrer-Policy "strict-origin-when-cross-origin"
+                }
+                
+                encode gzip
+                
+                @static {
+                    path *.css *.js *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot
+                }
+                header @static Cache-Control "public, max-age=31536000"
+                
+                log {
+                    output file /var/log/caddy/nowaste-frontend-homolog.log
+                    format json
+                }
+            }
+            EOF
+            
+            # Parar containers existentes
+            docker stop $CADDY_CONTAINER $CONTAINER_NAME 2>/dev/null || true
+            docker rm $CADDY_CONTAINER $CONTAINER_NAME 2>/dev/null || true
+            
+            # Pull da nova imagem
+            docker pull $FRONTEND_IMAGE
+            
+            # Iniciar frontend
+            docker run -d \
+              --name $CONTAINER_NAME \
+              --network nowast-network \
+              --restart unless-stopped \
+              --expose 8080 \
+              $FRONTEND_IMAGE
+            
+            # Aguardar frontend
+            sleep 15
+            
+            # Iniciar Caddy
+            docker run -d \
+              --name $CADDY_CONTAINER \
+              --network nowast-network \
+              --restart unless-stopped \
+              -p 80:80 \
+              -v $PWD/Caddyfile:/etc/caddy/Caddyfile \
+              -v caddy_data_homolog:/data \
+              -v caddy_config_homolog:/config \
+              caddy:latest
+            
+            # Health checks
+            echo "Verificando saúde do frontend..."
+            sleep 10
+            
+            for i in {1..10}; do
+                if curl -f http://localhost/ >/dev/null 2>&1; then
+                    echo "Frontend está funcionando!"
+                    break
+                fi
+                [ $i -eq 10 ] && {
+                    echo "Frontend não está funcionando!"
+                    docker logs $CONTAINER_NAME --tail 20
+                    docker logs $CADDY_CONTAINER --tail 20
+                    exit 1
+                }
+                sleep 3
+            done
+            
+            # Limpeza
+            docker image prune -f
+            
+            echo "Deploy do frontend concluído com sucesso!"
+            echo "Frontend disponível em: https://nowastev2.homologa.dikmadigital.com.br"
