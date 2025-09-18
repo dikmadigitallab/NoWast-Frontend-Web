@@ -132,7 +132,7 @@ RUN echo '#!/bin/sh' > /app/start.sh && \
 USER nextjs
 
 # CORRIGIDO: Porta consistente (era 3001)
-EXPOSE 3000
+EXPOSE 9003
 
 # Health check robusto
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
@@ -237,7 +237,7 @@ RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
     chmod +x /docker-entrypoint.sh
 
 USER appuser
-EXPOSE 18649
+EXPOSE 9003
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
