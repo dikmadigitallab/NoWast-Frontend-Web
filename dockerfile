@@ -80,4 +80,4 @@ USER nextjs
 EXPOSE 3000
 
 # Comando de start em produção
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start", "--", "-p", "3000"]
