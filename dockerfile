@@ -1,144 +1,83 @@
 # ========================
-# Base comum
+# Etapa base
 # ========================
 FROM node:20-alpine AS base
+# Instalando dependências de sistema necessárias
+RUN apk add --no-cache libc6-compat openssl3 openssl-dev libssl3
 
-RUN apk add --no-cache \
-    libc6-compat \
-    dumb-init \
-    curl
-
-WORKDIR /app
 
 # ========================
 # Etapa 1: Dependências
 # ========================
 FROM base AS deps
+WORKDIR /app
 
+# Copia lockfiles (yarn, npm, pnpm)
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 
+# Instala dependências de acordo com o lockfile detectado
 RUN \
-  if [ -f yarn.lock ]; then \
-    yarn --frozen-lockfile --production=false; \
-  elif [ -f package-lock.json ]; then \
-    npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm i --frozen-lockfile; \
-  else \
-    echo "Nenhum lockfile encontrado!" && exit 1; \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
   fi
+
 
 # ========================
 # Etapa 2: Build
 # ========================
 FROM base AS builder
+WORKDIR /app
 
-RUN apk add --no-cache python3 make g++
-
+# Copia dependências já instaladas
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG NODE_ENV=production
-ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_MINIO_URL
-ARG REACT_APP_API_URL
-ARG REACT_APP_MINIO_URL
+# Copia variáveis de ambiente específicas para produção
+COPY .env.production .env  
 
-ENV NODE_ENV=$NODE_ENV
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_MINIO_URL=$NEXT_PUBLIC_MINIO_URL
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
-ENV REACT_APP_MINIO_URL=$REACT_APP_MINIO_URL
-ENV GENERATE_SOURCEMAP=false
-
-RUN if grep -q '"next"' package.json; then \
-      if [ ! -f next.config.js ]; then \
-        echo 'module.exports = { output: "standalone" };' > next.config.js; \
-      fi && \
-      (yarn build || npm run build || corepack enable pnpm && pnpm build); \
-    elif grep -q '"react"' package.json; then \
-      (yarn build || npm run build || corepack enable pnpm && pnpm build); \
-    else \
-      echo "Projeto inválido ou não suportado!" && exit 1; \
+# Faz o build da aplicação Next.js
+RUN if [ -f yarn.lock ]; then yarn build; \
+    elif [ -f package-lock.json ]; then npm run build; \
+    elif [ -f pnpm-lock.yaml ]; then pnpm build; \
+    else echo "Lockfile not found." && exit 1; \
     fi
 
-# ========================
-# Etapa 3A: Runner Next.js
-# ========================
-FROM base AS runner-nextjs
 
+# ========================
+# Etapa 3: Produção
+# ========================
+FROM base AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+
+# Porta padrão do Next.js (corrigido para 3000)
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+# 👇 Adicionamos variáveis que ajudam Next.js a gerar URLs corretas
+# BASE_URL pode ser usada internamente (API calls, configs)
+# NEXT_PUBLIC_BASE_URL é exposta no frontend (navegador)
+ENV BASE_URL=https://nowastev2-homologa.dikmadigital.com.br
+ENV NEXT_PUBLIC_BASE_URL=https://nowastev2-homologa.dikmadigital.com.br
 
-COPY --from=builder /app/package.json ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Cria usuário não-root para segurança
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
 
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'exec dumb-init node server.js' >> /app/start.sh && \
-    chmod +x /app/start.sh && \
-    chown nextjs:nodejs /app/start.sh
+# Copia arquivos necessários do build
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
 
+# Ajusta permissões
+RUN chown -R nextjs:nodejs /app
 USER nextjs
+
+# Expondo a porta correta (3000)
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD curl -f http://localhost:3000/ || exit 1
-
-CMD ["npm", "run", "start", "--", "-p", "3000"]
-
-# ========================
-# Etapa 3B: Runner React SPA
-# ========================
-FROM nginx:alpine AS runner-spa
-
-RUN apk add --no-cache curl dumb-init
-
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# Configuração do NGINX
-COPY <<EOF /etc/nginx/conf.d/default.conf
-server {
-    listen 8080;
-    server_name localhost;
-    root /usr/share/nginx/html;
-    index index.html;
-
-    location / {
-        try_files \$uri /index.html;
-    }
-
-    location /health {
-        return 200 "OK";
-    }
-}
-EOF
-
-RUN addgroup -g 1001 -S appuser && \
-    adduser -S appuser -u 1001 -G appuser
-
-RUN chown -R appuser:appuser /usr/share/nginx/html /var/cache/nginx /var/log/nginx /etc/nginx/conf.d && \
-    mkdir -p /var/run/nginx && \
-    chown -R appuser:appuser /var/run/nginx
-
-USER appuser
-EXPOSE 8080
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-CMD ["dumb-init", "nginx", "-g", "daemon off;"]
-
-# ========================
-# Targets
-# ========================
-# Para Next.js: docker build --target runner-nextjs -t app:next .
-# Para React SPA: docker build --target runner-spa -t app:spa .
+# Comando de start em produção
+CMD ["npm", "run", "start"]
