@@ -55,7 +55,7 @@ jobs:
             docker rm nowaste-front-end || true
             docker build -t nowaste-front-end .
             #Garante que a porta externa 9003 mapeia para a porta interna 3000
-            docker run -d --restart always -p 9003:3000 --name nowaste-front-end nowaste-front-end
+            docker run -d --restart always -p 9003:18649 --name nowaste-front-end nowaste-front-end
 
       # SSH e rodar Docker na máquina de Homologação (dev)
       - name: Deploy em HML
