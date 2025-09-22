@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - dev
+      
 
 jobs:
   deploy:
@@ -27,19 +27,6 @@ jobs:
           target: "/var/www/nowaste-front-end"
           overwrite: true
 
-      # Copiar arquivos dev para o servidor de Homologação (10.3.22.207)
-      - name: Copiar arquivos para HML
-        if: github.ref == 'refs/heads/dev'
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST_DEV }} # Usar um secret separado para o IP de HML
-          username: ${{ secrets.SERVER_USER_DEV }}
-          key: ${{ secrets.DEPLOY_KEY_DEV }}
-          port: 22 # Porta SSH padrão para o servidor de HML
-          source: "."
-          target: "/var/www/nowastev2-homologa"
-          overwrite: true
-
       # SSH e rodar Docker na máquina de Produção (main)
       - name: Deploy em PRD
         if: github.ref == 'refs/heads/main'
@@ -57,19 +44,3 @@ jobs:
             #Garante que a porta externa 9003 mapeia para a porta interna 3000
             docker run -d --restart always -p 9003:18649 --name nowaste-front-end nowaste-front-end
 
-      # SSH e rodar Docker na máquina de Homologação (dev)
-      - name: Deploy em HML
-        if: github.ref == 'refs/heads/dev'
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST_DEV }} # Usar um secret separado para o IP de HML
-          username: ${{ secrets.SERVER_USER_DEV }}
-          key: ${{ secrets.DEPLOY_KEY_DEV }}
-          port: 22 # Porta SSH padrão para o servidor de HML
-          script: |
-            cd /var/www/nowastev2-homologa
-            docker stop nowastev2-homologa || true
-            docker rm nowastev2-homologa || true
-            docker build -t nowastev2-homologa .
-            #Garante que a porta externa 9004 mapeia para a porta interna 3000
-            docker run -d --restart always -p 9004:3000 --name nowastev2-homologa nowastev2-homologa
