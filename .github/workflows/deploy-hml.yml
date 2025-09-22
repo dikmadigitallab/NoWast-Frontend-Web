@@ -20,7 +20,7 @@ jobs:
         if: github.ref == 'refs/heads/dev'
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST_DEV }} 
+          host: ${{ secrets.HOST_DEV }} 
           username: ${{ secrets.SERVER_USER}}
           key: ${{ secrets.DEPLOY_KEY_DEV}}
           port: '22207'  #Porta SSH padrão para o servidor de HML
@@ -35,7 +35,7 @@ jobs:
         if: github.ref == 'refs/heads/dev'
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST_DEV }} # Usar um secret separado para o IP de HML
+          host: ${{ secrets.HOST_DEV }} # Usar um secret separado para o IP de HML
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.DEPLOY_KEY_DEV }}
           port: '22207' # Porta SSH padrão para o servidor de HML
