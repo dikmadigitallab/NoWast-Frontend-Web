@@ -3,7 +3,7 @@ name: Deploy Front-End Docker
 on:
   push:
     branches:
-      - hml
+      - dev
 
 jobs:
   deploy:
@@ -17,7 +17,7 @@ jobs:
 
       # Copiar arquivos dev para o servidor de Homologação (10.3.22.207)
       - name: Copiar arquivos para HML
-        if: github.ref == 'refs/heads/hml'
+        if: github.ref == 'refs/heads/dev'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST_DEV }} # Usar um secret separado para o IP de HML
@@ -31,7 +31,7 @@ jobs:
 
       # SSH e rodar Docker na máquina de Homologação (dev)
       - name: Deploy em HML
-        if: github.ref == 'refs/heads/hml'
+        if: github.ref == 'refs/heads/dev'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST_DEV }} # Usar um secret separado para o IP de HML
