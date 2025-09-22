@@ -28,7 +28,7 @@ jobs:
           overwrite: true
 
       # Copiar arquivos dev para o servidor de Homologação (10.3.22.207)
-      - name: Copiar arquivos para HML
+      - name: Copiar arquivos para dev
         if: github.ref == 'refs/heads/dev'
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -58,7 +58,7 @@ jobs:
             docker run -d --restart always -p 9003:18649 --name nowaste-front-end nowaste-front-end
 
       # SSH e rodar Docker na máquina de Homologação (dev)
-      - name: Deploy em HML
+      - name: Deploy em dev
         if: github.ref == 'refs/heads/dev'
         uses: appleboy/ssh-action@v1.0.3
         with:
