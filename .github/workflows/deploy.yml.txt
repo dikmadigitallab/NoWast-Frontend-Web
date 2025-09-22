@@ -72,4 +72,4 @@ jobs:
             docker rm nowastev2-homologa || true
             docker build -t nowastev2-homologa .
             #Garante que a porta externa 9004 mapeia para a porta interna 3000
-            docker run -d --restart always -p 9004:3000 --name nowastev2-homologa nowastev2-homologa
+            docker run -d --restart always -p 9004:18649 --name nowastev2-homologa nowastev2-homologa
