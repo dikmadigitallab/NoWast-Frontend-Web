@@ -37,7 +37,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST_DEV }} # Usar um secret separado para o IP de HML
           username: ${{ secrets.SERVER_USER_DEV }}
           key: ${{ secrets.DEPLOY_KEY_DEV }}
-          port: 2207 # Porta SSH padrão para o servidor de HML
+          port: 22207 # Porta SSH padrão para o servidor de HML
           script: |
             cd /var/www/nowastev2-homologa
             docker stop nowastev2-homologa || true
