@@ -33,7 +33,7 @@ export const useLogin = () => {
             }
 
             const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
-            const responseContract = await api.get(`/contract/${response.data.data.user.contractId}`, {
+            const responseContract = await api.get(`/contract/${response.data.data.user.contractId }`, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export const useLogin = () => {
             setUserInfo(userInfo);
             setId(response.data.data.user.id);
             toast.success("Login realizado com sucesso!");
-
+ 
             setTimeout(() => {
                 redirect("/");
             }, 1000);

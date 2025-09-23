@@ -274,7 +274,7 @@ export default function CadastroPessoa() {
                 <Box className="w-[100%] flex flex-row gap-5">
 
                     <ImageUploader
-                        label="Selecione uma foto do EPI"
+                        label="Selecione uma foto de perfil"
                         onChange={(file: any) => setFile(file)}
                     />
 
