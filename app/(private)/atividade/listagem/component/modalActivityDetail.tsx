@@ -52,7 +52,7 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
 
                     <Box className="flex justify-between items-center h-[60px] border-b border-gray-200 mb-6 sticky top-0 bg-white z-10">
                         <h2 className="text-[#374151] text-[1.4rem] font-bold">
-                            Detalhes do Ambiente
+                            Detalhes da Atividade
                         </h2>
                         <IconButton
                             aria-label="fechar"
