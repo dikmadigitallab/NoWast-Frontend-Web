@@ -161,7 +161,7 @@ export default function AtualizarPredio() {
 
                 <ImageUploader
                     defaultValue={imageInfo}
-                    label="Selecione uma foto do EPI"
+                    label="Selecione uma foto do prédio"
                     onChange={(file: any) => setFile(file)}
                 />
 

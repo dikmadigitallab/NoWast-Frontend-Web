@@ -182,7 +182,7 @@ export default function EditarSetor() {
 
                     <ImageUploader
                         defaultValue={imageInfo}
-                        label="Selecione uma foto do EPI"
+                        label="Selecione uma foto do setor"
                         onChange={(file: any) => setFile(file)}
                     />
                 </Box>
