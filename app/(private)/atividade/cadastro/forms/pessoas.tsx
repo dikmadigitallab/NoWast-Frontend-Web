@@ -63,12 +63,12 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
         },
         {
             field: 'name',
-            headerName: 'Descrição',
+            headerName: 'Nome',
             width: 320,
         },
         {
             field: 'phones',
-            headerName: 'Telefone',
+            headerName: 'Cargo',
             width: 220,
             renderCell: (params) => {
                 const phones = Array.isArray(params.value) ? params.value : [];

@@ -17,7 +17,7 @@ import { GoTrash } from "react-icons/go";
 import { useState } from "react";
 
 const servicoSchema = z.object({
-    name: z.string().min(1, "Nome do serviço é obrigatório"),
+    name: z.string().min(1, "Tipo do serviço é obrigatório"),
     environment: z.object({ connect: z.object({ id: z.number() }) }),
     serviceType: z.object({
         connect: z.object({
@@ -140,10 +140,10 @@ export default function FormServicos() {
                         control={control}
                         render={({ field }) => (
                             <FormControl sx={formTheme} fullWidth error={!!errors.serviceType?.connect?.id}>
-                                <InputLabel id="service-type-label">Tipo de Serviço</InputLabel>
+                                <InputLabel id="service-type-label">Tipo de Ambiente</InputLabel>
                                 <Select
                                     labelId="service-type-label"
-                                    label="Tipo de Serviço"
+                                    label="Tipo de Ambiente"
                                     {...field}
                                     value={field.value || ""}
                                 >

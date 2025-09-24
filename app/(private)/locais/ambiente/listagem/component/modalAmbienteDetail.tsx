@@ -30,7 +30,7 @@ function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
                             <Box className="flex flex-col gap-3">
                                 <DetailItem label="Nome:" value={item.name} />
                                 <DetailItem label="Descrição:" value={item.description} />
-                                <DetailItem label="Área (m²):" value={item.areaM2} />
+                                <DetailItem label="Raio (m²):" value={item.areaM2} />
                             </Box>
                         </Box>
                     ))}
@@ -74,7 +74,7 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                         </Box>
                         <Box className="flex flex-row gap-3 mb-3">
                             <DetailItem label="Descrição:" value={modalVisualize?.description} />
-                            <DetailItem label="Área (m²):" value={modalVisualize?.areaM2} />
+                            <DetailItem label="Area (m²):" value={modalVisualize?.areaM2} />
                         </Box>
                         <Box className="flex flex-row gap-3 mb-3">
                             <DetailItem label="Setor:" value={modalVisualize?.setor?.name} />

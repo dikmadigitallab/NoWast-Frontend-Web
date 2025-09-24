@@ -235,7 +235,7 @@ export default function FormServicos() {
                         control={control}
                         render={({ field }) => (
                             <TextField
-                                label="Nome do Serviço"
+                                label="Tipo de Ambiente"
                                 variant="outlined"
                                 {...field}
                                 error={!!errors.name}

@@ -211,7 +211,7 @@ export default function CadastroSetor() {
                     </FormControl>
 
                     <ImageUploader
-                        label="Selecione uma foto do EPI"
+                        label="Selecione uma foto do setor"
                         onChange={(file: any) => setFile(file)}
                     />
                 </Box>
