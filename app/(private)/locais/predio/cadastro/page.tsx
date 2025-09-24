@@ -135,7 +135,7 @@ export default function CadastroPredio() {
                 </Box>
 
                 <ImageUploader
-                    label="Selecione uma foto do EPI"
+                    label="Selecione uma foto do predio"
                     onChange={(file: any) => setFile(file)}
                 />
 
