@@ -66,9 +66,12 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
             headerName: 'Descrição',
             width: 320,
         },
+
+        //precisa buscar os cargos e não o telefoen
+        
         {
             field: 'phones',
-            headerName: 'Telefone',
+            headerName: 'Cargo',
             width: 220,
             renderCell: (params) => {
                 const phones = Array.isArray(params.value) ? params.value : [];
@@ -81,6 +84,8 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 );
             },
         },
+
+        
     ];
 
     return (

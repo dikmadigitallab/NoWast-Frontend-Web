@@ -69,7 +69,7 @@ export default function middleware(request: NextRequest) {
 
 
 
-  //USE IN LOCALHOST
+  //USE IN LOCAL
  /* 
 const hostMap: Record<string, string> = {
   homologacao: "nowastev2-homologa.dikmadigital.com.br",
@@ -91,6 +91,8 @@ if (hostname.includes("localhost")) {
 const publicHost = hostMap[environment]; 
 
  */
+
+//USE IN PROD
 
   // Redirecionamento quando autenticado
   if (authToken && publicRoute?.whenAuthenticated === 'redirect') {
