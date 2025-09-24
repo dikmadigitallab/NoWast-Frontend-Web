@@ -56,25 +56,26 @@ export default function middleware(request: NextRequest) {
   const publicRoute = publicRoutes.find(route => route.path === path);
 
   // Determinar host público dinamicamente
-/*   const hostMap: Record<string, string> = {
+   const hostMap: Record<string, string> = {
     "homologacao": "nowastev2-homologa.dikmadigital.com.br",
     "producao": "nowastev2.dikmadigital.com.br",
     "localhost": "localhost:3000"
-  }; */
+  }; 
 
   // Detectar ambiente pelo hostname do request
-/*   const hostname = request.nextUrl.hostname;
+  const hostname = request.nextUrl.hostname;
   const environment = hostname.includes("homologa") ? "homologacao" : "producao";
-  const publicHost = hostMap[environment]; */
+  const publicHost = hostMap[environment]; 
 
-// Determinar host público dinamicamente
+
+
+  //USE IN LOCALHOST
+ /* 
 const hostMap: Record<string, string> = {
   homologacao: "nowastev2-homologa.dikmadigital.com.br",
   producao: "nowastev2.dikmadigital.com.br",
   localhost: "localhost:3000",
 };
-
-// Detectar ambiente pelo hostname do request
 const hostname = request.nextUrl.hostname;
 
 let environment: keyof typeof hostMap;
@@ -87,9 +88,9 @@ if (hostname.includes("localhost")) {
   environment = "producao";
 }
 
-const publicHost = hostMap[environment];
+const publicHost = hostMap[environment]; 
 
-
+ */
 
   // Redirecionamento quando autenticado
   if (authToken && publicRoute?.whenAuthenticated === 'redirect') {
