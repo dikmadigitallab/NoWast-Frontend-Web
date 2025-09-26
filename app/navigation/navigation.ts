@@ -65,18 +65,14 @@ export const ADM_DIKMA: NavItem[] = [
         name: 'Atividades',
         icon: FaRegCalendar,
         subItems: [
-            { icon: FaRegCircle, name: 'Listagem', href: ['/atividade/listagem', '/atividade/cadastro', '/atividade/atualizar'] }
+            { icon: FaRegCircle, name: 'Listagem', href: ['/atividade/listagem', '/atividade/cadastro', '/atividade/atualizar'] },
+            { icon: FaRegCalendarAlt, name: 'Cronograma', href: ['/calendar'] }
         ]
     },
     {
         name: 'Pessoas',
         icon: GrUserAdmin,
         href: ['/usuario/listagem']
-    },
-    {
-        name: 'Cronograma',
-        icon: FaRegCalendarAlt,
-        href: ['/calendar']
     },
     {
         name: 'Notificações',

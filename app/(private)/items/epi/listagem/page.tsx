@@ -143,7 +143,7 @@ export default function ListagemEpi() {
                                     >
                                         <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
                                         {Array.isArray(pessoas) && pessoas?.map((pessoa) => (
-                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                            <MenuItem key={pessoa.id} value={pessoa.personId}>
                                                 {pessoa.person.name}
                                             </MenuItem>
                                         ))}

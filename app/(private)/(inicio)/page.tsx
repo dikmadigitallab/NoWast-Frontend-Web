@@ -83,37 +83,53 @@ export default function Home() {
       <UserHeader />
 
       <Box className="w-full px-2 sm:px-4 md:px-0">
-        <Box className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <Box className="w-full max-w-6xl mx-auto space-y-6">
           {modules.map(module => (
             <Box 
               key={module.id}
-              className="w-full flex flex-col items-center justify-between overflow-hidden gap-2 p-3 sm:p-4 rounded-sm border border-[#5e58731f]
-              h-[350px] sm:h-[380px] md:h-[400px]"
+              className="w-full bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100"
             >
-              <img 
-                className="w-full h-[120px] sm:h-[150px] md:h-[180px] object-cover transition duration-500 ease-in-out hover:scale-102 hover:rounded-sm" 
-                src={module.image}
-                alt={module.name}
-              />
-              
-              <span className="text-[#3b3b3b] text-lg sm:text-xl md:text-2xl font-medium text-center">
-                {module.name}
-              </span>
-              
-              <span className="text-[#5E5873] text-xs sm:text-sm text-center line-clamp-3">
-              {module.description}
-              </span>
-              
-              <Button
-                disabled={module.status === "inativo"}
-                sx={[buttonTheme, { width: "100%" }]}
-                variant="contained" 
-                color="primary"
-                className="mt-2 sm:mt-3 md:mt-4"
-                onClick={() => redirect(module.id)}
-              >
-                {module.status === "inativo" ? "Pedir Acesso" : "Acessar"}
-              </Button>
+              <Box className="flex flex-col md:flex-row">
+                {/* Imagem */}
+                <Box className="w-full md:w-80 h-48 md:h-60">
+                  <img 
+                    className="w-full h-full object-cover" 
+                    src={module.image}
+                    alt={module.name}
+                  />
+                </Box>
+                
+                {/* Conteúdo */}
+                <Box className="flex-1 p-6 flex flex-col justify-between">
+                  <Box>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                      {module.name}
+                    </h3>
+                    
+                    <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                      {module.description}
+                    </p>
+                  </Box>
+                  
+                  <Box className="flex items-center justify-between">
+                    
+                    <Button
+                      disabled={module.status === "inativo"}
+                      sx={[buttonTheme, { 
+                        width: "140px",
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontWeight: "600"
+                      }]}
+                      variant="contained" 
+                      color="primary"
+                      onClick={() => redirect(module.id)}
+                    >
+                      {module.status === "inativo" ? "Pedir Acesso" : "Acessar"}
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
             </Box>
           ))}
         </Box>

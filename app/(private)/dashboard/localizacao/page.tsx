@@ -22,13 +22,16 @@ export default function Atividades() {
   const { data: pessoas, loading } = useGetUsuario({});
   const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '', empresa: 'todas' });
   const { environmentActivities, sectorActivities, loading: loadingCadastros } = useGetDashboardLocation({
-    startDate: filters.startDate ? filters.startDate : "2025-01-01",
-    endDate: filters.endDate ? filters.endDate : "2025-12-31",
+    startDate: filters.startDate,
+    endDate: filters.endDate,
     userId: filters.userId,
     sectorId: filters.sectorId,
     environmentId: filters.environmentId,
     buildingId: filters.buildingId,
   })
+
+  console.log(environmentActivities);
+  console.log(sectorActivities);
 
   const handleFilterChange = (event: any) => {
     const { name, value } = event.target;
@@ -44,6 +47,10 @@ export default function Atividades() {
     "Acelormittal",
     "Nemak"
   ];
+
+  // Ordenar dados por volume
+  const sectorOrdenado = sectorActivities?.sort((a: any, b: any) => b.totalAreaM2 - a.totalAreaM2) || [];
+  const ambienteOrdenado = environmentActivities?.sort((a: any, b: any) => b.totalAreaM2 - a.totalAreaM2) || [];
 
   const [mount, setMount] = useState(false);
 
@@ -139,7 +146,7 @@ export default function Atividades() {
 
       <Box className="flex flex-row gap-5 w-[100%] mb-5">
 
-        <Box className="w-[33%] px-6 flex-row h-[400px] bg-white rounded-lg">
+        <Box className="w-[48%] px-6 flex-row h-[400px] bg-white rounded-lg">
           <h1 className="text-2xl font-medium text-[#5E5873] p-7 flex items-center justify-center">Setor</h1>
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
@@ -149,21 +156,21 @@ export default function Atividades() {
               <Box className="text-[#5E5873] font-medium">Maior Volume de Limpeza</Box>
             </Box>
 
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Pátio de Carvão</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">2,450 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Tratamento de Gás</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">3,450 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Tratamento de Gás</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">3,450 m²</Box>
-            </Box>
+            {loading || loadingCadastros ? (
+              <Box className="space-y-2">
+                <Skeleton variant="rectangular" height={20} width="100%" />
+                <Skeleton variant="rectangular" height={20} width="100%" />
+                <Skeleton variant="rectangular" height={20} width="100%" />
+              </Box>
+            ) : (
+              sectorOrdenado.slice(0, 3).map((setor: any, index: number) => (
+                <Box key={index} className="w-[100%] flex flex-row items-center">
+                  <Box className="text-[#5E5873] font-medium">{setor.sectorName || 'N/A'}</Box>
+                  <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
+                  <Box className="text-[#5E5873] font-medium">{setor.totalAreaM2?.toLocaleString('pt-BR') || '0'} m²</Box>
+                </Box>
+              ))
+            )}
           </Box>
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
@@ -172,24 +179,24 @@ export default function Atividades() {
               </Box>
               <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
             </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">C1</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Recebimentos</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">TT1</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
+            {loading || loadingCadastros ? (
+              <Box className="space-y-2">
+                <Skeleton variant="rectangular" height={20} width="100%" />
+                <Skeleton variant="rectangular" height={20} width="100%" />
+                <Skeleton variant="rectangular" height={20} width="100%" />
+              </Box>
+            ) : (
+              sectorOrdenado.slice(-3).reverse().map((setor: any, index: number) => (
+                <Box key={index} className="w-[100%] flex flex-row items-center">
+                  <Box className="text-[#5E5873] font-medium">{setor.sectorName || 'N/A'}</Box>
+                  <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
+                  <Box className="text-[#5E5873] font-medium">{setor.totalAreaM2?.toLocaleString('pt-BR') || '0'} m²</Box>
+                </Box>
+              ))
+            )}
           </Box>
         </Box>
-        <Box className="w-[33%] px-6 flex-row h-[400px] bg-white rounded-lg">
+        <Box className="w-[48%] px-6 flex-row h-[400px] bg-white rounded-lg">
           <h1 className="text-2xl font-medium text-[#5E5873] p-7 flex items-center justify-center">Ambiente</h1>
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
@@ -199,21 +206,21 @@ export default function Atividades() {
               <Box className="text-[#5E5873] font-medium">Maior Volume de Limpeza</Box>
             </Box>
 
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Pátio de Carvão</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">2,450 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Tratamento de Gás</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">3,450 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Tratamento de Gás</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">3,450 m²</Box>
-            </Box>
+            {loading || loadingCadastros ? (
+              <Box className="space-y-2">
+                <Skeleton variant="rectangular" height={20} width="100%" />
+                <Skeleton variant="rectangular" height={20} width="100%" />
+                <Skeleton variant="rectangular" height={20} width="100%" />
+              </Box>
+            ) : (
+              ambienteOrdenado.slice(0, 3).map((ambiente: any, index: number) => (
+                <Box key={index} className="w-[100%] flex flex-row items-center">
+                  <Box className="text-[#5E5873] font-medium">{ambiente.environmentName || 'N/A'}</Box>
+                  <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
+                  <Box className="text-[#5E5873] font-medium">{ambiente.totalAreaM2?.toLocaleString('pt-BR') || '0'} m²</Box>
+                </Box>
+              ))
+            )}
           </Box>
           <Box className="mb-5">
             <Box className="flex flex-row items-center gap-3 mb-2">
@@ -222,71 +229,21 @@ export default function Atividades() {
               </Box>
               <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
             </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">C1</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Recebimentos</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">TT1</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
-          </Box>
-        </Box>
-        <Box className="w-[33%] px-6 flex-row h-[400px] bg-white rounded-lg">
-          <h1 className="text-2xl font-medium text-[#5E5873] p-7 flex items-center justify-center">Tipo</h1>
-          <Box className="mb-5">
-            <Box className="flex flex-row items-center gap-3 mb-2">
-              <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#E5F8EE] rounded-full">
-                <MdOutlineKeyboardDoubleArrowUp size={30} color='#28C76F' />
+            {loading || loadingCadastros ? (
+              <Box className="space-y-2">
+                <Skeleton variant="rectangular" height={20} width="100%" />
+                <Skeleton variant="rectangular" height={20} width="100%" />
+                <Skeleton variant="rectangular" height={20} width="100%" />
               </Box>
-              <Box className="text-[#5E5873] font-medium">Maior Volume de Limpeza</Box>
-            </Box>
-
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Pátio de Carvão</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">2,450 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Tratamento de Gás</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">3,450 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Tratamento de Gás</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">3,450 m²</Box>
-            </Box>
-          </Box>
-          <Box className="mb-5">
-            <Box className="flex flex-row items-center gap-3 mb-2">
-              <Box className="w-[50px] h-[50px] flex justify-center items-center  text-[#5E5873] bg-[#FFF3E8] rounded-full">
-                <MdKeyboardDoubleArrowDown size={30} color='#FF9F43' />
-              </Box>
-              <Box className="text-[#5E5873] font-medium">Menor Volume de Limpeza</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">C1</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">Recebimentos</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
-            <Box className="w-[100%] flex flex-row items-center">
-              <Box className="text-[#5E5873] font-medium">TT1</Box>
-              <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
-              <Box className="text-[#5E5873] font-medium">121 m²</Box>
-            </Box>
+            ) : (
+              ambienteOrdenado.slice(-3).reverse().map((ambiente: any, index: number) => (
+                <Box key={index} className="w-[100%] flex flex-row items-center">
+                  <Box className="text-[#5E5873] font-medium">{ambiente.environmentName || 'N/A'}</Box>
+                  <Box className="flex-grow border-t border-dashed border-[#C4C4C4] mx-2"></Box>
+                  <Box className="text-[#5E5873] font-medium">{ambiente.totalAreaM2?.toLocaleString('pt-BR') || '0'} m²</Box>
+                </Box>
+              ))
+            )}
           </Box>
         </Box>
 

@@ -20,6 +20,9 @@ import { ImageUploader } from "@/app/components/imageGet";
 
 const userSchema = z.object({
     id: z.number({ required_error: "ID é obrigatório", invalid_type_error: "ID inválido" }),
+    password: z.string().optional().refine((val) => !val || val.length >= 6, {
+        message: "A senha deve ter pelo menos 6 caracteres"
+    }),
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
@@ -76,6 +79,7 @@ export default function AtualizarPessoa() {
         resolver: zodResolver(userSchema),
         defaultValues: {
             id: undefined,
+            password: "",
             userType: undefined,
             status: "ACTIVE",
             source: "",
@@ -168,12 +172,15 @@ export default function AtualizarPessoa() {
 
     const onSubmit = (formData: UserFormValues) => {
         if (disable) {
+            const { password, ...formDataWithoutPassword } = formData;
             const newData = {
-                ...formData,
+                ...formDataWithoutPassword,
                 file: file,
                 status: "INACTIVE",
                 email: formData.person.create.email?.toLowerCase(),
                 phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
+                // Só inclui a senha se ela foi preenchida
+                ...(password && { password }),
                 person: {
                     create: {
                         ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''),
@@ -183,11 +190,14 @@ export default function AtualizarPessoa() {
             };
             update(newData, file);
         } else {
+            const { password, ...formDataWithoutPassword } = formData;
             const newData = {
-                ...formData,
+                ...formDataWithoutPassword,
                 file: file,
                 email: formData.person.create.email?.toLowerCase(),
                 phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
+                // Só inclui a senha se ela foi preenchida
+                ...(password && { password }),
                 person: {
                     create: {
                         ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''),
@@ -534,6 +544,22 @@ export default function AtualizarPessoa() {
                                 {...field}
                                 error={!!errors.person?.create?.email}
                                 helperText={errors.person?.create?.email?.message}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="password"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Nova Senha (opcional)"
+                                type="password"
+                                {...field}
+                                error={!!errors.password}
+                                helperText={errors.password?.message || "Deixe em branco para manter a senha atual"}
                                 className="w-full"
                                 sx={formTheme}
                             />

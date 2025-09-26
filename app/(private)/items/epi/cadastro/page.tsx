@@ -92,7 +92,7 @@ export default function CadastroEPI() {
                                             Clique e selecione...
                                         </MenuItem>
                                         {pessoas?.map((pessoa: any) => (
-                                            <MenuItem key={pessoa.id} value={pessoa.id}>
+                                            <MenuItem key={pessoa.id} value={pessoa.personId}>
                                                 {pessoa.name}
                                             </MenuItem>
                                         ))}

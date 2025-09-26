@@ -51,7 +51,7 @@ const CadastroColumnChart = ({ data }: CadastroColumnChartProps) => {
       }],
       defaultLocale: 'pt-BR'
     },
-    colors: ['#2196F3', '#C5F7E3', '#f39c12'],
+    colors: ['#28a745', '#f39c12', '#2196F3'],
     stroke: { width: [0, 2, 5], curve: 'smooth' },
     plotOptions: { bar: { columnWidth: '50%' } },
     fill: {
@@ -62,6 +62,11 @@ const CadastroColumnChart = ({ data }: CadastroColumnChartProps) => {
     markers: { size: 0 },
     xaxis: { type: 'datetime', labels: { datetimeFormatter: { year: 'yyyy', month: 'MMM/yy', day: 'dd/MM', hour: 'HH:mm' } } },
     tooltip: {
+      theme: 'dark',
+      style: {
+        fontSize: '14px',
+        fontWeight: 'bold'
+      },
       shared: true,
       intersect: false,
       x: { format: 'dd/MM/yyyy' },
@@ -70,9 +75,9 @@ const CadastroColumnChart = ({ data }: CadastroColumnChartProps) => {
   }), [processedData]);
 
   const chartSeries = React.useMemo(() => [
-    { name: 'Inicio de Contrato', data: processedData.createdUsers, type: 'column' },
-    { name: 'Fim de Contrato', data: processedData.deletedUsers, type: 'area' },
-    { name: 'Pessoas Ativas', data: processedData.activeUsers, type: 'line' }
+    { name: 'Habilitada', data: processedData.createdUsers, type: 'line' },
+    { name: 'Desabilitada', data: processedData.deletedUsers, type: 'line' },
+    { name: 'Pessoas Ativas', data: processedData.activeUsers, type: 'column' }
   ], [processedData]);
 
   return (
