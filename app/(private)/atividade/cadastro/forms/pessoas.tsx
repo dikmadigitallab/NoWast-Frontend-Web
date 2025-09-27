@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography, Autocomplete, TextField } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -10,10 +10,48 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from '@/app/styles/tableTheme/theme';
 import { IoMdClose } from 'react-icons/io';
 import { useGetUsuario } from '@/app/hooks/usuarios/get';
+import { useDebounce } from "@/app/utils/useDebounce";
 
 export default function FormPessoas({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any, } }) {
 
-    const { data: pessoas, loading } = useGetUsuario({})
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQueryManager, setSearchQueryManager] = useState('');
+    const [searchQuerySupervisor, setSearchQuerySupervisor] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
+    const debouncedSearchQueryManager = useDebounce(searchQueryManager, 500);
+    const debouncedSearchQuerySupervisor = useDebounce(searchQuerySupervisor, 500);
+    
+    const { data: pessoasRaw, loading } = useGetUsuario({ 
+        query: debouncedSearchQuery,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    const { data: pessoasManager, loading: loadingManager } = useGetUsuario({ 
+        query: debouncedSearchQueryManager,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    const { data: pessoasSupervisor, loading: loadingSupervisor } = useGetUsuario({ 
+        query: debouncedSearchQuerySupervisor,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    // Remove duplicatas baseadas no ID
+    const pessoas = pessoasRaw ? pessoasRaw.filter((pessoa: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === pessoa.id)
+    ) : [];
+    
+    const pessoasManagerFiltered = pessoasManager ? pessoasManager.filter((pessoa: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === pessoa.id)
+    ) : [];
+    
+    const pessoasSupervisorFiltered = pessoasSupervisor ? pessoasSupervisor.filter((pessoa: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === pessoa.id)
+    ) : [];
+
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
     const handleAddUsers = () => {
         if (selectedUsers.length === 0) return;
@@ -97,23 +135,46 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                         control={control}
                         render={({ field }) => (
                             <FormControl sx={formTheme} fullWidth error={!!errors.supervisorId}>
-                                <InputLabel>Encarregado</InputLabel>
-                                <Select
-                                    disabled={loading}
-                                    label="Encarregado"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
-                                        <MenuItem key={pessoa?.id} value={pessoa?.id}>
-                                            {pessoa?.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                                <FormHelperText>{errors.supervisorId?.message}</FormHelperText>
+                                <Autocomplete
+                                    options={pessoasSupervisorFiltered || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={pessoasSupervisorFiltered?.find((pessoa: any) => pessoa.id === field.value) || null}
+                                    loading={loadingSupervisor}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQuerySupervisor(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Encarregado"
+                                            error={!!errors.supervisorId}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingSupervisor ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum encarregado encontrado"
+                                    loadingText="Carregando encarregados..."
+                                />
+                                <FormHelperText error={!!errors.supervisorId}>
+                                    {errors.supervisorId?.message}
+                                </FormHelperText>
                             </FormControl>
                         )}
                     />
@@ -122,23 +183,46 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                         control={control}
                         render={({ field }) => (
                             <FormControl sx={formTheme} fullWidth error={!!errors?.managerId}>
-                                <InputLabel>Líder/Gestor</InputLabel>
-                                <Select
-                                    disabled={loading}
-                                    label="Líder/Gestor"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
-                                        <MenuItem key={pessoa?.id} value={pessoa?.id}>
-                                            {pessoa?.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                                <FormHelperText>{errors?.managerId?.message}</FormHelperText>
+                                <Autocomplete
+                                    options={pessoasManagerFiltered || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={pessoasManagerFiltered?.find((pessoa: any) => pessoa.id === field.value) || null}
+                                    loading={loadingManager}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryManager(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Líder/Gestor"
+                                            error={!!errors?.managerId}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingManager ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum líder/gestor encontrado"
+                                    loadingText="Carregando líderes/gestores..."
+                                />
+                                <FormHelperText error={!!errors?.managerId}>
+                                    {errors?.managerId?.message}
+                                </FormHelperText>
                             </FormControl>
                         )}
                     />
@@ -152,49 +236,72 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 </Box>
                 <Box className="flex flex-col gap-3">
                     <Box className="flex flex-row gap-3 h-[60px]">
-                        <FormControl sx={formTheme} fullWidth >
-                            <InputLabel>Pessoas</InputLabel>
-                            <Select
-                                label="Pessoas"
-                                multiple
-                                value={selectedUsers}
-                                onChange={(e) => setSelectedUsers(e.target.value as string[])}
-                                renderValue={(selected) => (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                        {selected.map((value) => {
-                                            const selectedPessoa = pessoas.find((p: any) => p.id.toString() === value);
-                                            return (
-                                                <Chip
-                                                    key={value}
-                                                    label={selectedPessoa?.name || value}
-                                                    size="small"
-                                                    onDelete={() => setSelectedUsers(selectedUsers.filter(id => id !== value))}
-                                                    deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                                                    sx={{
-                                                        backgroundColor: '#00B288',
-                                                        color: 'white',
-                                                        borderRadius: '4px',
-                                                        fontSize: '.7rem',
-                                                        '& .MuiChip-deleteIcon': {
-                                                            color: 'white',
-                                                            fontSize: '.8rem',
-                                                        },
-                                                    }}
-                                                />
-                                            );
-                                        })}
-                                    </Box>
-                                )}
-                            >
-                                <MenuItem value="" disabled>Selecione usuários...</MenuItem>
-                                {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
-                                    <MenuItem key={pessoa?.id} value={pessoa?.id.toString()}>
-                                        {pessoa?.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                        </FormControl>
+                        <Autocomplete
+                            multiple
+                            fullWidth
+                            options={pessoas || []}
+                            getOptionLabel={(option: any) => option.name || ''}
+                            getOptionKey={(option: any) => option.id}
+                            value={pessoas?.filter((pessoa: any) => selectedUsers.includes(pessoa.id.toString())) || []}
+                            loading={loading}
+                            onInputChange={(event, newInputValue) => {
+                                setSearchQuery(newInputValue);
+                            }}
+                            onChange={(event, newValue) => {
+                                const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
+                                setSelectedUsers(selectedIds);
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Pessoas"
+                                    fullWidth
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        endAdornment: (
+                                            <>
+                                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {params.InputProps.endAdornment}
+                                            </>
+                                        ),
+                                    }}
+                                />
+                            )}
+                            renderOption={(props, option) => (
+                                <Box component="li" {...props} key={option.id}>
+                                    {option.name}
+                                </Box>
+                            )}
+                            renderValue={(value) => (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {value.map((option, index) => (
+                                        <Chip
+                                            key={option.id}
+                                            label={option.name}
+                                            size="small"
+                                            onDelete={() => {
+                                                const newValue = value.filter((_, i) => i !== index);
+                                                const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
+                                                setSelectedUsers(selectedIds);
+                                            }}
+                                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                                            sx={{
+                                                backgroundColor: '#00B288',
+                                                color: 'white',
+                                                borderRadius: '4px',
+                                                fontSize: '.7rem',
+                                                '& .MuiChip-deleteIcon': {
+                                                    color: 'white',
+                                                    fontSize: '.8rem',
+                                                },
+                                            }}
+                                        />
+                                    ))}
+                                </Box>
+                            )}
+                            noOptionsText="Nenhuma pessoa encontrada"
+                            loadingText="Carregando pessoas..."
+                        />
                         <Button sx={[buttonTheme, { height: 55 }]} onClick={handleAddUsers}>
                             <FiPlus size={25} color="#fff" />
                         </Button>

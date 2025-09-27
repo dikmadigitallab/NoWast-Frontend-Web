@@ -91,8 +91,12 @@ export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = n
                             name: item?.sector?.building?.name,
                             description: item?.sector?.building?.description,
                             areaM2: item?.sector?.building?.radius
-
-                        }
+                        },
+                        servicos: item?.services?.map((service: any) => ({
+                            id: service?.id,
+                            name: service?.name,
+                            description: service?.description
+                        })) || []
                     };
                 });
 

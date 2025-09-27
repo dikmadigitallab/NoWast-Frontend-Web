@@ -35,8 +35,15 @@ export const useUpdateAmbiente = (url: string, redirect?: string) => {
                 },
             });
 
-            setIdService(response.data.data.services[0].id)
-            toast.success("Atualização feita com sucesso");
+            // Verifica se a resposta tem a estrutura esperada e se há serviços
+            if (response.data?.data?.services && response.data.data.services.length > 0) {
+                setIdService(response.data.data.services[0].id);
+            }
+            
+            // Usa a mensagem da API se disponível, senão usa mensagem padrão
+            const successMessage = response.data?.messages?.[0] || "Atualização feita com sucesso";
+            toast.success(successMessage);
+            
             setTimeout(() => {
                 if (section === 1) {
                     setSection(2);

@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Autocomplete } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { StyledMainContainer } from "@/app/styles/container/container";
@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { ImageUploader } from "@/app/components/imageGet";
+import { useDebounce } from "@/app/utils/useDebounce";
 
 const equipamentoSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
@@ -31,9 +32,34 @@ export default function EditarEquipamento() {
 
     const router = useRouter();
     const { data } = useGetOneById("tools");
-    const { data: pessoas } = useGetUsuario({});
+    const [searchQueryPessoas, setSearchQueryPessoas] = useState('');
+    const [searchQueryPredios, setSearchQueryPredios] = useState('');
+    const debouncedSearchQueryPessoas = useDebounce(searchQueryPessoas, 500);
+    const debouncedSearchQueryPredios = useDebounce(searchQueryPredios, 500);
+    
+    const { data: pessoasRaw, loading: loadingPessoas } = useGetUsuario({ 
+        query: debouncedSearchQueryPessoas,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    const { data: prediosRaw, loading: loadingPredios } = useGet({ 
+        url: 'building',
+        query: debouncedSearchQueryPredios,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    // Remove duplicatas baseadas no ID
+    const pessoas = pessoasRaw ? pessoasRaw.filter((pessoa: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === pessoa.id)
+    ) : [];
+    
+    const predios = prediosRaw ? prediosRaw.filter((predio: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === predio.id)
+    ) : [];
+
     const [file, setFile] = useState<File | null>(null);
-    const { data: predios } = useGet({ url: 'building' });
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const { handleDelete } = useDelete("tools", '/items/equipamento/listagem');
@@ -109,22 +135,43 @@ export default function EditarEquipamento() {
                                     fullWidth
                                     error={!!errors.responsibleManagerId}
                                 >
-                                    <InputLabel id="responsible-label">Gestor Responsável</InputLabel>
-                                    <Select
-                                        labelId="responsible-label"
-                                        label="Gestor Responsável"
-                                        {...field}
-                                        value={field.value || ""}
-                                    >
-                                        <MenuItem value="" disabled>
-                                            Clique e selecione...
-                                        </MenuItem>
-                                        {pessoas?.map((pessoa: any) => (
-                                            <MenuItem key={pessoa.id} value={pessoa.id}>
-                                                {pessoa.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
+                                    <Autocomplete
+                                        options={pessoas || []}
+                                        getOptionLabel={(option: any) => option.name || ''}
+                                        getOptionKey={(option: any) => option.id}
+                                        value={pessoas?.find((pessoa: any) => pessoa.personId === field.value) || null}
+                                        loading={loadingPessoas}
+                                        onInputChange={(event, newInputValue) => {
+                                            setSearchQueryPessoas(newInputValue);
+                                        }}
+                                        onChange={(event, newValue) => {
+                                            const value = newValue?.personId || '';
+                                            field.onChange(Number(value));
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Gestor Responsável"
+                                                error={!!errors.responsibleManagerId}
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    endAdornment: (
+                                                        <>
+                                                            {loadingPessoas ? <CircularProgress color="inherit" size={20} /> : null}
+                                                            {params.InputProps.endAdornment}
+                                                        </>
+                                                    ),
+                                                }}
+                                            />
+                                        )}
+                                        renderOption={(props, option) => (
+                                            <Box component="li" {...props} key={option.id}>
+                                                {option.name}
+                                            </Box>
+                                        )}
+                                        noOptionsText="Nenhum gestor encontrado"
+                                        loadingText="Carregando gestores..."
+                                    />
                                     {errors.responsibleManagerId && (
                                         <p className="text-red-500 text-xs mt-1">
                                             {errors.responsibleManagerId.message}
@@ -134,25 +181,47 @@ export default function EditarEquipamento() {
                             )}
                         />
                         <FormControl fullWidth error={!!errors.buildingId}>
-                            <InputLabel id="building-label">Prédio</InputLabel>
                             <Controller
                                 name="buildingId"
                                 control={control}
                                 render={({ field }) => (
-                                    <Select
-                                        {...field}
-                                        labelId="building-label"
-                                        label="Prédios"
-                                        value={field.value || ""}
-                                        error={!!errors.buildingId}
-                                    >
-                                        <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
-                                        {predios?.map((building: any) => (
-                                            <MenuItem key={building.id} value={building.id}>
-                                                {building.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
+                                    <Autocomplete
+                                        options={predios || []}
+                                        getOptionLabel={(option: any) => option.name || ''}
+                                        getOptionKey={(option: any) => option.id}
+                                        value={predios?.find((predio: any) => predio.id === field.value) || null}
+                                        loading={loadingPredios}
+                                        onInputChange={(event, newInputValue) => {
+                                            setSearchQueryPredios(newInputValue);
+                                        }}
+                                        onChange={(event, newValue) => {
+                                            const value = newValue?.id || '';
+                                            field.onChange(Number(value));
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Prédio"
+                                                error={!!errors.buildingId}
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    endAdornment: (
+                                                        <>
+                                                            {loadingPredios ? <CircularProgress color="inherit" size={20} /> : null}
+                                                            {params.InputProps.endAdornment}
+                                                        </>
+                                                    ),
+                                                }}
+                                            />
+                                        )}
+                                        renderOption={(props, option) => (
+                                            <Box component="li" {...props} key={option.id}>
+                                                {option.name}
+                                            </Box>
+                                        )}
+                                        noOptionsText="Nenhum prédio encontrado"
+                                        loadingText="Carregando prédios..."
+                                    />
                                 )}
                             />
                             {errors.buildingId && (

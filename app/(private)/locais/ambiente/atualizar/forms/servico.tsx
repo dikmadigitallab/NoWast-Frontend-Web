@@ -1,6 +1,6 @@
 "use client";
 
-import { TextField, Button, Box, Modal, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, IconButton } from "@mui/material";
+import { TextField, Button, Box, Modal, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, IconButton, Autocomplete } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useGetOneServiceById } from "@/app/hooks/servicos/getOne";
 import { useUpdateService } from "@/app/hooks/servicos/update";
@@ -13,6 +13,7 @@ import { useGet } from "@/app/hooks/crud/get/useGet";
 import { ptBR } from "@mui/x-data-grid/locales";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDebounce } from "@/app/utils/useDebounce";
 import { IoMdClose } from "react-icons/io";
 import { GoTrash } from "react-icons/go";
 import { FiPlus } from "react-icons/fi";
@@ -51,12 +52,40 @@ export default function FormServicos() {
     const router = useRouter();
     const { id } = useGetIDStore();
     const { data: servico } = useGetOneServiceById();
-    const { data: tiposServicos } = useGet({ url: "serviceType" });
+    const [searchQueryTiposServicos, setSearchQueryTiposServicos] = useState('');
+    const debouncedSearchQueryTiposServicos = useDebounce(searchQueryTiposServicos, 500);
+    
+    const { data: tiposServicosRaw, loading: loadingTiposServicos } = useGet({ 
+        url: "serviceType",
+        query: debouncedSearchQueryTiposServicos,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    // Remove duplicatas baseadas no ID
+    const tiposServicos = tiposServicosRaw ? tiposServicosRaw.filter((tipo: any, index: number, self: any[]) => 
+        index === self.findIndex((t: any) => t.id === tipo.id)
+    ) : [];
+
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
     const { update, loading } = useUpdateService("/locais/ambiente/listagem");
     const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
     const [servicesFromApi, setServicesFromApi] = useState<any[]>([]);
+    const [searchQueryServicos, setSearchQueryServicos] = useState('');
+    const debouncedSearchQueryServicos = useDebounce(searchQueryServicos, 500);
+    
+    const { data: servicosRaw, loading: loadingServicos } = useGet({ 
+        url: "service",
+        query: debouncedSearchQueryServicos,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    // Remove duplicatas baseadas no ID
+    const servicosFiltrados = servicosRaw ? servicosRaw.filter((servico: any, index: number, self: any[]) => 
+        index === self.findIndex((s: any) => s.id === servico.id)
+    ) : [];
 
     const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<ServicoFormValues>({
         resolver: zodResolver(servicoSchema),
@@ -83,7 +112,7 @@ export default function FormServicos() {
     const renderChips = () => (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             {selectedState?.services?.map((value) => {
-                const selectedItem = servicesFromApi?.find(item => item.id.toString() === value);
+                const selectedItem = servicosFiltrados?.find((item: any) => item.id.toString() === value);
                 return (
                     <Chip
                         key={value}
@@ -110,13 +139,13 @@ export default function FormServicos() {
         if (!Array.isArray(serviceItems)) return;
         if (selectedState.services.length === 0) return;
 
-        const serviceToAdd = (servicesFromApi ?? []).filter((service) =>
+        const serviceToAdd = (servicosFiltrados ?? []).filter((service: any) =>
             selectedState.services.includes(service.id.toString()) &&
             !serviceItems.some(existingService => existingService.id.toString() === service.id.toString())
         );
 
         if (serviceToAdd.length > 0) {
-            const updatedServices = [...serviceItems, ...serviceToAdd.map((service) => ({
+            const updatedServices = [...serviceItems, ...serviceToAdd.map((service: any) => ({
                 id: service.id,
                 name: service.name
             }))];
@@ -250,22 +279,43 @@ export default function FormServicos() {
                         control={control}
                         render={({ field }) => (
                             <FormControl sx={formTheme} fullWidth error={!!errors.serviceType?.connect?.id}>
-                                <InputLabel id="service-type-label">Tipo de Serviço</InputLabel>
-                                <Select
-                                    labelId="service-type-label"
-                                    label="Tipo de Serviço"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>
-                                        Clique e selecione...
-                                    </MenuItem>
-                                    {tiposServicos?.map((type: any) => (
-                                        <MenuItem key={type.id} value={type.id}>
-                                            {type.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <Autocomplete
+                                    options={tiposServicos || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={tiposServicos?.find((tipo: any) => tipo.id === field.value) || null}
+                                    loading={loadingTiposServicos}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryTiposServicos(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Tipo de Serviço"
+                                            error={!!errors.serviceType?.connect?.id}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingTiposServicos ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum tipo encontrado"
+                                    loadingText="Carregando tipos..."
+                                />
                                 {errors.serviceType?.connect?.id && (
                                     <p className="text-red-500 text-xs mt-1">
                                         {errors.serviceType.connect.id.message}
@@ -283,26 +333,76 @@ export default function FormServicos() {
                         </Box>
                         <Box className="flex flex-row gap-3 h-[60px]">
                             <FormControl sx={formTheme} fullWidth>
-                                <InputLabel>Checklist</InputLabel>
-                                <Select
-                                    label="Checklist"
+                                <Autocomplete
                                     multiple
-                                    value={selectedState.services}
-                                    onChange={(e) =>
+                                    options={servicosFiltrados || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={servicosFiltrados?.filter((servico: any) => selectedState.services.includes(servico.id.toString())) || []}
+                                    loading={loadingServicos}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryServicos(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const selectedIds = newValue.map((servico: any) => servico.id.toString());
                                         setSelectedState(prev => ({
                                             ...prev,
-                                            services: e.target.value as string[]
-                                        }))
-                                    }
-                                    renderValue={renderChips}
-                                >
-                                    <MenuItem value="" disabled>Selecione serviços...</MenuItem>
-                                    {servicesFromApi?.map((service) => (
-                                        <MenuItem key={service.id} value={service.id.toString()}>
-                                            {service.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                            services: selectedIds
+                                        }));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Checklist"
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingServicos ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    renderValue={(value) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {value.map((option, index) => (
+                                                <Chip
+                                                    key={option.id}
+                                                    label={option.name}
+                                                    size="small"
+                                                    onDelete={() => {
+                                                        const newValue = value.filter((_, i) => i !== index);
+                                                        const selectedIds = newValue.map((servico: any) => servico.id.toString());
+                                                        setSelectedState(prev => ({
+                                                            ...prev,
+                                                            services: selectedIds
+                                                        }));
+                                                    }}
+                                                    deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                                                    sx={{
+                                                        backgroundColor: '#00B288',
+                                                        color: 'white',
+                                                        borderRadius: '4px',
+                                                        fontSize: '.7rem',
+                                                        '& .MuiChip-deleteIcon': {
+                                                            color: 'white',
+                                                            fontSize: '.8rem',
+                                                        },
+                                                    }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum serviço encontrado"
+                                    loadingText="Carregando serviços..."
+                                />
                             </FormControl>
                             <Button
                                 sx={[buttonTheme, { height: "90%" }]}

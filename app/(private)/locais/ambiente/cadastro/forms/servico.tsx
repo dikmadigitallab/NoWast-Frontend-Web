@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Button, Box, Modal, CircularProgress, FormControl, InputLabel, Select, MenuItem, IconButton } from "@mui/material";
+import { TextField, Button, Box, Modal, CircularProgress, FormControl, InputLabel, Select, MenuItem, IconButton, Autocomplete } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 import { MdOutlineModeEditOutline } from "react-icons/md";
@@ -15,6 +15,7 @@ import { ptBR } from "@mui/x-data-grid/locales";
 import { useRouter } from "next/navigation";
 import { GoTrash } from "react-icons/go";
 import { useState } from "react";
+import { useDebounce } from "@/app/utils/useDebounce";
 
 const servicoSchema = z.object({
     name: z.string().min(1, "Tipo do serviço é obrigatório"),
@@ -41,7 +42,21 @@ export default function FormServicos() {
     const { id } = useGetIDStore();
     const [newItem, setNewItem] = useState("");
     const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
-    const { data: tiposServicos } = useGet({ url: "serviceType" });
+    const [searchQueryTiposServicos, setSearchQueryTiposServicos] = useState('');
+    const debouncedSearchQueryTiposServicos = useDebounce(searchQueryTiposServicos, 500);
+    
+    const { data: tiposServicosRaw, loading: loadingTiposServicos } = useGet({ 
+        url: "serviceType",
+        query: debouncedSearchQueryTiposServicos,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    // Remove duplicatas baseadas no ID
+    const tiposServicos = tiposServicosRaw ? tiposServicosRaw.filter((tipo: any, index: number, self: any[]) => 
+        index === self.findIndex((t: any) => t.id === tipo.id)
+    ) : [];
+
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreateAmbiente("service", "/locais/ambiente/listagem");
@@ -140,22 +155,43 @@ export default function FormServicos() {
                         control={control}
                         render={({ field }) => (
                             <FormControl sx={formTheme} fullWidth error={!!errors.serviceType?.connect?.id}>
-                                <InputLabel id="service-type-label">Tipo de Ambiente</InputLabel>
-                                <Select
-                                    labelId="service-type-label"
-                                    label="Tipo de Ambiente"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>
-                                        Clique e selecione...
-                                    </MenuItem>
-                                    {tiposServicos?.map((type: any) => (
-                                        <MenuItem key={type.id} value={type.id}>
-                                            {type.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <Autocomplete
+                                    options={tiposServicos || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={tiposServicos?.find((tipo: any) => tipo.id === field.value) || null}
+                                    loading={loadingTiposServicos}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryTiposServicos(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Tipo de Ambiente"
+                                            error={!!errors.serviceType?.connect?.id}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingTiposServicos ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum tipo encontrado"
+                                    loadingText="Carregando tipos..."
+                                />
                                 {errors.serviceType?.connect?.id && (
                                     <p className="text-red-500 text-xs mt-1">
                                         {errors.serviceType.connect.id.message}

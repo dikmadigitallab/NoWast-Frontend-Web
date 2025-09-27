@@ -1,6 +1,6 @@
 "use client";
 
-import { TextField, Box, Button, Modal, FormControl, InputLabel, Select, MenuItem, CircularProgress, IconButton, SnackbarCloseReason, Snackbar } from "@mui/material";
+import { TextField, Box, Button, Modal, FormControl, InputLabel, Select, MenuItem, CircularProgress, IconButton, SnackbarCloseReason, Snackbar, Autocomplete } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
@@ -15,6 +15,7 @@ import * as React from 'react';
 import { z } from "zod";
 import { useCreate } from "@/app/hooks/crud/create/create";
 import { ImageUploader } from "@/app/components/imageGet";
+import { useDebounce } from "@/app/utils/useDebounce";
 
 const setorSchema = z.object({
     name: z.string().min(1, "Nome do Setor é obrigatório"),
@@ -36,9 +37,24 @@ export default function CadastroSetor() {
     });
 
     const router = useRouter();
+    const [searchQueryPredios, setSearchQueryPredios] = useState('');
+    const debouncedSearchQueryPredios = useDebounce(searchQueryPredios, 500);
+    const [hasSearched, setHasSearched] = useState(false);
+    
+    const { data: prediosRaw, loading: loadingPredios } = useGet({ 
+        url: "building",
+        query: debouncedSearchQueryPredios,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    // Remove duplicatas baseadas no ID
+    const predios = prediosRaw ? prediosRaw.filter((predio: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === predio.id)
+    ) : [];
+
     const [open, setOpen] = useState(false);
     const [file, setFile] = useState<File | null>(null);
-    const { data: predios } = useGet({ url: "building" });
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("sector", "/locais/setor/listagem");
 
@@ -91,8 +107,18 @@ export default function CadastroSetor() {
     );
 
     useEffect(() => {
-        if (predios?.length <= 0) setOpen(true);
-    }, [predios])
+        // Marca que a busca foi feita quando o loading termina
+        if (!loadingPredios) {
+            setHasSearched(true);
+        }
+    }, [loadingPredios]);
+
+    useEffect(() => {
+        // Só mostra o modal se já fez a primeira busca, não está carregando, não há query de busca ativa, e não há prédios
+        if (hasSearched && !loadingPredios && debouncedSearchQueryPredios === '' && predios?.length <= 0) {
+            setOpen(true);
+        }
+    }, [hasSearched, predios, loadingPredios, debouncedSearchQueryPredios])
 
     return (
         <StyledMainContainer>
@@ -182,25 +208,47 @@ export default function CadastroSetor() {
 
                 <Box className="w-full flex gap-2">
                     <FormControl fullWidth error={!!errors.buildingId}>
-                        <InputLabel id="building-label">Prédio</InputLabel>
                         <Controller
                             name="buildingId"
                             control={control}
                             render={({ field }) => (
-                                <Select
-                                    {...field}
-                                    labelId="building-label"
-                                    label="Prédios"
-                                    value={field.value || ""}
-                                    error={!!errors.buildingId}
-                                >
-                                    <MenuItem value="" disabled>Selecione um prédio...</MenuItem>
-                                    {predios?.map((building: any) => (
-                                        <MenuItem key={building.id} value={building.id}>
-                                            {building.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <Autocomplete
+                                    options={predios || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={predios?.find((predio: any) => predio.id === field.value) || null}
+                                    loading={loadingPredios}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryPredios(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Prédio"
+                                            error={!!errors.buildingId}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingPredios ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum prédio encontrado"
+                                    loadingText="Carregando prédios..."
+                                />
                             )}
                         />
                         {errors.buildingId && (

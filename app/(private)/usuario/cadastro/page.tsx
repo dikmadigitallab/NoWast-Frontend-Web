@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress, Checkbox, ListItemText, InputAdornment } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Chip, OutlinedInput, Box, FormHelperText, Modal, CircularProgress, Checkbox, ListItemText, InputAdornment, Autocomplete } from "@mui/material";
 import { set, useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useAuthStore } from "@/app/store/storeApp";
 import { useCreateUser } from "@/app/hooks/usuarios/create";
 import { ImageUploader } from "@/app/components/imageGet";
+import { useDebounce } from "@/app/utils/useDebounce";
 
 const userSchema = z.object({
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }).nullable(),
@@ -78,6 +79,7 @@ export default function CadastroPessoa() {
             source: "Dikma",
             firstLogin: true,
             status: "ACTIVE",
+            startDate: new Date().toISOString().split('T')[0],
             person: {
                 create: {
                     name: "",
@@ -119,14 +121,92 @@ export default function CadastroPessoa() {
         mode: "onChange"
     });
 
-    const { users } = useGetUsuario({});
-    const { data: epis } = useGet({ url: 'ppe' });
+    // Estados para busca com debounce
+    const [searchQueryCargos, setSearchQueryCargos] = useState('');
+    const [searchQuerySupervisor, setSearchQuerySupervisor] = useState('');
+    const [searchQueryManager, setSearchQueryManager] = useState('');
+    const [searchQueryEpis, setSearchQueryEpis] = useState('');
+    const [searchQueryEquipamentos, setSearchQueryEquipamentos] = useState('');
+    const [searchQueryVeiculos, setSearchQueryVeiculos] = useState('');
+    const [searchQueryProdutos, setSearchQueryProdutos] = useState('');
+    
+    const debouncedSearchQueryCargos = useDebounce(searchQueryCargos, 500);
+    const debouncedSearchQuerySupervisor = useDebounce(searchQuerySupervisor, 500);
+    const debouncedSearchQueryManager = useDebounce(searchQueryManager, 500);
+    const debouncedSearchQueryEpis = useDebounce(searchQueryEpis, 500);
+    const debouncedSearchQueryEquipamentos = useDebounce(searchQueryEquipamentos, 500);
+    const debouncedSearchQueryVeiculos = useDebounce(searchQueryVeiculos, 500);
+    const debouncedSearchQueryProdutos = useDebounce(searchQueryProdutos, 500);
+
+    const { users: usersRaw, loading: loadingUsers } = useGetUsuario({
+        query: debouncedSearchQuerySupervisor || debouncedSearchQueryManager,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    // Remove duplicatas baseadas no ID
+    const users = usersRaw ? usersRaw.filter((user: any, index: number, self: any[]) => 
+        index === self.findIndex((u: any) => u.id === user.id)
+    ) : [];
+    
+    const { data: episRaw, loading: loadingEpis } = useGet({ 
+        url: 'ppe',
+        query: debouncedSearchQueryEpis,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    const { data: cargosRaw, loading: loadingCargos } = useGet({ 
+        url: 'position',
+        query: debouncedSearchQueryCargos,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    const { data: produtosRaw, loading: loadingProdutos } = useGet({ 
+        url: 'product',
+        query: debouncedSearchQueryProdutos,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    const { data: equipamentosRaw, loading: loadingEquipamentos } = useGet({ 
+        url: 'tools',
+        query: debouncedSearchQueryEquipamentos,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    const { data: transportesRaw, loading: loadingVeiculos } = useGet({ 
+        url: 'transport',
+        query: debouncedSearchQueryVeiculos,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    // Remove duplicatas baseadas no ID
+    const epis = episRaw ? episRaw.filter((epi: any, index: number, self: any[]) => 
+        index === self.findIndex((e: any) => e.id === epi.id)
+    ) : [];
+    
+    const cargos = cargosRaw ? cargosRaw.filter((cargo: any, index: number, self: any[]) => 
+        index === self.findIndex((c: any) => c.id === cargo.id)
+    ) : [];
+    
+    const produtos = produtosRaw ? produtosRaw.filter((produto: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === produto.id)
+    ) : [];
+    
+    const equipamentos = equipamentosRaw ? equipamentosRaw.filter((equipamento: any, index: number, self: any[]) => 
+        index === self.findIndex((e: any) => e.id === equipamento.id)
+    ) : [];
+    
+    const transportes = transportesRaw ? transportesRaw.filter((transporte: any, index: number, self: any[]) => 
+        index === self.findIndex((t: any) => t.id === transporte.id)
+    ) : [];
+
     const [file, setFile] = useState<File | null>(null);
     const [cepLoading, setCepLoading] = useState(false);
-    const { data: cargos } = useGet({ url: 'position' });
-    const { data: produtos } = useGet({ url: 'product' });
-    const { data: equipamentos } = useGet({ url: 'tools' });
-    const { data: transportes } = useGet({ url: 'transport' });
     const { create, loading } = useCreateUser("users", "/usuario/listagem");
 
     const router = useRouter();
@@ -675,19 +755,43 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.position?.connect?.id} sx={formTheme}>
-                                <InputLabel sx={formTheme}>Cargo</InputLabel>
-                                <Select
-                                    label="Cargo"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value={field.value || []} disabled>Selecione uma posição...</MenuItem>
-                                    {cargos?.map((position: any) => (
-                                        <MenuItem key={position.id} value={position.id}>
-                                            {position.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <Autocomplete
+                                    options={cargos || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={cargos?.find((cargo: any) => cargo.id === field.value) || null}
+                                    loading={loadingCargos}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryCargos(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Cargo"
+                                            error={!!errors.position?.connect?.id}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingCargos ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum cargo encontrado"
+                                    loadingText="Carregando cargos..."
+                                />
                                 <FormHelperText>{errors.position?.connect?.id?.message}</FormHelperText>
                             </FormControl>
                         )}
@@ -722,20 +826,43 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.supervisor?.connect?.id} sx={formTheme}>
-                                <InputLabel sx={formTheme}>Supervisor</InputLabel>
-                                <Select
-                                    label="Supervisor"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um supervisor...</MenuItem>
-                                    {Array.isArray(users) && users.map((pessoa) => (
-                                        <MenuItem key={pessoa.id} value={pessoa.id}>
-                                            {pessoa.person.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <Autocomplete
+                                    options={users || []}
+                                    getOptionLabel={(option: any) => option.person?.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={users?.find((user: any) => user.id === field.value) || null}
+                                    loading={loadingUsers}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQuerySupervisor(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Supervisor"
+                                            error={!!errors.supervisor?.connect?.id}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingUsers ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.person?.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum supervisor encontrado"
+                                    loadingText="Carregando supervisores..."
+                                />
                                 <FormHelperText>{errors.supervisor?.connect?.id?.message}</FormHelperText>
                             </FormControl>
                         )}
@@ -745,20 +872,43 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors?.manager?.connect?.id} sx={formTheme}>
-                                <InputLabel sx={formTheme}>Gerente</InputLabel>
-                                <Select
-                                    label="Gerente"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array.isArray(users) && users.map((pessoa) => (
-                                        <MenuItem key={pessoa.id} value={pessoa.id}>
-                                            {pessoa.person.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <Autocomplete
+                                    options={users || []}
+                                    getOptionLabel={(option: any) => option.person?.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={users?.find((user: any) => user.id === field.value) || null}
+                                    loading={loadingUsers}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryManager(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Gerente"
+                                            error={!!errors?.manager?.connect?.id}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingUsers ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.person?.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum gerente encontrado"
+                                    loadingText="Carregando gerentes..."
+                                />
                                 <FormHelperText>{errors?.manager?.connect?.id?.message}</FormHelperText>
                             </FormControl>
                         )}
@@ -773,34 +923,71 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.epiIds} sx={{ width: '25%', ...formTheme }}>
-                                <InputLabel >EPIs</InputLabel>
-                                <Select
+                                <Autocomplete
                                     multiple
-                                    label="EPIs"
-                                    input={<OutlinedInput label="EPIs" />}
-                                    value={field.value || []}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        field.onChange(Array.isArray(value) ? value : []);
+                                    options={epis || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={epis?.filter((epi: any) => field.value?.includes(epi.id)) || []}
+                                    loading={loadingEpis}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryEpis(newInputValue);
                                     }}
-                                    renderValue={(selected) =>
-                                        renderChips(
-                                            selected as number[],
-                                            'epiIds',
-                                            (value) =>
-                                                field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                            epis || []
-                                        )
-                                    }
-                                >
-                                    <MenuItem disabled>Adicione EPIs</MenuItem>
-                                    {(epis || []).map((item: any) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            <Checkbox checked={field.value.includes(item.id)} />
-                                            <ListItemText primary={item.name} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                    onChange={(event, newValue) => {
+                                        const selectedIds = newValue.map((epi: any) => epi.id);
+                                        field.onChange(selectedIds);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="EPIs"
+                                            error={!!errors.epiIds}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingEpis ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    renderValue={(value) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {value.map((option, index) => (
+                                                <Chip
+                                                    key={option.id}
+                                                    label={option.name}
+                                                    size="small"
+                                                    onDelete={() => {
+                                                        const newValue = value.filter((_, i) => i !== index);
+                                                        const selectedIds = newValue.map((epi: any) => epi.id);
+                                                        field.onChange(selectedIds);
+                                                    }}
+                                                    deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                                                    sx={{
+                                                        backgroundColor: '#00B288',
+                                                        color: 'white',
+                                                        borderRadius: '4px',
+                                                        fontSize: '.7rem',
+                                                        '& .MuiChip-deleteIcon': {
+                                                            color: 'white',
+                                                            fontSize: '.8rem',
+                                                        },
+                                                    }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum EPI encontrado"
+                                    loadingText="Carregando EPIs..."
+                                />
                                 {errors.epiIds && (
                                     <p className="text-red-500 text-xs mt-1">{errors.epiIds.message}</p>
                                 )}
@@ -813,31 +1000,71 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.equipmentIds} sx={{ width: '25%', ...formTheme }}>
-                                <InputLabel sx={formTheme}>Equipamentos</InputLabel>
-                                <Select
+                                <Autocomplete
                                     multiple
-                                    label="Equipamentos"
-                                    input={<OutlinedInput label="Equipamentos" />}
-                                    value={field.value || []}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        field.onChange(Array.isArray(value) ? value : []);
+                                    options={equipamentos || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={equipamentos?.filter((equipamento: any) => field.value?.includes(equipamento.id)) || []}
+                                    loading={loadingEquipamentos}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryEquipamentos(newInputValue);
                                     }}
-                                    renderValue={(selected) => renderChips(
-                                        selected as number[],
-                                        'equipmentIds',
-                                        (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        equipamentos || []
+                                    onChange={(event, newValue) => {
+                                        const selectedIds = newValue.map((equipamento: any) => equipamento.id);
+                                        field.onChange(selectedIds);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Equipamentos"
+                                            error={!!errors.equipmentIds}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingEquipamentos ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
                                     )}
-                                >
-                                    <MenuItem disabled>Adicione equipamentos</MenuItem>
-                                    {(equipamentos || []).map((item: any) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            <Checkbox checked={field.value.includes(item.id)} />
-                                            <ListItemText primary={item.name} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    renderValue={(value) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {value.map((option, index) => (
+                                                <Chip
+                                                    key={option.id}
+                                                    label={option.name}
+                                                    size="small"
+                                                    onDelete={() => {
+                                                        const newValue = value.filter((_, i) => i !== index);
+                                                        const selectedIds = newValue.map((equipamento: any) => equipamento.id);
+                                                        field.onChange(selectedIds);
+                                                    }}
+                                                    deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                                                    sx={{
+                                                        backgroundColor: '#00B288',
+                                                        color: 'white',
+                                                        borderRadius: '4px',
+                                                        fontSize: '.7rem',
+                                                        '& .MuiChip-deleteIcon': {
+                                                            color: 'white',
+                                                            fontSize: '.8rem',
+                                                        },
+                                                    }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum equipamento encontrado"
+                                    loadingText="Carregando equipamentos..."
+                                />
                                 {errors.equipmentIds && (
                                     <p className="text-red-500 text-xs mt-1">{errors.equipmentIds.message}</p>
                                 )}
@@ -850,31 +1077,71 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.vehicleIds} sx={{ width: '25%', ...formTheme }}>
-                                <InputLabel sx={formTheme}>Veículos</InputLabel>
-                                <Select
+                                <Autocomplete
                                     multiple
-                                    label="Veículos"
-                                    input={<OutlinedInput label="Veículos" />}
-                                    value={field.value || []}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        field.onChange(Array.isArray(value) ? value : []);
+                                    options={transportes || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={transportes?.filter((transporte: any) => field.value?.includes(transporte.id)) || []}
+                                    loading={loadingVeiculos}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryVeiculos(newInputValue);
                                     }}
-                                    renderValue={(selected) => renderChips(
-                                        selected as number[],
-                                        'vehicleIds',
-                                        (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        transportes || []
+                                    onChange={(event, newValue) => {
+                                        const selectedIds = newValue.map((transporte: any) => transporte.id);
+                                        field.onChange(selectedIds);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Veículos"
+                                            error={!!errors.vehicleIds}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingVeiculos ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
                                     )}
-                                >
-                                    <MenuItem disabled>Adicione veículos</MenuItem>
-                                    {(transportes || []).map((item: any) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            <Checkbox checked={field.value.includes(item.id)} />
-                                            <ListItemText primary={item.name} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    renderValue={(value) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {value.map((option, index) => (
+                                                <Chip
+                                                    key={option.id}
+                                                    label={option.name}
+                                                    size="small"
+                                                    onDelete={() => {
+                                                        const newValue = value.filter((_, i) => i !== index);
+                                                        const selectedIds = newValue.map((transporte: any) => transporte.id);
+                                                        field.onChange(selectedIds);
+                                                    }}
+                                                    deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                                                    sx={{
+                                                        backgroundColor: '#00B288',
+                                                        color: 'white',
+                                                        borderRadius: '4px',
+                                                        fontSize: '.7rem',
+                                                        '& .MuiChip-deleteIcon': {
+                                                            color: 'white',
+                                                            fontSize: '.8rem',
+                                                        },
+                                                    }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum veículo encontrado"
+                                    loadingText="Carregando veículos..."
+                                />
                                 {errors.vehicleIds && (
                                     <p className="text-red-500 text-xs mt-1">{errors.vehicleIds.message}</p>
                                 )}
@@ -887,31 +1154,71 @@ export default function CadastroPessoa() {
                         control={control}
                         render={({ field }) => (
                             <FormControl fullWidth error={!!errors.productIds} sx={{ width: '25%', ...formTheme }}>
-                                <InputLabel sx={formTheme}>Produtos</InputLabel>
-                                <Select
+                                <Autocomplete
                                     multiple
-                                    label="Produtos"
-                                    input={<OutlinedInput label="Produtos" />}
-                                    value={field.value || []}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        field.onChange(Array.isArray(value) ? value : []);
+                                    options={produtos || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={produtos?.filter((produto: any) => field.value?.includes(produto.id)) || []}
+                                    loading={loadingProdutos}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQueryProdutos(newInputValue);
                                     }}
-                                    renderValue={(selected) => renderChips(
-                                        selected as number[],
-                                        'productIds',
-                                        (value) => field.onChange((field.value as number[]).filter((item) => item !== value)),
-                                        produtos || []
+                                    onChange={(event, newValue) => {
+                                        const selectedIds = newValue.map((produto: any) => produto.id);
+                                        field.onChange(selectedIds);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Produtos"
+                                            error={!!errors.productIds}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingProdutos ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
                                     )}
-                                >
-                                    <MenuItem disabled>Adicione produtos</MenuItem>
-                                    {(produtos || []).map((item: any) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            <Checkbox checked={field.value.includes(item.id)} />
-                                            <ListItemText primary={item.name} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    renderValue={(value) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {value.map((option, index) => (
+                                                <Chip
+                                                    key={option.id}
+                                                    label={option.name}
+                                                    size="small"
+                                                    onDelete={() => {
+                                                        const newValue = value.filter((_, i) => i !== index);
+                                                        const selectedIds = newValue.map((produto: any) => produto.id);
+                                                        field.onChange(selectedIds);
+                                                    }}
+                                                    deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                                                    sx={{
+                                                        backgroundColor: '#00B288',
+                                                        color: 'white',
+                                                        borderRadius: '4px',
+                                                        fontSize: '.7rem',
+                                                        '& .MuiChip-deleteIcon': {
+                                                            color: 'white',
+                                                            fontSize: '.8rem',
+                                                        },
+                                                    }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum produto encontrado"
+                                    loadingText="Carregando produtos..."
+                                />
                                 {errors.productIds && (
                                     <p className="text-red-500 text-xs mt-1">{errors.productIds.message}</p>
                                 )}
@@ -927,7 +1234,6 @@ export default function CadastroPessoa() {
                     <Controller
                         name="startDate"
                         control={control}
-                        defaultValue={new Date().toISOString().split('T')[0]}
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"

@@ -41,7 +41,7 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
             if (userInfo.contractId) params.append("contractId", String(userInfo.contractId).trim());
 
             const url = `/users?${params.toString()}`;
-
+            
             const response = await api.get<any>(url,
                 {
                     headers: {

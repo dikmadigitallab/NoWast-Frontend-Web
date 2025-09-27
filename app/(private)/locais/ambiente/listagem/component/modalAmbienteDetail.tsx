@@ -1,4 +1,4 @@
-import { Box, IconButton, Modal, Paper, Collapse } from "@mui/material";
+import { Box, IconButton, Modal, Paper, Collapse, Typography, Chip } from "@mui/material";
 import { IoMdClose, IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { useState } from "react";
 
@@ -34,6 +34,57 @@ function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
                             </Box>
                         </Box>
                     ))}
+                </Box>
+            </Collapse>
+        </Box>
+    );
+}
+
+function ChecklistSection({ servicos }: { servicos: any[] }) {
+    const [isOpen, setIsOpen] = useState(true); // Já aberto por padrão
+
+    if (!servicos || servicos.length === 0) {
+        return (
+            <Box className="mt-6 border-b border-gray-200 pb-4 last:border-0">
+                <Box className="flex justify-between items-center cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
+                    <h2 className="text-[#374151] text-[1.1rem] font-semibold">Checklist (Serviços)</h2>
+                    <IconButton size="small" className="text-gray-500">{isOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}</IconButton>
+                </Box>
+                <Collapse in={isOpen}>
+                    <Box className="mt-3 p-4 text-center">
+                        <Typography variant="body2" color="text.secondary">Nenhum serviço cadastrado para este ambiente</Typography>
+                    </Box>
+                </Collapse>
+            </Box>
+        );
+    }
+
+    return (
+        <Box className="mt-6 border-b border-gray-200 pb-4 last:border-0">
+            <Box className="flex justify-between items-center cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
+                <h2 className="text-[#374151] text-[1.1rem] font-semibold">Checklist (Serviços) - {servicos.length} item(s)</h2>
+                <IconButton size="small" className="text-gray-500">{isOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}</IconButton>
+            </Box>
+            <Collapse in={isOpen}>
+                <Box className="mt-3">
+                    <Box className="flex flex-wrap gap-2">
+                        {servicos.map((service: any) => (
+                            <Chip
+                                key={service.id}
+                                label={service.name}
+                                sx={{
+                                    backgroundColor: '#00B288',
+                                    color: 'white',
+                                    borderRadius: '4px',
+                                    fontSize: '.8rem',
+                                    fontWeight: '500',
+                                    '&:hover': {
+                                        backgroundColor: '#00755a',
+                                    }
+                                }}
+                            />
+                        ))}
+                    </Box>
                 </Box>
             </Collapse>
         </Box>
@@ -83,6 +134,7 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                     </Box>
 
                     <Box className="space-y-6">
+                        <ChecklistSection servicos={modalVisualize?.servicos || []} />
                         <CollapsibleSection title="Setores" items={modalVisualize?.setor ? [modalVisualize.setor] : []} />
                         <CollapsibleSection title="Prédios" items={modalVisualize?.predio ? [modalVisualize.predio] : []} />
                     </Box>

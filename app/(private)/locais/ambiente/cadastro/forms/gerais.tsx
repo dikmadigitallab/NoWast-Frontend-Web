@@ -1,6 +1,6 @@
 "use client";
 
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Snackbar, IconButton, SnackbarCloseReason } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Snackbar, IconButton, SnackbarCloseReason, Autocomplete } from "@mui/material";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
@@ -12,12 +12,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import * as React from 'react';
 import { z } from "zod";
+import { useDebounce } from "@/app/utils/useDebounce";
 
 const ambienteSchema = z.object({
     name: z.string().min(1, "Nome do Ambiente é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
     areaM2: z.number().min(1, "Área em metros quadrados é obrigatória").nullable(),
     sector: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do Setor é obrigatório").nullable() }) }),
+    startDate: z.string({ message: "Data de início é obrigatória" }).optional(),
 });
 
 type AmbienteFormValues = z.infer<typeof ambienteSchema>;
@@ -25,11 +27,35 @@ type AmbienteFormValues = z.infer<typeof ambienteSchema>;
 export default function FormDadosGerais() {
 
     const router = useRouter();
-    const { data: setores } = useGet({ url: "sector" });
+    const [searchQuerySetores, setSearchQuerySetores] = useState('');
+    const debouncedSearchQuerySetores = useDebounce(searchQuerySetores, 500);
+    
+    const { data: setoresRaw, loading: loadingSetores } = useGet({ 
+        url: "sector",
+        query: debouncedSearchQuerySetores,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    // Remove duplicatas baseadas no ID
+    const setores = setoresRaw ? setoresRaw.filter((setor: any, index: number, self: any[]) => 
+        index === self.findIndex((s: any) => s.id === setor.id)
+    ) : [];
+
     const { create, loading } = useCreateAmbiente("environment");
     const [openCancelModal, setOpenCancelModal] = useState(false);
 
-    const { control, handleSubmit, formState: { errors } } = useForm<AmbienteFormValues>({ resolver: zodResolver(ambienteSchema), defaultValues: { name: "", description: "", areaM2: null, sector: { connect: { id: null } } }, mode: "onChange" });
+    const { control, handleSubmit, formState: { errors } } = useForm<AmbienteFormValues>({ 
+        resolver: zodResolver(ambienteSchema), 
+        defaultValues: { 
+            name: "", 
+            description: "", 
+            areaM2: null, 
+            sector: { connect: { id: null } },
+            startDate: new Date().toISOString().split('T')[0]
+        }, 
+        mode: "onChange" 
+    });
 
     const handleOpenCancelModal = () => setOpenCancelModal(true);
     const handleCloseCancelModal = () => setOpenCancelModal(false);
@@ -115,22 +141,43 @@ export default function FormDadosGerais() {
                                 fullWidth
                                 error={!!errors.sector?.connect?.id}
                             >
-                                <InputLabel id="sector-label">Setor</InputLabel>
-                                <Select
-                                    labelId="sector-label"
-                                    label="Setor"
-                                    {...field}
-                                    value={field.value || ""}
-                                >
-                                    <MenuItem value="" disabled>
-                                        Clique e selecione...
-                                    </MenuItem>
-                                    {setores?.map((setor: any) => (
-                                        <MenuItem key={setor.id} value={setor.id}>
-                                            {setor.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <Autocomplete
+                                    options={setores || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    getOptionKey={(option: any) => option.id}
+                                    value={setores?.find((setor: any) => setor.id === field.value) || null}
+                                    loading={loadingSetores}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchQuerySetores(newInputValue);
+                                    }}
+                                    onChange={(event, newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Setor"
+                                            error={!!errors.sector?.connect?.id}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <>
+                                                        {loadingSetores ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </>
+                                                ),
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.id}>
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    noOptionsText="Nenhum setor encontrado"
+                                    loadingText="Carregando setores..."
+                                />
                                 {errors.sector?.connect?.id && (
                                     <p className="text-red-500 text-xs mt-1">
                                         {errors.sector.connect.id.message}
@@ -172,6 +219,23 @@ export default function FormDadosGerais() {
                                 {...field}
                                 error={!!errors.description}
                                 helperText={errors.description?.message}
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                    <Controller
+                        name="startDate"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Data Ínicio"
+                                InputLabelProps={{ shrink: true }}
+                                type="date"
+                                {...field}
+                                error={!!errors.startDate}
+                                helperText={errors.startDate?.message}
+                                className="w-full"
                                 sx={formTheme}
                             />
                         )}

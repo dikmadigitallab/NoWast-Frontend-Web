@@ -13,7 +13,7 @@ import FormServicos from "./forms/servico";
 export default function Ambiente() {
 
     const router = useRouter();
-    const { section } = useSectionStore();
+    const { section, setSection } = useSectionStore();
     const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const handleCloseDisableModal = () => {
@@ -22,6 +22,10 @@ export default function Ambiente() {
 
     const handleDisableConfirm = () => {
         router.push('/locais/ambiente/listagem');
+    };
+
+    const handleStepClick = (stepNumber: number) => {
+        setSection(stepNumber);
     };
 
     return (
@@ -40,13 +44,21 @@ export default function Ambiente() {
                     {[1, 2].map((step) => (
                         <Box
                             key={step}
+                            onClick={() => handleStepClick(step)}
                             className={`
-                            w-[25%] h-[100%] flex flex-row items-center justify-between p-5 rounded-md
-                            ${section === step ? "bg-[#00000003]" : ""}`}>
+                            w-[25%] h-[100%] flex flex-row items-center justify-between p-5 rounded-md cursor-pointer transition-all duration-200
+                            ${section === step ? "bg-[#00000003]" : "hover:bg-[#00000001]"}
+                            `}
+                            sx={{
+                                '&:hover': {
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                }
+                            }}>
                             <Box className="h-[100%] items-center flex flex-row gap-5 w-[80%]">
                                 <Box
                                     style={{ backgroundColor: section === step ? "#3ABA8A" : "#f7f7f7", color: step === section ? "#fff" : "" }}
-                                    className={`w-[70px] h-full flex justify-center items-center rounded-md text-[#3ABA8A] font-semibold`}>
+                                    className={`w-[70px] h-full flex justify-center items-center rounded-md text-[#3ABA8A] font-semibold transition-colors duration-200`}>
                                     {step}
                                 </Box>
                                 <h1 className="text-[#43BC8B] font-semibold">
