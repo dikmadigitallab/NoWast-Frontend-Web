@@ -56,39 +56,51 @@ export default function middleware(request: NextRequest) {
   const publicRoute = publicRoutes.find(route => route.path === path);
 
   // Determinar host público dinamicamente
-  const hostMap: Record<string, string> = {
-    homologacao: "nowastev2-homologa.dikmadigital.com.br",
-    producao: "nowastev2.dikmadigital.com.br",
-    localhost: "localhost:3000",
-  };
+   const hostMap: Record<string, string> = {
+    "homologacao": "nowastev2-homologa.dikmadigital.com.br",
+    "producao": "nowastev2.dikmadigital.com.br",
+    "localhost": "localhost:3000"
+  }; 
+
+  // Detectar ambiente pelo hostname do request
   const hostname = request.nextUrl.hostname;
-
-  let environment: keyof typeof hostMap;
-
-  if (hostname.includes("localhost")) {
-    environment = "localhost";
-  } else if (hostname.includes("homologa")) {
-    environment = "homologacao";
-  } else {
-    environment = "producao";
-  }
-
+  const environment = hostname.includes("homologa") ? "homologacao" : "producao";
   const publicHost = hostMap[environment]; 
 
 
 
+  //USE IN LOCAL
+ /* 
+const hostMap: Record<string, string> = {
+  homologacao: "nowastev2-homologa.dikmadigital.com.br",
+  producao: "nowastev2.dikmadigital.com.br",
+  localhost: "localhost:3000",
+};
+const hostname = request.nextUrl.hostname;
+
+let environment: keyof typeof hostMap;
+
+if (hostname.includes("localhost")) {
+  environment = "localhost";
+} else if (hostname.includes("homologa")) {
+  environment = "homologacao";
+} else {
+  environment = "producao";
+}
+
+const publicHost = hostMap[environment]; 
+
+ */
+
+//USE IN PROD
 
   // Redirecionamento quando autenticado
   if (authToken && publicRoute?.whenAuthenticated === 'redirect') {
     const redirectUrl = request.nextUrl.clone();
-    if (environment === "localhost") {
-      redirectUrl.pathname = "/";
-    } else {
-      redirectUrl.hostname = publicHost;
-      redirectUrl.port = ""; // remove porta interna
-      redirectUrl.protocol = "http";
-      redirectUrl.pathname = "/";
-    }
+    redirectUrl.hostname = publicHost;
+    redirectUrl.port = ""; // remove porta interna
+    redirectUrl.protocol = "http";
+    redirectUrl.pathname = "/";
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -98,14 +110,10 @@ export default function middleware(request: NextRequest) {
   // Redirecionamento quando não autenticado
   if (!authToken) {
     const redirectUrl = request.nextUrl.clone();
-    if (environment === "localhost") {
-      redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
-    } else {
-      redirectUrl.hostname = publicHost;
-      redirectUrl.port = ""; // remove porta interna
-      redirectUrl.protocol = "https";
-      redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
-    }
+    redirectUrl.hostname = publicHost;
+    redirectUrl.port = ""; // remove porta interna
+    redirectUrl.protocol = "https";
+    redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
     return NextResponse.redirect(redirectUrl);
   }
 
