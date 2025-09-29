@@ -43,10 +43,25 @@ export default function Calendar() {
     const [selectedActivity, setSelectedActivity] = useState<ActivityData | null>(null);
     const [atividadeFilters, setAtividadeFilters] = useState({ mes: (new Date().getMonth() + 1).toString().padStart(2, '0'), ano: new Date().getFullYear().toString() });
 
+    // Calcular o período completo que aparece na grade do calendário
+    const getCalendarDateRange = (currentDate: Date) => {
+        const monthStart = startOfMonth(currentDate);
+        const monthEnd = endOfMonth(monthStart);
+        const startDate = startOfWeek(monthStart);
+        const endDate = endOfWeek(monthEnd);
+        
+        return {
+            startDate: format(startDate, 'yyyy-MM-dd'),
+            endDate: format(endDate, 'yyyy-MM-dd')
+        };
+    };
+
+    const calendarRange = getCalendarDateRange(currentDate);
+
     const { data: atividades, loading } = useGetActivity({
         disablePagination: true,
-        startDate: `${atividadeFilters.ano}-${atividadeFilters.mes}-01`,
-        endDate: `${atividadeFilters.ano}-${atividadeFilters.mes}-${new Date(parseInt(atividadeFilters.ano), parseInt(atividadeFilters.mes), 0).getDate()}`,
+        startDate: calendarRange.startDate,
+        endDate: calendarRange.endDate,
     });
 
     // Converter string de Data para objeto Date
@@ -64,13 +79,16 @@ export default function Calendar() {
     const filteredActivities = useMemo(() => {
         if (!atividades) return [];
 
+        // Usar o período completo do calendário (incluindo dias dos meses anterior e posterior)
         const monthStart = startOfMonth(currentDate);
-        const monthEnd = endOfMonth(currentDate);
+        const monthEnd = endOfMonth(monthStart);
+        const startDate = startOfWeek(monthStart);
+        const endDate = endOfWeek(monthEnd);
 
         return atividades.filter((activity: ActivityData) => {
             try {
                 const activityDate = parseActivityDate(activity.dateTime);
-                return activityDate >= monthStart && activityDate <= monthEnd;
+                return activityDate >= startDate && activityDate <= endDate;
             } catch (error) {
                 console.error('Erro ao filtrar atividade:', activity, error);
                 return false;
@@ -334,11 +352,16 @@ export default function Calendar() {
                 days.push(
                     <Box
                         key={day.toString()}
-                        className={`min-h-[170px] p-2 border border-gray-200 ${!isSameMonth(day, monthStart) ? 'bg-gray-50 text-gray-400' : ''
+                        className={`min-h-[170px] p-2 border border-gray-200 ${!isSameMonth(day, monthStart) ? 'bg-gray-200/65 text-gray-800' : ''
                             } ${isToday(day) ? 'bg-blue-50' : ''}`}
                     >
                         <Box className="flex justify-between">
-                            <span className={`text-sm font-medium ${isToday(day) ? 'bg-[#00b288] text-white rounded-full w-6 h-6 flex items-center justify-center' : ''}`}>
+                            <span className={`text-md font-bold ${isToday(day) 
+                                ? 'bg-[#00b288] text-white rounded-full w-8 h-8 flex items-center justify-center' 
+                                : !isSameMonth(day, monthStart) 
+                                    ? 'text-gray-500 font-semibold' 
+                                    : 'text-gray-800 font-bold'
+                            }`}>
                                 {formattedDate}
                             </span>
                             {dayActivities.length > 0 && (
