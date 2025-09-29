@@ -3,7 +3,8 @@
 import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField, Autocomplete } from "@mui/material";
+import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import { useDebounce } from "@/app/utils/useDebounce";
 import { useState } from "react";
@@ -35,51 +36,26 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     name="environmentId"
                     control={control}
                     render={({ field }) => (
-                        <FormControl sx={formTheme} fullWidth error={!!errors.environmentId}>
-                            <Autocomplete
-                                options={ambientes || []}
-                                getOptionLabel={(option: any) => option.name || ''}
-                                getOptionKey={(option: any) => option.id}
-                                value={ambientes?.find((ambiente: any) => ambiente.id === field.value) || null}
-                                loading={loading}
-                                onInputChange={(event, newInputValue) => {
-                                    setSearchQuery(newInputValue);
-                                }}
-                                onChange={(event, newValue) => {
-                                    const value = newValue?.id || '';
-                                    field.onChange(value);
-                                    setId(value);
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Ambiente"
-                                        error={!!errors.environmentId}
-                                        InputProps={{
-                                            ...params.InputProps,
-                                            endAdornment: (
-                                                <>
-                                                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                                                    {params.InputProps.endAdornment}
-                                                </>
-                                            ),
-                                        }}
-                                    />
-                                )}
-                                renderOption={(props, option) => (
-                                    <Box component="li" {...props} key={option.id}>
-                                        {option.name}
-                                    </Box>
-                                )}
-                                noOptionsText="Nenhum ambiente encontrado"
-                                loadingText="Carregando ambientes..."
-                            />
-                            {errors.environmentId && (
-                                <FormHelperText error>
-                                    {errors.environmentId.message}
-                                </FormHelperText>
-                            )}
-                        </FormControl>
+                        <CustomAutocomplete
+                            options={ambientes || []}
+                            getOptionLabel={(option: any) => option.name || ''}
+                            value={ambientes?.find((ambiente: any) => ambiente.id === field.value) || null}
+                            loading={loading}
+                            onInputChange={(newInputValue) => {
+                                setSearchQuery(newInputValue);
+                            }}
+                            onChange={(newValue) => {
+                                const value = newValue?.id || '';
+                                field.onChange(value);
+                                setId(value);
+                            }}
+                            label="Ambiente"
+                            error={!!errors.environmentId}
+                            helperText={errors.environmentId?.message}
+                            noOptionsText="Nenhum ambiente encontrado"
+                            loadingText="Carregando ambientes..."
+                            className="w-full"
+                        />
                     )}
                 />
 

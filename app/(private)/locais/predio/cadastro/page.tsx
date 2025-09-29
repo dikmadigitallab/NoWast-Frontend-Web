@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { TextField, Box, Button, Modal, CircularProgress } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { useCreate } from "@/app/hooks/crud/create/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
@@ -13,14 +14,24 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { ImageUploader } from "@/app/components/imageGet";
+import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useDebounce } from "@/app/utils/useDebounce";
+
+interface Contract {
+    id: number;
+    name: string;
+    companyId: number;
+    startDate: string;
+    endDate: string;
+}
 
 const predioSchema = z.object({
     name: z.string().min(1, "Nome do Predio é obrigatório"),
-    latitude: z.string().min(1, "Latitude é obrigatória"),
-    longitude: z.string().min(1, "Longitude é obrigatória"),
+    latitude: z.number().min(-90).max(90, "Latitude deve estar entre -90 e 90"),
+    longitude: z.number().min(-180).max(180, "Longitude deve estar entre -180 e 180"),
     description: z.string().min(1, "Descrição é obrigatória"),
     radius: z.number().int().min(1, "Raio é obrigatório"),
-    contractId: z.number().int()
+    contractId: z.number().int().min(1, "Contrato é obrigatório")
 });
 
 type PredioFormValues = z.infer<typeof predioSchema>;
@@ -31,13 +42,33 @@ export default function CadastroPredio() {
 
     const { control, handleSubmit, formState: { errors, } } = useForm<PredioFormValues>({
         resolver: zodResolver(predioSchema),
-        defaultValues: { name: "", latitude: "", longitude: "", description: "", contractId: Number(userInfo?.contractId), radius: 0 },
+        defaultValues: { 
+            name: "", 
+            latitude: 0, 
+            longitude: 0, 
+            description: "", 
+            contractId: 0, 
+            radius: 0 
+        },
         mode: "onChange"
     });
 
     const router = useRouter();
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const [file, setFile] = useState<File | null>(null);
+    const [searchQueryContracts, setSearchQueryContracts] = useState('');
+    const debouncedSearchQueryContracts = useDebounce(searchQueryContracts, 500);
+    const [latitudeInput, setLatitudeInput] = useState('');
+    const [longitudeInput, setLongitudeInput] = useState('');
+    
+    const { data: contractsRaw, loading: loadingContracts } = useGet({ 
+        url: "contract",
+        query: debouncedSearchQueryContracts,
+        pageSize: 25,
+        pageNumber: 1
+    });
+
+    const contracts: Contract[] = contractsRaw || [];
     const { create, loading } = useCreate("building", "/locais/predio/listagem");
 
     const handleOpenDisableModal = () => {
@@ -53,7 +84,10 @@ export default function CadastroPredio() {
     };
 
     const onSubmit = (formData: any) => {
-        const newObject = { ...formData, image: file };
+        const newObject = { 
+            ...formData, 
+            image: file 
+        };
         create(newObject, true);
     };
 
@@ -104,11 +138,25 @@ export default function CadastroPredio() {
                         <Controller
                             name="latitude"
                             control={control}
-                            render={({ field }) => (
+                            render={({ field: { onChange } }) => (
                                 <TextField
                                     variant="outlined"
                                     label="Latitudeº"
-                                    {...field}
+                                    type="text"
+                                    value={latitudeInput}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(',', '.');
+                                        setLatitudeInput(val);
+                                        
+                                        if (val === "" || val === "-") {
+                                            onChange(0);
+                                        } else {
+                                            const num = parseFloat(val);
+                                            if (!isNaN(num)) {
+                                                onChange(num);
+                                            }
+                                        }
+                                    }}
                                     error={!!errors.latitude}
                                     helperText={errors.latitude?.message}
                                     className="w-[50%]"
@@ -119,11 +167,25 @@ export default function CadastroPredio() {
                         <Controller
                             name="longitude"
                             control={control}
-                            render={({ field }) => (
+                            render={({ field: { onChange } }) => (
                                 <TextField
                                     variant="outlined"
                                     label="Longitudeº"
-                                    {...field}
+                                    type="text"
+                                    value={longitudeInput}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(',', '.');
+                                        setLongitudeInput(val);
+                                        
+                                        if (val === "" || val === "-") {
+                                            onChange(0);
+                                        } else {
+                                            const num = parseFloat(val);
+                                            if (!isNaN(num)) {
+                                                onChange(num);
+                                            }
+                                        }
+                                    }}
                                     error={!!errors.longitude}
                                     helperText={errors.longitude?.message}
                                     className="w-[50%]"
@@ -132,6 +194,31 @@ export default function CadastroPredio() {
                             )}
                         />
                     </Box>
+                </Box>
+
+                <Box className="w-[100%] flex flex-row justify-between gap-2">
+                    <Controller
+                        name="contractId"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <CustomAutocomplete
+                                options={contracts}
+                                getOptionLabel={(option) => option?.name || ''}
+                                value={contracts.find((contract) => contract?.id === value) || null}
+                                onChange={(newValue) => {
+                                    onChange(newValue ? newValue.id : 0);
+                                }}
+                                loading={loadingContracts}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQueryContracts(newInputValue);
+                                }}
+                                label="Contrato"
+                                error={!!errors.contractId}
+                                helperText={errors.contractId?.message}
+                                className="w-[100%]"
+                            />
+                        )}
+                    />
                 </Box>
 
                 <ImageUploader

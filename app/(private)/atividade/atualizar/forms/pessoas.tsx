@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography, Autocomplete, TextField } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography, TextField } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -173,71 +174,23 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 </Box>
                 <Box className="flex flex-col gap-3">
                     <Box className="flex flex-row gap-3 h-[60px]">
-                        <Autocomplete
+                        <CustomAutocomplete
                             multiple
-                            fullWidth
                             options={pessoas || []}
                             getOptionLabel={(option: any) => option.name || ''}
-                            getOptionKey={(option: any) => option.id}
-                            value={pessoas?.filter((pessoa: any) => selectedUsers.includes(pessoa.id.toString())) || []}
+                            multipleValue={pessoas?.filter((pessoa: any) => selectedUsers.includes(pessoa.id.toString())) || []}
                             loading={loading}
-                            onInputChange={(event, newInputValue) => {
+                            onInputChange={(newInputValue) => {
                                 setSearchQuery(newInputValue);
                             }}
-                            onChange={(event, newValue) => {
+                            onMultipleChange={(newValue) => {
                                 const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
                                 setSelectedUsers(selectedIds);
                             }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="Pessoas"
-                                    fullWidth
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        endAdornment: (
-                                            <>
-                                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                                                {params.InputProps.endAdornment}
-                                            </>
-                                        ),
-                                    }}
-                                />
-                            )}
-                            renderOption={(props, option) => (
-                                <Box component="li" {...props} key={option.id}>
-                                    {option.name}
-                                </Box>
-                            )}
-                            renderValue={(value) => (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {value.map((option, index) => (
-                                        <Chip
-                                            key={option.id}
-                                            label={option.name}
-                                            size="small"
-                                            onDelete={() => {
-                                                const newValue = value.filter((_, i) => i !== index);
-                                                const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
-                                                setSelectedUsers(selectedIds);
-                                            }}
-                                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                                            sx={{
-                                                backgroundColor: '#00B288',
-                                                color: 'white',
-                                                borderRadius: '4px',
-                                                fontSize: '.7rem',
-                                                '& .MuiChip-deleteIcon': {
-                                                    color: 'white',
-                                                    fontSize: '.8rem',
-                                                },
-                                            }}
-                                        />
-                                    ))}
-                                </Box>
-                            )}
+                            label="Pessoas"
                             noOptionsText="Nenhuma pessoa encontrada"
                             loadingText="Carregando pessoas..."
+                            className="w-full"
                         />
                         <Button sx={[buttonTheme, { height: 55 }]} onClick={handleAddUsers}>
                             <FiPlus size={25} color="#fff" />
