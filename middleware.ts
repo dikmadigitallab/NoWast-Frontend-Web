@@ -14,21 +14,30 @@ export default function middleware(request: NextRequest) {
   const authToken = request.cookies.get('authToken')?.value;
   const publicRoute = publicRoutes.find(route => route.path === path);
 
-  // Detecta ambiente
   const hostname = request.nextUrl.hostname;
-  const isLocalhost = hostname.includes("localhost");
 
-  // Define host de destino
-  const publicHost = isLocalhost 
-    ? "localhost:3000" 
-    : "nowastev2.api.dikmadigital.com.br"; // coloca aqui o host real da API/prod
+  // Decide ambiente
+  let publicHost: string;
+  let protocol = "https";
+  let port = "";
+
+  if (hostname.includes("localhost")) {
+    publicHost = "localhost";
+    protocol = "http";
+    port = "3000";
+  } else if (hostname.includes("homologa")) {
+    publicHost = "nowastev2-homologa.dikmadigital.com.br";
+  } else {
+    // usa o host atual (ex: vercel)
+    publicHost = hostname;
+  }
 
   // Usuário autenticado em rota pública → redireciona para "/"
   if (authToken && publicRoute?.whenAuthenticated === 'redirect') {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.hostname = publicHost;
-    redirectUrl.port = isLocalhost ? "3000" : "";
-    redirectUrl.protocol = isLocalhost ? "http" : "https";
+    redirectUrl.port = port;
+    redirectUrl.protocol = protocol;
     redirectUrl.pathname = "/";
     return NextResponse.redirect(redirectUrl);
   }
@@ -40,8 +49,8 @@ export default function middleware(request: NextRequest) {
   if (!authToken) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.hostname = publicHost;
-    redirectUrl.port = isLocalhost ? "3000" : "";
-    redirectUrl.protocol = isLocalhost ? "http" : "https";
+    redirectUrl.port = port;
+    redirectUrl.protocol = protocol;
     redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
     return NextResponse.redirect(redirectUrl);
   }
