@@ -105,19 +105,9 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
             width: 320,
         },
         {
-            field: 'phones',
+            field: 'position',
             headerName: 'Cargo',
             width: 220,
-            renderCell: (params) => {
-                const phones = Array.isArray(params.value) ? params.value : [];
-                return (
-                    <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        {phones.map((phone: any, index: number) => (
-                            <span key={index}>{phone.phoneNumber}</span>
-                        ))}
-                    </Box>
-                );
-            },
         },
     ];
 

@@ -70,6 +70,7 @@ export default function FormDadosGerais() {
         if (field === "cancelar") {
             setOpenCancelModal(true);
         } else {
+            setTempEndDate(new Date().toISOString().split('T')[0]);
             setOpenDisableModal(true);
         }
     };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography, Autocomplete, TextField } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -10,34 +10,56 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from '@/app/styles/tableTheme/theme';
 import { IoMdClose } from 'react-icons/io';
 import { useGetUsuario } from '@/app/hooks/usuarios/get';
+import { useGet } from '@/app/hooks/crud/get/useGet';
+import { useDebounce } from "@/app/utils/useDebounce";
 
 export default function FormPessoas({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any, } }) {
 
-    const { data: pessoas, loading } = useGetUsuario({})
+    const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
+    
+    const { data: pessoasRaw, loading } = useGetUsuario({ 
+        query: debouncedSearchQuery,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    const { data: cargos } = useGet({ url: 'position', disablePagination: true });
+    
+    // Remove duplicatas baseadas no ID
+    const pessoas = pessoasRaw ? pessoasRaw.filter((pessoa: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === pessoa.id)
+    ) : [];
+    
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+    
+    // Função para buscar o nome do cargo pelo ID
+    const getCargoName = (positionId: number) => {
+        const cargo = cargos?.find((c: any) => c.id === positionId);
+        return cargo?.name || '';
+    };
     const handleAddUsers = () => {
         if (selectedUsers.length === 0) return;
 
         const currentUsers = watch("users") || [];
         const usersToAdd = pessoas.filter((user: any) =>
             selectedUsers.includes(user.id.toString()) &&
-            !currentUsers.some((existingUser: any) => existingUser.id.toString() === user.id.toString())
+            !currentUsers.some((existingUser: any) => existingUser.userId.toString() === user.id.toString())
         );
 
         if (usersToAdd.length > 0) {
             const updatedUsers = [...currentUsers, ...usersToAdd];
             setValue("users", updatedUsers);
-            setValue("usersIds", updatedUsers.map((user: any) => user.id));
+            setValue("usersIds", updatedUsers.map((user: any) => user.userId));
             setSelectedUsers([]);
         }
     };
 
     const handleRemoveUser = (userId: string) => {
         const currentUsers = watch("users") || [];
-        const updatedUsers = currentUsers.filter((user: any) => user.id.toString() !== userId);
+        const updatedUsers = currentUsers.filter((user: any) => user.userId.toString() !== userId);
 
         setValue("users", updatedUsers);
-        setValue("usersIds", updatedUsers.map((user: any) => user.id));
+        setValue("usersIds", updatedUsers.map((user: any) => user.userId));
     };
 
     const columns: GridColDef<any>[] = [
@@ -50,39 +72,31 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="remover" size="small" onClick={() => handleRemoveUser(params.row.id.toString())}>
+                    <IconButton aria-label="remover" size="small" onClick={() => handleRemoveUser(params.row.userId.toString())}>
                         <GoTrash color='#635D77' size={20} />
                     </IconButton>
                 </Box>
             ),
         },
         {
-            field: 'id',
+            field: 'userId',
             headerName: '#ID',
             width: 120
         },
         {
             field: 'name',
-            headerName: 'Descrição',
+            headerName: 'Nome',
             width: 320,
+            renderCell: (params: any) => params.row.user?.person?.name || ''
         },
-
-        //precisa buscar os cargos e não o telefoen
-        
         {
-            field: 'phones',
+            field: 'position',
             headerName: 'Cargo',
             width: 220,
-            renderCell: (params) => {
-                const phones = Array.isArray(params.value) ? params.value : [];
-                return (
-                    <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        {phones.map((phone: any, index: number) => (
-                            <span key={index}>{phone.phoneNumber}</span>
-                        ))}
-                    </Box>
-                );
-            },
+            renderCell: (params: any) => {
+                const positionId = params.row.user?.positionId;
+                return positionId ? getCargoName(positionId) : '';
+            }
         },
 
         
@@ -159,49 +173,72 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 </Box>
                 <Box className="flex flex-col gap-3">
                     <Box className="flex flex-row gap-3 h-[60px]">
-                        <FormControl sx={formTheme} fullWidth >
-                            <InputLabel>Pessoas</InputLabel>
-                            <Select
-                                label="Pessoas"
-                                multiple
-                                value={selectedUsers}
-                                onChange={(e) => setSelectedUsers(e.target.value as string[])}
-                                renderValue={(selected) => (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                        {selected.map((value) => {
-                                            const selectedPessoa = pessoas.find((p: any) => p.id.toString() === value);
-                                            return (
-                                                <Chip
-                                                    key={value}
-                                                    label={selectedPessoa?.name || value}
-                                                    size="small"
-                                                    onDelete={() => setSelectedUsers(selectedUsers.filter(id => id !== value))}
-                                                    deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                                                    sx={{
-                                                        backgroundColor: '#00B288',
-                                                        color: 'white',
-                                                        borderRadius: '4px',
-                                                        fontSize: '.7rem',
-                                                        '& .MuiChip-deleteIcon': {
-                                                            color: 'white',
-                                                            fontSize: '.8rem',
-                                                        },
-                                                    }}
-                                                />
-                                            );
-                                        })}
-                                    </Box>
-                                )}
-                            >
-                                <MenuItem value="" disabled>Selecione usuários...</MenuItem>
-                                {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
-                                    <MenuItem key={pessoa?.id} value={pessoa?.id.toString()}>
-                                        {pessoa?.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                        </FormControl>
+                        <Autocomplete
+                            multiple
+                            fullWidth
+                            options={pessoas || []}
+                            getOptionLabel={(option: any) => option.name || ''}
+                            getOptionKey={(option: any) => option.id}
+                            value={pessoas?.filter((pessoa: any) => selectedUsers.includes(pessoa.id.toString())) || []}
+                            loading={loading}
+                            onInputChange={(event, newInputValue) => {
+                                setSearchQuery(newInputValue);
+                            }}
+                            onChange={(event, newValue) => {
+                                const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
+                                setSelectedUsers(selectedIds);
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Pessoas"
+                                    fullWidth
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        endAdornment: (
+                                            <>
+                                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {params.InputProps.endAdornment}
+                                            </>
+                                        ),
+                                    }}
+                                />
+                            )}
+                            renderOption={(props, option) => (
+                                <Box component="li" {...props} key={option.id}>
+                                    {option.name}
+                                </Box>
+                            )}
+                            renderValue={(value) => (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {value.map((option, index) => (
+                                        <Chip
+                                            key={option.id}
+                                            label={option.name}
+                                            size="small"
+                                            onDelete={() => {
+                                                const newValue = value.filter((_, i) => i !== index);
+                                                const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
+                                                setSelectedUsers(selectedIds);
+                                            }}
+                                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
+                                            sx={{
+                                                backgroundColor: '#00B288',
+                                                color: 'white',
+                                                borderRadius: '4px',
+                                                fontSize: '.7rem',
+                                                '& .MuiChip-deleteIcon': {
+                                                    color: 'white',
+                                                    fontSize: '.8rem',
+                                                },
+                                            }}
+                                        />
+                                    ))}
+                                </Box>
+                            )}
+                            noOptionsText="Nenhuma pessoa encontrada"
+                            loadingText="Carregando pessoas..."
+                        />
                         <Button sx={[buttonTheme, { height: 55 }]} onClick={handleAddUsers}>
                             <FiPlus size={25} color="#fff" />
                         </Button>
@@ -209,13 +246,17 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 </Box>
             </Box>
             <DataGrid
-                rows={watch("users") || []}
+                rows={(() => {
+                    const usersData = watch("users") || [];
+                    console.log('Dados da lista de usuários na tabela:', usersData);
+                    return usersData;
+                })()}
                 columns={columns}
                 localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                 pageSizeOptions={[5, 25, 100]}
                 disableRowSelectionOnClick
                 sx={tableTheme}
-                getRowId={(row) => row.id}
+                getRowId={(row) => row.userId}
                 hideFooter
                 slots={{
                     noRowsOverlay: () => (

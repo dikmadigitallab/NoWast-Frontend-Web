@@ -51,11 +51,11 @@ const CadastroColumnChart = ({ data }: CadastroColumnChartProps) => {
       }],
       defaultLocale: 'pt-BR'
     },
-    colors: ['#28a745', '#f39c12', '#2196F3'],
-    stroke: { width: [0, 2, 5], curve: 'smooth' },
+    colors: ['#2196F3', '#f39c12', '#28a745'],
+    stroke: { width: [0, 3, 3], curve: 'smooth' },
     plotOptions: { bar: { columnWidth: '50%' } },
     fill: {
-      opacity: [0.85, 0.25, 1],
+      opacity: [0.85, 1, 1],
       gradient: { inverseColors: false, shade: 'light', type: 'vertical', opacityFrom: 0.85, opacityTo: 0.55, stops: [0, 100, 100, 100] }
     },
     labels: processedData.labels,
@@ -75,9 +75,9 @@ const CadastroColumnChart = ({ data }: CadastroColumnChartProps) => {
   }), [processedData]);
 
   const chartSeries = React.useMemo(() => [
-    { name: 'Habilitada', data: processedData.createdUsers, type: 'line' },
+    { name: 'Pessoas Ativas', data: processedData.activeUsers, type: 'column' },
     { name: 'Desabilitada', data: processedData.deletedUsers, type: 'line' },
-    { name: 'Pessoas Ativas', data: processedData.activeUsers, type: 'column' }
+    { name: 'Habilitada', data: processedData.createdUsers, type: 'line' },
   ], [processedData]);
 
   return (

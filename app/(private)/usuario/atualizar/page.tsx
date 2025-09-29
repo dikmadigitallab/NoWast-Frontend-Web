@@ -24,6 +24,7 @@ const userSchema = z.object({
     password: z.string().optional().refine((val) => !val || val.length >= 6, {
         message: "A senha deve ter pelo menos 6 caracteres"
     }),
+    confirmPassword: z.string().optional(),
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
@@ -68,6 +69,15 @@ const userSchema = z.object({
     equipmentIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }).optional()),
     vehicleIds: z.array(z.number({ invalid_type_error: "ID de veículo inválido" }).optional()),
     productIds: z.array(z.number({ invalid_type_error: "ID de produto inválido" }).optional())
+}).refine((data) => {
+    // Se a senha foi preenchida, a confirmação também deve ser preenchida e igual
+    if (data.password && data.password.length > 0) {
+        return data.confirmPassword === data.password;
+    }
+    return true;
+}, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"]
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -81,6 +91,7 @@ export default function AtualizarPessoa() {
         defaultValues: {
             id: undefined,
             password: "",
+            confirmPassword: "",
             userType: undefined,
             status: "ACTIVE",
             source: "",
@@ -196,23 +207,23 @@ export default function AtualizarPessoa() {
     });
 
     // Remove duplicatas baseadas no ID
-    const epis = episRaw?.data?.items ? episRaw.data.items.filter((epi: any, index: number, self: any[]) => 
+    const epis = episRaw ? episRaw.filter((epi: any, index: number, self: any[]) => 
         index === self.findIndex((e: any) => e.id === epi.id)
     ) : [];
     
     const cargos = cargosRaw ? cargosRaw.filter((cargo: any, index: number, self: any[]) => 
         index === self.findIndex((c: any) => c.id === cargo.id)
-    ) : [];
+    ) : []; 
     
-    const produtos = produtosRaw?.data?.items ? produtosRaw.data.items.filter((produto: any, index: number, self: any[]) => 
+    const produtos = produtosRaw ? produtosRaw.filter((produto: any, index: number, self: any[]) => 
         index === self.findIndex((p: any) => p.id === produto.id)
     ) : [];
     
-    const equipamentos = equipamentosRaw?.data?.items ? equipamentosRaw.data.items.filter((equipamento: any, index: number, self: any[]) => 
+    const equipamentos = equipamentosRaw ? equipamentosRaw.filter((equipamento: any, index: number, self: any[]) => 
         index === self.findIndex((e: any) => e.id === equipamento.id)
     ) : [];
     
-    const transportes = transportesRaw?.data?.items ? transportesRaw.data.items.filter((transporte: any, index: number, self: any[]) => 
+    const transportes = transportesRaw ? transportesRaw.filter((transporte: any, index: number, self: any[]) => 
         index === self.findIndex((t: any) => t.id === transporte.id)
     ) : [];
 
@@ -229,6 +240,7 @@ export default function AtualizarPessoa() {
         if (field === "cancelar") {
             setOpenCancelModal(true);
         } else {
+            setTempEndDate(new Date().toISOString().split('T')[0]);
             setOpenDisableModal(true);
         }
     };
@@ -252,7 +264,7 @@ export default function AtualizarPessoa() {
 
     const onSubmit = (formData: UserFormValues) => {
         if (disable) {
-            const { password, ...formDataWithoutPassword } = formData;
+            const { password, confirmPassword, ...formDataWithoutPassword } = formData;
             const newData = {
                 ...formDataWithoutPassword,
                 file: file,
@@ -270,7 +282,7 @@ export default function AtualizarPessoa() {
             };
             update(newData, file);
         } else {
-            const { password, ...formDataWithoutPassword } = formData;
+            const { password, confirmPassword, ...formDataWithoutPassword } = formData;
             const newData = {
                 ...formDataWithoutPassword,
                 file: file,
@@ -641,6 +653,25 @@ export default function AtualizarPessoa() {
                                 {...field}
                                 error={!!errors.password}
                                 helperText={errors.password?.message || "Deixe em branco para manter a senha atual"}
+                                className="w-full"
+                                sx={formTheme}
+                            />
+                        )}
+                    />
+                </Box>
+
+                <Box className="w-[100%] flex flex-row gap-5">
+                    <Controller
+                        name="confirmPassword"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                variant="outlined"
+                                label="Confirmar Nova Senha"
+                                type="password"
+                                {...field}
+                                error={!!errors.confirmPassword}
+                                helperText={errors.confirmPassword?.message || "Confirme a nova senha"}
                                 className="w-full"
                                 sx={formTheme}
                             />

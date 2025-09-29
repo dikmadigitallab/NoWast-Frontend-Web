@@ -40,7 +40,7 @@ export default function Ambiente() {
                 </Box>
 
                 <Box className="w-[100%] flex items-center h-[100px]">
-                    {[1, 2].map((step) => (
+                    {[1, 2,].map((step) => (
                         <Box
                             key={step}
                             onClick={() => handleStepClick(step)}

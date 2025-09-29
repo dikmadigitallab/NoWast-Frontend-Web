@@ -224,6 +224,11 @@ export default function CadastroPessoa() {
         router.push('/usuario/listagem');
     };
     const onSubmit = (formData: UserFormValues) => {
+        if (!file) {
+            alert("A imagem é obrigatória");
+            return;
+        }
+        
         const newData = {
             ...formData,
             email: formData.person.create.email?.toLowerCase(),

@@ -36,15 +36,18 @@ export const useUpdateUser = (url: string, redirect: string) => {
                 },
             });
 
-            const formData = new FormData();
-            formData.append("image", img);
+            // Só faz upload da imagem se foi fornecida
+            if (img) {
+                const formData = new FormData();
+                formData.append("image", img);
 
-            await api.post(`/users/${response.data.data.id}/upload-profile-image`, formData, {
-                headers: {
-                    Authorization: `Bearer ${authToken?.split("=")[1]}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+                await api.post(`/users/${response.data.data.id}/upload-profile-image`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${authToken?.split("=")[1]}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+            }
 
             setData(response.data.data);
             toast.success("Atualização feita com sucesso");
