@@ -40,6 +40,9 @@ const activitySchema = z.object({
     equipmentIds: z.array(z.number().min(1)).optional(),
     productIds: z.array(z.number().min(1)).optional(),
     vehicleIds: z.array(z.number().min(1)).optional(),
+    removeFiles: z.array(z.number()).optional(),
+    images: z.array(z.any()).optional(),
+    audio: z.any().optional(),
 });
 
 type UserFormValues = z.infer<typeof activitySchema>;
@@ -66,7 +69,10 @@ export default function AtividadeAtualizar() {
                 equipmentIds: [],
                 productIds: [],
                 vehicleIds: [],
-                serviceItemsIds: []
+                serviceItemsIds: [],
+                removeFiles: [],
+                images: [],
+                audio: null
             },
             mode: "onChange",
             reValidateMode: "onChange",
@@ -203,8 +209,16 @@ export default function AtividadeAtualizar() {
             equipmentIds: convertToString(data.equipmentIds),
             productIds: convertToString(data.productIds),
             vehicleIds: convertToString(data.vehicleIds),
-            serviceItemsIds: convertToString(data.serviceItemsIds)
+            serviceItemsIds: convertToString(data.serviceItemsIds),
+            // Garantir que campos opcionais não sejam undefined
+            recurrenceType: data.recurrenceType || "",
+            recurrenceFinalDate: data.recurrenceFinalDate || "",
+            removeFiles: data.removeFiles || [],
+            images: data.images || [],
+            audio: data.audio || null
         };
+
+        console.log("📤 DADOS SENDO ENVIADOS PARA API:", newData);
 
         update(newData);
     };
