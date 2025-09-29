@@ -14,8 +14,8 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
     const { setId } = useGetIDStore();
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
-    const { data: ambientesRaw, loading } = useGet({ 
-        url: "environment", 
+    const { data: ambientesRaw, loading } = useGet({
+        url: "environment",
         query: debouncedSearchQuery,
         disablePagination: false,
         pageSize: 25,
@@ -23,7 +23,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
     });
 
     // Remove duplicatas baseadas no ID
-    const ambientes = ambientesRaw ? ambientesRaw.filter((ambiente: any, index: number, self: any[]) => 
+    const ambientes = ambientesRaw ? ambientesRaw.filter((ambiente: any, index: number, self: any[]) =>
         index === self.findIndex((a: any) => a.id === ambiente.id)
     ) : [];
 
@@ -58,6 +58,54 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                         />
                     )}
                 />
+
+
+                <Controller
+                    name="dateTime"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Data e hora de Início da atividade"
+                            type="datetime-local"
+                            InputLabelProps={{ shrink: true }}
+                            {...field}
+                            error={!!errors.dateTime}
+                            helperText={errors.dateTime?.message}
+                            fullWidth
+                            sx={formTheme}
+                            value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
+                            onChange={(event) => field.onChange(new Date(event.target.value).toISOString())}
+                        />
+                    )}
+                />
+
+
+                <Controller
+                    name="activityTypeEnum"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl sx={formTheme} fullWidth>
+                            <InputLabel>Tipo de Atividade</InputLabel>
+                            <Select
+                                label="Tipo de Atividade"
+                                {...field}
+                                value={field.value ?? ""}
+                                error={!!errors.activityTypeEnum}>
+                                <MenuItem value="NORMAL">Normal</MenuItem>
+                                <MenuItem value="URGENT">Urgente</MenuItem>
+                                <MenuItem value="RECURRING">Recorrente</MenuItem>
+                            </Select>
+                            <FormHelperText error={!!errors.activityTypeEnum}>
+                                {errors.activityTypeEnum?.message}
+                            </FormHelperText>
+                        </FormControl>
+                    )}
+                />
+
+            </Box>
+
+            <Box className="flex flex-row gap-2">
 
                 <Controller
                     name="hasRecurrence"
@@ -121,31 +169,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     )}
                 />
 
-            </Box>
-
-            <Box className="flex flex-row gap-2">
-
-                <Controller
-                    name="dateTime"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField
-                            variant="outlined"
-                            label="Data e hora de Início da atividade"
-                            type="datetime-local"
-                            InputLabelProps={{ shrink: true }}
-                            {...field}
-                            error={!!errors.dateTime}
-                            helperText={errors.dateTime?.message}
-                            fullWidth
-                            sx={formTheme}
-                            value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
-                            onChange={(event) => field.onChange(new Date(event.target.value).toISOString())}
-                        />
-                    )}
-                />
-
-                <Controller
+                {/* <Controller
                     name="statusEnum"
                     control={control}
                     render={({ field }) => (
@@ -169,31 +193,10 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             </FormHelperText>
                         </FormControl>
                     )}
-                />
+                /> */}
 
-                <Controller
-                    name="activityTypeEnum"
-                    control={control}
-                    render={({ field }) => (
-                        <FormControl sx={formTheme} fullWidth>
-                            <InputLabel>Tipo de Atividade</InputLabel>
-                            <Select
-                                label="Tipo de Atividade"
-                                {...field}
-                                value={field.value ?? ""}
-                                error={!!errors.activityTypeEnum}>
-                                <MenuItem value="NORMAL">Normal</MenuItem>
-                                <MenuItem value="URGENT">Urgente</MenuItem>
-                                <MenuItem value="RECURRING">Recorrente</MenuItem>
-                            </Select>
-                            <FormHelperText error={!!errors.activityTypeEnum}>
-                                {errors.activityTypeEnum?.message}
-                            </FormHelperText>
-                        </FormControl>
-                    )}
-                />
 
-                <Controller
+                {/* <Controller
                     name="approvalStatus"
                     control={control}
                     render={({ field }) => (
@@ -214,7 +217,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             </FormHelperText>
                         </FormControl>
                     )}
-                />
+                /> */}
             </Box>
 
             <Controller

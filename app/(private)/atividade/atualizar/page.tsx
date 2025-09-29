@@ -79,6 +79,118 @@ export default function AtividadeAtualizar() {
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const { handleDelete } = useDelete("activity", "/atividade/listagem");
+    
+    // Estado para rastrear seções validadas
+    const [validatedSections, setValidatedSections] = useState<number[]>([1, 2, 3, 4]); // Todas as seções disponíveis na edição
+
+    // Função para validar campos obrigatórios de cada seção
+    const validateSection = (sectionNumber: number): boolean => {
+        switch (sectionNumber) {
+            case 1: // Dados Gerais
+                const generalFields = [
+                    { field: "environmentId", condition: watch("environmentId") === undefined },
+                    { field: "hasRecurrence", condition: watch("hasRecurrence") === undefined },
+                    { field: "dateTime", condition: watch("dateTime") === "" },
+                    { field: "statusEnum", condition: watch("statusEnum") === undefined },
+                    { field: "activityTypeEnum", condition: watch("activityTypeEnum") === undefined },
+                    { field: "approvalStatus", condition: watch("approvalStatus") === undefined },
+                    { field: "description", condition: watch("description") === "" },
+                ];
+
+                // Validações condicionais para recorrência
+                if (watch("hasRecurrence") === "true") {
+                    generalFields.push(
+                        { field: "recurrenceType", condition: watch("recurrenceType") === "" },
+                        { field: "recurrenceFinalDate", condition: watch("recurrenceFinalDate") === "" }
+                    );
+                }
+
+                return !generalFields.some(item => item.condition);
+
+            case 2: // Pessoas
+                const personnelFields = [
+                    { field: "managerId", condition: watch("managerId") === undefined },
+                    { field: "supervisorId", condition: watch("supervisorId") === undefined },
+                    { field: "usersIds", condition: watch("usersIds").length === 0 }
+                ];
+                return !personnelFields.some(item => item.condition);
+
+            case 3: // Itens
+                // Seção 3 não tem campos obrigatórios, sempre válida
+                return true;
+
+            case 4: // Checklist
+                const checklistFields = [
+                    { field: "serviceItemsIds", condition: watch("serviceItemsIds").length === 0 }
+                ];
+                return !checklistFields.some(item => item.condition);
+
+            default:
+                return false;
+        }
+    };
+
+    // Função para obter campos obrigatórios faltando
+    const getMissingRequiredFields = (sectionNumber: number): string[] => {
+        const missingFields: string[] = [];
+        
+        switch (sectionNumber) {
+            case 1: // Dados Gerais
+                if (watch("environmentId") === undefined) missingFields.push("Ambiente");
+                if (watch("hasRecurrence") === undefined) missingFields.push("Atividade Recorrente");
+                if (watch("dateTime") === "") missingFields.push("Data e hora de início");
+                if (watch("statusEnum") === undefined) missingFields.push("Status");
+                if (watch("activityTypeEnum") === undefined) missingFields.push("Tipo de Atividade");
+                if (watch("approvalStatus") === undefined) missingFields.push("Status de aprovação");
+                if (watch("description") === "") missingFields.push("Observações");
+                
+                if (watch("hasRecurrence") === "true") {
+                    if (watch("recurrenceType") === "") missingFields.push("Tipo de recorrência");
+                    if (watch("recurrenceFinalDate") === "") missingFields.push("Data final da recorrência");
+                }
+                break;
+
+            case 2: // Pessoas
+                if (watch("supervisorId") === undefined) missingFields.push("Encarregado");
+                if (watch("managerId") === undefined) missingFields.push("Líder/Gestor");
+                if (watch("usersIds").length === 0) missingFields.push("Pessoas (pelo menos uma)");
+                break;
+
+            case 3: // Itens
+                // Sem campos obrigatórios
+                break;
+
+            case 4: // Checklist
+                if (watch("serviceItemsIds").length === 0) missingFields.push("Itens de serviço (pelo menos um)");
+                break;
+        }
+        
+        return missingFields;
+    };
+
+    // Função para navegar entre seções com validação
+    const navigateToSection = (targetSection: number) => {
+        // Na edição, todas as seções são sempre acessíveis, mas ainda valida campos obrigatórios
+        if (targetSection === section + 1) {
+            if (validateSection(section)) {
+                setSection(targetSection);
+            } else {
+                const missingFields = getMissingRequiredFields(section);
+                const sectionNames = {
+                    1: "Dados Gerais",
+                    2: "Pessoas", 
+                    3: "Itens",
+                    4: "Checklist"
+                };
+                
+                toast.error(`Seção ${sectionNames[section as keyof typeof sectionNames]}: Campos obrigatórios faltando: ${missingFields.join(", ")}`);
+                trigger();
+            }
+        } else {
+            // Permite navegação livre entre seções já acessíveis
+            setSection(targetSection);
+        }
+    };
 
     const onSubmit = (data: UserFormValues) => {
         const convertToString = (arr?: number[]) => arr && arr.length > 0 ? arr.join(",") : "";
@@ -98,50 +210,8 @@ export default function AtividadeAtualizar() {
     };
 
     const handleNext = () => {
-
-        const requiredFields = [
-            { field: "environmentId", condition: watch("environmentId") === undefined },
-            { field: "hasRecurrence", condition: watch("hasRecurrence") === undefined },
-            { field: "dateTime", condition: watch("dateTime") === "" },
-            { field: "statusEnum", condition: watch("statusEnum") === undefined },
-            { field: "activityTypeEnum", condition: watch("activityTypeEnum") === undefined },
-            { field: "approvalStatus", condition: watch("approvalStatus") === undefined },
-            { field: "description", condition: watch("description") === "" },
-
-        ];
-
-        if (watch("hasRecurrence") === "true") {
-            requiredFields.push(
-                { field: "recurrenceType", condition: watch("hasRecurrence") === "true" ? watch("recurrenceType") === "" : true },
-                { field: "recurrenceFinalDate", condition: watch("hasRecurrence") === "true" ? watch("recurrenceFinalDate") === "" : true }
-            );
-        }
-
-
-        const personnelFields = [
-            { field: "managerId", condition: watch("managerId") === undefined },
-            { field: "supervisorId", condition: watch("supervisorId") === undefined },
-            { field: "usersIds", condition: watch("usersIds").length === 0 }
-        ];
-
-        const hasMissingRequiredField = requiredFields.some(item => item.condition);
-        const hasMissingPersonnelField = personnelFields.some(item => item.condition);
-
-        if (hasMissingRequiredField && section === 1) {
-            toast.info("Por favor, preencha todos os campos obrigatórios.");
-            trigger();
-            return;
-        }
-
-        if (hasMissingPersonnelField && section === 2) {
-            toast.info("Por favor, preencha todos os campos obrigatórios.");
-            trigger();
-            return;
-        }
-
         if (section < 4) {
-            clearErrors();
-            setSection(section + 1);
+            navigateToSection(section + 1);
         } else {
             handleSubmit(onSubmit)();
         }
@@ -186,8 +256,13 @@ export default function AtividadeAtualizar() {
             setValue('approvalStatus', atividade?.approvalStatus);
             setValue('approvalDate', atividade?.approvalDate ? atividade?.approvalDate : '');
             setValue('approvalUpdatedByUserId', atividade?.approvalUpdatedByUserId || null);
-            setValue('serviceItemsIds', atividade?.checklists?.map((item: any) => item.serviceItemId));
-            setValue("users", atividade?.userActivities);
+            // Mapear userActivities para estrutura simples esperada pelo formulário
+            const mappedUsers = atividade?.userActivities?.map((userActivity: any) => ({
+                id: userActivity.user.id,
+                name: userActivity.user.person.name,
+                positionId: userActivity.user.positionId
+            })) || [];
+            setValue("users", mappedUsers);
             setValue('usersIds', atividade?.userActivities?.map((user: any) => user.userId));
             setValue('epis', atividade?.ppes);
             setValue('epiIds', atividade?.ppes?.map((ppe: any) => ppe.id));
@@ -197,8 +272,14 @@ export default function AtividadeAtualizar() {
             setValue('vehicleIds', atividade?.transports?.map((transport: any) => transport.id));
             setValue('equipamentos', atividade?.tools);
             setValue('equipamentoIds', atividade?.tools?.map((equipment: any) => equipment.id));
-            setValue('serviceItems', atividade?.checklists);
-            setValue('serviceItemsIds', atividade?.checklists?.map((checklist: any) => checklist.id));
+            // Mapear checklists para estrutura simples esperada pelo formulário
+            const mappedServiceItems = atividade?.checklists?.map((checklist: any) => ({
+                id: checklist.serviceItem.id,
+                name: checklist.serviceItem.name,
+                serviceType: checklist.serviceItem.service?.serviceType?.name || 'N/A'
+            })) || [];
+            setValue('serviceItems', mappedServiceItems);
+            setValue('serviceItemsIds', atividade?.checklists?.map((checklist: any) => checklist.serviceItemId));
         }
     }, [atividade, reset]);
 
@@ -219,27 +300,37 @@ export default function AtividadeAtualizar() {
                 </Box>
 
                 <Box className="w-[100%] flex items-center h-[100px]">
-                    {[1, 2, 3, 4].map((step) => (
-                        <Box
-                            key={step}
-                            onClick={() => setSection(step)}
-                            className={`
-                            w-[25%] h-[100%] flex flex-row items-center justify-between p-5 rounded-md  cursor-pointer 
-                            ${section === step ? "bg-[#00000003]" : ""}`}>
-                            <Box className="h-[100%] items-center flex flex-row gap-5 w-[80%]">
-                                <Box
-                                    style={{ backgroundColor: step < section ? "#E4F5EE" : step === section ? "#3ABA8A" : "#F6F7F8", color: step === section && step === section ? "#fff" : "" }}
-                                    className={`w-[70px] h-full flex justify-center items-center rounded-md text-[#3ABA8A] font-semibold`}>
-                                    {step}
+                    {[1, 2, 3, 4].map((step) => {
+                        const isAccessible = validatedSections.includes(step);
+                        const isCurrent = section === step;
+                        const isCompleted = step < section && validatedSections.includes(step);
+                        
+                        return (
+                            <Box
+                                key={step}
+                                onClick={() => isAccessible ? navigateToSection(step) : null}
+                                className={`
+                                w-[25%] h-[100%] flex flex-row items-center justify-between p-5 rounded-md
+                                ${isAccessible ? "cursor-pointer" : "cursor-not-allowed opacity-50"}
+                                ${isCurrent ? "bg-[#00000003]" : ""}`}>
+                                <Box className="h-[100%] items-center flex flex-row gap-5 w-[80%]">
+                                    <Box
+                                        style={{ 
+                                            backgroundColor: isCompleted ? "#E4F5EE" : isCurrent ? "#3ABA8A" : "#F6F7F8", 
+                                            color: isCurrent ? "#fff" : "" 
+                                        }}
+                                        className={`w-[70px] h-full flex justify-center items-center rounded-md text-[#3ABA8A] font-semibold`}>
+                                        {step}
+                                    </Box>
+                                    <h1
+                                        className={`font-semibold ${isAccessible ? "text-[#43BC8B]" : "text-[#B9B9C3]"}`}>
+                                        {step === 1 ? "Dados Gerais" : step === 2 ? "Pessoas" : step === 3 ? "Itens" : "Checklist"}
+                                    </h1>
                                 </Box>
-                                <h1
-                                    className="text-[#43BC8B] font-semibold">
-                                    {step === 1 ? "Dados Gerais" : step === 2 ? "Pessoas" : step === 3 ? "Itens" : "Checklist"}
-                                </h1>
+                                <IoIosArrowForward />
                             </Box>
-                            <IoIosArrowForward />
-                        </Box>
-                    ))}
+                        );
+                    })}
                 </Box>
 
                 {section === 1 && (

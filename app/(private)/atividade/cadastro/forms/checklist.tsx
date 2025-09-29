@@ -122,7 +122,7 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                 </Box>
                 <Box className="flex flex-col gap-3">
                     <Box className="flex flex-row gap-3 h-[60px]">
-                        <FormControl sx={formTheme} fullWidth>
+                        <FormControl sx={formTheme} fullWidth error={!!errors?.serviceItemsIds}>
                             <InputLabel>Checklist</InputLabel>
                             <Select
                                 disabled={loading}
@@ -152,6 +152,11 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                                     color="inherit"
                                     size={20}
                                 />
+                            )}
+                            {errors?.serviceItemsIds && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.serviceItemsIds.message}
+                                </p>
                             )}
                         </FormControl>
                         <Button
