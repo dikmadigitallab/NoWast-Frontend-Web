@@ -97,28 +97,23 @@ export default function middleware(request: NextRequest) {
     port = "3000";
   }
 
-  // Usuário autenticado em rota pública → redireciona para "/"
-  if (authToken && publicRoute?.whenAuthenticated === 'redirect') {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.hostname = publicHost;
-    redirectUrl.port = port;
-    redirectUrl.protocol = protocol;
-    redirectUrl.pathname = "/";
-    return NextResponse.redirect(redirectUrl);
-  }
+ // Usuário autenticado em rota pública → redireciona para "/"
+if (authToken && publicRoute?.whenAuthenticated === 'redirect') {
+  const redirectUrl = request.nextUrl.clone();
+  redirectUrl.pathname = "/";
+  return NextResponse.redirect(redirectUrl);
+}
 
-  // Rotas públicas → segue o fluxo
-  if (publicRoute) return NextResponse.next();
+// Rotas públicas → segue o fluxo
+if (publicRoute) return NextResponse.next();
 
-  // Usuário sem autenticação → redireciona para sign-in
-  if (!authToken) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.hostname = publicHost;
-    redirectUrl.port = port;
-    redirectUrl.protocol = protocol;
-    redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
-    return NextResponse.redirect(redirectUrl);
-  }
+// Usuário sem autenticação → redireciona para sign-in
+if (!authToken) {
+  const redirectUrl = request.nextUrl.clone();
+  redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
+  return NextResponse.redirect(redirectUrl);
+}
+
 
   return NextResponse.next();
 }
