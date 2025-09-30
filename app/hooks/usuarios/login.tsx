@@ -24,6 +24,7 @@ export const useLogin = () => {
                 setUserType("ADM_DIKMA");
             } else if (response.data.data.user.role.name === "Diretor Dikma") {
                 setUserType("DIKMA_DIRECTOR");
+                console.log(response.data.data.user.role.name, setUserInfo)
             } else if (response.data.data.user.role.name === "Administrador Cliente") {
                 setUserType("ADM_CLIENTE");
             } else if (response.data.data.user.role.name === "Gestor de Contrato") {
