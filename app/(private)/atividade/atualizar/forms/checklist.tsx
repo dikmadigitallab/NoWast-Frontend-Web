@@ -116,6 +116,19 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
             field: 'name',
             headerName: 'Descrição',
             width: 320,
+        },
+        {
+            field: 'serviceType',
+            headerName: 'Tipo de Serviço',
+            width: 200,
+            renderCell: (params: any) => {
+                // Se os dados vêm da API (estrutura aninhada), extrair o tipo
+                if (params.row.serviceItem?.service?.serviceType?.name) {
+                    return params.row.serviceItem.service.serviceType.name;
+                }
+                // Se os dados vêm do formulário (estrutura simples), usar o tipo mapeado
+                return params.row.serviceType || 'N/A';
+            }
         }
     ];
 
@@ -129,7 +142,7 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                 </Box>
                 <Box className="flex flex-col gap-3">
                     <Box className="flex flex-row gap-3 h-[60px]">
-                        <FormControl sx={formTheme} fullWidth>
+                        <FormControl sx={formTheme} fullWidth error={!!errors?.serviceItemsIds}>
                             <InputLabel>Checklist</InputLabel>
                             <Select
                                 disabled={loading}
@@ -159,6 +172,11 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                                     color="inherit"
                                     size={20}
                                 />
+                            )}
+                            {errors?.serviceItemsIds && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.serviceItemsIds.message}
+                                </p>
                             )}
                         </FormControl>
                         <Button

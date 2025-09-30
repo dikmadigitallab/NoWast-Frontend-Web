@@ -1,7 +1,8 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, Button, Box, Modal, CircularProgress, FormControl, InputLabel, Select, MenuItem, IconButton, Autocomplete } from "@mui/material";
+import { TextField, Button, Box, Modal, CircularProgress, FormControl, InputLabel, Select, MenuItem, IconButton } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 import { MdOutlineModeEditOutline } from "react-icons/md";
@@ -154,50 +155,25 @@ export default function FormServicos() {
                         name="serviceType.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl sx={formTheme} fullWidth error={!!errors.serviceType?.connect?.id}>
-                                <Autocomplete
-                                    options={tiposServicos || []}
-                                    getOptionLabel={(option: any) => option.name || ''}
-                                    getOptionKey={(option: any) => option.id}
-                                    value={tiposServicos?.find((tipo: any) => tipo.id === field.value) || null}
-                                    loading={loadingTiposServicos}
-                                    onInputChange={(event, newInputValue) => {
-                                        setSearchQueryTiposServicos(newInputValue);
-                                    }}
-                                    onChange={(event, newValue) => {
-                                        const value = newValue?.id || '';
-                                        field.onChange(Number(value));
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Tipo de Ambiente"
-                                            error={!!errors.serviceType?.connect?.id}
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                endAdornment: (
-                                                    <>
-                                                        {loadingTiposServicos ? <CircularProgress color="inherit" size={20} /> : null}
-                                                        {params.InputProps.endAdornment}
-                                                    </>
-                                                ),
-                                            }}
-                                        />
-                                    )}
-                                    renderOption={(props, option) => (
-                                        <Box component="li" {...props} key={option.id}>
-                                            {option.name}
-                                        </Box>
-                                    )}
-                                    noOptionsText="Nenhum tipo encontrado"
-                                    loadingText="Carregando tipos..."
-                                />
-                                {errors.serviceType?.connect?.id && (
-                                    <p className="text-red-500 text-xs mt-1">
-                                        {errors.serviceType.connect.id.message}
-                                    </p>
-                                )}
-                            </FormControl>
+                            <CustomAutocomplete
+                                options={tiposServicos || []}
+                                getOptionLabel={(option: any) => option.name || ''}
+                                value={tiposServicos?.find((tipo: any) => tipo.id === field.value) || null}
+                                loading={loadingTiposServicos}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQueryTiposServicos(newInputValue);
+                                }}
+                                onChange={(newValue) => {
+                                    const value = newValue?.id || '';
+                                    field.onChange(Number(value));
+                                }}
+                                label="Tipo de Ambiente"
+                                error={!!errors.serviceType?.connect?.id}
+                                helperText={errors.serviceType?.connect?.id?.message}
+                                noOptionsText="Nenhum tipo encontrado"
+                                loadingText="Carregando tipos..."
+                                className="w-full"
+                            />
                         )}
                     />
 

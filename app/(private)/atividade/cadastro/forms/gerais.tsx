@@ -3,7 +3,8 @@
 import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
-import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField, Autocomplete } from "@mui/material";
+import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import { useDebounce } from "@/app/utils/useDebounce";
 import { useState } from "react";
@@ -13,8 +14,8 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
     const { setId } = useGetIDStore();
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
-    const { data: ambientesRaw, loading } = useGet({ 
-        url: "environment", 
+    const { data: ambientesRaw, loading } = useGet({
+        url: "environment",
         query: debouncedSearchQuery,
         disablePagination: false,
         pageSize: 25,
@@ -22,7 +23,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
     });
 
     // Remove duplicatas baseadas no ID
-    const ambientes = ambientesRaw ? ambientesRaw.filter((ambiente: any, index: number, self: any[]) => 
+    const ambientes = ambientesRaw ? ambientesRaw.filter((ambiente: any, index: number, self: any[]) =>
         index === self.findIndex((a: any) => a.id === ambiente.id)
     ) : [];
 
@@ -35,53 +36,76 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     name="environmentId"
                     control={control}
                     render={({ field }) => (
-                        <FormControl sx={formTheme} fullWidth error={!!errors.environmentId}>
-                            <Autocomplete
-                                options={ambientes || []}
-                                getOptionLabel={(option: any) => option.name || ''}
-                                getOptionKey={(option: any) => option.id}
-                                value={ambientes?.find((ambiente: any) => ambiente.id === field.value) || null}
-                                loading={loading}
-                                onInputChange={(event, newInputValue) => {
-                                    setSearchQuery(newInputValue);
-                                }}
-                                onChange={(event, newValue) => {
-                                    const value = newValue?.id || '';
-                                    field.onChange(value);
-                                    setId(value);
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Ambiente"
-                                        error={!!errors.environmentId}
-                                        InputProps={{
-                                            ...params.InputProps,
-                                            endAdornment: (
-                                                <>
-                                                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                                                    {params.InputProps.endAdornment}
-                                                </>
-                                            ),
-                                        }}
-                                    />
-                                )}
-                                renderOption={(props, option) => (
-                                    <Box component="li" {...props} key={option.id}>
-                                        {option.name}
-                                    </Box>
-                                )}
-                                noOptionsText="Nenhum ambiente encontrado"
-                                loadingText="Carregando ambientes..."
-                            />
-                            {errors.environmentId && (
-                                <FormHelperText error>
-                                    {errors.environmentId.message}
-                                </FormHelperText>
-                            )}
+                        <CustomAutocomplete
+                            options={ambientes || []}
+                            getOptionLabel={(option: any) => option.name || ''}
+                            value={ambientes?.find((ambiente: any) => ambiente.id === field.value) || null}
+                            loading={loading}
+                            onInputChange={(newInputValue) => {
+                                setSearchQuery(newInputValue);
+                            }}
+                            onChange={(newValue) => {
+                                const value = newValue?.id || '';
+                                field.onChange(value);
+                                setId(value);
+                            }}
+                            label="Ambiente"
+                            error={!!errors.environmentId}
+                            helperText={errors.environmentId?.message}
+                            noOptionsText="Nenhum ambiente encontrado"
+                            loadingText="Carregando ambientes..."
+                            className="w-full"
+                        />
+                    )}
+                />
+
+
+                <Controller
+                    name="dateTime"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            variant="outlined"
+                            label="Data e hora de Início da atividade"
+                            type="datetime-local"
+                            InputLabelProps={{ shrink: true }}
+                            {...field}
+                            error={!!errors.dateTime}
+                            helperText={errors.dateTime?.message}
+                            fullWidth
+                            sx={formTheme}
+                            value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
+                            onChange={(event) => field.onChange(new Date(event.target.value).toISOString())}
+                        />
+                    )}
+                />
+
+
+                <Controller
+                    name="activityTypeEnum"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl sx={formTheme} fullWidth>
+                            <InputLabel>Tipo de Atividade</InputLabel>
+                            <Select
+                                label="Tipo de Atividade"
+                                {...field}
+                                value={field.value ?? ""}
+                                error={!!errors.activityTypeEnum}>
+                                <MenuItem value="NORMAL">Normal</MenuItem>
+                                <MenuItem value="URGENT">Urgente</MenuItem>
+                                <MenuItem value="RECURRING">Recorrente</MenuItem>
+                            </Select>
+                            <FormHelperText error={!!errors.activityTypeEnum}>
+                                {errors.activityTypeEnum?.message}
+                            </FormHelperText>
                         </FormControl>
                     )}
                 />
+
+            </Box>
+
+            <Box className="flex flex-row gap-2">
 
                 <Controller
                     name="hasRecurrence"
@@ -145,31 +169,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     )}
                 />
 
-            </Box>
-
-            <Box className="flex flex-row gap-2">
-
-                <Controller
-                    name="dateTime"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField
-                            variant="outlined"
-                            label="Data e hora de Início da atividade"
-                            type="datetime-local"
-                            InputLabelProps={{ shrink: true }}
-                            {...field}
-                            error={!!errors.dateTime}
-                            helperText={errors.dateTime?.message}
-                            fullWidth
-                            sx={formTheme}
-                            value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
-                            onChange={(event) => field.onChange(new Date(event.target.value).toISOString())}
-                        />
-                    )}
-                />
-
-                <Controller
+                {/* <Controller
                     name="statusEnum"
                     control={control}
                     render={({ field }) => (
@@ -193,31 +193,10 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             </FormHelperText>
                         </FormControl>
                     )}
-                />
+                /> */}
 
-                <Controller
-                    name="activityTypeEnum"
-                    control={control}
-                    render={({ field }) => (
-                        <FormControl sx={formTheme} fullWidth>
-                            <InputLabel>Tipo de Atividade</InputLabel>
-                            <Select
-                                label="Tipo de Atividade"
-                                {...field}
-                                value={field.value ?? ""}
-                                error={!!errors.activityTypeEnum}>
-                                <MenuItem value="NORMAL">Normal</MenuItem>
-                                <MenuItem value="URGENT">Urgente</MenuItem>
-                                <MenuItem value="RECURRING">Recorrente</MenuItem>
-                            </Select>
-                            <FormHelperText error={!!errors.activityTypeEnum}>
-                                {errors.activityTypeEnum?.message}
-                            </FormHelperText>
-                        </FormControl>
-                    )}
-                />
 
-                <Controller
+                {/* <Controller
                     name="approvalStatus"
                     control={control}
                     render={({ field }) => (
@@ -238,7 +217,7 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             </FormHelperText>
                         </FormControl>
                     )}
-                />
+                /> */}
             </Box>
 
             <Controller

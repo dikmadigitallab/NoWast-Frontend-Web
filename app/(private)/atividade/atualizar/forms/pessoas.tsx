@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography, Autocomplete, TextField } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography, TextField } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -16,17 +17,41 @@ import { useDebounce } from "@/app/utils/useDebounce";
 export default function FormPessoas({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any, } }) {
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchQueryManager, setSearchQueryManager] = useState('');
+    const [searchQuerySupervisor, setSearchQuerySupervisor] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
+    const debouncedSearchQueryManager = useDebounce(searchQueryManager, 500);
+    const debouncedSearchQuerySupervisor = useDebounce(searchQuerySupervisor, 500);
     
     const { data: pessoasRaw, loading } = useGetUsuario({ 
         query: debouncedSearchQuery,
         pageSize: 25,
         pageNumber: 1
     });
-    const { data: cargos } = useGet({ url: 'position', disablePagination: true });
     
+    const { data: pessoasManager, loading: loadingManager } = useGetUsuario({ 
+        query: debouncedSearchQueryManager,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    
+    const { data: pessoasSupervisor, loading: loadingSupervisor } = useGetUsuario({ 
+        query: debouncedSearchQuerySupervisor,
+        pageSize: 25,
+        pageNumber: 1
+    });
+    const { data: cargos } = useGet({ url: 'position', disablePagination: true });
+
     // Remove duplicatas baseadas no ID
     const pessoas = pessoasRaw ? pessoasRaw.filter((pessoa: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === pessoa.id)
+    ) : [];
+    
+    const pessoasManagerFiltered = pessoasManager ? pessoasManager.filter((pessoa: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === pessoa.id)
+    ) : [];
+    
+    const pessoasSupervisorFiltered = pessoasSupervisor ? pessoasSupervisor.filter((pessoa: any, index: number, self: any[]) => 
         index === self.findIndex((p: any) => p.id === pessoa.id)
     ) : [];
     
@@ -43,23 +68,23 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
         const currentUsers = watch("users") || [];
         const usersToAdd = pessoas.filter((user: any) =>
             selectedUsers.includes(user.id.toString()) &&
-            !currentUsers.some((existingUser: any) => existingUser.userId.toString() === user.id.toString())
+            !currentUsers.some((existingUser: any) => existingUser.id.toString() === user.id.toString())
         );
 
         if (usersToAdd.length > 0) {
             const updatedUsers = [...currentUsers, ...usersToAdd];
             setValue("users", updatedUsers);
-            setValue("usersIds", updatedUsers.map((user: any) => user.userId));
+            setValue("usersIds", updatedUsers.map((user: any) => user.id));
             setSelectedUsers([]);
         }
     };
 
     const handleRemoveUser = (userId: string) => {
         const currentUsers = watch("users") || [];
-        const updatedUsers = currentUsers.filter((user: any) => user.userId.toString() !== userId);
+        const updatedUsers = currentUsers.filter((user: any) => user.id.toString() !== userId);
 
         setValue("users", updatedUsers);
-        setValue("usersIds", updatedUsers.map((user: any) => user.userId));
+        setValue("usersIds", updatedUsers.map((user: any) => user.id));
     };
 
     const columns: GridColDef<any>[] = [
@@ -72,14 +97,14 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton aria-label="remover" size="small" onClick={() => handleRemoveUser(params.row.userId.toString())}>
+                    <IconButton aria-label="remover" size="small" onClick={() => handleRemoveUser(params.row.id.toString())}>
                         <GoTrash color='#635D77' size={20} />
                     </IconButton>
                 </Box>
             ),
         },
         {
-            field: 'userId',
+            field: 'id',
             headerName: '#ID',
             width: 120
         },
@@ -87,19 +112,16 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
             field: 'name',
             headerName: 'Nome',
             width: 320,
-            renderCell: (params: any) => params.row.user?.person?.name || ''
         },
         {
             field: 'position',
             headerName: 'Cargo',
             width: 220,
             renderCell: (params: any) => {
-                const positionId = params.row.user?.positionId;
+                const positionId = params.row.positionId;
                 return positionId ? getCargoName(positionId) : '';
             }
         },
-
-        
     ];
 
     return (
@@ -116,50 +138,50 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                         name="supervisorId"
                         control={control}
                         render={({ field }) => (
-                            <FormControl sx={formTheme} fullWidth error={!!errors.supervisorId}>
-                                <InputLabel>Encarregado</InputLabel>
-                                <Select
-                                    disabled={loading}
-                                    label="Encarregado"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
-                                        <MenuItem key={pessoa?.id} value={pessoa?.id}>
-                                            {pessoa?.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                                <FormHelperText>{errors.supervisorId?.message}</FormHelperText>
-                            </FormControl>
+                            <CustomAutocomplete
+                                options={pessoasSupervisorFiltered || []}
+                                getOptionLabel={(option: any) => option.name || ''}
+                                value={pessoasSupervisorFiltered?.find((pessoa: any) => pessoa.id === field.value) || null}
+                                loading={loadingSupervisor}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQuerySupervisor(newInputValue);
+                                }}
+                                onChange={(newValue) => {
+                                    const value = newValue?.id || '';
+                                    field.onChange(Number(value));
+                                }}
+                                label="Encarregado"
+                                error={!!errors.supervisorId}
+                                helperText={errors.supervisorId?.message}
+                                noOptionsText="Nenhum encarregado encontrado"
+                                loadingText="Carregando encarregados..."
+                                className="w-full"
+                            />
                         )}
                     />
                     <Controller
                         name="managerId"
                         control={control}
                         render={({ field }) => (
-                            <FormControl sx={formTheme} fullWidth error={!!errors?.managerId}>
-                                <InputLabel>Líder/Gestor</InputLabel>
-                                <Select
-                                    disabled={loading}
-                                    label="Líder/Gestor"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                >
-                                    <MenuItem value="" disabled>Selecione um gerente...</MenuItem>
-                                    {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
-                                        <MenuItem key={pessoa?.id} value={pessoa?.id}>
-                                            {pessoa?.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                                <FormHelperText>{errors?.managerId?.message}</FormHelperText>
-                            </FormControl>
+                            <CustomAutocomplete
+                                options={pessoasManagerFiltered || []}
+                                getOptionLabel={(option: any) => option.name || ''}
+                                value={pessoasManagerFiltered?.find((pessoa: any) => pessoa.id === field.value) || null}
+                                loading={loadingManager}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQueryManager(newInputValue);
+                                }}
+                                onChange={(newValue) => {
+                                    const value = newValue?.id || '';
+                                    field.onChange(Number(value));
+                                }}
+                                label="Líder/Gestor"
+                                error={!!errors?.managerId}
+                                helperText={errors?.managerId?.message}
+                                noOptionsText="Nenhum líder/gestor encontrado"
+                                loadingText="Carregando líderes/gestores..."
+                                className="w-full"
+                            />
                         )}
                     />
                 </Box>
@@ -173,71 +195,23 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 </Box>
                 <Box className="flex flex-col gap-3">
                     <Box className="flex flex-row gap-3 h-[60px]">
-                        <Autocomplete
+                        <CustomAutocomplete
                             multiple
-                            fullWidth
                             options={pessoas || []}
                             getOptionLabel={(option: any) => option.name || ''}
-                            getOptionKey={(option: any) => option.id}
-                            value={pessoas?.filter((pessoa: any) => selectedUsers.includes(pessoa.id.toString())) || []}
+                            multipleValue={pessoas?.filter((pessoa: any) => selectedUsers.includes(pessoa.id.toString())) || []}
                             loading={loading}
-                            onInputChange={(event, newInputValue) => {
+                            onInputChange={(newInputValue) => {
                                 setSearchQuery(newInputValue);
                             }}
-                            onChange={(event, newValue) => {
+                            onMultipleChange={(newValue) => {
                                 const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
                                 setSelectedUsers(selectedIds);
                             }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="Pessoas"
-                                    fullWidth
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        endAdornment: (
-                                            <>
-                                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                                                {params.InputProps.endAdornment}
-                                            </>
-                                        ),
-                                    }}
-                                />
-                            )}
-                            renderOption={(props, option) => (
-                                <Box component="li" {...props} key={option.id}>
-                                    {option.name}
-                                </Box>
-                            )}
-                            renderValue={(value) => (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {value.map((option, index) => (
-                                        <Chip
-                                            key={option.id}
-                                            label={option.name}
-                                            size="small"
-                                            onDelete={() => {
-                                                const newValue = value.filter((_, i) => i !== index);
-                                                const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
-                                                setSelectedUsers(selectedIds);
-                                            }}
-                                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                                            sx={{
-                                                backgroundColor: '#00B288',
-                                                color: 'white',
-                                                borderRadius: '4px',
-                                                fontSize: '.7rem',
-                                                '& .MuiChip-deleteIcon': {
-                                                    color: 'white',
-                                                    fontSize: '.8rem',
-                                                },
-                                            }}
-                                        />
-                                    ))}
-                                </Box>
-                            )}
+                            label="Pessoas"
                             noOptionsText="Nenhuma pessoa encontrada"
                             loadingText="Carregando pessoas..."
+                            className="w-full"
                         />
                         <Button sx={[buttonTheme, { height: 55 }]} onClick={handleAddUsers}>
                             <FiPlus size={25} color="#fff" />
@@ -246,17 +220,13 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 </Box>
             </Box>
             <DataGrid
-                rows={(() => {
-                    const usersData = watch("users") || [];
-                    console.log('Dados da lista de usuários na tabela:', usersData);
-                    return usersData;
-                })()}
+                rows={watch("users") || []}
                 columns={columns}
                 localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
                 pageSizeOptions={[5, 25, 100]}
                 disableRowSelectionOnClick
                 sx={tableTheme}
-                getRowId={(row) => row.userId}
+                getRowId={(row) => row.id}
                 hideFooter
                 slots={{
                     noRowsOverlay: () => (

@@ -1,6 +1,7 @@
 "use client";
 
-import { TextField, Box, Button, Modal, FormControl, InputLabel, Select, MenuItem, CircularProgress, IconButton, SnackbarCloseReason, Snackbar, Autocomplete } from "@mui/material";
+import { TextField, Box, Button, Modal, FormControl, InputLabel, Select, MenuItem, CircularProgress, IconButton, SnackbarCloseReason, Snackbar } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { formTheme } from "@/app/styles/formTheme/theme";
@@ -207,56 +208,31 @@ export default function CadastroSetor() {
                 </Box>
 
                 <Box className="w-full flex gap-2">
-                    <FormControl fullWidth error={!!errors.buildingId}>
-                        <Controller
-                            name="buildingId"
-                            control={control}
-                            render={({ field }) => (
-                                <Autocomplete
-                                    options={predios || []}
-                                    getOptionLabel={(option: any) => option.name || ''}
-                                    getOptionKey={(option: any) => option.id}
-                                    value={predios?.find((predio: any) => predio.id === field.value) || null}
-                                    loading={loadingPredios}
-                                    onInputChange={(event, newInputValue) => {
-                                        setSearchQueryPredios(newInputValue);
-                                    }}
-                                    onChange={(event, newValue) => {
-                                        const value = newValue?.id || '';
-                                        field.onChange(Number(value));
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Prédio"
-                                            error={!!errors.buildingId}
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                endAdornment: (
-                                                    <>
-                                                        {loadingPredios ? <CircularProgress color="inherit" size={20} /> : null}
-                                                        {params.InputProps.endAdornment}
-                                                    </>
-                                                ),
-                                            }}
-                                        />
-                                    )}
-                                    renderOption={(props, option) => (
-                                        <Box component="li" {...props} key={option.id}>
-                                            {option.name}
-                                        </Box>
-                                    )}
-                                    noOptionsText="Nenhum prédio encontrado"
-                                    loadingText="Carregando prédios..."
-                                />
-                            )}
-                        />
-                        {errors.buildingId && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.buildingId.message}
-                            </p>
+                    <Controller
+                        name="buildingId"
+                        control={control}
+                        render={({ field }) => (
+                            <CustomAutocomplete
+                                options={predios || []}
+                                getOptionLabel={(option: any) => option.name || ''}
+                                value={predios?.find((predio: any) => predio.id === field.value) || null}
+                                loading={loadingPredios}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQueryPredios(newInputValue);
+                                }}
+                                onChange={(newValue) => {
+                                    const value = newValue?.id || '';
+                                    field.onChange(Number(value));
+                                }}
+                                label="Prédio"
+                                error={!!errors.buildingId}
+                                helperText={errors.buildingId?.message}
+                                noOptionsText="Nenhum prédio encontrado"
+                                loadingText="Carregando prédios..."
+                                className="w-full"
+                            />
                         )}
-                    </FormControl>
+                    />
 
                     <ImageUploader
                         label="Selecione uma foto do setor"

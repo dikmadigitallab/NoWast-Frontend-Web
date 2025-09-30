@@ -1,27 +1,38 @@
 import { useState } from 'react';
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, Collapse, Chip, CircularProgress, Typography } from "@mui/material";
+import { Box, Button, IconButton, Collapse, Chip, CircularProgress, Typography } from "@mui/material";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ptBR } from "@mui/x-data-grid/locales";
 import { GoTrash } from "react-icons/go";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from '@/app/styles/tableTheme/theme';
 import { IoMdClose } from 'react-icons/io';
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
+import { useDebounce } from "@/app/utils/useDebounce";
 
 export default function FormItens({ control, setValue, watch, formState: { errors } }: { control?: any, setValue?: any, watch?: any, formState: { errors?: any } }) {
 
-    const { data: epis, loading } = useGet({ url: "ppe" });
-    const { data: equipamentos } = useGet({ url: "tools" });
-    const { data: produtos } = useGet({ url: "product" });
-    const { data: transportes } = useGet({ url: "transport" });
+    const [searchQueryEpi, setSearchQueryEpi] = useState('');
+    const [searchQueryEquipamento, setSearchQueryEquipamento] = useState('');
+    const [searchQueryProduto, setSearchQueryProduto] = useState('');
+    const [searchQueryTransporte, setSearchQueryTransporte] = useState('');
+    
+    const debouncedSearchQueryEpi = useDebounce(searchQueryEpi, 500);
+    const debouncedSearchQueryEquipamento = useDebounce(searchQueryEquipamento, 500);
+    const debouncedSearchQueryProduto = useDebounce(searchQueryProduto, 500);
+    const debouncedSearchQueryTransporte = useDebounce(searchQueryTransporte, 500);
+
+    const { data: epis, loading: loadingEpi } = useGet({ url: "ppe", query: debouncedSearchQueryEpi });
+    const { data: equipamentos, loading: loadingEquipamento } = useGet({ url: "tools", query: debouncedSearchQueryEquipamento });
+    const { data: produtos, loading: loadingProduto } = useGet({ url: "product", query: debouncedSearchQueryProduto });
+    const { data: transportes, loading: loadingTransporte } = useGet({ url: "transport", query: debouncedSearchQueryTransporte });
 
     const [selectedItems, setSelectedItems] = useState({
-        epi: [] as number[],
-        equipamento: [] as number[],
-        produto: [] as number[],
-        transporte: [] as number[]
+        epi: [] as any[],
+        equipamento: [] as any[],
+        produto: [] as any[],
+        transporte: [] as any[]
     });
 
     const [expandedSections, setExpandedSections] = useState({
@@ -40,20 +51,19 @@ export default function FormItens({ control, setValue, watch, formState: { error
 
     const handleAddItems = (type: 'epis' | 'equipamentos' | 'produtos' | 'transportes') => {
         const fieldMap = {
-            epis: { idField: 'epi', data: epis, watchField: 'epis', idsField: 'epiIds' },
-            equipamentos: { idField: 'equipamento', data: equipamentos, watchField: 'equipamentos', idsField: 'equipmentIds' },
-            produtos: { idField: 'produto', data: produtos, watchField: 'produtos', idsField: 'productIds' },
-            transportes: { idField: 'transporte', data: transportes, watchField: 'transportes', idsField: 'vehicleIds' }
+            epis: { idField: 'epi', watchField: 'epis', idsField: 'epiIds' },
+            equipamentos: { idField: 'equipamento', watchField: 'equipamentos', idsField: 'equipmentIds' },
+            produtos: { idField: 'produto', watchField: 'produtos', idsField: 'productIds' },
+            transportes: { idField: 'transporte', watchField: 'transportes', idsField: 'vehicleIds' }
         };
 
-        const { idField, data, watchField, idsField } = fieldMap[type];
-        const selectedIds = selectedItems[idField as keyof typeof selectedItems];
+        const { idField, watchField, idsField } = fieldMap[type];
+        const selectedItemsArray = selectedItems[idField as keyof typeof selectedItems];
 
-        if (selectedIds.length === 0) return;
+        if (selectedItemsArray.length === 0) return;
 
         const currentItems = watch(watchField) || [];
-        const itemsToAdd = data.filter((item: any) =>
-            selectedIds.includes(item.id) &&
+        const itemsToAdd = selectedItemsArray.filter((item: any) =>
             !currentItems.some((existing: any) => existing.id === item.id)
         );
 
@@ -81,41 +91,6 @@ export default function FormItens({ control, setValue, watch, formState: { error
         setValue(idsField, updatedItems.map((item: any) => item.id));
     };
 
-    const handleRemoveSelected = (value: number, field: keyof typeof selectedItems) => {
-        setSelectedItems(prev => ({
-            ...prev,
-            [field]: prev[field].filter(id => id !== value)
-        }));
-    };
-
-    const renderChips = (selected: number[], fieldName: string, onDelete: (value: number) => void, items: { id: number, name: string }[] = []) => {
-        const safeItems = Array.isArray(items) ? items : [];
-        return (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {selected?.map((value) => {
-                    const selectedItem = safeItems.find(item => item.id === value);
-                    return (
-                        <Chip
-                            key={value}
-                            label={selectedItem ? selectedItem.name : `ID: ${value}`}
-                            onDelete={() => onDelete(value)}
-                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                            sx={{
-                                backgroundColor: '#00B288',
-                                color: 'white',
-                                borderRadius: '4px',
-                                fontSize: '.7rem',
-                                '& .MuiChip-deleteIcon': {
-                                    color: 'white',
-                                    fontSize: '.8rem',
-                                },
-                            }}
-                        />
-                    );
-                })}
-            </Box>
-        );
-    };
 
     const columns = (type: 'epis' | 'equipamentos' | 'produtos' | 'transportes'): GridColDef<any>[] => [
         {
@@ -149,7 +124,7 @@ export default function FormItens({ control, setValue, watch, formState: { error
         },
     ];
 
-    const renderSection = (type: 'epis' | 'equipamentos' | 'produtos' | 'transportes', label: string, data: any[], errorField: string) => {
+    const renderSection = (type: 'epis' | 'equipamentos' | 'produtos' | 'transportes', label: string, data: any[], errorField: string, searchQuery: string, setSearchQuery: (query: string) => void, loading: boolean) => {
         const fieldMap = { epis: { idField: 'epi', watchField: 'epis' }, equipamentos: { idField: 'equipamento', watchField: 'equipamentos' }, produtos: { idField: 'produto', watchField: 'produtos' }, transportes: { idField: 'transporte', watchField: 'transportes' } };
         const { idField, watchField } = fieldMap[type];
         const error = errors?.[errorField]?.message;
@@ -165,40 +140,28 @@ export default function FormItens({ control, setValue, watch, formState: { error
                 <Collapse in={expandedSections[type]}>
                     <Box className="h-[500px] flex flex-col gap-5">
                         <Box className="flex flex-row justify-center items-center gap-3 ">
-                            <FormControl sx={formTheme} fullWidth error={!!error}>
-                                <InputLabel>{label}</InputLabel>
-                                <Select
-                                    disabled={loading}
-                                    multiple
-                                    label={label}
-                                    value={selectedItems[idField as keyof typeof selectedItems]}
-                                    onChange={(e) => setSelectedItems(prev => ({
+                            <CustomAutocomplete
+                                multiple
+                                options={data || []}
+                                getOptionLabel={(option: any) => option.name || ''}
+                                multipleValue={selectedItems[idField as keyof typeof selectedItems]}
+                                loading={loading}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQuery(newInputValue);
+                                }}
+                                onMultipleChange={(newValue) => {
+                                    setSelectedItems(prev => ({
                                         ...prev,
-                                        [idField]: e.target.value as number[]
-                                    }))}
-                                    renderValue={(selected) => renderChips(
-                                        selected as number[],
-                                        idField,
-                                        (value) => handleRemoveSelected(value, idField as keyof typeof selectedItems),
-                                        data
-                                    )}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 300,
-                                            },
-                                        },
-                                    }}
-                                >
-                                    {Array?.isArray(data) && data.map((item) => (
-                                        <MenuItem key={item?.id} value={item?.id}>
-                                            {item?.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                                <FormHelperText>{error}</FormHelperText>
-                            </FormControl>
+                                        [idField]: newValue
+                                    }));
+                                }}
+                                label={label}
+                                error={!!error}
+                                helperText={error}
+                                noOptionsText={`Nenhum ${label.toLowerCase()} encontrado`}
+                                loadingText={`Carregando ${label.toLowerCase()}...`}
+                                className="w-full"
+                            />
                             <Button sx={[buttonTheme, { width: 'fit-content', height: 55 }]} onClick={() => handleAddItems(type)}>
                                 <FiPlus size={20} color="#fff" />
                             </Button>
@@ -239,10 +202,10 @@ export default function FormItens({ control, setValue, watch, formState: { error
 
     return (
         <Box className="w-[100%]  flex flex-col gap-5">
-            {renderSection('epis', 'EPIs', epis, 'epiIds')}
-            {renderSection('equipamentos', 'Equipamentos', equipamentos, 'equipmentIds')}
-            {renderSection('produtos', 'Produtos', produtos, 'productIds')}
-            {renderSection('transportes', 'Transportes', transportes, 'vehicleIds')}
+            {renderSection('epis', 'EPIs', epis, 'epiIds', searchQueryEpi, setSearchQueryEpi, loadingEpi)}
+            {renderSection('equipamentos', 'Equipamentos', equipamentos, 'equipmentIds', searchQueryEquipamento, setSearchQueryEquipamento, loadingEquipamento)}
+            {renderSection('produtos', 'Produtos', produtos, 'productIds', searchQueryProduto, setSearchQueryProduto, loadingProduto)}
+            {renderSection('transportes', 'Transportes', transportes, 'vehicleIds', searchQueryTransporte, setSearchQueryTransporte, loadingTransporte)}
         </Box>
     );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { z } from "zod";
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Autocomplete } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { StyledMainContainer } from "@/app/styles/container/container";
@@ -128,106 +129,52 @@ export default function EditarProduto() {
                             name="responsibleManagerId"
                             control={control}
                             render={({ field }) => (
-                                <FormControl
-                                    sx={formTheme}
-                                    fullWidth
+                                <CustomAutocomplete
+                                    options={pessoas || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    value={pessoas?.find((pessoa: any) => pessoa.personId === field.value) || null}
+                                    loading={loadingPessoas}
+                                    onInputChange={(newInputValue) => {
+                                        setSearchQueryPessoas(newInputValue);
+                                    }}
+                                    onChange={(newValue) => {
+                                        const value = newValue?.personId || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    label="Gestor Responsável"
                                     error={!!errors.responsibleManagerId}
-                                >
-                                    <Autocomplete
-                                        options={pessoas || []}
-                                        getOptionLabel={(option: any) => option.name || ''}
-                                        getOptionKey={(option: any) => option.id}
-                                        value={pessoas?.find((pessoa: any) => pessoa.personId === field.value) || null}
-                                        loading={loadingPessoas}
-                                        onInputChange={(event, newInputValue) => {
-                                            setSearchQueryPessoas(newInputValue);
-                                        }}
-                                        onChange={(event, newValue) => {
-                                            const value = newValue?.personId || '';
-                                            field.onChange(Number(value));
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Gestor Responsável"
-                                                error={!!errors.responsibleManagerId}
-                                                InputProps={{
-                                                    ...params.InputProps,
-                                                    endAdornment: (
-                                                        <>
-                                                            {loadingPessoas ? <CircularProgress color="inherit" size={20} /> : null}
-                                                            {params.InputProps.endAdornment}
-                                                        </>
-                                                    ),
-                                                }}
-                                            />
-                                        )}
-                                        renderOption={(props, option) => (
-                                            <Box component="li" {...props} key={option.id}>
-                                                {option.name}
-                                            </Box>
-                                        )}
-                                        noOptionsText="Nenhum gestor encontrado"
-                                        loadingText="Carregando gestores..."
-                                    />
-                                    {errors.responsibleManagerId && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.responsibleManagerId.message}
-                                        </p>
-                                    )}
-                                </FormControl>
+                                    helperText={errors.responsibleManagerId?.message}
+                                    noOptionsText="Nenhum gestor encontrado"
+                                    loadingText="Carregando gestores..."
+                                    className="w-full"
+                                />
                             )}
                         />
-                        <FormControl fullWidth error={!!errors.buildingId}>
-                            <Controller
-                                name="buildingId"
-                                control={control}
-                                render={({ field }) => (
-                                    <Autocomplete
-                                        options={predios || []}
-                                        getOptionLabel={(option: any) => option.name || ''}
-                                        getOptionKey={(option: any) => option.id}
-                                        value={predios?.find((predio: any) => predio.id === field.value) || null}
-                                        loading={loadingPredios}
-                                        onInputChange={(event, newInputValue) => {
-                                            setSearchQueryPredios(newInputValue);
-                                        }}
-                                        onChange={(event, newValue) => {
-                                            const value = newValue?.id || '';
-                                            field.onChange(Number(value));
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Prédio"
-                                                error={!!errors.buildingId}
-                                                InputProps={{
-                                                    ...params.InputProps,
-                                                    endAdornment: (
-                                                        <>
-                                                            {loadingPredios ? <CircularProgress color="inherit" size={20} /> : null}
-                                                            {params.InputProps.endAdornment}
-                                                        </>
-                                                    ),
-                                                }}
-                                            />
-                                        )}
-                                        renderOption={(props, option) => (
-                                            <Box component="li" {...props} key={option.id}>
-                                                {option.name}
-                                            </Box>
-                                        )}
-                                        noOptionsText="Nenhum prédio encontrado"
-                                        loadingText="Carregando prédios..."
-                                    />
-                                )}
-                            />
-                            {errors.buildingId && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.buildingId.message}
-                                </p>
+                        <Controller
+                            name="buildingId"
+                            control={control}
+                            render={({ field }) => (
+                                <CustomAutocomplete
+                                    options={predios || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    value={predios?.find((predio: any) => predio.id === field.value) || null}
+                                    loading={loadingPredios}
+                                    onInputChange={(newInputValue) => {
+                                        setSearchQueryPredios(newInputValue);
+                                    }}
+                                    onChange={(newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    label="Prédio"
+                                    error={!!errors.buildingId}
+                                    helperText={errors.buildingId?.message}
+                                    noOptionsText="Nenhum prédio encontrado"
+                                    loadingText="Carregando prédios..."
+                                    className="w-full"
+                                />
                             )}
-                        </FormControl>
+                        />
                     </Box>
 
                     <ImageUploader

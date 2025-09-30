@@ -1,6 +1,7 @@
 "use client";
 
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Snackbar, IconButton, SnackbarCloseReason, Autocomplete } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Snackbar, IconButton, SnackbarCloseReason } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
 import { formTheme } from "@/app/styles/formTheme/theme";
@@ -136,54 +137,25 @@ export default function FormDadosGerais() {
                         name="sector.connect.id"
                         control={control}
                         render={({ field }) => (
-                            <FormControl
-                                sx={formTheme}
-                                fullWidth
+                            <CustomAutocomplete
+                                options={setores || []}
+                                getOptionLabel={(option: any) => option.name || ''}
+                                value={setores?.find((setor: any) => setor.id === field.value) || null}
+                                loading={loadingSetores}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQuerySetores(newInputValue);
+                                }}
+                                onChange={(newValue) => {
+                                    const value = newValue?.id || '';
+                                    field.onChange(Number(value));
+                                }}
+                                label="Setor"
                                 error={!!errors.sector?.connect?.id}
-                            >
-                                <Autocomplete
-                                    options={setores || []}
-                                    getOptionLabel={(option: any) => option.name || ''}
-                                    getOptionKey={(option: any) => option.id}
-                                    value={setores?.find((setor: any) => setor.id === field.value) || null}
-                                    loading={loadingSetores}
-                                    onInputChange={(event, newInputValue) => {
-                                        setSearchQuerySetores(newInputValue);
-                                    }}
-                                    onChange={(event, newValue) => {
-                                        const value = newValue?.id || '';
-                                        field.onChange(Number(value));
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Setor"
-                                            error={!!errors.sector?.connect?.id}
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                endAdornment: (
-                                                    <>
-                                                        {loadingSetores ? <CircularProgress color="inherit" size={20} /> : null}
-                                                        {params.InputProps.endAdornment}
-                                                    </>
-                                                ),
-                                            }}
-                                        />
-                                    )}
-                                    renderOption={(props, option) => (
-                                        <Box component="li" {...props} key={option.id}>
-                                            {option.name}
-                                        </Box>
-                                    )}
-                                    noOptionsText="Nenhum setor encontrado"
-                                    loadingText="Carregando setores..."
-                                />
-                                {errors.sector?.connect?.id && (
-                                    <p className="text-red-500 text-xs mt-1">
-                                        {errors.sector.connect.id.message}
-                                    </p>
-                                )}
-                            </FormControl>
+                                helperText={errors.sector?.connect?.id?.message}
+                                noOptionsText="Nenhum setor encontrado"
+                                loadingText="Carregando setores..."
+                                className="w-full"
+                            />
                         )}
                     />
 

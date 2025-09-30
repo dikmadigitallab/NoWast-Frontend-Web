@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Controller } from "react-hook-form";
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography, Autocomplete, TextField } from "@mui/material";
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, FormHelperText, CircularProgress, Chip, Typography, TextField } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { FiPlus } from "react-icons/fi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -124,96 +125,50 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                         name="supervisorId"
                         control={control}
                         render={({ field }) => (
-                            <FormControl sx={formTheme} fullWidth error={!!errors.supervisorId}>
-                                <Autocomplete
-                                    options={pessoasSupervisorFiltered || []}
-                                    getOptionLabel={(option: any) => option.name || ''}
-                                    getOptionKey={(option: any) => option.id}
-                                    value={pessoasSupervisorFiltered?.find((pessoa: any) => pessoa.id === field.value) || null}
-                                    loading={loadingSupervisor}
-                                    onInputChange={(event, newInputValue) => {
-                                        setSearchQuerySupervisor(newInputValue);
-                                    }}
-                                    onChange={(event, newValue) => {
-                                        const value = newValue?.id || '';
-                                        field.onChange(Number(value));
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Encarregado"
-                                            error={!!errors.supervisorId}
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                endAdornment: (
-                                                    <>
-                                                        {loadingSupervisor ? <CircularProgress color="inherit" size={20} /> : null}
-                                                        {params.InputProps.endAdornment}
-                                                    </>
-                                                ),
-                                            }}
-                                        />
-                                    )}
-                                    renderOption={(props, option) => (
-                                        <Box component="li" {...props} key={option.id}>
-                                            {option.name}
-                                        </Box>
-                                    )}
-                                    noOptionsText="Nenhum encarregado encontrado"
-                                    loadingText="Carregando encarregados..."
-                                />
-                                <FormHelperText error={!!errors.supervisorId}>
-                                    {errors.supervisorId?.message}
-                                </FormHelperText>
-                            </FormControl>
+                            <CustomAutocomplete
+                                options={pessoasSupervisorFiltered || []}
+                                getOptionLabel={(option: any) => option.name || ''}
+                                value={pessoasSupervisorFiltered?.find((pessoa: any) => pessoa.id === field.value) || null}
+                                loading={loadingSupervisor}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQuerySupervisor(newInputValue);
+                                }}
+                                onChange={(newValue) => {
+                                    const value = newValue?.id || '';
+                                    field.onChange(Number(value));
+                                }}
+                                label="Encarregado"
+                                error={!!errors.supervisorId}
+                                helperText={errors.supervisorId?.message}
+                                noOptionsText="Nenhum encarregado encontrado"
+                                loadingText="Carregando encarregados..."
+                                className="w-full"
+                            />
                         )}
                     />
                     <Controller
                         name="managerId"
                         control={control}
                         render={({ field }) => (
-                            <FormControl sx={formTheme} fullWidth error={!!errors?.managerId}>
-                                <Autocomplete
-                                    options={pessoasManagerFiltered || []}
-                                    getOptionLabel={(option: any) => option.name || ''}
-                                    getOptionKey={(option: any) => option.id}
-                                    value={pessoasManagerFiltered?.find((pessoa: any) => pessoa.id === field.value) || null}
-                                    loading={loadingManager}
-                                    onInputChange={(event, newInputValue) => {
-                                        setSearchQueryManager(newInputValue);
-                                    }}
-                                    onChange={(event, newValue) => {
-                                        const value = newValue?.id || '';
-                                        field.onChange(Number(value));
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Líder/Gestor"
-                                            error={!!errors?.managerId}
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                endAdornment: (
-                                                    <>
-                                                        {loadingManager ? <CircularProgress color="inherit" size={20} /> : null}
-                                                        {params.InputProps.endAdornment}
-                                                    </>
-                                                ),
-                                            }}
-                                        />
-                                    )}
-                                    renderOption={(props, option) => (
-                                        <Box component="li" {...props} key={option.id}>
-                                            {option.name}
-                                        </Box>
-                                    )}
-                                    noOptionsText="Nenhum líder/gestor encontrado"
-                                    loadingText="Carregando líderes/gestores..."
-                                />
-                                <FormHelperText error={!!errors?.managerId}>
-                                    {errors?.managerId?.message}
-                                </FormHelperText>
-                            </FormControl>
+                            <CustomAutocomplete
+                                options={pessoasManagerFiltered || []}
+                                getOptionLabel={(option: any) => option.name || ''}
+                                value={pessoasManagerFiltered?.find((pessoa: any) => pessoa.id === field.value) || null}
+                                loading={loadingManager}
+                                onInputChange={(newInputValue) => {
+                                    setSearchQueryManager(newInputValue);
+                                }}
+                                onChange={(newValue) => {
+                                    const value = newValue?.id || '';
+                                    field.onChange(Number(value));
+                                }}
+                                label="Líder/Gestor"
+                                error={!!errors?.managerId}
+                                helperText={errors?.managerId?.message}
+                                noOptionsText="Nenhum líder/gestor encontrado"
+                                loadingText="Carregando líderes/gestores..."
+                                className="w-full"
+                            />
                         )}
                     />
                 </Box>
@@ -226,71 +181,23 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 </Box>
                 <Box className="flex flex-col gap-3">
                     <Box className="flex flex-row gap-3 h-[60px]">
-                        <Autocomplete
+                        <CustomAutocomplete
                             multiple
-                            fullWidth
                             options={pessoas || []}
                             getOptionLabel={(option: any) => option.name || ''}
-                            getOptionKey={(option: any) => option.id}
-                            value={pessoas?.filter((pessoa: any) => selectedUsers.includes(pessoa.id.toString())) || []}
+                            multipleValue={pessoas?.filter((pessoa: any) => selectedUsers.includes(pessoa.id.toString())) || []}
                             loading={loading}
-                            onInputChange={(event, newInputValue) => {
+                            onInputChange={(newInputValue) => {
                                 setSearchQuery(newInputValue);
                             }}
-                            onChange={(event, newValue) => {
+                            onMultipleChange={(newValue) => {
                                 const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
                                 setSelectedUsers(selectedIds);
                             }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="Pessoas"
-                                    fullWidth
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        endAdornment: (
-                                            <>
-                                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                                                {params.InputProps.endAdornment}
-                                            </>
-                                        ),
-                                    }}
-                                />
-                            )}
-                            renderOption={(props, option) => (
-                                <Box component="li" {...props} key={option.id}>
-                                    {option.name}
-                                </Box>
-                            )}
-                            renderValue={(value) => (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {value.map((option, index) => (
-                                        <Chip
-                                            key={option.id}
-                                            label={option.name}
-                                            size="small"
-                                            onDelete={() => {
-                                                const newValue = value.filter((_, i) => i !== index);
-                                                const selectedIds = newValue.map((pessoa: any) => pessoa.id.toString());
-                                                setSelectedUsers(selectedIds);
-                                            }}
-                                            deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                                            sx={{
-                                                backgroundColor: '#00B288',
-                                                color: 'white',
-                                                borderRadius: '4px',
-                                                fontSize: '.7rem',
-                                                '& .MuiChip-deleteIcon': {
-                                                    color: 'white',
-                                                    fontSize: '.8rem',
-                                                },
-                                            }}
-                                        />
-                                    ))}
-                                </Box>
-                            )}
+                            label="Pessoas"
                             noOptionsText="Nenhuma pessoa encontrada"
                             loadingText="Carregando pessoas..."
+                            className="w-full"
                         />
                         <Button sx={[buttonTheme, { height: 55 }]} onClick={handleAddUsers}>
                             <FiPlus size={25} color="#fff" />

@@ -1,6 +1,7 @@
 "use client";
 
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Autocomplete } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { StyledMainContainer } from "@/app/styles/container/container";
 import { useCreate } from "@/app/hooks/crud/create/create";
@@ -19,7 +20,10 @@ const epiSchema = z.object({
     name: z.string().min(1, "Nome do EPI é obrigatório"),
     description: z.string().min(1, "Descrição é obrigatória"),
     buildingId: z.number().int().min(1, "ID do predio é obrigatório"),
-    responsibleManagerId: z.number().int().min(1, "ID do gestor é obrigatório")
+    responsibleManagerId: z.number().int().min(1, "ID do gestor é obrigatório"),
+    image: z.any().refine((file) => file !== null && file !== undefined, {
+        message: "Foto é obrigatória"
+    })
 });
 
 type EpiFormValues = z.infer<typeof epiSchema>;
@@ -58,9 +62,9 @@ export default function CadastroEPI() {
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("ppe", "/items/epi/listagem");
 
-    const { control, handleSubmit, formState: { errors } } = useForm<EpiFormValues>({
+    const { control, handleSubmit, formState: { errors }, setError, clearErrors } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
-        defaultValues: { name: "", description: "", buildingId: 0, responsibleManagerId: undefined },
+        defaultValues: { name: "", description: "", buildingId: 0, responsibleManagerId: undefined, image: null },
         mode: "onChange"
     });
 
@@ -69,6 +73,11 @@ export default function CadastroEPI() {
     const handleDisableConfirm = () => router.push('/items/epi/listagem');
 
     const onSubmit = (formData: any) => {
+        if (!file) {
+            setError("image", { type: "required", message: "Foto é obrigatória" });
+            return;
+        }
+        clearErrors("image");
         const newObject = { ...formData, image: file };
         create(newObject, true);
     };
@@ -102,109 +111,66 @@ export default function CadastroEPI() {
                             name="responsibleManagerId"
                             control={control}
                             render={({ field }) => (
-                                <FormControl
-                                    sx={formTheme}
-                                    fullWidth
+                                <CustomAutocomplete
+                                    options={pessoas || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    value={pessoas?.find((pessoa: any) => pessoa.personId === field.value) || null}
+                                    loading={loadingPessoas}
+                                    onInputChange={(newInputValue) => {
+                                        setSearchQueryPessoas(newInputValue);
+                                    }}
+                                    onChange={(newValue) => {
+                                        const value = newValue?.personId || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    label="Gestor Responsável"
                                     error={!!errors.responsibleManagerId}
-                                >
-                                    <Autocomplete
-                                        options={pessoas || []}
-                                        getOptionLabel={(option: any) => option.name || ''}
-                                        getOptionKey={(option: any) => option.id}
-                                        value={pessoas?.find((pessoa: any) => pessoa.personId === field.value) || null}
-                                        loading={loadingPessoas}
-                                        onInputChange={(event, newInputValue) => {
-                                            setSearchQueryPessoas(newInputValue);
-                                        }}
-                                        onChange={(event, newValue) => {
-                                            const value = newValue?.personId || '';
-                                            field.onChange(Number(value));
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Gestor Responsável"
-                                                error={!!errors.responsibleManagerId}
-                                                InputProps={{
-                                                    ...params.InputProps,
-                                                    endAdornment: (
-                                                        <>
-                                                            {loadingPessoas ? <CircularProgress color="inherit" size={20} /> : null}
-                                                            {params.InputProps.endAdornment}
-                                                        </>
-                                                    ),
-                                                }}
-                                            />
-                                        )}
-                                        renderOption={(props, option) => (
-                                            <Box component="li" {...props} key={option.id}>
-                                                {option.name}
-                                            </Box>
-                                        )}
-                                        noOptionsText="Nenhum gestor encontrado"
-                                        loadingText="Carregando gestores..."
-                                    />
-                                    {errors.responsibleManagerId && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.responsibleManagerId.message}
-                                        </p>
-                                    )}
-                                </FormControl>
+                                    helperText={errors.responsibleManagerId?.message}
+                                    noOptionsText="Nenhum gestor encontrado"
+                                    loadingText="Carregando gestores..."
+                                    className="w-full"
+                                />
                             )}
                         />
-                        <FormControl fullWidth error={!!errors.buildingId}>
-                            <Controller
-                                name="buildingId"
-                                control={control}
-                                render={({ field }) => (
-                                    <Autocomplete
-                                        options={predios || []}
-                                        getOptionLabel={(option: any) => option.name || ''}
-                                        getOptionKey={(option: any) => option.id}
-                                        value={predios?.find((predio: any) => predio.id === field.value) || null}
-                                        loading={loadingPredios}
-                                        onInputChange={(event, newInputValue) => {
-                                            setSearchQueryPredios(newInputValue);
-                                        }}
-                                        onChange={(event, newValue) => {
-                                            const value = newValue?.id || '';
-                                            field.onChange(Number(value));
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Prédio"
-                                                error={!!errors.buildingId}
-                                                InputProps={{
-                                                    ...params.InputProps,
-                                                    endAdornment: (
-                                                        <>
-                                                            {loadingPredios ? <CircularProgress color="inherit" size={20} /> : null}
-                                                            {params.InputProps.endAdornment}
-                                                        </>
-                                                    ),
-                                                }}
-                                            />
-                                        )}
-                                        renderOption={(props, option) => (
-                                            <Box component="li" {...props} key={option.id}>
-                                                {option.name}
-                                            </Box>
-                                        )}
-                                        noOptionsText="Nenhum prédio encontrado"
-                                        loadingText="Carregando prédios..."
-                                    />
-                                )}
-                            />
-                            {errors.buildingId && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.buildingId.message}
-                                </p>
+                        <Controller
+                            name="buildingId"
+                            control={control}
+                            render={({ field }) => (
+                                <CustomAutocomplete
+                                    options={predios || []}
+                                    getOptionLabel={(option: any) => option.name || ''}
+                                    value={predios?.find((predio: any) => predio.id === field.value) || null}
+                                    loading={loadingPredios}
+                                    onInputChange={(newInputValue) => {
+                                        setSearchQueryPredios(newInputValue);
+                                    }}
+                                    onChange={(newValue) => {
+                                        const value = newValue?.id || '';
+                                        field.onChange(Number(value));
+                                    }}
+                                    label="Prédio"
+                                    error={!!errors.buildingId}
+                                    helperText={errors.buildingId?.message}
+                                    noOptionsText="Nenhum prédio encontrado"
+                                    loadingText="Carregando prédios..."
+                                    className="w-full"
+                                />
                             )}
-                        </FormControl>
+                        />
                     </Box>
 
-                    <ImageUploader label="Selecione uma foto do EPI" onChange={(file: any) => setFile(file)} />
+                    <ImageUploader 
+                        label="Selecione uma foto do EPI" 
+                        required={true}
+                        error={!!errors.image}
+                        helperText={errors.image?.message as string}
+                        onChange={(file: any) => {
+                            setFile(file);
+                            if (file) {
+                                clearErrors("image");
+                            }
+                        }} 
+                    />
 
                     <Controller
                         name="description"
