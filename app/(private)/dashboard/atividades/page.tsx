@@ -81,36 +81,61 @@ export default function Atividades() {
 
 
 
-  const dataDonuts = [
-    {
-      title: <span style={{ color: '#363a38ed' }}>Atividades</span>,
-     // title: "Atividades",
-      data: [
-        { name: 'Concluídas', total: atividades?.completedActivities ?? 0, color: '#00CB65' },
-        { name: 'Em Aberto', total: atividades?.openActivities ?? 0, color: '#2090FF' },
-        { name: 'Pendentes', total: atividades?.pendingActivities ?? 0, color: '#FF9920' },
-        { name: 'Just/Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#00708e' },
-        { name: 'Just/Externas', total: atividades?.justifiedActivities ?? 0, color: '#008e78' },
-      ]
-    },
-    {
-      title: <span style={{ color: '#363a38ed' }}>Execuções</span>,
-     // title: "Execuções",
-      data: [
-        { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#7367f0' },
-        { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#ea5455' },
-      ]
-    },
-    {
-      title: <span style={{ color: '#363a38ed' }}>Aprovações</span>,
-      //title: "Aprovações",
-      data: [
-        { name: 'Aprovadas', total: atividades?.approvedActivities ?? 0, color: '#00CB65' },
-        { name: 'Pendentes de Aprovação', total: atividades?.pendingApprovalActivities ?? 0, color: '#2090FF' },
-        { name: 'Reprovadas', total: atividades?.rejectedActivities ?? 0, color: '#FF9920' },
-      ]
+  // Função para filtrar dados baseado no tipo de usuário
+  const getFilteredDataDonuts = () => {
+    const baseDataDonuts = [
+      {
+        title: <span style={{ color: '#363a38ed' }}>Atividades</span>,
+       // title: "Atividades",
+        data: [
+          { name: 'Concluídas', total: atividades?.completedActivities ?? 0, color: '#00CB65' },
+          { name: 'Em Aberto', total: atividades?.openActivities ?? 0, color: '#2090FF' },
+          { name: 'Pendentes', total: atividades?.pendingActivities ?? 0, color: '#FF9920' },
+          { name: 'Just/Internas', total: atividades?.internalJustificationActivities ?? 0, color: '#00708e' },
+          { name: 'Just/Externas', total: atividades?.justifiedActivities ?? 0, color: '#008e78' },
+        ]
+      },
+      {
+        title: <span style={{ color: '#363a38ed' }}>Execuções</span>,
+       // title: "Execuções",
+        data: [
+          { name: 'No Prazo', total: atividades?.sameDayClosureActivities ?? 0, color: '#7367f0' },
+          { name: 'Fora do Prazo', total: atividades?.differentDayClosureActivities ?? 0, color: '#ea5455' },
+        ]
+      },
+      {
+        title: <span style={{ color: '#363a38ed' }}>Aprovações</span>,
+        //title: "Aprovações",
+        data: [
+          { name: 'Aprovadas', total: atividades?.approvedActivities ?? 0, color: '#00CB65' },
+          { name: 'Pendentes de Aprovação', total: atividades?.pendingApprovalActivities ?? 0, color: '#2090FF' },
+          { name: 'Reprovadas', total: atividades?.rejectedActivities ?? 0, color: '#FF9920' },
+        ]
+      }
+    ];
+
+    // Se for ADMIN_CLIENT, filtrar dados sensíveis
+    if (userType === 'ADM_CLIENTE') {
+      return baseDataDonuts.map((donut, index) => {
+        if (index === 0) { // Atividades - remover Just/Internas
+          return {
+            ...donut,
+            data: donut.data.filter(item => item.name !== 'Just/Internas')
+          };
+        } else if (index === 2) { // Aprovações - remover Reprovadas
+          return {
+            ...donut,
+            data: donut.data.filter(item => item.name !== 'Reprovadas')
+          };
+        }
+        return donut;
+      });
     }
-  ];
+
+    return baseDataDonuts;
+  };
+
+  const dataDonuts = getFilteredDataDonuts();
 
 
   const empresaOptions = [
@@ -366,14 +391,17 @@ export default function Atividades() {
             </Box>
           </Box>
 
-          {loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ColumnChart data={ocorrencias} />}
+          {loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ColumnChart data={ocorrencias} userType={userType || undefined} />}
 
         </Box>
 
-        <Box className="w-[100%] bg-white rounded-lg p-5">
-          <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>
-          {loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ReverseBar {...justifications} />}
-        </Box>
+        {/* Seção de Motivos das Justificativas - oculta para ADMIN_CLIENT */}
+        {userType !== 'ADM_CLIENTE' && (
+          <Box className="w-[100%] bg-white rounded-lg p-5">
+            <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>
+            {loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ReverseBar {...justifications} />}
+          </Box>
+        )}
       </Box>
     </StyledMainContainer>
   );

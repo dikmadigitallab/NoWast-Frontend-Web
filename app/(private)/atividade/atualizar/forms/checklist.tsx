@@ -10,15 +10,13 @@ import { IoMdClose } from 'react-icons/io';
 import { buttonTheme } from "@/app/styles/buttonTheme/theme";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { tableTheme } from "@/app/styles/tableTheme/theme";
-import { useGetIDStore } from '@/app/store/getIDStore';
 import { useGet } from '@/app/hooks/crud/get/useGet';
 
 type Service = { id: number, name: string };
 
 export default function FormCheckList({ control, setValue, watch, formState: { errors } }: { control: any, setValue: any, watch: any, formState: { errors: any } }) {
 
-    const { id_environment } = useGetIDStore();
-    const { data: services, loading } = useGet({ url: "service", environmentId: id_environment });
+    const { data: services, loading } = useGet({ url: "service", environmentId: watch("environmentId") });
     const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
 
     const handleRemoveSelected = (value: string, field: keyof typeof selectedState, setSelectedState: any) => {
@@ -69,7 +67,11 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
         const serviceToAdd = (services || []).filter((service: any) =>
             selectedState.services.includes(service.id.toString()) &&
             !currentServices.some((existingService: any) => existingService.id.toString() === service.id.toString())
-        );
+        ).map((service: any) => ({
+            ...service,
+            // Adicionar serviceType mapeado para exibição na tabela
+            serviceType: service.serviceItem?.service?.serviceType?.name || service.serviceType || 'N/A'
+        }));
 
         if (serviceToAdd.length > 0) {
             const updatedServices = [...currentServices, ...serviceToAdd];
@@ -160,11 +162,20 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                                 }
                             >
                                 <MenuItem value="" disabled>Selecione serviços...</MenuItem>
-                                {(services || []).map((service: any) => (
-                                    <MenuItem key={service?.id} value={service?.id.toString()}>
-                                        {service?.name}
-                                    </MenuItem>
-                                ))}
+                                {(services || []).map((service: any) => {
+                                    const currentServices = watch("serviceItems") || [];
+                                    const isAlreadyAdded = currentServices.some((existingService: any) => 
+                                        existingService.id.toString() === service.id.toString()
+                                    );
+                                    
+                                    if (isAlreadyAdded) return null;
+                                    
+                                    return (
+                                        <MenuItem key={service?.id} value={service?.id.toString()}>
+                                            {service?.name}
+                                        </MenuItem>
+                                    );
+                                })}
                             </Select>
                             {loading && (
                                 <CircularProgress

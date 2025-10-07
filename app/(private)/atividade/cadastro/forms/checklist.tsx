@@ -62,7 +62,11 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
         const serviceToAdd = (services || []).filter((service: any) =>
             selectedState.services.includes(service.id.toString()) &&
             !currentServices.some((existingService: any) => existingService.id.toString() === service.id.toString())
-        );
+        ).map((service: any) => ({
+            ...service,
+            // Adicionar serviceType mapeado para exibição na tabela
+            serviceType: service.serviceItem?.service?.serviceType?.name || service.serviceType || 'N/A'
+        }));
 
         if (serviceToAdd.length > 0) {
             const updatedServices = [...currentServices, ...serviceToAdd];
@@ -109,6 +113,19 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
             field: 'name',
             headerName: 'Descrição',
             width: 320,
+        },
+        {
+            field: 'serviceType',
+            headerName: 'Tipo de Serviço',
+            width: 200,
+            renderCell: (params: any) => {
+                // Se os dados vêm da API (estrutura aninhada), extrair o tipo
+                if (params.row.serviceItem?.service?.serviceType?.name) {
+                    return params.row.serviceItem.service.serviceType.name;
+                }
+                // Se os dados vêm do formulário (estrutura simples), usar o tipo mapeado
+                return params.row.serviceType || 'N/A';
+            }
         }
     ];
 
@@ -140,11 +157,20 @@ export default function FormCheckList({ control, setValue, watch, formState: { e
                                 }
                             >
                                 <MenuItem value="" disabled>Selecione serviços...</MenuItem>
-                                {(services || []).map((service: any) => (
-                                    <MenuItem key={service?.id} value={service?.id.toString()}>
-                                        {service?.name}
-                                    </MenuItem>
-                                ))}
+                                {(services || []).map((service: any) => {
+                                    const currentServices = watch("serviceItems") || [];
+                                    const isAlreadyAdded = currentServices.some((existingService: any) => 
+                                        existingService.id.toString() === service.id.toString()
+                                    );
+                                    
+                                    if (isAlreadyAdded) return null;
+                                    
+                                    return (
+                                        <MenuItem key={service?.id} value={service?.id.toString()}>
+                                            {service?.name}
+                                        </MenuItem>
+                                    );
+                                })}
                             </Select>
                             {loading && (
                                 <CircularProgress

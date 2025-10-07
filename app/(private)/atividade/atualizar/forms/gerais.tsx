@@ -4,12 +4,26 @@ import { Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { useGetIDStore } from "@/app/store/getIDStore";
+import { useDebounce } from "@/app/utils/useDebounce";
+import { useState } from "react";
 
 export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
 
     const { setIdEnvironment } = useGetIDStore();
-    const { data: ambientes, loading } = useGet({ url: "environment" });
+    const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
+    const { data: ambientesRaw, loading } = useGet({
+        url: "environment",
+        query: debouncedSearchQuery,
+        disablePagination: true,
+    });
+
+    // Remove duplicatas baseadas no ID
+    const ambientes = ambientesRaw ? ambientesRaw.filter((ambiente: any, index: number, self: any[]) =>
+        index === self.findIndex((a: any) => a.id === ambiente.id)
+    ) : [];
 
     return (
         <Box className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
@@ -20,32 +34,26 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                     name="environmentId"
                     control={control}
                     render={({ field }) => (
-                        <FormControl sx={formTheme} fullWidth error={!!errors.environmentId}>
-                            <InputLabel id="ambiente-label">Ambiente</InputLabel>
-                            <Select
-                                disabled={loading}
-                                label="Ambiente"
-                                {...field}
-                                value={field.value || ""}
-                                error={!!errors.environmentId}
-                                onChange={(e) => {
-                                    field.onChange(e.target.value)
-                                    setIdEnvironment(e.target.value)
-                                }}
-                            >
-                                {ambientes?.map((ambiente: any) => (
-                                    <MenuItem key={ambiente.id} value={ambiente.id}>
-                                        {ambiente.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {loading && (<CircularProgress className='absolute right-2 top-5 bg-white' color="inherit" size={20} />)}
-                            {errors.environmentId && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.environmentId.message}
-                                </p>
-                            )}
-                        </FormControl>
+                        <CustomAutocomplete
+                            options={ambientes || []}
+                            getOptionLabel={(option: any) => option.name || ''}
+                            value={ambientes?.find((ambiente: any) => ambiente.id === field.value) || null}
+                            loading={loading}
+                            onInputChange={(newInputValue) => {
+                                setSearchQuery(newInputValue);
+                            }}
+                            onChange={(newValue) => {
+                                const value = newValue?.id || '';
+                                field.onChange(value);
+                                setIdEnvironment(value);
+                            }}
+                            label="Ambiente"
+                            error={!!errors.environmentId}
+                            helperText={errors.environmentId?.message}
+                            noOptionsText="Nenhum ambiente encontrado"
+                            loadingText="Carregando ambientes..."
+                            className="w-full"
+                        />
                     )}
                 />
 

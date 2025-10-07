@@ -22,16 +22,27 @@ interface ChartData {
   occurrencesByDay: OccurrenceByDay[];
 }
 
-export default function ColumnChart({ data }: { data?: ChartData }) {
+interface ColumnChartProps {
+  data?: ChartData;
+  userType?: string;
+}
+
+export default function ColumnChart({ data, userType }: ColumnChartProps) {
   // Processar os dados para o formato necessário pelo chart
   const processChartData = () => {
     if (!data?.occurrencesByDay) {
+      // Para ADMIN_CLIENT, não mostrar dados "Grave"
+      const baseSeries = [
+        { name: 'Nenhum', data: [] },
+        { name: 'Leve', data: [] }
+      ];
+      
+      if (userType !== 'ADM_CLIENTE') {
+        baseSeries.push({ name: 'Grave', data: [] });
+      }
+      
       return {
-        series: [
-          { name: 'Nenhum', data: [] },
-          { name: 'Leve', data: [] },
-          { name: 'Grave', data: [] }
-        ],
+        series: baseSeries,
         categories: []
       };
     }
@@ -56,12 +67,19 @@ export default function ColumnChart({ data }: { data?: ChartData }) {
       severeData.push(day.totalSevere);
     });
 
+    // Montar séries baseado no tipo de usuário
+    const series = [
+      { name: 'Nenhum', data: noneData },
+      { name: 'Leve', data: mildData }
+    ];
+
+    // Para ADMIN_CLIENT, não incluir dados "Grave"
+    if (userType !== 'ADM_CLIENTE') {
+      series.push({ name: 'Grave', data: severeData });
+    }
+
     return {
-      series: [
-        { name: 'Nenhum', data: noneData },
-        { name: 'Leve', data: mildData },
-        { name: 'Grave', data: severeData }
-      ],
+      series,
       categories
     };
   };
