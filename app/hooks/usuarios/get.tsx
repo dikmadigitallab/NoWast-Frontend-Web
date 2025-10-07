@@ -4,6 +4,7 @@ import { Logout } from "@/app/utils/logout";
 import { useEffect, useState } from "react";
 import api from "../api";
 import { useAuthStore } from "@/app/store/storeApp";
+import { UseGetUsuarioParams } from "@/app/types/User";
 
 export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pageSize = null, page = 1, query = null, supervisorId = null, position = null, managerId = null }: UseGetUsuarioParams) => {
 
