@@ -40,8 +40,6 @@ const activitySchema = z.object({
     equipmentIds: z.array(z.number().min(1)).optional(),
     productIds: z.array(z.number().min(1)).optional(),
     vehicleIds: z.array(z.number().min(1)).optional(),
-    removeFiles: z.array(z.number()).optional(),
-    images: z.array(z.any()).optional(),
     audio: z.any().optional(),
 });
 
@@ -70,8 +68,6 @@ export default function AtividadeAtualizar() {
                 productIds: [],
                 vehicleIds: [],
                 serviceItemsIds: [],
-                removeFiles: [],
-                images: [],
                 audio: null
             },
             mode: "onChange",
@@ -213,8 +209,6 @@ export default function AtividadeAtualizar() {
             // Garantir que campos opcionais não sejam undefined
             recurrenceType: data.recurrenceType || "",
             recurrenceFinalDate: data.recurrenceFinalDate || "",
-            removeFiles: data.removeFiles || [],
-            images: data.images || [],
             audio: data.audio || null
         };
 

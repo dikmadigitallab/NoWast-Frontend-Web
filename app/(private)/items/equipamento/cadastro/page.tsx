@@ -64,7 +64,7 @@ export default function CadastroEquipamento() {
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const { create, loading } = useCreate("tools", "/items/equipamento/listagem");
 
-    const { control, handleSubmit, formState: { errors }, setError, clearErrors } = useForm<EquipamentoFormValues>({
+    const { control, handleSubmit, formState: { errors }, setError, clearErrors, setValue } = useForm<EquipamentoFormValues>({
         resolver: zodResolver(equipamentoSchema),
         defaultValues: { name: "", description: "", buildingId: 0, responsibleManagerId: undefined, image: null },
         mode: "onChange"
@@ -169,6 +169,7 @@ export default function CadastroEquipamento() {
                         helperText={errors.image?.message as string}
                         onChange={(file: any) => {
                             setFile(file);
+                            setValue("image", file, { shouldValidate: true, shouldDirty: true });
                             if (file) {
                                 clearErrors("image");
                             }

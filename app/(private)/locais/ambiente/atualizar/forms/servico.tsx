@@ -3,7 +3,7 @@
 import { TextField, Button, Box, Modal, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, IconButton } from "@mui/material";
 import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
-import { useGetOneServiceById } from "@/app/hooks/servicos/getOne";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useUpdateService } from "@/app/hooks/servicos/update";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -15,6 +15,7 @@ import { ptBR } from "@mui/x-data-grid/locales";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDebounce } from "@/app/utils/useDebounce";
+import { MdOutlineModeEditOutline } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
 import { GoTrash } from "react-icons/go";
 import { FiPlus } from "react-icons/fi";
@@ -30,14 +31,18 @@ const servicoSchema = z.object({
         })
     }),
     serviceItens: z.object({
+        create: z.array(z.object({
+            name: z.string()
+        })).optional(),
         update: z.array(z.object({
+            id: z.number(),
             update: z.object({
-                name: z.string().min(1, "Pelo menos um item de serviço é obrigatório"),
-                service: z.object({
-                    connect: z.object({ id: z.number() })
-                })
+                name: z.string()
             })
-        }))
+        })).optional(),
+        delete: z.array(z.object({
+            id: z.number()
+        })).optional()
     })
 });
 
@@ -51,15 +56,46 @@ type ServiceItem = {
 export default function FormServicos() {
 
     const router = useRouter();
-    const { id } = useGetIDStore();
-    const { data: servico } = useGetOneServiceById();
+    const { id, setId } = useGetIDStore();
+    
+    // Buscar o ambiente - mesma lógica do page.tsx de listagem
+    const { data: ambienteData } = useGet({ 
+        url: "environment",
+        disablePagination: true
+    });
+
+    // Filtrar o ambiente específico pelo ID
+    const ambiente = ambienteData?.find((amb: any) => amb.id === id);
+    const servicosDoAmbiente = ambiente?.servicos || [];
+    
+    // Pegar o primeiro serviço (ou ajustar lógica para selecionar qual serviço editar)
+    const primeiroServico = servicosDoAmbiente[0];
+    
+    // Buscar os serviceItems (checklists) do serviço - mesma lógica do modal
+    const { data: servicoComChecklists } = useGetOneById("service");
+
+    // Debug
+    console.log("=== DEBUG ===");
+    console.log("id do ambiente:", id);
+    console.log("ambiente:", ambiente);
+    console.log("servicos do ambiente:", servicosDoAmbiente);
+    console.log("primeiro serviço:", primeiroServico);
+    console.log("servico com checklists:", servicoComChecklists);
+
+    // useEffect para definir o ID do serviço quando o componente carrega
+    useEffect(() => {
+        if (primeiroServico && primeiroServico.id) {
+            console.log("Definindo ID do serviço:", primeiroServico.id);
+            setId(primeiroServico.id);
+        }
+    }, [primeiroServico, setId]);
     const [searchQueryTiposServicos, setSearchQueryTiposServicos] = useState('');
     const debouncedSearchQueryTiposServicos = useDebounce(searchQueryTiposServicos, 500);
     
     const { data: tiposServicosRaw, loading: loadingTiposServicos } = useGet({ 
         url: "serviceType",
         query: debouncedSearchQueryTiposServicos,
-        pageSize: 25,
+        pageSize: 100,
         pageNumber: 1
     });
 
@@ -70,23 +106,11 @@ export default function FormServicos() {
 
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [serviceItems, setServiceItems] = useState<ServiceItem[]>([]);
+    const [originalItems, setOriginalItems] = useState<ServiceItem[]>([]); // Itens originais da API
+    const [deletedItems, setDeletedItems] = useState<number[]>([]); // IDs dos itens deletados
+    const [newItem, setNewItem] = useState("");
+    const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
     const { update, loading } = useUpdateService("/locais/ambiente/listagem");
-    const [selectedState, setSelectedState] = useState<{ services: string[] }>({ services: [] });
-    const [servicesFromApi, setServicesFromApi] = useState<any[]>([]);
-    const [searchQueryServicos, setSearchQueryServicos] = useState('');
-    const debouncedSearchQueryServicos = useDebounce(searchQueryServicos, 500);
-    
-    const { data: servicosRaw, loading: loadingServicos } = useGet({ 
-        url: "service",
-        query: debouncedSearchQueryServicos,
-        pageSize: 25,
-        pageNumber: 1
-    });
-
-    // Remove duplicatas baseadas no ID
-    const servicosFiltrados = servicosRaw ? servicosRaw.filter((servico: any, index: number, self: any[]) => 
-        index === self.findIndex((s: any) => s.id === servico.id)
-    ) : [];
 
     const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<ServicoFormValues>({
         resolver: zodResolver(servicoSchema),
@@ -99,82 +123,59 @@ export default function FormServicos() {
         mode: "onChange"
     });
 
+
     const handleOpenCancelModal = () => setOpenCancelModal(true);
     const handleCloseCancelModal = () => setOpenCancelModal(false);
     const handleCancelConfirm = () => router.push('/locais/ambiente/listagem');
 
-    const handleRemoveSelected = (value: string) => {
-        setSelectedState(prev => ({
-            ...prev,
-            services: prev.services.filter(id => id !== value)
-        }));
+    // Helper para verificar se o ID é temporário (gerado pelo Date.now())
+    const isTemporaryId = (id: number) => id > 1000000000000;
+
+    const handleEditItem = (item: ServiceItem) => {
+        setEditingItem(item);
+        setNewItem(item.name);
     };
 
-    const renderChips = () => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {selectedState?.services?.map((value) => {
-                const selectedItem = servicosFiltrados?.find((item: any) => item.id.toString() === value);
-                return (
-                    <Chip
-                        key={value}
-                        label={selectedItem ? selectedItem.name : `ID: ${value}`}
-                        onDelete={() => handleRemoveSelected(value)}
-                        deleteIcon={<IoMdClose onMouseDown={(event: any) => event.stopPropagation()} />}
-                        sx={{
-                            backgroundColor: '#00B288',
-                            color: 'white',
-                            borderRadius: '4px',
-                            fontSize: '.7rem',
-                            '& .MuiChip-deleteIcon': {
-                                color: 'white',
-                                fontSize: '.8rem',
-                            },
-                        }}
-                    />
-                );
-            })}
-        </Box>
-    );
+    const addServiceItem = () => {
+        const text = newItem.trim();
+        if (!text) return;
 
-    const handleAddServices = () => {
-        if (!Array.isArray(serviceItems)) return;
-        if (selectedState.services.length === 0) return;
-
-        const serviceToAdd = (servicosFiltrados ?? []).filter((service: any) =>
-            selectedState.services.includes(service.id.toString()) &&
-            !serviceItems.some(existingService => existingService.id.toString() === service.id.toString())
-        );
-
-        if (serviceToAdd.length > 0) {
-            const updatedServices = [...serviceItems, ...serviceToAdd.map((service: any) => ({
-                id: service.id,
-                name: service.name
-            }))];
-
-            setServiceItems(updatedServices);
-            setValue("serviceItens", {
-                update: updatedServices.map(service => ({
-                    update: {
-                        name: service.name,
-                        service: { connect: { id: service.id } }
-                    }
-                }))
-            });
-            setSelectedState(prev => ({ ...prev, services: [] }));
+        if (editingItem) {
+            // Editando item existente
+            const updatedItems = serviceItems.map(item => 
+                item.id === editingItem.id ? { ...item, name: text } : item
+            );
+            setServiceItems(updatedItems);
+            setEditingItem(null);
+        } else {
+            // Adicionando novo item
+            if (!serviceItems.some(item => item.name === text)) {
+                const newItemObj = { id: Date.now(), name: text };
+                const updatedItems = [...serviceItems, newItemObj];
+                setServiceItems(updatedItems);
+            }
         }
+        setNewItem("");
     };
 
-    const handleRemoveService = (serviceId: string) => {
-        const updatedItems = serviceItems.filter(item => item.id.toString() !== serviceId);
-        setServiceItems(updatedItems);
-        setValue("serviceItens", {
-            update: updatedItems.map(item => ({
-                update: {
-                    name: item.name,
-                    service: { connect: { id: item.id } }
-                }
-            }))
-        });
+    const removeServiceItem = (name: string) => {
+        const itemToRemove = serviceItems.find(item => item.name === name);
+        
+        if (itemToRemove) {
+            // Se for um item da API (não temporário), adicionar ao array de deletados
+            if (!isTemporaryId(itemToRemove.id)) {
+                setDeletedItems(prev => [...prev, itemToRemove.id]);
+            }
+            
+            // Remover da lista
+            const updatedItems = serviceItems.filter(item => item.name !== name);
+            setServiceItems(updatedItems);
+            
+            if (editingItem && editingItem.name === name) {
+                setEditingItem(null);
+                setNewItem("");
+            }
+        }
     };
 
     const columns: GridColDef<ServiceItem>[] = [
@@ -187,8 +188,11 @@ export default function FormServicos() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton size="small" onClick={() => handleRemoveService(params.row.id.toString())}>
+                    <IconButton size="small" onClick={() => removeServiceItem(params.row.name)}>
                         <GoTrash color='#635D77' size={20} />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleEditItem(params.row)}>
+                        <MdOutlineModeEditOutline color='#635D77' size={20} />
                     </IconButton>
                 </Box>
             ),
@@ -197,57 +201,96 @@ export default function FormServicos() {
     ];
 
     useEffect(() => {
-        const services = servico?.serviceItems ?? [];
-        setServicesFromApi(services);
+        if (servicoComChecklists && servicoComChecklists.serviceItems) {
+            console.log("=== CARREGANDO CHECKLISTS ===");
+            console.log("servico com checklists:", servicoComChecklists);
+            console.log("serviceItems:", servicoComChecklists.serviceItems);
 
-        const initialItems = services.map((item: any) => ({
-            id: item.id,
-            name: item.name
-        }));
+            const initialItems = servicoComChecklists.serviceItems.map((item: any) => ({
+                id: item.id,
+                name: item.name
+            }));
 
-        setServiceItems(initialItems);
-        setValue("serviceItens", {
-            update: initialItems.map((item: any) => ({
-                update: {
-                    name: item.name,
-                    service: { connect: { id: item.id } }
-                }
-            }))
-        });
+            console.log("initialItems mapeados:", initialItems);
 
-        if (servico) {
+            // Salvar itens originais e atuais
+            setOriginalItems(initialItems);
+            setServiceItems(initialItems);
+
+            // Usar os dados do serviço completo para o formulário
             reset({
-                ...servico,
-                environment: { connect: { id: servico.environmentId } },
-                serviceType: { connect: { id: servico.serviceTypeId, name: servico.serviceTypeName ?? "" } },
-                serviceItens: {
-                    update: initialItems.map((item: any) => ({
-                        update: {
-                            name: item.name,
-                            service: { connect: { id: item.id } }
-                        }
-                    }))
-                }
-            });
-        } else {
-            reset({
-                name: "Serviço de Limpeza",
+                name: servicoComChecklists.name || primeiroServico?.name || "",
                 environment: { connect: { id: id } },
-                serviceType: { connect: { id: 1, name: "" } },
+                serviceType: { connect: { 
+                    id: servicoComChecklists.serviceTypeId || servicoComChecklists.serviceType?.id || null, 
+                    name: servicoComChecklists.serviceTypeName || servicoComChecklists.serviceType?.name || "" 
+                } },
                 serviceItens: {
-                    update: initialItems.map((item: any) => ({
-                        update: {
-                            name: item.name,
-                            service: { connect: { id: item.id } }
-                        }
-                    }))
+                    create: [],
+                    update: [],
+                    delete: []
                 }
             });
         }
-    }, [servico, reset, id, setValue]);
+    }, [servicoComChecklists, primeiroServico, reset, id]);
 
     const onSubmit = (formData: ServicoFormValues) => {
-        update(servico.id, formData);
+        console.log("=== ON SUBMIT ===");
+        console.log("serviceItems atuais:", serviceItems);
+        console.log("originalItems:", originalItems);
+        console.log("deletedItems:", deletedItems);
+        
+        const serviceId = servicoComChecklists?.id || primeiroServico?.id;
+        
+        if (!serviceId) {
+            console.error("ID do serviço não encontrado!");
+            return;
+        }
+
+        // Separar itens em create, update, delete
+        const createItems: { name: string }[] = [];
+        const updateItems: { id: number; update: { name: string } }[] = [];
+
+        serviceItems.forEach(item => {
+            if (isTemporaryId(item.id)) {
+                // Item novo (create)
+                createItems.push({ name: item.name });
+            } else {
+                // Item existente - verificar se foi modificado
+                const originalItem = originalItems.find(orig => orig.id === item.id);
+                if (originalItem && originalItem.name !== item.name) {
+                    // Item foi modificado (update)
+                    updateItems.push({
+                        id: item.id,
+                        update: { name: item.name }
+                    });
+                } else if (originalItem) {
+                    // Item não foi modificado, mas ainda precisa estar no update
+                    updateItems.push({
+                        id: item.id,
+                        update: { name: item.name }
+                    });
+                }
+            }
+        });
+
+        // Itens deletados
+        const deleteItems = deletedItems.map(id => ({ id }));
+
+        // Construir payload final
+        const payload = {
+            ...formData,
+            serviceItens: {
+                ...(createItems.length > 0 && { create: createItems }),
+                ...(updateItems.length > 0 && { update: updateItems }),
+                ...(deleteItems.length > 0 && { delete: deleteItems })
+            }
+        };
+
+        console.log("=== PAYLOAD FINAL ===");
+        console.log(JSON.stringify(payload, null, 2));
+        
+        update(serviceId, payload);
     };
 
     return (
@@ -301,46 +344,47 @@ export default function FormServicos() {
                         )}
                     />
 
-                    <Box className="flex flex-col gap-3">
-                        <Box className="flex items-center gap-2">
-                            <Box className="w-[15px] h-[15px] bg-[#3aba8a]" />
-                            <span className="text-[#3aba8a] font-bold">Checklist</span>
-                            <Box className="flex-1 h-[1px] bg-[#3aba8a]" />
-                        </Box>
-                        <Box className="flex flex-row gap-3 h-[60px]">
-                            <CustomAutocomplete
-                                multiple
-                                options={servicosFiltrados || []}
-                                getOptionLabel={(option: any) => option.name || ''}
-                                multipleValue={servicosFiltrados?.filter((servico: any) => selectedState.services.includes(servico.id.toString())) || []}
-                                loading={loadingServicos}
-                                onInputChange={(newInputValue) => {
-                                    setSearchQueryServicos(newInputValue);
+                    <Box className="flex flex-col gap-2">
+                        <Box className="flex gap-2 h-[55px]">
+                            <TextField
+                                label={editingItem ? "Editar Item" : "Novo Item de Checklist"}
+                                variant="outlined"
+                                value={newItem}
+                                onChange={(e) => setNewItem(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        addServiceItem();
+                                    }
                                 }}
-                                onMultipleChange={(newValue) => {
-                                    const selectedIds = newValue.map((servico: any) => servico.id.toString());
-                                    setSelectedState(prev => ({
-                                        ...prev,
-                                        services: selectedIds
-                                    }));
-                                }}
-                                label="Checklist"
-                                noOptionsText="Nenhum serviço encontrado"
-                                loadingText="Carregando serviços..."
-                                className="w-full"
+                                sx={[formTheme, { height: "100%" }]}
+                                fullWidth
                             />
                             <Button
-                                sx={[buttonTheme, { height: "90%" }]}
-                                onClick={handleAddServices}
+                                variant="outlined"
+                                onClick={addServiceItem}
+                                sx={[buttonTheme, { height: "100%" }]}
                             >
-                                <FiPlus size={25} color="#fff" />
+                                {editingItem ? "Atualizar" : "Adicionar"}
                             </Button>
+                            {editingItem && (
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => {
+                                        setEditingItem(null);
+                                        setNewItem("");
+                                    }}
+                                    sx={[buttonThemeNoBackground, { height: "100%" }]}
+                                >
+                                    Cancelar
+                                </Button>
+                            )}
                         </Box>
-                    </Box>
 
-                    {errors.serviceItens && (
-                        <p className="text-red-500 text-sm">{errors.serviceItens.message}</p>
-                    )}
+                        {errors.serviceItens && (
+                            <p className="text-red-500 text-sm">{errors.serviceItens.message}</p>
+                        )}
+                    </Box>
                 </Box>
 
                 <Box>

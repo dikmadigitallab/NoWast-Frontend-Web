@@ -3,7 +3,7 @@
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { StyledMainContainer } from '@/app/styles/container/container';
-import { Button, IconButton, Pagination, PaginationItem, TextField, Typography } from '@mui/material';
+import { Button, Chip, IconButton, Pagination, PaginationItem, TextField, Typography } from '@mui/material';
 import { LoadingComponent } from '@/app/components/loading';
 import { formTheme } from '@/app/styles/formTheme/theme';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -72,6 +72,24 @@ export default function DataGridAmbientes() {
             field: 'id',
             headerName: '#ID',
             width: 80,
+        },
+        {
+            field: 'status',
+            headerName: 'Status',
+            width: 120,
+            renderCell: (params) => {
+                const isActive = !params.row.deletedAt;
+                const status = isActive ? 'Ativo' : 'Inativo';
+                const color = isActive ? 'success' : 'error';
+                return (
+                    <Chip
+                        label={status}
+                        color={color}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            },
         },
         {
             field: 'name',

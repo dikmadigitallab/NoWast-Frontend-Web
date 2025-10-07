@@ -25,7 +25,14 @@ const userSchema = z.object({
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
-    startDate: z.string({ message: "Data de admissão é obrigatória" }).optional(),
+    startDate: z.string({ message: "Data de admissão é obrigatória" }).optional().refine((date) => {
+        if (!date) return true; // Se não há data, é válido (campo opcional)
+        const today = new Date();
+        const inputDate = new Date(date);   
+        today.setHours(0, 0, 0, 0); // Remove horas para comparar apenas a data
+        inputDate.setHours(0, 0, 0, 0);
+        return inputDate <= today;
+    }, { message: "A data de início não pode ser posterior ao dia atual" }),
     endDate: z.string({ message: "Data de demissão é obrigatória" }).optional(),
     person: z.object({
         create: z.object({
@@ -983,6 +990,9 @@ export default function CadastroPessoa() {
                                 label="Data Ínicio"
                                 InputLabelProps={{ shrink: true }}
                                 type="date"
+                                inputProps={{
+                                    max: new Date().toISOString().split('T')[0]
+                                }}
                                 {...field}
                                 error={!!errors.startDate}
                                 helperText={errors.startDate?.message}

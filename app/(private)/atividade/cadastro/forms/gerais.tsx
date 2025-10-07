@@ -74,8 +74,11 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             helperText={errors.dateTime?.message}
                             fullWidth
                             sx={formTheme}
-                            value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
-                            onChange={(event) => field.onChange(new Date(event.target.value).toISOString())}
+                            value={field.value ? new Date(field.value).toLocaleString('sv-SE').slice(0, 16) : ""}
+                            onChange={(event) => {
+                                const localDate = new Date(event.target.value);
+                                field.onChange(localDate.toISOString());
+                            }}
                         />
                     )}
                 />
@@ -141,8 +144,11 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             helperText={errors.recurrenceFinalDate?.message}
                             fullWidth
                             sx={formTheme}
-                            value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
-                            onChange={(event) => field.onChange(new Date(event.target.value).toISOString())}
+                            value={field.value ? new Date(field.value).toLocaleString('sv-SE').slice(0, 16) : ""}
+                            onChange={(event) => {
+                                const localDate = new Date(event.target.value);
+                                field.onChange(localDate.toISOString());
+                            }}
                         />
                     )}
                 />

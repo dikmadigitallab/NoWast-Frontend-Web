@@ -40,6 +40,8 @@ function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
 }
 
 export default function ModalVisualizeDetail({ modalVisualize, handleChangeModalVisualize }: any) {
+
+    console.log(modalVisualize);
     return (
         <Modal
             open={modalVisualize !== null}
@@ -84,6 +86,7 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                     </Box>
 
                     <Box className="space-y-6">
+                        <CollapsibleSection title="EPIs" items={modalVisualize?.ppe || []} />
                         <CollapsibleSection title="Produtos" items={modalVisualize?.products || []} />
                         <CollapsibleSection title="Ferramentas" items={modalVisualize?.tools || []} />
                         <CollapsibleSection title="Transportes" items={modalVisualize?.transports || []} />

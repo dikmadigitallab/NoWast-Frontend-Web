@@ -1,4 +1,4 @@
-interface UserType {
+export interface UserType {
   name: string;
   email: string;
   teste: string;
@@ -7,14 +7,15 @@ interface UserType {
   allowed_create_meeting: boolean;
   allowed_edit_minutes: boolean;
 }
-interface Institution {
+
+export interface Institution {
   id: number;
   name: string;
   address: string;
   acronym: string;
 }
 
-interface User {
+export interface User {
   id?: number;
   name?: string;
   email?: string;
@@ -24,7 +25,7 @@ interface User {
   allowed_create_meetin?: boolean;
 }
 
-interface UseGetUsuarioParams {
+export interface UseGetUsuarioParams {
   page?: number;
   query?: string | null;
   supervisorId?: number | null;

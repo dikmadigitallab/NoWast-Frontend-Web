@@ -62,7 +62,7 @@ export default function CadastroEPI() {
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("ppe", "/items/epi/listagem");
 
-    const { control, handleSubmit, formState: { errors }, setError, clearErrors } = useForm<EpiFormValues>({
+    const { control, handleSubmit, formState: { errors }, setError, clearErrors, setValue } = useForm<EpiFormValues>({
         resolver: zodResolver(epiSchema),
         defaultValues: { name: "", description: "", buildingId: 0, responsibleManagerId: undefined, image: null },
         mode: "onChange"
@@ -166,6 +166,7 @@ export default function CadastroEPI() {
                         helperText={errors.image?.message as string}
                         onChange={(file: any) => {
                             setFile(file);
+                            setValue("image", file, { shouldValidate: true, shouldDirty: true });
                             if (file) {
                                 clearErrors("image");
                             }

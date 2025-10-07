@@ -62,7 +62,7 @@ export default function CadastroTransporte() {
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("transport", "/items/transporte/listagem");
 
-    const { control, handleSubmit, formState: { errors }, setError, clearErrors } = useForm<TransporteFormValues>({
+    const { control, handleSubmit, formState: { errors }, setError, clearErrors, setValue } = useForm<TransporteFormValues>({
         resolver: zodResolver(transporteSchema),
         defaultValues: { name: "", description: "", buildingId: 0, responsibleManagerId: undefined, image: null },
         mode: "onChange"
@@ -168,6 +168,7 @@ export default function CadastroTransporte() {
                         helperText={errors.image?.message as string}
                         onChange={(file: any) => {
                             setFile(file);
+                            setValue("image", file, { shouldValidate: true, shouldDirty: true });
                             if (file) {
                                 clearErrors("image");
                             }

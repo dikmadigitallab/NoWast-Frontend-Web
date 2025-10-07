@@ -29,7 +29,7 @@ const userSchema = z.object({
     userType: z.enum(["DIKMA_ADMINISTRATOR", "CONTRACT_MANAGER", "DIKMA_DIRECTOR", "CLIENT_ADMINISTRATOR", "OPERATIONAL"], { required_error: "Tipo de usuário é obrigatório", invalid_type_error: "Tipo de usuário inválido" }),
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
-    startDate: z.string({ message: "Data de início é obrigatória" }).optional(),
+    createdAt: z.string({ message: "Data de criação é obrigatória" }).optional(),
     endDate: z.string({ message: "Data de fim é obrigatória" }).optional(),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
     person: z.object({
@@ -97,7 +97,7 @@ export default function AtualizarPessoa() {
             status: "ACTIVE",
             source: "",
             firstLogin: true,
-            startDate: new Date().toISOString().split('T')[0],
+            createdAt: new Date().toISOString().split('T')[0],
             endDate: "",
             person: {
                 create: {
@@ -164,7 +164,7 @@ export default function AtualizarPessoa() {
         pageSize: 25,
         pageNumber: 1
     });
-    
+
     // Remove duplicatas baseadas no ID
     const users = usersRaw ? usersRaw.filter((user: any, index: number, self: any[]) => 
         index === self.findIndex((u: any) => u.id === user.id)
@@ -230,6 +230,7 @@ export default function AtualizarPessoa() {
 
     const [disable, setDisable] = useState(false);
     const [tempEndDate, setTempEndDate] = useState("");
+    const [displayEndDate, setDisplayEndDate] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [cepLoading, setCepLoading] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
@@ -257,6 +258,7 @@ export default function AtualizarPessoa() {
     const handleConfirmDisable = () => {
         setDisable(true);
         setValue("endDate", tempEndDate);
+        setDisplayEndDate(tempEndDate);
         setOpenDisableModal(false);
     };
 
@@ -389,7 +391,9 @@ export default function AtualizarPessoa() {
     useEffect(() => {
         if (data) {
 
-            const { id, status, person, role, firstLogin, ppes, tools, transports, products, position, userType, contractId, supervisor, manager, startDate } = data;
+            const { id, status, person, role, firstLogin, ppes, tools, transports, products, position, userType, contractId, supervisor, manager, createdAt, endDate } = data;
+            console.log('[Usuario/Atualizar] Dados completos do usuário:', data);
+            console.log('[Usuario/Atualizar] Datas recebidas -> createdAt:', createdAt, 'endDate:', endDate);
             const { name, tradeName, document, briefDescription, birthDate, gender, personType } = person;
             const phones = person.phones.map((phone: any) => phone.phoneNumber);
             const epis = ppes.map((epi: any) => epi.id)
@@ -419,7 +423,9 @@ export default function AtualizarPessoa() {
             setValue('contract.connect.id', contractId)
             setValue('supervisor.connect.id', supervisor.id)
             setValue('manager.connect.id', manager.id)
-            setValue('startDate', startDate ? formatDateForInput(startDate) : new Date().toISOString().split('T')[0])
+            setValue('createdAt', createdAt ? formatDateForInput(createdAt) : new Date().toISOString().split('T')[0])
+            setValue('endDate', endDate ? formatDateForInput(endDate) : "")
+            setDisplayEndDate(endDate ? formatDateForInput(endDate) : "")
 
             if (data.person.addresses.length > 0) {
                 setValue('person.create.address.city', data.person.addresses[0].city)
@@ -1123,40 +1129,43 @@ export default function AtualizarPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="startDate"
+                        name="createdAt"
                         control={control}
                         render={({ field }) => (
                             <TextField
                                 variant="outlined"
-                                label="Data Ínicio"
+                                label="Data de Criação"
                                 InputLabelProps={{ shrink: true }}
                                 type="date"
+                                disabled
                                 {...field}
-                                error={!!errors.startDate}
-                                helperText={errors.startDate?.message}
+                                error={!!errors.createdAt}
+                                helperText="Data de criação do usuário (somente leitura)"
                                 className="w-full"
-                                sx={formTheme}
+                                sx={[formTheme, { opacity: 0.7 }]}
                             />
                         )}
                     />
-                    <Controller
-                        name="endDate"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField
-                                disabled={!disable}
-                                variant="outlined"
-                                label="Data Fim"
-                                InputLabelProps={{ shrink: true }}
-                                type="date"
-                                {...field}
-                                error={!!errors.endDate}
-                                helperText={errors.endDate?.message}
-                                className="w-full"
-                                sx={[formTheme, { opacity: disable ? 1 : 0.8 }]}
-                            />
-                        )}
-                    />
+                    <Box className="w-full">
+                        <Controller
+                            name="endDate"
+                            control={control}
+                            render={({ field }) => (
+                                <input type="hidden" {...field} value={field.value || ""} />
+                            )}
+                        />
+                        <TextField
+                            disabled
+                            variant="outlined"
+                            label="Data Fim"
+                            InputLabelProps={{ shrink: true }}
+                            type="date"
+                            value={displayEndDate}
+                            helperText={displayEndDate ? "Data de fim do acesso do usuário (somente leitura)" : "Usuário sem data de fim definida"}
+                            className="w-full"
+                            sx={[formTheme, { opacity: 0.7 }]}
+                        />
+                    </Box>
                 </Box>
 
                 <Box className="w-[100%] flex flex-row gap-5 justify-between">

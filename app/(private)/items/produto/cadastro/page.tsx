@@ -62,7 +62,7 @@ export default function CadastroProduto() {
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { create, loading } = useCreate("product", '/items/produto/listagem');
 
-    const { control, handleSubmit, formState: { errors }, setError, clearErrors } = useForm<ProdutoFormValues>({
+    const { control, handleSubmit, formState: { errors }, setError, clearErrors, setValue } = useForm<ProdutoFormValues>({
         resolver: zodResolver(produtoSchema),
         defaultValues: { name: "", description: "", buildingId: 0, responsibleManagerId: undefined, image: null },
         mode: "onChange"
@@ -167,6 +167,7 @@ export default function CadastroProduto() {
                         helperText={errors.image?.message as string}
                         onChange={(file: any) => {
                             setFile(file);
+                            setValue("image", file, { shouldValidate: true, shouldDirty: true });
                             if (file) {
                                 clearErrors("image");
                             }

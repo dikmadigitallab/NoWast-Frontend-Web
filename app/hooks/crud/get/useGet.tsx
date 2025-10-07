@@ -96,6 +96,11 @@ export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = n
                             id: service?.id,
                             name: service?.name,
                             description: service?.description
+                        })) || [],
+                        epis: item?.ppes?.map((ppe: any) => ({
+                            id: ppe?.id,
+                            name: ppe?.name,
+                            description: ppe?.description
                         })) || []
                     };
                 });

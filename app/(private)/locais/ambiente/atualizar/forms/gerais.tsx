@@ -20,8 +20,8 @@ const ambienteSchema = z.object({
     description: z.string().min(1, "Descrição é obrigatória"),
     areaM2: z.number().min(1, "Área em metros quadrados é obrigatória").nullable(),
     sector: z.object({ connect: z.object({ id: z.number().int().min(1, "ID do Setor é obrigatório").nullable() }) }),
-    startDate: z.string({ message: "Data de início é obrigatória" }).optional(),
-    endDate: z.string({ message: "Data de fim é obrigatória" }).optional(),
+    createdAt: z.string({ message: "Data de início é obrigatória" }).optional(),
+    deletedAt: z.string({ message: "Data de fim é obrigatória" }).optional(),
 });
 
 type AmbienteFormValues = z.infer<typeof ambienteSchema>;
@@ -60,8 +60,8 @@ export default function FormDadosGerais() {
             name: "",
             description: "",
             areaM2: null,
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: "",
+            createdAt: "",
+            deletedAt: "",
             sector: { connect: { id: null } }
         },
         mode: "onChange"
@@ -84,25 +84,75 @@ export default function FormDadosGerais() {
         }
     };
 
-    const handleConfirmDisable = () => {
+    const handleConfirmDisable = async () => {
+        console.log("===== INICIANDO DESABILITAR =====");
+        console.log("tempEndDate:", tempEndDate);
+        
         setDisable(true);
-        setValue("endDate", tempEndDate);
         setOpenDisableModal(false);
+        
+        console.log("Campo deletedAt definido como:", tempEndDate);
+        
+        // Salvar automaticamente após desabilitar
+        const currentValues = control._formValues;
+        const formData = {
+            name: currentValues.name,
+            description: currentValues.description,
+            areaM2: currentValues.areaM2,
+            sector: currentValues.sector,
+            deletedAt: tempEndDate + "T23:59:59.999Z" // Converter para formato ISO com horário
+        };
+        
+        console.log("===== DADOS PARA DESABILITAR (UPDATE) =====");
+        console.log("FormData completo:", formData);
+        console.log("deletedAt que será enviado:", formData.deletedAt);
+        console.log("==========================================");
+        
+        try {
+            await update(formData);
+            setValue("deletedAt", tempEndDate);
+        } catch (error) {
+            console.error("Erro ao desabilitar ambiente:", error);
+        }
     };
 
     const handleCloseCancelModal = () => setOpenCancelModal(false);
     const handleCancelConfirm = () => router.push('/locais/ambiente/listagem');
 
-    const onSubmit = (formData: AmbienteFormValues) => update(formData);
+    const onSubmit = (formData: AmbienteFormValues) => {
+        console.log("===== DADOS ENVIADOS PARA API =====");
+        console.log("FormData:", formData);
+        console.log("createdAt:", formData.createdAt);
+        console.log("deletedAt:", formData.deletedAt);
+        console.log("===================================");
+        update(formData);
+    };
 
     useEffect(() => {
         if (data) {
+            console.log("===== DADOS COMPLETOS DA API =====");
+            console.log("Dados recebidos:", data);
+            console.log("Campos disponíveis:", Object.keys(data));
+            console.log("createdAt:", data.createdAt);
+            console.log("deletedAt:", data.deletedAt);
+            console.log("===================================");
+            
+            // Converter createdAt para formato de data (YYYY-MM-DD)
+            const startDate = data.createdAt ? data.createdAt.split('T')[0] : "";
+            const endDate = data.deletedAt ? data.deletedAt.split('T')[0] : "";
+            
+            console.log("startDate convertido:", startDate);
+            console.log("endDate convertido:", endDate);
+            
             reset({ 
                 ...data, 
                 sector: { connect: { id: data.sectorId } },
-                startDate: data.startDate || new Date().toISOString().split('T')[0]
+                createdAt: startDate,
+                deletedAt: endDate
             });
-            if (data.endDate) {
+            
+            // Se há deletedAt, significa que está "deletado" (desabilitado)
+            if (data.deletedAt) {
                 setDisable(true);
             }
         }
@@ -197,7 +247,7 @@ export default function FormDadosGerais() {
                     />
                     <Box className="w-[100%] flex flex-row gap-5">
                         <Controller
-                            name="startDate"
+                            name="createdAt"
                             control={control}
                             render={({ field }) => (
                                 <TextField
@@ -206,15 +256,15 @@ export default function FormDadosGerais() {
                                     InputLabelProps={{ shrink: true }}
                                     type="date"
                                     {...field}
-                                    error={!!errors.startDate}
-                                    helperText={errors.startDate?.message}
+                                    error={!!errors.createdAt}
+                                    helperText={errors.createdAt?.message}
                                     className="w-full"
                                     sx={formTheme}
                                 />
                             )}
                         />
                         <Controller
-                            name="endDate"
+                            name="deletedAt"
                             control={control}
                             render={({ field }) => (
                                 <TextField
@@ -224,10 +274,17 @@ export default function FormDadosGerais() {
                                     InputLabelProps={{ shrink: true }}
                                     type="date"
                                     {...field}
-                                    error={!!errors.endDate}
-                                    helperText={errors.endDate?.message}
+                                    error={!!errors.deletedAt}
+                                    helperText={errors.deletedAt?.message}
                                     className="w-full"
                                     sx={[formTheme, { opacity: disable ? 1 : 0.8 }]}
+                                    onChange={(e) => {
+                                        console.log("Campo deletedAt alterado:", e.target.value);
+                                        field.onChange(e.target.value);
+                                    }}
+                                    inputProps={{
+                                        max: new Date().toISOString().split('T')[0]
+                                    }}
                                 />
                             )}
                         />
@@ -284,10 +341,13 @@ export default function FormDadosGerais() {
                             type="date"
                             value={tempEndDate}
                             onChange={(e) => setTempEndDate(e.target.value)}
-                            error={!!errors.endDate}
-                            helperText={errors.endDate?.message}
+                            error={!!errors.deletedAt}
+                            helperText={errors.deletedAt?.message}
                             className="w-full"
                             sx={[formTheme]}
+                            inputProps={{
+                                max: new Date().toISOString().split('T')[0]
+                            }}
                         />
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
@@ -295,7 +355,7 @@ export default function FormDadosGerais() {
                                 variant="outlined"
                                 onClick={handleConfirmDisable}
                                 sx={buttonTheme}
-                                disabled={!tempEndDate}
+                                disabled={!tempEndDate || loading}
                             >
                                 {loading ? <CircularProgress color="inherit" size={24} /> : "Confirmar"}
                             </Button>

@@ -2,11 +2,12 @@
 
 import Box from '@mui/material/Box';
 import React, { useState } from 'react';
-import { Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Pagination, PaginationItem, Select, TextField, Typography } from '@mui/material';
+import { Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Pagination, PaginationItem, Select, TextField, Typography, Modal, CircularProgress } from '@mui/material';
 import { FiPlus } from 'react-icons/fi';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { StyledMainContainer } from '@/app/styles/container/container';
 import { MdOutlineFilterAlt, MdOutlineFilterAltOff, MdOutlineModeEditOutline, MdOutlineVisibility } from 'react-icons/md';
+import { GoTrash } from 'react-icons/go';
 import { buttonTheme, buttonThemeNoBackground } from '@/app/styles/buttonTheme/theme';
 import { GoDownload } from 'react-icons/go';
 import { formTheme } from '@/app/styles/formTheme/theme';
@@ -15,7 +16,9 @@ import { useGetIDStore } from '@/app/store/getIDStore';
 import { useRouter } from 'next/navigation';
 import { useGetUsuario } from '@/app/hooks/usuarios/get';
 import { useGet } from '@/app/hooks/crud/get/useGet';
+import { useSoftDeleteUser } from '@/app/hooks/usuarios/softDelete';
 import { LoadingComponent } from '@/app/components/loading';
+import { User } from '@/app/types/User';
 
 export default function ListagemPessoa() {
 
@@ -26,9 +29,14 @@ export default function ListagemPessoa() {
     const { data: pessoasLista } = useGetUsuario({});
     const [modalDetail, setModalDetail] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
+    const [modalDelete, setModalDelete] = useState(false);
+    const [userToDelete, setUserToDelete] = useState<any | null>(null);
     const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
     const [search, setSearch] = useState<any>({ query: '', position: null, supervisorId: null, managerId: null });
     const { data: pessoas, pages } = useGetUsuario({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize, query: search.query, supervisorId: search.supervisorId, position: search.position, managerId: search.managerId });
+    const { softDeleteUser, loading: deleteLoading } = useSoftDeleteUser();
+
+    console.log(pessoas);
 
     const handleChangeModalDetail = (data: any) => {
         setDetail(data);
@@ -40,6 +48,23 @@ export default function ListagemPessoa() {
         setTimeout(() => {
             router.push(`/usuario/atualizar`);
         }, 500)
+    }
+
+    const handleOpenDeleteModal = (user: any) => {
+        setUserToDelete(user);
+        setModalDelete(true);
+    }
+
+    const handleCloseDeleteModal = () => {
+        setModalDelete(false);
+        setUserToDelete(null);
+    }
+
+    const handleConfirmDelete = async () => {
+        if (userToDelete) {
+            await softDeleteUser(userToDelete.id);
+            handleCloseDeleteModal();
+        }
     }
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
@@ -62,7 +87,7 @@ export default function ListagemPessoa() {
         {
             field: 'acoes',
             headerName: 'Ações',
-            width: 90,
+            width: 130,
             sortable: false,
             filterable: false,
             disableColumnMenu: true,
@@ -73,6 +98,9 @@ export default function ListagemPessoa() {
                     </IconButton>
                     <IconButton aria-label="editar" size="small" onClick={() => handleChangeModalEdit(params.row.id)} >
                         <MdOutlineModeEditOutline color='#635D77' />
+                    </IconButton>
+                    <IconButton aria-label="deletar" size="small" onClick={() => handleOpenDeleteModal(params.row)} >
+                        <GoTrash color='#635D77' />
                     </IconButton>
                 </Box>
             ),
@@ -292,6 +320,37 @@ export default function ListagemPessoa() {
                     (<LoadingComponent />)
                 }
             </Box>
+
+            {/* Modal de Confirmação de Delete */}
+            <Modal open={modalDelete} onClose={handleCloseDeleteModal}>
+                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg p-6">
+                    <Box className="flex flex-col gap-[30px]">
+                        <h2 className="text-xl font-semibold text-[#5E5873] self-center">Confirmar Exclusão</h2>
+                        <p className="text-[#6E6B7B] text-center">
+                            Deseja realmente excluir o usuário <strong>{userToDelete?.name}</strong>? 
+                            Esta ação marcará o usuário como excluído (soft delete).
+                        </p>
+                        <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f]">
+                            <Button 
+                                onClick={handleCloseDeleteModal} 
+                                variant="outlined" 
+                                sx={buttonThemeNoBackground}
+                                disabled={deleteLoading}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button 
+                                onClick={handleConfirmDelete} 
+                                variant="outlined" 
+                                sx={buttonTheme}
+                                disabled={deleteLoading}
+                            >
+                                {deleteLoading ? <CircularProgress color="inherit" size={24} /> : "Confirmar Exclusão"}
+                            </Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
         </StyledMainContainer >
     );
 }

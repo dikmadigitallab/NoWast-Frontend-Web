@@ -1,6 +1,9 @@
 import { Box, IconButton, Modal, Paper, Collapse, Typography, Chip } from "@mui/material";
 import { IoMdClose, IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useGet } from "@/app/hooks/crud/get/useGet";
+import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
+import { useGetIDStore } from "@/app/store/getIDStore";
 
 function DetailItem({ label, value }: { label: string; value: string | number }) {
     return (
@@ -42,6 +45,39 @@ function CollapsibleSection({ title, items }: { title: string; items: any[] }) {
 
 function ChecklistSection({ servicos }: { servicos: any[] }) {
     const [isOpen, setIsOpen] = useState(true); // Já aberto por padrão
+    const [serviceChecklists, setServiceChecklists] = useState<{[key: number]: any[]}>({});
+    const [loadingServices, setLoadingServices] = useState<{[key: number]: boolean}>({});
+    const { setId } = useGetIDStore();
+    const { data: serviceData, loading: serviceLoading } = useGetOneById("service");
+
+    console.log(serviceData);
+
+    // Buscar checklists de cada serviço quando o modal é aberto
+    useEffect(() => {
+        if (servicos && servicos.length > 0) {
+            servicos.forEach((service: any) => {
+                if (!serviceChecklists[service.id] && !loadingServices[service.id]) {
+                    setLoadingServices(prev => ({ ...prev, [service.id]: true }));
+                    setId(service.id);
+                }
+            });
+        }
+    }, [servicos]);
+
+    // Atualizar checklists quando os dados do serviço chegam
+    useEffect(() => {
+        if (serviceData && serviceData.serviceItems) {
+            const serviceId = serviceData.id;
+            setServiceChecklists(prev => ({
+                ...prev,
+                [serviceId]: serviceData.serviceItems || []
+            }));
+            setLoadingServices(prev => ({
+                ...prev,
+                [serviceId]: false
+            }));
+        }
+    }, [serviceData]);
 
     if (!servicos || servicos.length === 0) {
         return (
@@ -66,25 +102,46 @@ function ChecklistSection({ servicos }: { servicos: any[] }) {
                 <IconButton size="small" className="text-gray-500">{isOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}</IconButton>
             </Box>
             <Collapse in={isOpen}>
-                <Box className="mt-3">
-                    <Box className="flex flex-wrap gap-2">
-                        {servicos.map((service: any) => (
-                            <Chip
-                                key={service.id}
-                                label={service.name}
-                                sx={{
-                                    backgroundColor: '#00B288',
-                                    color: 'white',
-                                    borderRadius: '4px',
-                                    fontSize: '.8rem',
-                                    fontWeight: '500',
-                                    '&:hover': {
-                                        backgroundColor: '#00755a',
-                                    }
-                                }}
-                            />
-                        ))}
-                    </Box>
+                <Box className="mt-3 space-y-4">
+                    {servicos.map((service: any) => (
+                        <Box key={service.id} className="border border-gray-200 rounded-lg p-4">
+                            <Box className="flex items-center gap-2 mb-3">
+                                <Typography variant="h6" className="text-[#374151] font-semibold">
+                                    {service.name}
+                                </Typography>
+                                {loadingServices[service.id] && (
+                                    <Typography variant="body2" color="text.secondary">
+                                        Carregando checklists...
+                                    </Typography>
+                                )}
+                            </Box>
+                            
+                            {serviceChecklists[service.id] && serviceChecklists[service.id].length > 0 ? (
+                                <Box className="flex flex-wrap gap-2">
+                                    {serviceChecklists[service.id].map((checklist: any) => (
+                                        <Chip
+                                            key={checklist.id}
+                                            label={checklist.name}
+                                            sx={{
+                                                backgroundColor: '#00B288',
+                                                color: 'white',
+                                                borderRadius: '4px',
+                                                fontSize: '.8rem',
+                                                fontWeight: '500',
+                                                '&:hover': {
+                                                    backgroundColor: '#00755a',
+                                                }
+                                            }}
+                                        />
+                                    ))}
+                                </Box>
+                            ) : !loadingServices[service.id] ? (
+                                <Typography variant="body2" color="text.secondary">
+                                    Nenhum checklist cadastrado para este serviço
+                                </Typography>
+                            ) : null}
+                        </Box>
+                    ))}
                 </Box>
             </Collapse>
         </Box>
@@ -92,7 +149,7 @@ function ChecklistSection({ servicos }: { servicos: any[] }) {
 }
 
 export default function ModalVisualizeDetail({ modalVisualize, handleChangeModalVisualize }: any) {
-
+    //console.log(modalVisualize);
 
     return (
         <Modal
