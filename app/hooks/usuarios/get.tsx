@@ -6,7 +6,7 @@ import api from "../api";
 import { useAuthStore } from "@/app/store/storeApp";
 import { UseGetUsuarioParams } from "@/app/types/User";
 
-export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pageSize = null, page = 1, query = null, supervisorId = null, position = null, managerId = null }: UseGetUsuarioParams) => {
+export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pageSize = null, page = 1, query = null, supervisorId = null, position = null, managerId = null, onlyActive = false }: UseGetUsuarioParams) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,9 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
             if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
             if (managerId !== null) params.append("managerId", String(managerId).trim());
             if (userInfo.contractId) params.append("contractId", String(userInfo.contractId).trim());
-
+            if (onlyActive !== null) params.append("onlyActive", String(onlyActive).trim());
+            if (position !== null) params.append("position", String(position).trim());
+            params.append("onlyActive", 'true');
             const url = `/users?${params.toString()}`;
             
             const response = await api.get<any>(url,

@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useUpdateAmbiente } from "@/app/hooks/ambiente/update";
+import { useTerminateEnvironment } from "@/app/hooks/ambiente/terminate";
 import { useDelete } from "@/app/hooks/crud/delete/useDelete";
 import { useDebounce } from "@/app/utils/useDebounce";
 
@@ -38,7 +39,8 @@ export default function FormDadosGerais() {
         url: "sector",
         query: debouncedSearchQuerySetores,
         pageSize: 25,
-        pageNumber: 1
+        pageNumber: 1,
+        onlyActive: true
     });
 
     // Remove duplicatas baseadas no ID
@@ -47,6 +49,7 @@ export default function FormDadosGerais() {
     ) : [];
 
     const { update } = useUpdateAmbiente("environment");
+    const { terminate, loading: terminateLoading } = useTerminateEnvironment();
     const { data, loading } = useGetOneById("environment");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
@@ -85,34 +88,29 @@ export default function FormDadosGerais() {
     };
 
     const handleConfirmDisable = async () => {
-        console.log("===== INICIANDO DESABILITAR =====");
-        console.log("tempEndDate:", tempEndDate);
-        
-        setDisable(true);
-        setOpenDisableModal(false);
-        
-        console.log("Campo deletedAt definido como:", tempEndDate);
-        
-        // Salvar automaticamente após desabilitar
-        const currentValues = control._formValues;
-        const formData = {
-            name: currentValues.name,
-            description: currentValues.description,
-            areaM2: currentValues.areaM2,
-            sector: currentValues.sector,
-            deletedAt: tempEndDate + "T23:59:59.999Z" // Converter para formato ISO com horário
-        };
-        
-        console.log("===== DADOS PARA DESABILITAR (UPDATE) =====");
-        console.log("FormData completo:", formData);
-        console.log("deletedAt que será enviado:", formData.deletedAt);
-        console.log("==========================================");
-        
+        // Validação: a data não pode ser superior a hoje
+        const today = new Date().toISOString().split('T')[0];
+        if (tempEndDate > today) {
+            alert('A data de fim não pode ser superior à data atual.');
+            return;
+        }
+
         try {
-            await update(formData);
+            const environmentId = data?.id;
+            if (!environmentId) {
+                alert('ID do ambiente não encontrado.');
+                return;
+            }
+
+            await terminate(environmentId, { deletedAt: tempEndDate + "T23:59:59.999Z" });
+            
+            // Se chegou até aqui, a desabilitação foi bem-sucedida
+            setDisable(true);
             setValue("deletedAt", tempEndDate);
+            setOpenDisableModal(false);
         } catch (error) {
-            console.error("Erro ao desabilitar ambiente:", error);
+            console.error('Erro ao desabilitar ambiente:', error);
+            alert('Erro ao desabilitar ambiente. Tente novamente.');
         }
     };
 
@@ -341,13 +339,13 @@ export default function FormDadosGerais() {
                             type="date"
                             value={tempEndDate}
                             onChange={(e) => setTempEndDate(e.target.value)}
+                            inputProps={{
+                                max: new Date().toISOString().split('T')[0] // Impede seleção de datas futuras
+                            }}
                             error={!!errors.deletedAt}
-                            helperText={errors.deletedAt?.message}
+                            helperText={errors.deletedAt?.message || "A data não pode ser superior à data atual"}
                             className="w-full"
                             sx={[formTheme]}
-                            inputProps={{
-                                max: new Date().toISOString().split('T')[0]
-                            }}
                         />
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
@@ -355,9 +353,9 @@ export default function FormDadosGerais() {
                                 variant="outlined"
                                 onClick={handleConfirmDisable}
                                 sx={buttonTheme}
-                                disabled={!tempEndDate || loading}
+                                disabled={!tempEndDate || terminateLoading}
                             >
-                                {loading ? <CircularProgress color="inherit" size={24} /> : "Confirmar"}
+                                {terminateLoading ? <CircularProgress color="inherit" size={24} /> : "Confirmar"}
                             </Button>
                         </Box>
                     </Box>

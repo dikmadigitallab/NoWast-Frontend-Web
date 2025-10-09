@@ -33,7 +33,13 @@ export default function ListagemPessoa() {
     const [userToDelete, setUserToDelete] = useState<any | null>(null);
     const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
     const [search, setSearch] = useState<any>({ query: '', position: null, supervisorId: null, managerId: null });
-    const { data: pessoas, pages } = useGetUsuario({ pageNumber: pagination.pageNumber, pageSize: pagination.pageSize, query: search.query, supervisorId: search.supervisorId, position: search.position, managerId: search.managerId });
+    const { data: pessoas, pages } = useGetUsuario({ pageNumber: pagination.pageNumber, 
+        pageSize: pagination.pageSize, 
+        query: search.query, 
+        supervisorId: search.supervisorId,
+        position: search.position,
+        managerId: search.managerId
+    });
     const { softDeleteUser, loading: deleteLoading } = useSoftDeleteUser();
 
     console.log(pessoas);

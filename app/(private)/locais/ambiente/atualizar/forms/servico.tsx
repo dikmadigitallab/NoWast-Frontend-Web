@@ -5,6 +5,9 @@ import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useUpdateService } from "@/app/hooks/servicos/update";
+import { useCreateServiceItem } from "@/app/hooks/servicos/createServiceItem";
+import { useDeleteServiceItem } from "@/app/hooks/servicos/deleteServiceItem";
+import { useUpdateServiceItem } from "@/app/hooks/servicos/updateServiceItem";
 import { formTheme } from "@/app/styles/formTheme/theme";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useGetIDStore } from "@/app/store/getIDStore";
@@ -23,27 +26,11 @@ import z from "zod";
 
 const servicoSchema = z.object({
     name: z.string().min(1, "Nome do serviço é obrigatório"),
-    environment: z.object({ connect: z.object({ id: z.number() }) }),
     serviceType: z.object({
         connect: z.object({
-            id: z.number().nullable(),
-            name: z.string().optional()
-        })
-    }),
-    serviceItens: z.object({
-        create: z.array(z.object({
-            name: z.string()
-        })).optional(),
-        update: z.array(z.object({
-            id: z.number(),
-            update: z.object({
-                name: z.string()
-            })
-        })).optional(),
-        delete: z.array(z.object({
             id: z.number()
-        })).optional()
-    })
+        })
+    }).optional()
 });
 
 type ServicoFormValues = z.infer<typeof servicoSchema>;
@@ -51,6 +38,7 @@ type ServicoFormValues = z.infer<typeof servicoSchema>;
 type ServiceItem = {
     id: number;
     name: string;
+    isLinkedToActivity?: boolean;
 };
 
 export default function FormServicos() {
@@ -74,18 +62,9 @@ export default function FormServicos() {
     // Buscar os serviceItems (checklists) do serviço - mesma lógica do modal
     const { data: servicoComChecklists } = useGetOneById("service");
 
-    // Debug
-    console.log("=== DEBUG ===");
-    console.log("id do ambiente:", id);
-    console.log("ambiente:", ambiente);
-    console.log("servicos do ambiente:", servicosDoAmbiente);
-    console.log("primeiro serviço:", primeiroServico);
-    console.log("servico com checklists:", servicoComChecklists);
-
     // useEffect para definir o ID do serviço quando o componente carrega
     useEffect(() => {
         if (primeiroServico && primeiroServico.id) {
-            console.log("Definindo ID do serviço:", primeiroServico.id);
             setId(primeiroServico.id);
         }
     }, [primeiroServico, setId]);
@@ -111,14 +90,15 @@ export default function FormServicos() {
     const [newItem, setNewItem] = useState("");
     const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
     const { update, loading } = useUpdateService("/locais/ambiente/listagem");
+    const { createServiceItem, loading: creatingItem } = useCreateServiceItem();
+    const { deleteServiceItem, loading: deletingItem } = useDeleteServiceItem();
+    const { updateServiceItem, loading: updatingItem } = useUpdateServiceItem();
 
     const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<ServicoFormValues>({
         resolver: zodResolver(servicoSchema),
         defaultValues: {
             name: "",
-            environment: { connect: { id: id } },
-            serviceType: { connect: { id: null, name: "" } },
-            serviceItens: { update: [] }
+            serviceType: undefined
         },
         mode: "onChange"
     });
@@ -136,44 +116,111 @@ export default function FormServicos() {
         setNewItem(item.name);
     };
 
-    const addServiceItem = () => {
+    const addServiceItem = async () => {
         const text = newItem.trim();
         if (!text) return;
 
         if (editingItem) {
-            // Editando item existente
-            const updatedItems = serviceItems.map(item => 
-                item.id === editingItem.id ? { ...item, name: text } : item
-            );
-            setServiceItems(updatedItems);
-            setEditingItem(null);
-        } else {
-            // Adicionando novo item
-            if (!serviceItems.some(item => item.name === text)) {
-                const newItemObj = { id: Date.now(), name: text };
-                const updatedItems = [...serviceItems, newItemObj];
+            // Editando item existente - usar nova API
+            if (!isTemporaryId(editingItem.id)) {
+                try {
+                    const updateData = { name: text };
+                    const updatedItem = await updateServiceItem(editingItem.id, updateData);
+                    
+                    // Atualizar a lista local com os dados da resposta
+                    const updatedItems = serviceItems.map(item => 
+                        item.id === editingItem.id ? { 
+                            ...item, 
+                            name: updatedItem.name,
+                            isLinkedToActivity: updatedItem.isLinkedToActivity || false
+                        } : item
+                    );
+                    setServiceItems(updatedItems);
+                    setEditingItem(null);
+                } catch (error) {
+                    console.error("Erro ao atualizar item:", error);
+                }
+            } else {
+                // Item temporário - apenas atualizar localmente
+                const updatedItems = serviceItems.map(item => 
+                    item.id === editingItem.id ? { ...item, name: text } : item
+                );
                 setServiceItems(updatedItems);
+                setEditingItem(null);
+            }
+        } else {
+            // Adicionando novo item - usar nova API
+            if (!serviceItems.some(item => item.name === text)) {
+                const serviceId = servicoComChecklists?.id || primeiroServico?.id;
+                
+                if (!serviceId) {
+                    console.error("ID do serviço não encontrado!");
+                    return;
+                }
+
+                try {
+                    const newItemData = {
+                        name: text,
+                        service: {
+                            connect: {
+                                id: serviceId
+                            }
+                        }
+                    };
+
+                    const createdItem = await createServiceItem(newItemData);
+                    
+                    // Adicionar o item criado à lista local usando os dados da resposta
+                    const newItemObj = { 
+                        id: createdItem.id, 
+                        name: createdItem.name, 
+                        isLinkedToActivity: createdItem.isLinkedToActivity || false 
+                    };
+                    const updatedItems = [...serviceItems, newItemObj];
+                    setServiceItems(updatedItems);
+                    
+                } catch (error) {
+                    console.error("Erro ao criar item:", error);
+                }
             }
         }
         setNewItem("");
     };
 
-    const removeServiceItem = (name: string) => {
+    const removeServiceItem = async (name: string) => {
         const itemToRemove = serviceItems.find(item => item.name === name);
         
         if (itemToRemove) {
-            // Se for um item da API (não temporário), adicionar ao array de deletados
-            if (!isTemporaryId(itemToRemove.id)) {
-                setDeletedItems(prev => [...prev, itemToRemove.id]);
+            // Verificar se o item está vinculado a uma atividade
+            if (itemToRemove.isLinkedToActivity) {
+                return;
             }
             
-            // Remover da lista
-            const updatedItems = serviceItems.filter(item => item.name !== name);
-            setServiceItems(updatedItems);
-            
-            if (editingItem && editingItem.name === name) {
-                setEditingItem(null);
-                setNewItem("");
+            // Se for um item da API (não temporário), deletar via API
+            if (!isTemporaryId(itemToRemove.id)) {
+                try {
+                    await deleteServiceItem(itemToRemove.id);
+                    
+                    // Remover da lista local após sucesso na API
+                    const updatedItems = serviceItems.filter(item => item.name !== name);
+                    setServiceItems(updatedItems);
+                    
+                    if (editingItem && editingItem.name === name) {
+                        setEditingItem(null);
+                        setNewItem("");
+                    }
+                } catch (error) {
+                    console.error("Erro ao remover item:", error);
+                }
+            } else {
+                // Item temporário - apenas remover da lista local
+                const updatedItems = serviceItems.filter(item => item.name !== name);
+                setServiceItems(updatedItems);
+                
+                if (editingItem && editingItem.name === name) {
+                    setEditingItem(null);
+                    setNewItem("");
+                }
             }
         }
     };
@@ -188,9 +235,16 @@ export default function FormServicos() {
             disableColumnMenu: true,
             renderCell: (params) => (
                 <Box>
-                    <IconButton size="small" onClick={() => removeServiceItem(params.row.name)}>
-                        <GoTrash color='#635D77' size={20} />
-                    </IconButton>
+                    {!params.row.isLinkedToActivity && (
+                        <IconButton 
+                            size="small" 
+                            onClick={() => removeServiceItem(params.row.name)}
+                            disabled={deletingItem}
+                            title="Remover item"
+                        >
+                            {deletingItem ? <CircularProgress size={16} color="inherit" /> : <GoTrash color='#635D77' size={20} />}
+                        </IconButton>
+                    )}
                     <IconButton size="small" onClick={() => handleEditItem(params.row)}>
                         <MdOutlineModeEditOutline color='#635D77' size={20} />
                     </IconButton>
@@ -202,16 +256,11 @@ export default function FormServicos() {
 
     useEffect(() => {
         if (servicoComChecklists && servicoComChecklists.serviceItems) {
-            console.log("=== CARREGANDO CHECKLISTS ===");
-            console.log("servico com checklists:", servicoComChecklists);
-            console.log("serviceItems:", servicoComChecklists.serviceItems);
-
             const initialItems = servicoComChecklists.serviceItems.map((item: any) => ({
                 id: item.id,
-                name: item.name
+                name: item.name,
+                isLinkedToActivity: item.isLinkedToActivity || false
             }));
-
-            console.log("initialItems mapeados:", initialItems);
 
             // Salvar itens originais e atuais
             setOriginalItems(initialItems);
@@ -220,26 +269,16 @@ export default function FormServicos() {
             // Usar os dados do serviço completo para o formulário
             reset({
                 name: servicoComChecklists.name || primeiroServico?.name || "",
-                environment: { connect: { id: id } },
-                serviceType: { connect: { 
-                    id: servicoComChecklists.serviceTypeId || servicoComChecklists.serviceType?.id || null, 
-                    name: servicoComChecklists.serviceTypeName || servicoComChecklists.serviceType?.name || "" 
-                } },
-                serviceItens: {
-                    create: [],
-                    update: [],
-                    delete: []
-                }
+                serviceType: servicoComChecklists.serviceTypeId || servicoComChecklists.serviceType?.id ? {
+                    connect: {
+                        id: servicoComChecklists.serviceTypeId || servicoComChecklists.serviceType?.id
+                    }
+                } : undefined
             });
         }
     }, [servicoComChecklists, primeiroServico, reset, id]);
 
     const onSubmit = (formData: ServicoFormValues) => {
-        console.log("=== ON SUBMIT ===");
-        console.log("serviceItems atuais:", serviceItems);
-        console.log("originalItems:", originalItems);
-        console.log("deletedItems:", deletedItems);
-        
         const serviceId = servicoComChecklists?.id || primeiroServico?.id;
         
         if (!serviceId) {
@@ -247,48 +286,18 @@ export default function FormServicos() {
             return;
         }
 
-        // Separar itens em create, update, delete
-        const createItems: { name: string }[] = [];
-        const updateItems: { id: number; update: { name: string } }[] = [];
-
-        serviceItems.forEach(item => {
-            if (isTemporaryId(item.id)) {
-                // Item novo (create)
-                createItems.push({ name: item.name });
-            } else {
-                // Item existente - verificar se foi modificado
-                const originalItem = originalItems.find(orig => orig.id === item.id);
-                if (originalItem && originalItem.name !== item.name) {
-                    // Item foi modificado (update)
-                    updateItems.push({
-                        id: item.id,
-                        update: { name: item.name }
-                    });
-                } else if (originalItem) {
-                    // Item não foi modificado, mas ainda precisa estar no update
-                    updateItems.push({
-                        id: item.id,
-                        update: { name: item.name }
-                    });
-                }
-            }
-        });
-
-        // Itens deletados
-        const deleteItems = deletedItems.map(id => ({ id }));
-
-        // Construir payload final
-        const payload = {
-            ...formData,
-            serviceItens: {
-                ...(createItems.length > 0 && { create: createItems }),
-                ...(updateItems.length > 0 && { update: updateItems }),
-                ...(deleteItems.length > 0 && { delete: deleteItems })
-            }
+        // Construir payload apenas com name e serviceType (se diferente)
+        const payload: any = {
+            name: formData.name
         };
 
-        console.log("=== PAYLOAD FINAL ===");
-        console.log(JSON.stringify(payload, null, 2));
+        // Só incluir serviceType se realmente for diferente do atual
+        if (formData.serviceType?.connect?.id) {
+            const currentServiceTypeId = servicoComChecklists?.serviceTypeId || servicoComChecklists?.serviceType?.id;
+            if (formData.serviceType.connect.id !== currentServiceTypeId) {
+                payload.serviceType = formData.serviceType;
+            }
+        }
         
         update(serviceId, payload);
     };
@@ -319,24 +328,24 @@ export default function FormServicos() {
                     />
 
                     <Controller
-                        name="serviceType.connect.id"
+                        name="serviceType"
                         control={control}
                         render={({ field }) => (
                             <CustomAutocomplete
                                 options={tiposServicos || []}
                                 getOptionLabel={(option: any) => option.name || ''}
-                                value={tiposServicos?.find((tipo: any) => tipo.id === field.value) || null}
+                                value={tiposServicos?.find((tipo: any) => tipo.id === field.value?.connect?.id) || null}
                                 loading={loadingTiposServicos}
                                 onInputChange={(newInputValue) => {
                                     setSearchQueryTiposServicos(newInputValue);
                                 }}
                                 onChange={(newValue) => {
-                                    const value = newValue?.id || '';
-                                    field.onChange(Number(value));
+                                    const value = newValue?.id || null;
+                                    field.onChange(value ? { connect: { id: Number(value) } } : undefined);
                                 }}
                                 label="Tipo de Serviço"
-                                error={!!errors.serviceType?.connect?.id}
-                                helperText={errors.serviceType?.connect?.id?.message}
+                                error={!!errors.serviceType}
+                                helperText={errors.serviceType?.message}
                                 noOptionsText="Nenhum tipo encontrado"
                                 loadingText="Carregando tipos..."
                                 className="w-full"
@@ -363,9 +372,10 @@ export default function FormServicos() {
                             <Button
                                 variant="outlined"
                                 onClick={addServiceItem}
+                                disabled={creatingItem || updatingItem}
                                 sx={[buttonTheme, { height: "100%" }]}
                             >
-                                {editingItem ? "Atualizar" : "Adicionar"}
+                                {creatingItem || updatingItem ? <CircularProgress size={20} color="inherit" /> : (editingItem ? "Atualizar" : "Adicionar")}
                             </Button>
                             {editingItem && (
                                 <Button
@@ -381,9 +391,6 @@ export default function FormServicos() {
                             )}
                         </Box>
 
-                        {errors.serviceItens && (
-                            <p className="text-red-500 text-sm">{errors.serviceItens.message}</p>
-                        )}
                     </Box>
                 </Box>
 

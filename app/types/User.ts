@@ -33,5 +33,6 @@ export interface UseGetUsuarioParams {
   managerId?: number | null;
   pageNumber?: number | null,
   pageSize?: number | null,
-  disablePagination?: boolean | null
+  disablePagination?: boolean | null,
+  onlyActive?: boolean | null
 }
