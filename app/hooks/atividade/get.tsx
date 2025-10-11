@@ -75,18 +75,51 @@ export const useGetActivity = ({ approvalStatus = null, sectorId = null, startDa
 
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
+                description: item.description,
                 activityTypeEnum: item.activityTypeEnum === "RECURRING" ? "Recorrente" : "Não Recorrente",
                 environment: item.environment?.name,
                 dimension: item.environment?.areaM2,
+                environmentDetail: {
+                    id: item.environment?.id,
+                    name: item.environment?.name,
+                    areaM2: item.environment?.areaM2,
+                    sector: {
+                        id: item.environment?.sector?.id,
+                        name: item.environment?.sector?.name,
+                    },
+                    building: {
+                        id: item.environment?.sector?.building?.id,
+                        name: item.environment?.sector?.building?.name,
+                    }
+                },
                 supervisor: item?.supervisor?.person?.name,
                 manager: item?.manager?.person?.name,
+                supervisorDetails: {
+                    id: item?.supervisor?.id,
+                    email: item?.supervisor?.email,
+                    phone: item?.supervisor?.phone,
+                    personName: item?.supervisor?.person?.name,
+                },
+                managerDetails: {
+                    id: item?.manager?.id,
+                    email: item?.manager?.email,
+                    phone: item?.manager?.phone,
+                    personName: item?.manager?.person?.name,
+                },
                 statusEnum: filterStatusActivity(item?.statusEnum),
                 approvalStatus: filterStatusActivity(item?.approvalStatus),
-                ppe: item?.ppe,
+                approvalDate: item?.approvalDate ? new Date(item.approvalDate).toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : null,
+                approvalUpdatedByUserName: item?.approvalUpdatedByUser?.person?.name,
+                ppe: item?.ppes, // API returns `ppes`
                 tools: item?.tools,
                 products: item?.products,
                 userActivities: item?.userActivities || [],
+                participantsActive: (item?.userActivities || [])
+                    .filter((ua: any) => ua?.user?.status === 'ACTIVE')
+                    .map((ua: any) => ({ id: ua.user?.id, name: ua.user?.person?.name })),
                 transports: item?.transports,
+                activityFiles: item?.activityFiles || [],
+                checklists: item?.checklists || [],
                 dateTime: new Date(item.dateTime).toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
             })) || [];
 

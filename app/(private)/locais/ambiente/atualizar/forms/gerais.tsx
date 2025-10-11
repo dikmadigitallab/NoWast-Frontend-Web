@@ -39,8 +39,7 @@ export default function FormDadosGerais() {
         url: "sector",
         query: debouncedSearchQuerySetores,
         pageSize: 25,
-        pageNumber: 1,
-        onlyActive: true
+        pageNumber: 1
     });
 
     // Remove duplicatas baseadas no ID
@@ -57,7 +56,7 @@ export default function FormDadosGerais() {
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { handleDelete } = useDelete("environment", "/locais/ambiente/listagem");
 
-    const { control, handleSubmit, formState: { errors }, reset, setValue } = useForm<AmbienteFormValues>({
+    const { control, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<AmbienteFormValues>({
         resolver: zodResolver(ambienteSchema),
         defaultValues: {
             name: "",
@@ -90,8 +89,15 @@ export default function FormDadosGerais() {
     const handleConfirmDisable = async () => {
         // Validação: a data não pode ser superior a hoje
         const today = new Date().toISOString().split('T')[0];
+        const createdAt = watch('createdAt');
+        
         if (tempEndDate > today) {
             alert('A data de fim não pode ser superior à data atual.');
+            return;
+        }
+        
+        if (createdAt && tempEndDate <= createdAt) {
+            alert('A data de fim deve ser posterior à data de criação.');
             return;
         }
 
@@ -340,10 +346,11 @@ export default function FormDadosGerais() {
                             value={tempEndDate}
                             onChange={(e) => setTempEndDate(e.target.value)}
                             inputProps={{
+                                min: watch('createdAt') ? new Date(new Date(watch('createdAt')!).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] : undefined,
                                 max: new Date().toISOString().split('T')[0] // Impede seleção de datas futuras
                             }}
                             error={!!errors.deletedAt}
-                            helperText={errors.deletedAt?.message || "A data não pode ser superior à data atual"}
+                            helperText={errors.deletedAt?.message || "A data deve ser posterior à data de criação e não pode ser futura"}
                             className="w-full"
                             sx={[formTheme]}
                         />

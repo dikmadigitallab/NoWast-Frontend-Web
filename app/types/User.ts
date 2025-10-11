@@ -34,5 +34,5 @@ export interface UseGetUsuarioParams {
   pageNumber?: number | null,
   pageSize?: number | null,
   disablePagination?: boolean | null,
-  onlyActive?: boolean | null
+  includeDeleted?: boolean | null
 }

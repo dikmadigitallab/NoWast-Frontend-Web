@@ -79,17 +79,95 @@ export default function ModalVisualizeDetail({ modalVisualize, handleChangeModal
                             <DetailItem label="Gestor:" value={modalVisualize?.manager} />
                             <DetailItem label="Data:" value={modalVisualize?.dateTime} />
                         </Box>
+                        <Box className="flex flex-row gap-3 mb-3">
+                            <DetailItem label="Setor:" value={modalVisualize?.environmentDetail?.sector?.name} />
+                            <DetailItem label="Prédio:" value={modalVisualize?.environmentDetail?.building?.name} />
+                        </Box>
+                        <Box className="flex flex-row gap-3 mb-3">
+                            <DetailItem label="Descrição:" value={modalVisualize?.description} />
+                        </Box>
                         <Box className="flex items-center gap-2">
+                            <Box className="text-sm font-semibold text-[#4B5563]">Status:</Box>
+                            {modalVisualize?.statusEnum && <Box sx={{ color: modalVisualize.statusEnum.color, borderWidth: 1, borderColor: modalVisualize.statusEnum.color, borderRadius: '100px', padding: '3px 8px' }}>{modalVisualize.statusEnum.title}</Box>}
+                        </Box>
+                        <Box className="flex items-center gap-2 mt-2">
                             <Box className="text-sm font-semibold text-[#4B5563]">Aprovação:</Box>
                             {modalVisualize?.approvalStatus && <Box sx={{ color: modalVisualize.approvalStatus.color, borderWidth: 1, borderColor: modalVisualize.approvalStatus.color, borderRadius: '100px', padding: '3px 8px' }}>{modalVisualize.approvalStatus.title}</Box>}
+                            {modalVisualize?.approvalDate && <Box className="text-sm text-[#6E6B7B]">em {modalVisualize.approvalDate}</Box>}
+                            {modalVisualize?.approvalUpdatedByUserName && <Box className="text-sm text-[#6E6B7B]">por {modalVisualize.approvalUpdatedByUserName}</Box>}
                         </Box>
                     </Box>
 
                     <Box className="space-y-6">
+                        {/* Participantes Ativos */}
+                        {Array.isArray(modalVisualize?.participantsActive) && modalVisualize.participantsActive.length > 0 && (
+                            <Box className="mt-6 border-b border-gray-200 pb-4">
+                                <h2 className="text-[#374151] text-[1.1rem] font-semibold">Participantes Ativos</h2>
+                                <Box className="grid gap-2 mt-3">
+                                    {modalVisualize.participantsActive.map((p: any) => (
+                                        <Box key={p.id} className="p-3 rounded-lg border border-gray-200 flex items-center justify-between">
+                                            <Box className="text-sm text-[#374151]">{p.name}</Box>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* Checklists */}
+                        {Array.isArray(modalVisualize?.checklists) && modalVisualize.checklists.length > 0 && (
+                            <Box className="mt-6 border-b border-gray-200 pb-4">
+                                <h2 className="text-[#374151] text-[1.1rem] font-semibold">Checklists</h2>
+                                <Box className="grid gap-3 mt-3">
+                                    {modalVisualize.checklists.map((c: any) => (
+                                        <Box key={c.id} className="p-4 rounded-lg border border-gray-200">
+                                            <Box className="flex flex-col gap-2">
+                                                <DetailItem label="Serviço:" value={c?.serviceItem?.service?.name} />
+                                                <DetailItem label="Tipo de Serviço:" value={c?.serviceItem?.service?.serviceType?.name} />
+                                                <DetailItem label="Item:" value={c?.serviceItem?.name} />
+                                                <DetailItem label="Concluído:" value={c?.isComplete ? 'Sim' : 'Não'} />
+                                            </Box>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </Box>
+                        )}
+
                         <CollapsibleSection title="EPIs" items={modalVisualize?.ppe || []} />
                         <CollapsibleSection title="Produtos" items={modalVisualize?.products || []} />
                         <CollapsibleSection title="Ferramentas" items={modalVisualize?.tools || []} />
                         <CollapsibleSection title="Transportes" items={modalVisualize?.transports || []} />
+
+                        {/* Imagens/Arquivos */}
+                        {Array.isArray(modalVisualize?.activityFiles) && modalVisualize.activityFiles.length > 0 && (
+                            <Box className="mt-6 border-b border-gray-200 pb-4 last:border-0">
+                                <h2 className="text-[#374151] text-[1.1rem] font-semibold">Imagens e Arquivos</h2>
+                                <Box className="grid grid-cols-2 gap-3 mt-3">
+                                    {modalVisualize.activityFiles.map((activityFile: any) => (
+                                        <Box key={activityFile.id} className="p-2 rounded-lg border border-gray-200">
+                                            {activityFile.file?.url ? (
+                                                <div className="flex flex-col gap-2">
+                                                    <img 
+                                                        src={activityFile.file.url} 
+                                                        alt={activityFile.file.fileName || 'arquivo'} 
+                                                        className="w-full h-32 object-cover rounded" 
+                                                    />
+                                                    <Box className="text-xs text-[#6E6B7B]">
+                                                        {activityFile.file.fileName}
+                                                    </Box>
+                                                    <Box className="text-xs text-[#6E6B7B]">
+                                                        Tipo: {activityFile.fileType}
+                                                    </Box>
+                                                </div>
+                                            ) : (
+                                                <Box className="text-sm text-[#6E6B7B]">
+                                                    {activityFile.file?.fileName || 'Arquivo'}
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </Box>
+                        )}
                     </Box>
                 </Box>
             </Box>

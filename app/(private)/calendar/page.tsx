@@ -371,7 +371,7 @@ export default function Calendar() {
                             )}
                         </Box>
                         <Box className="mt-1 space-y-1 max-h-32 overflow-y-auto">
-                            {dayActivities.slice(0, 4).map(activity => (
+                            {dayActivities.slice(0, 100).map(activity => (
                                 <Box
                                     key={activity.id}
                                     className={`text-xs p-1 rounded-[5px] border cursor-pointer ${filterStatusCalendarActivity(activity.approvalStatus.title).color || filterStatusCalendarActivity('DEFAULT').color}`}
@@ -388,9 +388,9 @@ export default function Calendar() {
                                     </Box>
                                 </Box>
                             ))}
-                            {dayActivities.length > 4 && (
+                            {dayActivities.length > 100 && (
                                 <Box className="text-xs text-blue-500 text-center py-1">
-                                    +{dayActivities.length - 4} mais
+                                    +{dayActivities.length - 100} mais
                                 </Box>
                             )}
                         </Box>

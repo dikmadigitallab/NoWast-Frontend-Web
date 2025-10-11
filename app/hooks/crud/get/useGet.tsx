@@ -20,10 +20,10 @@ export interface UseGetParams {
     pageNumber?: number | null,
     pageSize?: number | null,
     disablePagination?: boolean | null
-    onlyActive?: boolean | null
+    includeDeleted?: boolean | null
 }
 
-export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null, onlyActive = false }: UseGetParams) => {
+export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = null, pageSize = null, query = null, supervisorId = null, positionId = null, managerId = null, responsibleManagerId = null, buildingId = null, environmentId = null, includeDeleted = false }: UseGetParams) => {
 
     const { userInfo } = useAuthStore();
     const { setIdService } = useGetIDStore();
@@ -60,7 +60,7 @@ export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = n
             if (buildingId !== null) params.append("buildingId", String(buildingId).trim());
             if (environmentId !== null) params.append("environmentId", String(environmentId).trim());
             if (userInfo.contractId) params.append("contractId", String(userInfo.contractId).trim());
-            if (onlyActive !== null) params.append("onlyActive", String(onlyActive).trim());
+            if (includeDeleted) params.append("includeDeleted", String(includeDeleted).trim());
 
             const paramUrl = `/${url}?${params.toString()}`;
 
@@ -146,7 +146,7 @@ export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = n
         }, 1000);
 
         return () => clearTimeout(delayDebounce);
-    }, [pageNumber, disablePagination, pageSize, query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId, environmentId]);
+    }, [pageNumber, disablePagination, pageSize, query, supervisorId, positionId, managerId, page, pageSize, responsibleManagerId, buildingId, environmentId, includeDeleted]);
 
 
     return {

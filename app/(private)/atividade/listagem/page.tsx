@@ -50,6 +50,7 @@ export default function DataGridAtividades() {
     const handleChangeModalVisualize = (data: any) => {
         setVisualize(data);
         setModalVisualize(!modalVisualize);
+        console.log(data)
     }
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {

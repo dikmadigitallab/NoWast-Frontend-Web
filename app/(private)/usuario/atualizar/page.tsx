@@ -256,6 +256,20 @@ export default function AtualizarPessoa() {
     };
 
     const handleConfirmDisable = () => {
+        // Validação: a data não pode ser superior a hoje
+        const today = new Date().toISOString().split('T')[0];
+        const createdAt = watch('createdAt');
+        
+        if (tempEndDate > today) {
+            alert('A data de fim não pode ser superior à data atual.');
+            return;
+        }
+        
+        if (createdAt && tempEndDate <= createdAt) {
+            alert('A data de fim deve ser posterior à data de criação.');
+            return;
+        }
+        
         setDisable(true);
         setValue("endDate", tempEndDate);
         setDisplayEndDate(tempEndDate);
@@ -1205,9 +1219,13 @@ export default function AtualizarPessoa() {
                             value={tempEndDate}
                             onChange={(e) => setTempEndDate(e.target.value)}
                             error={!!errors.endDate}
-                            helperText={errors.endDate?.message}
+                            helperText={errors.endDate?.message || "A data deve ser posterior à data de criação e não pode ser futura"}
                             className="w-full"
                             sx={[formTheme]}
+                            inputProps={{
+                                min: watch('createdAt') ? new Date(new Date(watch('createdAt')!).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] : undefined,
+                                max: new Date().toISOString().split('T')[0]
+                            }}
                         />
                         <Box className="flex justify-center gap-4 py-3 border-t border-[#5e58731f] rounded-b-lg">
                             <Button onClick={() => handleCloseModal("desabilitar")} variant="outlined" sx={buttonThemeNoBackground}>Cancelar</Button>
