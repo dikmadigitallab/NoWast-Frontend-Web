@@ -67,9 +67,45 @@ export default function Calendar() {
     // Converter string de Data para objeto Date
     const parseActivityDate = (dateTimeString: string): Date => {
         try {
-            const [datePart, timePart] = dateTimeString.split(', ');
+            if (!dateTimeString || typeof dateTimeString !== 'string') {
+                console.warn('Data inválida fornecida:', dateTimeString);
+                return new Date();
+            }
+
+            // O formato vem como "dd/MM/yyyy às HH:mm:ss"
+            const [datePart, timePart] = dateTimeString.split(' às ');
+            
+            if (!datePart || !timePart) {
+                console.warn('Formato de data inválido:', dateTimeString);
+                return new Date();
+            }
+
             const [day, month, year] = datePart.split('/');
-            return parse(`${day}/${month}/${year} ${timePart}`, 'dd/MM/yyyy HH:mm:ss', new Date());
+            const [hours, minutes, seconds] = timePart.split(':');
+            
+            // Validar se todos os componentes estão presentes
+            if (!day || !month || !year || !hours || !minutes) {
+                console.warn('Componentes de data incompletos:', { day, month, year, hours, minutes, seconds });
+                return new Date();
+            }
+
+            // Criar data no timezone local
+            const parsedDate = new Date(
+                parseInt(year),
+                parseInt(month) - 1, // Mês é 0-indexado
+                parseInt(day),
+                parseInt(hours),
+                parseInt(minutes),
+                parseInt(seconds) || 0 // segundos
+            );
+
+            // Verificar se a data é válida
+            if (isNaN(parsedDate.getTime())) {
+                console.warn('Data inválida criada:', parsedDate);
+                return new Date();
+            }
+
+            return parsedDate;
         } catch (error) {
             console.error('Erro ao parsear data:', dateTimeString, error);
             return new Date();

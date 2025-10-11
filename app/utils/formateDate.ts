@@ -46,7 +46,7 @@ export function formatISOFromDateTimeLocal(dateTimeLocalValue: string): string {
 
 /**
  * Formata uma data ISO string para exibição no formato brasileiro
- * Ex: "18/10/2025 às 10:23"
+ * Ex: "18/10/2025 às 10:23:45"
  */
 export function formatDateTimeBrazilian(isoString: string): string {
     if (!isoString) return "";
@@ -57,6 +57,7 @@ export function formatDateTimeBrazilian(isoString: string): string {
     const year = date.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
     
-    return `${day}/${month}/${year} às ${hours}:${minutes}`;
+    return `${day}/${month}/${year} às ${hours}:${minutes}:${seconds}`;
 }
