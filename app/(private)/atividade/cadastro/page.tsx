@@ -202,9 +202,21 @@ export default function Atividade() {
     const onSubmit = (data: UserFormValues) => {
         const convertToString = (arr?: number[]) => arr && arr.length > 0 ? arr.join(",") : "";
 
+        // Converter datetime-local para ISO compensando o timezone
+        // Subtrai 3 horas para que o backend receba a hora correta
+        const convertToISO = (dateTimeValue: string): string => {
+            if (!dateTimeValue) return "";
+            const date = new Date(dateTimeValue);
+            // Subtrai 3 horas (10800000 ms)
+            const adjustedDate = new Date(date.getTime() - (3 * 60 * 60 * 1000));
+            return adjustedDate.toISOString();
+        };
+
         const newData = {
             ...data,
             hasRecurrence: data.hasRecurrence === "true" ? true : false,
+            dateTime: convertToISO(data.dateTime),
+            recurrenceFinalDate: data.recurrenceFinalDate ? convertToISO(data.recurrenceFinalDate) : "",
             usersIds: convertToString(data.usersIds),
             epiIds: convertToString(data.epiIds),
             equipmentIds: convertToString(data.equipmentIds),
@@ -212,6 +224,12 @@ export default function Atividade() {
             vehicleIds: convertToString(data.vehicleIds),
             serviceItemsIds: convertToString(data.serviceItemsIds)
         };
+
+        console.log("📤 DADOS SENDO ENVIADOS (CADASTRO):", {
+            original: data.dateTime,
+            adjusted: newData.dateTime,
+            now: new Date().toISOString()
+        });
 
         create(newData);
     };

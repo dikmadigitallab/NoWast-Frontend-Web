@@ -82,6 +82,7 @@ export const useGet = ({ url, page = 1, disablePagination = null, pageNumber = n
                         name: item?.name,
                         description: item?.description,
                         areaM2: item?.areaM2,
+                        deletedAt: item?.deletedAt,
                         setor: {
                             id: item?.sector?.id,
                             name: item?.sector?.name,

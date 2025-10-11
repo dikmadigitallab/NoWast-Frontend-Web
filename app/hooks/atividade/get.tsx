@@ -6,6 +6,7 @@ import { useGetIDStore } from "@/app/store/getIDStore";
 import api from "../api";
 import { filterStatusActivity } from "@/app/utils/statusActivity";
 import { useSectionStore } from "@/app/store/renderSection";
+import { formatDateTimeBrazilian } from "@/app/utils/formateDate";
 
 
 export interface UseGetParams {
@@ -108,7 +109,7 @@ export const useGetActivity = ({ approvalStatus = null, sectorId = null, startDa
                 },
                 statusEnum: filterStatusActivity(item?.statusEnum),
                 approvalStatus: filterStatusActivity(item?.approvalStatus),
-                approvalDate: item?.approvalDate ? new Date(item.approvalDate).toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : null,
+                approvalDate: item?.approvalDate ? formatDateTimeBrazilian(item.approvalDate) : null,
                 approvalUpdatedByUserName: item?.approvalUpdatedByUser?.person?.name,
                 ppe: item?.ppes, // API returns `ppes`
                 tools: item?.tools,
@@ -120,7 +121,7 @@ export const useGetActivity = ({ approvalStatus = null, sectorId = null, startDa
                 transports: item?.transports,
                 activityFiles: item?.activityFiles || [],
                 checklists: item?.checklists || [],
-                dateTime: new Date(item.dateTime).toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                dateTime: formatDateTimeBrazilian(item.dateTime)
             })) || [];
 
             setPages({

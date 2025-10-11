@@ -7,6 +7,7 @@ import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuIte
 import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { useGetIDStore } from "@/app/store/getIDStore";
 import { useDebounce } from "@/app/utils/useDebounce";
+import { formatDateTimeLocalFromISO } from "@/app/utils/formateDate";
 import { useState } from "react";
 
 export default function FormDadosGerais({ control, watch, formState: { errors } }: { control: any, watch: any, formState: { errors: any, } }) {
@@ -91,8 +92,10 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             helperText={errors.recurrenceFinalDate?.message}
                             fullWidth
                             sx={formTheme}
-                            value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ""}
-                            onChange={(event) => field.onChange(new Date(event.target.value).toISOString())}
+                            value={field.value ? formatDateTimeLocalFromISO(field.value) : ""}
+                            onChange={(event) => {
+                                field.onChange(event.target.value);
+                            }}
                         />
                     )}
                 />
@@ -137,10 +140,9 @@ export default function FormDadosGerais({ control, watch, formState: { errors } 
                             helperText={errors.dateTime?.message}
                             fullWidth
                             sx={formTheme}
-                            value={field.value ? new Date(field.value).toLocaleString('sv-SE').slice(0, 16) : ""}
+                            value={field.value ? formatDateTimeLocalFromISO(field.value) : ""}
                             onChange={(event) => {
-                                const localDate = new Date(event.target.value);
-                                field.onChange(localDate.toISOString());
+                                field.onChange(event.target.value);
                             }}
                         />
                     )}

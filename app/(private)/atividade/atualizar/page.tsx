@@ -53,7 +53,7 @@ export default function AtividadeAtualizar() {
             defaultValues: {
                 description: "",
                 environmentId: undefined,
-                dateTime: "",
+                dateTime: new Date().toISOString(),
                 recurrenceFinalDate: "",
                 statusEnum: "OPEN",
                 approvalStatus: "PENDING",
@@ -197,9 +197,21 @@ export default function AtividadeAtualizar() {
     const onSubmit = (data: UserFormValues) => {
         const convertToString = (arr?: number[]) => arr && arr.length > 0 ? arr.join(",") : "";
 
+        // Converter datetime-local para ISO compensando o timezone
+        // Subtrai 3 horas para que o backend receba a hora correta
+        const convertToISO = (dateTimeValue: string): string => {
+            if (!dateTimeValue) return "";
+            const date = new Date(dateTimeValue);
+            // Subtrai 3 horas (10800000 ms)
+            const adjustedDate = new Date(date.getTime() - (3 * 60 * 60 * 1000));
+            return adjustedDate.toISOString();
+        };
+
         const newData = {
             ...data,
             hasRecurrence: data.hasRecurrence === "true" ? true : false,
+            dateTime: convertToISO(data.dateTime),
+            recurrenceFinalDate: data.recurrenceFinalDate ? convertToISO(data.recurrenceFinalDate) : "",
             usersIds: convertToString(data.usersIds),
             epiIds: convertToString(data.epiIds),
             equipmentIds: convertToString(data.equipmentIds),
@@ -208,11 +220,14 @@ export default function AtividadeAtualizar() {
             serviceItemsIds: convertToString(data.serviceItemsIds),
             // Garantir que campos opcionais não sejam undefined
             recurrenceType: data.recurrenceType || "",
-            recurrenceFinalDate: data.recurrenceFinalDate || "",
             audio: data.audio || null
         };
 
-        console.log("📤 DADOS SENDO ENVIADOS PARA API:", newData);
+        console.log("📤 DADOS SENDO ENVIADOS PARA API (ATUALIZAÇÃO):", {
+            original: data.dateTime,
+            adjusted: newData.dateTime,
+            now: new Date().toISOString()
+        });
 
         update(newData);
     };

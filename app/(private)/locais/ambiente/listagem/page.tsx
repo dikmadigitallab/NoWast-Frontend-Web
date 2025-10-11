@@ -34,6 +34,7 @@ export default function DataGridAmbientes() {
         url: "environment",
         query: search.query,
         includeDeleted: true });
+        console.log(ambientes)
 
 
     const handleChangeModalVisualize = (data: any) => {
