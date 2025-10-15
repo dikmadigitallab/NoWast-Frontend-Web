@@ -15,7 +15,20 @@ export const useTerminateUser = () => {
     const terminate = async (userId: number, data: TerminateUserData) => {
         setLoading(true);
         try {
-            const response = await api.post(`/users/${userId}/terminate`, data);
+            const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
+
+            if (!authToken) {
+                console.error('Token de autenticação não encontrado');
+                setLoading(false);
+                return;
+            }
+
+            const response = await api.post(`/users/${userId}/terminate`, data, {
+                headers: {
+                    Authorization: `Bearer ${authToken.split("=")[1]}`,
+                    "Content-Type": "application/json"
+                }
+            });
             
             if (response.status === 200 || response.status === 201) {
                 // Redirecionar para a listagem após sucesso

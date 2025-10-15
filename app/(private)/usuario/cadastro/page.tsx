@@ -25,7 +25,7 @@ const userSchema = z.object({
     status: z.enum(["ACTIVE", "INACTIVE"], { required_error: "Status é obrigatório", invalid_type_error: "Status inválido", }),
     source: z.string().optional(),
     firstLogin: z.boolean({ required_error: "Indicação de primeiro login é obrigatória" }),
-    startDate: z.string({ message: "Data de admissão é obrigatória" }).optional().refine((date) => {
+    createdAt: z.string({ message: "Data de admissão é obrigatória" }).optional().refine((date) => {
         if (!date) return true; // Se não há data, é válido (campo opcional)
         const today = new Date();
         const inputDate = new Date(date);   
@@ -87,7 +87,7 @@ export default function CadastroPessoa() {
             source: "Dikma",
             firstLogin: true,
             status: "ACTIVE",
-            startDate: new Date().toISOString().split('T')[0],
+            createdAt: new Date().toISOString().split('T')[0],
             person: {
                 create: {
                     name: "",
@@ -982,7 +982,7 @@ export default function CadastroPessoa() {
 
                 <Box className="w-[100%] flex flex-row gap-5">
                     <Controller
-                        name="startDate"
+                        name="createdAt"
                         control={control}
                         render={({ field }) => (
                             <TextField
@@ -994,8 +994,8 @@ export default function CadastroPessoa() {
                                     max: new Date().toISOString().split('T')[0]
                                 }}
                                 {...field}
-                                error={!!errors.startDate}
-                                helperText={errors.startDate?.message}
+                                error={!!errors.createdAt}
+                                helperText={errors.createdAt?.message}
                                 className="w-[30%]"
                                 sx={formTheme}
                             />

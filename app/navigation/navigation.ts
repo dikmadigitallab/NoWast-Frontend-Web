@@ -96,6 +96,14 @@ export const ADM_CLIENTE: NavItem[] = [
             { icon: FaRegCircle, name: 'Cadastro', href: ['/dashboard/cadastros'] },
         ]
     },
+    {
+        name: 'Atividades',
+        icon: FaRegCalendar,
+        subItems: [
+            { icon: FaRegCircle, name: 'Listagem', href: ['/atividade/listagem', '/atividade/cadastro', '/atividade/atualizar'] },
+            { icon: FaRegCalendarAlt, name: 'Cronograma', href: ['/calendar'] }
+        ]
+    },
 ];
 
 export const GESTAO: NavItem[] = [

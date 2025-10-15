@@ -1,6 +1,6 @@
 "use client";
 
-import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress, Snackbar, IconButton, SnackbarCloseReason } from "@mui/material";
+import { TextField, MenuItem, InputLabel, Select, FormControl, Button, Box, Modal, CircularProgress } from "@mui/material";
 import CustomAutocomplete from "@/app/components/CustomAutocomplete";
 import { buttonTheme, buttonThemeNoBackground } from "@/app/styles/buttonTheme/theme";
 import { useCreateAmbiente } from "@/app/hooks/ambiente/create";
@@ -8,7 +8,6 @@ import { formTheme } from "@/app/styles/formTheme/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { useGet } from "@/app/hooks/crud/get/useGet";
-import { GridCloseIcon } from '@mui/x-data-grid';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import * as React from 'react';
@@ -64,58 +63,9 @@ export default function FormDadosGerais() {
 
     const onSubmit = (formData: AmbienteFormValues) => create(formData);
 
-    const [open, setOpen] = useState(false);
-
-    const handleClose = (event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setOpen(false);
-    };
-
-
-    const action = (
-        <React.Fragment>
-            <Box className="flex items-start p-2">
-                <Box className="flex flex-col gap-4 items-start">
-                    <Box className="w-[90%] text-[1rem]">Nenhum setor cadastrado! Necessário para cadastro de ambiente.</Box>
-                    <Button sx={buttonTheme} href='/locais/setor/cadastro' color="secondary" onClick={handleClose}>
-                        Cadastrar Setor
-                    </Button>
-                </Box>
-                <IconButton
-                    size="small"
-                    aria-label="close"
-                    color="inherit"
-                    onClick={handleClose}
-                    sx={{ mr: 1, border: '2px solid', borderRadius: '50%' }}
-                    className="custom-border">
-                    <GridCloseIcon fontSize="small" />
-                </IconButton>
-            </Box>
-        </React.Fragment>
-    );
-
-
-    useEffect(() => {
-        if (setores?.length <= 0) setOpen(true);
-    }, [setores])
 
     return (
         <>
-            <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={open}
-                autoHideDuration={116000}
-                onClose={handleClose}
-                action={action}
-                ContentProps={{
-                    sx: {
-                        backgroundColor: '#009d78',
-                        color: 'white',
-                    }
-                }}
-            />
             <form onSubmit={handleSubmit(onSubmit)} className="w-[100%] flex flex-col p-5 border gap-5 border-[#5e58731f] rounded-lg">
                 <Box className="w-full flex flex-col gap-5">
                     <Controller

@@ -40,9 +40,8 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
             if (supervisorId !== null) params.append("supervisorId", String(supervisorId).trim());
             if (managerId !== null) params.append("managerId", String(managerId).trim());
             if (userInfo.contractId) params.append("contractId", String(userInfo.contractId).trim());
-            if (includeDeleted !== null) params.append("includeDeleted", String(includeDeleted).trim());
+            if (includeDeleted) params.append("includeDeleted", 'true');
             if (position !== null) params.append("position", String(position).trim());
-            params.append("includeDeleted", 'false');
             const url = `/users?${params.toString()}`;
             
             const response = await api.get<any>(url,

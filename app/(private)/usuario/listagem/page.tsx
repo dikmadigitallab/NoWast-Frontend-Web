@@ -24,7 +24,7 @@ export default function ListagemPessoa() {
     const { setId } = useGetIDStore()
     const { data: position } = useGet({ url: "position" });
     const [isFilter, setIsFilter] = useState(false);
-    const { data: pessoasLista } = useGetUsuario({});
+    const { data: pessoasLista } = useGetUsuario({ includeDeleted: true });
     const [modalDetail, setModalDetail] = useState(false);
     const [detail, setDetail] = useState<any | null>(null);
     const [pagination, setPagination] = useState({ pageNumber: 1, pageSize: 25 });
@@ -34,7 +34,8 @@ export default function ListagemPessoa() {
         query: search.query, 
         supervisorId: search.supervisorId,
         position: search.position,
-        managerId: search.managerId
+        managerId: search.managerId,
+        includeDeleted: true
     });
 
     console.log(pessoas);

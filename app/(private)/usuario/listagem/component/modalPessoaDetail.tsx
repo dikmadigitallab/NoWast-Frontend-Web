@@ -82,11 +82,6 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
                             <Box className="font-normal text-[#6E6B7B]">{new Date(startDate).toLocaleDateString('pt-BR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</Box>
                         </Box>
 
-                        {endDate && <Box className="flex flex-col mt-1 mb-4">
-                            <Box className="font-semibold text-[#6E6B7B]">Data de Fim:</Box>
-                            <Box className="font-normal text-[#6E6B7B]">{new Date(endDate).toLocaleDateString('pt-BR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</Box>
-                        </Box>}
-
                         {epis.length > 0 &&
                             <Box className="flex flex-col mt-1 mb-4">
                                 <Box className="font-semibold text-[#6E6B7B]">EPIs de Responsabilidade:</Box>
