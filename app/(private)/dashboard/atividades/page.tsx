@@ -13,6 +13,8 @@ import SpilinesRow from './components/spilinesRow';
 import ReverseBar from './components/reverseBar';
 import DonutsRow from './components/donutsRow';
 import ColumnChart from './components/column';
+import CustomAutocomplete from '@/app/components/CustomAutocomplete';
+import { useDebounce } from '@/app/utils/useDebounce';
 
 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
@@ -20,10 +22,42 @@ const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1,
 export default function Atividades() {
 
   const { userType } = useAuthStore();
-  const { data: setor } = useGet({ url: 'sector' });
-  const { data: predio } = useGet({ url: 'building' });
-  const { data: ambiente } = useGet({ url: 'environment' });
-  const { data: pessoas, loading } = useGetUsuario({});
+  
+  // Estados para busca com debounce
+  const [searchQueryPessoas, setSearchQueryPessoas] = useState('');
+  const [searchQuerySetor, setSearchQuerySetor] = useState('');
+  const [searchQueryPredio, setSearchQueryPredio] = useState('');
+  const [searchQueryAmbiente, setSearchQueryAmbiente] = useState('');
+  
+  const debouncedSearchQueryPessoas = useDebounce(searchQueryPessoas, 500);
+  const debouncedSearchQuerySetor = useDebounce(searchQuerySetor, 500);
+  const debouncedSearchQueryPredio = useDebounce(searchQueryPredio, 500);
+  const debouncedSearchQueryAmbiente = useDebounce(searchQueryAmbiente, 500);
+
+  const { data: setor, loading: loadingSetor } = useGet({ 
+    url: 'sector',
+    query: debouncedSearchQuerySetor,
+    pageSize: 25,
+    pageNumber: 1
+  });
+  const { data: predio, loading: loadingPredio } = useGet({ 
+    url: 'building',
+    query: debouncedSearchQueryPredio,
+    pageSize: 25,
+    pageNumber: 1
+  });
+  const { data: ambiente, loading: loadingAmbiente } = useGet({ 
+    url: 'environment',
+    query: debouncedSearchQueryAmbiente,
+    pageSize: 25,
+    pageNumber: 1
+  });
+  const { data: pessoas, loading: loadingPessoas } = useGetUsuario({
+    query: debouncedSearchQueryPessoas,
+    pageSize: 25,
+    pageNumber: 1
+  });
+
   const [filters, setFilters] = useState({ endDate: endOfMonth, startDate: startOfMonth, userId: '', sectorId: '', environmentId: '', buildingId: '' });
 
   // Estado unificado para os filtros de ocorrências
@@ -194,22 +228,23 @@ export default function Atividades() {
             />
           </FormControl>
 
-          <FormControl sx={formTheme} className="w-[12%]">
-            <InputLabel>Colaborador</InputLabel>
-            <Select
-              disabled={loading}
-              label="Colaborador"
-              value={filters.userId}
-              onChange={(e) => setFilters(prev => ({ ...prev, userId: e.target.value }))}
-            >
-              <MenuItem value="" disabled>Selecione um colaborador...</MenuItem>
-              {Array?.isArray(pessoas) && pessoas.map((pessoa) => (
-                <MenuItem key={pessoa?.id} value={pessoa?.id}>
-                  {pessoa?.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <CustomAutocomplete
+            options={pessoas || []}
+            getOptionLabel={(option: any) => option.name || ''}
+            value={pessoas?.find((pessoa: any) => pessoa.id === Number(filters.userId)) || null}
+            loading={loadingPessoas}
+            onInputChange={(newInputValue) => {
+              setSearchQueryPessoas(newInputValue);
+            }}
+            onChange={(newValue) => {
+              const value = newValue?.id || '';
+              setFilters(prev => ({ ...prev, userId: value.toString() }));
+            }}
+            label="Colaborador"
+            noOptionsText="Nenhum colaborador encontrado"
+            loadingText="Carregando colaboradores..."
+            className="w-[12%]"
+          />
 
           {
             userType === "DIKMA_DIRECTOR" ? (
@@ -233,81 +268,69 @@ export default function Atividades() {
 
           {
             userType === "DIKMA_DIRECTOR" || userType === "GESTAO" ? (
-              <FormControl sx={formTheme} className="w-[12%]">
-                <InputLabel>Prédio</InputLabel>
-                <Select
-                  disabled={loading}
-                  label="Prédio"
-                  value={filters.buildingId}
-                  onChange={(e) =>
-                    setFilters((prev) => ({ ...prev, buildingId: e.target.value }))
-                  }
-                >
-                  <MenuItem value="" disabled>
-                    Selecione um predio...
-                  </MenuItem>
-                  {Array?.isArray(predio) &&
-                    predio.map((predio) => (
-                      <MenuItem key={predio?.id} value={predio?.id}>
-                        {predio?.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
+              <CustomAutocomplete
+                options={predio || []}
+                getOptionLabel={(option: any) => option.name || ''}
+                value={predio?.find((predio: any) => predio.id === Number(filters.buildingId)) || null}
+                loading={loadingPredio}
+                onInputChange={(newInputValue) => {
+                  setSearchQueryPredio(newInputValue);
+                }}
+                onChange={(newValue) => {
+                  const value = newValue?.id || '';
+                  setFilters(prev => ({ ...prev, buildingId: value.toString() }));
+                }}
+                label="Prédio"
+                noOptionsText="Nenhum prédio encontrado"
+                loadingText="Carregando prédios..."
+                className="w-[12%]"
+              />
             ) :
               null
           }
 
-          <FormControl sx={formTheme} className="w-[12%]">
-            <InputLabel>Setor</InputLabel>
-            <Select
-              disabled={loading}
-              label="Setor"
-              value={filters.sectorId}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, sectorId: e.target.value }))
-              }
-            >
-              <MenuItem value="" disabled>
-                Selecione um setor...
-              </MenuItem>
-              {Array?.isArray(setor) &&
-                setor.map((setor) => (
-                  <MenuItem key={setor?.id} value={setor?.id}>
-                    {setor?.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
+          <CustomAutocomplete
+            options={setor || []}
+            getOptionLabel={(option: any) => option.name || ''}
+            value={setor?.find((setor: any) => setor.id === Number(filters.sectorId)) || null}
+            loading={loadingSetor}
+            onInputChange={(newInputValue) => {
+              setSearchQuerySetor(newInputValue);
+            }}
+            onChange={(newValue) => {
+              const value = newValue?.id || '';
+              setFilters(prev => ({ ...prev, sectorId: value.toString() }));
+            }}
+            label="Setor"
+            noOptionsText="Nenhum setor encontrado"
+            loadingText="Carregando setores..."
+            className="w-[12%]"
+          />
 
-          <FormControl sx={formTheme} className="w-[12%]">
-            <InputLabel>Ambiente</InputLabel>
-            <Select
-              disabled={loading}
-              label="Ambiente"
-              value={filters.environmentId}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, environmentId: e.target.value }))
-              }
-            >
-              <MenuItem value="" disabled>
-                Selecione um setor...
-              </MenuItem>
-              {Array?.isArray(ambiente) &&
-                ambiente.map((ambiente) => (
-                  <MenuItem key={ambiente?.id} value={ambiente?.id}>
-                    {ambiente?.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
+          <CustomAutocomplete
+            options={ambiente || []}
+            getOptionLabel={(option: any) => option.name || ''}
+            value={ambiente?.find((ambiente: any) => ambiente.id === Number(filters.environmentId)) || null}
+            loading={loadingAmbiente}
+            onInputChange={(newInputValue) => {
+              setSearchQueryAmbiente(newInputValue);
+            }}
+            onChange={(newValue) => {
+              const value = newValue?.id || '';
+              setFilters(prev => ({ ...prev, environmentId: value.toString() }));
+            }}
+            label="Ambiente"
+            noOptionsText="Nenhum ambiente encontrado"
+            loadingText="Carregando ambientes..."
+            className="w-[12%]"
+          />
         </Box>
       </Box>
 
       <Box className="flex flex-col gap-5 w-[100%]">
         <Box className="flex gap-5 w-[100%] items-center justify-between">
           {
-            loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? (
+            loadingPessoas || loadingSetor || loadingPredio || loadingAmbiente || loadingCadastros || loadingAtividades || loadingOcorrencias ? (
               [...Array(4)].map((_, index) => (
                 <Box key={index} className="flex flex-row items-center gap-3 pl-5 w-[24%] h-[150px] bg-[#fff] rounded-sm">
                   <Skeleton variant="circular" height={50} width={50} />
@@ -325,7 +348,7 @@ export default function Atividades() {
         </Box>
         <Box className="flex w-[100%] justify-between gap-5">
           {
-            loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? (
+            loadingPessoas || loadingSetor || loadingPredio || loadingAmbiente || loadingCadastros || loadingAtividades || loadingOcorrencias ? (
               [...Array(3)].map((_, index) => (
                 <Box className="mb-10 w-[32%] h-full" key={index}>
                   <Box className="flex flex-col items-center justify-center bg-white p-5 rounded-lg shadow-md h-[520px]">
@@ -391,7 +414,7 @@ export default function Atividades() {
             </Box>
           </Box>
 
-          {loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ColumnChart data={ocorrencias} userType={userType || undefined} />}
+          {loadingPessoas || loadingSetor || loadingPredio || loadingAmbiente || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ColumnChart data={ocorrencias} userType={userType || undefined} />}
 
         </Box>
 
@@ -399,7 +422,7 @@ export default function Atividades() {
         {userType !== 'ADM_CLIENTE' && (
           <Box className="w-[100%] bg-white rounded-lg p-5">
             <h1 className="text-2xl font-medium text-[#5E5873]">Motivos das Justificativas</h1>
-            {loading || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ReverseBar {...justifications} />}
+            {loadingPessoas || loadingSetor || loadingPredio || loadingAmbiente || loadingCadastros || loadingAtividades || loadingOcorrencias ? <Skeleton variant="rectangular" height={300} width={"100%"} /> : <ReverseBar {...justifications} />}
           </Box>
         )}
       </Box>
