@@ -4,7 +4,7 @@ import { IoMdClose } from "react-icons/io";
 export default function DetailModal({ modalDetail, handleChangeModalDetail }: any) {
     if (!modalDetail) return null;
 
-    const { id, name, email, status, deletedAt, role, position, supervisor, manager, startDate, endDate, epis, transports, products, img } = modalDetail;
+    const { id, name, email, status, deletedAt, role, position, supervisor, manager, startDate, endDate, epis, transports, products, img, tools } = modalDetail;
 
     return (
         <Modal
@@ -108,6 +108,14 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
                                 <Box className="font-semibold text-[#6E6B7B]">Produtos de Responsabilidade:</Box>
                                 <Box className="flex flex-wrap gap-2">
                                     {products.map((products: any) => (<Box key={products.id} className="font-normal text-[#6E6B7B] border border-[#6E6B7B] rounded-md px-2">{products.name}</Box>))}
+                                </Box>
+                            </Box>
+                        }
+                        {tools.length > 0 &&
+                            <Box className="flex flex-col mt-1 mb-4">
+                                <Box className="font-semibold text-[#6E6B7B]">Ferramentas de Responsabilidade:</Box>
+                                <Box className="flex flex-wrap gap-2">
+                                    {tools.map((tools: any) => (<Box key={tools.id} className="font-normal text-[#6E6B7B] border border-[#6E66B7B] rounded-md px-2">{tools.name}</Box>))}
                                 </Box>
                             </Box>
                         }

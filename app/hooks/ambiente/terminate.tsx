@@ -15,7 +15,8 @@ export const useTerminateEnvironment = () => {
     const terminate = async (environmentId: number, data: TerminateEnvironmentData) => {
         setLoading(true);
         try {
-            const response = await api.delete(`/environment/${environmentId}`, { data });
+            // Enviar deletedAt como query parameter
+            const response = await api.delete(`/environment/${environmentId}?deletedAt=${encodeURIComponent(data.deletedAt)}`);
             
             if (response.status === 200 || response.status === 204) {
                 // Redirecionar para a listagem após sucesso

@@ -203,7 +203,7 @@ export default function AtividadeAtualizar() {
             if (!dateTimeValue) return "";
             const date = new Date(dateTimeValue);
             // Subtrai 3 horas (10800000 ms)
-            const adjustedDate = new Date(date.getTime() - (3 * 60 * 60 * 1000));
+            const adjustedDate = new Date(date.getTime());
             return adjustedDate.toISOString();
         };
 

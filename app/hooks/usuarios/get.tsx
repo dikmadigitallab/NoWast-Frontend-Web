@@ -53,6 +53,7 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
                     }
                 }
             );
+            console.log(response.data.data);
 
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,
@@ -71,6 +72,7 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
                 epis: item.ppes,
                 transports: item.transports,
                 products: item.products,
+                tools: item.tools,
                 img: item.userFiles[0]?.file.url,
             })) || [];
 
