@@ -68,6 +68,7 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
                 position: item.position?.name,
                 endDate: item.contract?.endDate,
                 startDate: item.contract?.startDate,
+                createdAt: item.createdAt,
                 epis: item.ppes,
                 transports: item.transports,
                 products: item.products,
