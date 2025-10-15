@@ -96,11 +96,30 @@ export default function ListagemPessoa() {
             headerName: 'Status',
             width: 120,
             renderCell: (params) => {
-                const status = params.value.toLowerCase() === 'active' ? 'Ativo' : 'Inativo';
-                const color = params.value.toLowerCase() === 'active' ? 'success' : 'error';
+                const status = (params.row as any).status;
+                const deletedAt = (params.row as any).deletedAt;
+                
+                // Lógica para determinar o status real do usuário
+                let displayStatus = '';
+                let color: 'success' | 'error' | 'warning' = 'success';
+                
+                if (deletedAt) {
+                    // Se tem deletedAt, foi deletado (soft delete)
+                    displayStatus = 'Deletado';
+                    color = 'error';
+                } else if (status?.toLowerCase() === 'active') {
+                    // Se não foi deletado e status é active
+                    displayStatus = 'Ativo';
+                    color = 'success';
+                } else {
+                    // Se não foi deletado mas status não é active (inativo)
+                    displayStatus = 'Inativo';
+                    color = 'warning';
+                }
+                
                 return (
                     <Chip
-                        label={status}
+                        label={displayStatus}
                         color={color}
                         size="small"
                         variant="outlined"

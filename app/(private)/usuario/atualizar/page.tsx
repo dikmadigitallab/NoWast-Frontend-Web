@@ -17,6 +17,7 @@ import { useGet } from "@/app/hooks/crud/get/useGet";
 import { useGetOneById } from "@/app/hooks/crud/getOneById/useGetOneById";
 import { useAuthStore } from "@/app/store/storeApp";
 import { useUpdateUser } from "@/app/hooks/usuarios/update";
+import { useTerminateUser } from "@/app/hooks/usuarios/terminate";
 import { ImageUploader } from "@/app/components/imageGet";
 import { useDebounce } from "@/app/utils/useDebounce";
 
@@ -229,20 +230,21 @@ export default function AtualizarPessoa() {
     ) : [];
 
     const [disable, setDisable] = useState(false);
-    const [tempEndDate, setTempEndDate] = useState("");
-    const [displayEndDate, setDisplayEndDate] = useState("");
+    const [tempDeletedAt, setTempDeletedAt] = useState("");
+    const [displayDeletedAt, setDisplayDeletedAt] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [cepLoading, setCepLoading] = useState(false);
     const [openCancelModal, setOpenCancelModal] = useState(false);
     const [openDisableModal, setOpenDisableModal] = useState(false);
     const { update, loading } = useUpdateUser("users", '/usuario/listagem');
+    const { terminate, loading: terminateLoading } = useTerminateUser();
     const [imageInfo, setImageInfo] = useState<{ name: string; type: string; size: number; previewUrl: string; } | null>(null);
 
     const handleOpenModal = (field: string) => {
         if (field === "cancelar") {
             setOpenCancelModal(true);
         } else {
-            setTempEndDate(new Date().toISOString().split('T')[0]);
+            setTempDeletedAt(new Date().toISOString().split('T')[0]);
             setOpenDisableModal(true);
         }
     };
@@ -260,44 +262,35 @@ export default function AtualizarPessoa() {
         const today = new Date().toISOString().split('T')[0];
         const createdAt = watch('createdAt');
         
-        if (tempEndDate > today) {
-            alert('A data de fim não pode ser superior à data atual.');
+        if (tempDeletedAt > today) {
+            alert('A data de desativação não pode ser superior à data atual.');
             return;
         }
         
-        if (createdAt && tempEndDate <= createdAt) {
-            alert('A data de fim deve ser posterior à data de criação.');
+        if (createdAt && tempDeletedAt <= createdAt) {
+            alert('A data de desativação deve ser posterior à data de criação.');
             return;
         }
         
         setDisable(true);
-        setValue("endDate", tempEndDate);
-        setDisplayEndDate(tempEndDate);
+        setValue("endDate", tempDeletedAt);
+        setDisplayDeletedAt(tempDeletedAt);
         setOpenDisableModal(false);
     };
 
     const handleCloseCancelModal = () => setOpenCancelModal(false);
     const handleCancelConfirm = () => router.push('/usuario/listagem');
 
-    const onSubmit = (formData: UserFormValues) => {
+    const onSubmit = async (formData: UserFormValues) => {
         if (disable) {
-            const { password, confirmPassword, ...formDataWithoutPassword } = formData;
-            const newData = {
-                ...formDataWithoutPassword,
-                file: file,
-                status: "INACTIVE",
-                email: formData.person.create.email?.toLowerCase(),
-                phone: formData.person.create.phone?.replace(/[.\-]/g, ''),
-                // Só inclui a senha se ela foi preenchida
-                ...(password && { password }),
-                person: {
-                    create: {
-                        ...formData.person.create, document: formData.person.create.document?.replace(/[.\-]/g, ''),
-                        birthDate: new Date(formData.person.create.birthDate).toISOString()
-                    }
-                }
-            };
-            update(newData, file);
+            // Usar a rota específica de terminate com deletedAt
+            try {
+                await terminate(formData.id, {
+                    endDate: new Date(tempDeletedAt).toISOString()
+                });
+            } catch (error) {
+                console.error('Erro ao desativar usuário:', error);
+            }
         } else {
             const { password, confirmPassword, ...formDataWithoutPassword } = formData;
             const newData = {
@@ -405,7 +398,7 @@ export default function AtualizarPessoa() {
     useEffect(() => {
         if (data) {
 
-            const { id, status, person, role, firstLogin, ppes, tools, transports, products, position, userType, contractId, supervisor, manager, createdAt, endDate } = data;
+            const { id, status, person, role, firstLogin, ppes, tools, transports, products, position, userType, contractId, supervisor, manager, createdAt, endDate, deletedAt } = data;
             console.log('[Usuario/Atualizar] Dados completos do usuário:', data);
             console.log('[Usuario/Atualizar] Datas recebidas -> createdAt:', createdAt, 'endDate:', endDate);
             const { name, tradeName, document, briefDescription, birthDate, gender, personType } = person;
@@ -438,8 +431,8 @@ export default function AtualizarPessoa() {
             setValue('supervisor.connect.id', supervisor.id)
             setValue('manager.connect.id', manager.id)
             setValue('createdAt', createdAt ? formatDateForInput(createdAt) : new Date().toISOString().split('T')[0])
-            setValue('endDate', endDate ? formatDateForInput(endDate) : "")
-            setDisplayEndDate(endDate ? formatDateForInput(endDate) : "")
+            setValue('endDate', deletedAt ? formatDateForInput(deletedAt) : "")
+            setDisplayDeletedAt(deletedAt ? formatDateForInput(deletedAt) : "")
 
             if (data.person.addresses.length > 0) {
                 setValue('person.create.address.city', data.person.addresses[0].city)
@@ -1171,11 +1164,11 @@ export default function AtualizarPessoa() {
                         <TextField
                             disabled
                             variant="outlined"
-                            label="Data Fim"
+                            label="Data de Desativação"
                             InputLabelProps={{ shrink: true }}
                             type="date"
-                            value={displayEndDate}
-                            helperText={displayEndDate ? "Data de fim do acesso do usuário (somente leitura)" : "Usuário sem data de fim definida"}
+                            value={displayDeletedAt}
+                            helperText={displayDeletedAt ? "Data de desativação do usuário (somente leitura)" : "Usuário ativo - sem data de desativação"}
                             className="w-full"
                             sx={[formTheme, { opacity: 0.7 }]}
                         />
@@ -1186,8 +1179,8 @@ export default function AtualizarPessoa() {
                     <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => handleOpenModal("desabilitar")}>Desabilitar</Button>
                     <Box className="flex flex-row gap-5">
                         <Button variant="outlined" sx={buttonThemeNoBackground} onClick={() => handleOpenModal("cancelar")}>Cancelar</Button>
-                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]} disabled={loading}>
-                            {loading ? <CircularProgress color="inherit" size={24} /> : "Salvar"}
+                        <Button type="submit" variant="outlined" sx={[buttonTheme, { alignSelf: "end" }]} disabled={loading || terminateLoading}>
+                            {(loading || terminateLoading) ? <CircularProgress color="inherit" size={24} /> : "Salvar"}
                         </Button>
                     </Box>
                 </Box>
@@ -1213,11 +1206,11 @@ export default function AtualizarPessoa() {
                         <p className="text-[#6E6B7B] text-center">Deseja realmente desabilitar esse usuário?</p>
                         <TextField
                             variant="outlined"
-                            label="Data Fim"
+                            label="Data de Desativação"
                             InputLabelProps={{ shrink: true }}
                             type="date"
-                            value={tempEndDate}
-                            onChange={(e) => setTempEndDate(e.target.value)}
+                            value={tempDeletedAt}
+                            onChange={(e) => setTempDeletedAt(e.target.value)}
                             error={!!errors.endDate}
                             helperText={errors.endDate?.message || "A data deve ser posterior à data de criação e não pode ser futura"}
                             className="w-full"
@@ -1233,9 +1226,9 @@ export default function AtualizarPessoa() {
                                 variant="outlined"
                                 onClick={handleConfirmDisable}
                                 sx={buttonTheme}
-                                disabled={!tempEndDate}
+                                disabled={!tempDeletedAt || terminateLoading}
                             >
-                                {loading ? <CircularProgress color="inherit" size={24} /> : "Confirmar"}
+                                {terminateLoading ? <CircularProgress color="inherit" size={24} /> : "Confirmar"}
                             </Button>
                         </Box>
                     </Box>

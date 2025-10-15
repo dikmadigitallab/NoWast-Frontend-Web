@@ -1,7 +1,7 @@
 'use client';
 
 import { Logout } from "@/app/utils/logout";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../api";
 import { useAuthStore } from "@/app/store/storeApp";
 import { UseGetUsuarioParams } from "@/app/types/User";
@@ -16,7 +16,7 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
     const [pages, setPages] = useState({ pageNumber: 0, pageSize: 0, totalItems: 0, totalPages: 0 });
 
 
-    const getUsuario = async () => {
+    const getUsuario = useCallback(async () => {
         setError(null);
         setLoading(true);
 
@@ -62,6 +62,7 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
                 manager: item?.manager?.person?.name,
                 email: item?.email,
                 status: item.status,
+                deletedAt: item.deletedAt,
                 userType: item.userType,
                 role: item.role?.name,
                 position: item.position?.name,
@@ -89,15 +90,12 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
         } finally {
             setLoading(false);
         }
-    };
+    }, [disablePagination, pageNumber, pageSize, query, supervisorId, managerId, userInfo.contractId, includeDeleted, position]);
 
     useEffect(() => {
-        const delayDebounce = setTimeout(() => {
-            getUsuario();
-        }, 1000);
-
-        return () => clearTimeout(delayDebounce);
-    }, [query, supervisorId, position, managerId, page, pageNumber, disablePagination, pageSize, pageSize]);
+        // Sempre faz a busca, mesmo quando query é null/undefined para carregar dados iniciais
+        getUsuario();
+    }, [getUsuario]);
 
     return {
         pages,

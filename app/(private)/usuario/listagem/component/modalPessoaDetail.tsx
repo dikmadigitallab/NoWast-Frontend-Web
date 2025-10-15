@@ -4,7 +4,7 @@ import { IoMdClose } from "react-icons/io";
 export default function DetailModal({ modalDetail, handleChangeModalDetail }: any) {
     if (!modalDetail) return null;
 
-    const { id, name, email, status, role, position, supervisor, manager, startDate, endDate, epis, transports, products, img } = modalDetail;
+    const { id, name, email, status, deletedAt, role, position, supervisor, manager, startDate, endDate, epis, transports, products, img } = modalDetail;
 
     return (
         <Modal
@@ -39,7 +39,31 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
                         </Box>
                         <Box className="flex flex-col mt-1">
                             <Box className="font-semibold text-[#6E6B7B]">Status:</Box>
-                            <Box className="font-normal text-[#6E6B7B]">{status}</Box>
+                            <Box className="flex items-center gap-2">
+                                <Chip
+                                    label={
+                                        deletedAt 
+                                            ? 'Deletado' 
+                                            : status?.toLowerCase() === 'active' 
+                                                ? 'Ativo' 
+                                                : 'Inativo'
+                                    }
+                                    color={
+                                        deletedAt 
+                                            ? 'error' 
+                                            : status?.toLowerCase() === 'active' 
+                                                ? 'success' 
+                                                : 'warning'
+                                    }
+                                    size="small"
+                                    variant="outlined"
+                                />
+                                {deletedAt && (
+                                    <Box className="text-xs text-gray-500">
+                                        Deletado em: {new Date(deletedAt).toLocaleDateString('pt-BR')}
+                                    </Box>
+                                )}
+                            </Box>
                         </Box>
                         <Box className="flex flex-col mt-1 mb-4">
                             <Box className="font-semibold text-[#6E6B7B]">Cargo:</Box>

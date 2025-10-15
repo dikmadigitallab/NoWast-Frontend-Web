@@ -19,6 +19,8 @@ export interface User {
   id?: number;
   name?: string;
   email?: string;
+  status?: string;
+  deletedAt?: string | null;
   is_admin?: boolean;
   institution?: Institution;
   llowed_edit_minutes?: boolean;
