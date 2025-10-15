@@ -52,7 +52,7 @@ export const useGetUsuario = ({ disablePagination = null, pageNumber = null, pag
                     }
                 }
             );
-            console.log(response.data.data);
+            console.log('papel', response.data.data.items);
 
             const refactory = response.data.data.items?.map((item: any) => ({
                 id: item.id,

@@ -4,7 +4,7 @@ import { IoMdClose } from "react-icons/io";
 export default function DetailModal({ modalDetail, handleChangeModalDetail }: any) {
     if (!modalDetail) return null;
 
-    const { id, name, email, status, deletedAt, role, position, supervisor, manager, startDate, endDate, epis, transports, products, img, tools } = modalDetail;
+    const { id, name, email, status, deletedAt, role, position, supervisor, manager, createdAt, startDate, epis, transports, products, img, tools } = modalDetail;
 
     return (
         <Modal
@@ -79,7 +79,7 @@ export default function DetailModal({ modalDetail, handleChangeModalDetail }: an
                         </Box>
                         <Box className="flex flex-col mt-1 mb-4">
                             <Box className="font-semibold text-[#6E6B7B]">Data de Início:</Box>
-                            <Box className="font-normal text-[#6E6B7B]">{new Date(startDate).toLocaleDateString('pt-BR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</Box>
+                            <Box className="font-normal text-[#6E6B7B]">{new Date(createdAt ?? startDate).toLocaleDateString('pt-BR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</Box>
                         </Box>
 
                         {epis.length > 0 &&

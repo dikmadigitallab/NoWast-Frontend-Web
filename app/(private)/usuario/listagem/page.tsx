@@ -106,7 +106,7 @@ export default function ListagemPessoa() {
                 
                 if (deletedAt) {
                     // Se tem deletedAt, foi deletado (soft delete)
-                    displayStatus = 'Deletado';
+                    displayStatus = 'Inativo';
                     color = 'error';
                 } else if (status?.toLowerCase() === 'active') {
                     // Se não foi deletado e status é active
@@ -115,7 +115,7 @@ export default function ListagemPessoa() {
                 } else {
                     // Se não foi deletado mas status não é active (inativo)
                     displayStatus = 'Inativo';
-                    color = 'warning';
+                    color = 'error';
                 }
                 
                 return (
