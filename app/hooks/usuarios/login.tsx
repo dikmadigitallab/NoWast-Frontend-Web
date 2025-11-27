@@ -34,7 +34,7 @@ export const useLogin = () => {
             }
 
             const authToken = document.cookie.split('; ').find(row => row.startsWith('authToken='));
-            const responseContract = await api.get(`/contract/${response.data.data.user.contractId }`, {
+            const responseContract = await api.get(`/contract/${response.data.data.user.contractId}`, {
                 headers: {
                     Authorization: `Bearer ${authToken?.split("=")[1]}`,
                     "Content-Type": "application/json",

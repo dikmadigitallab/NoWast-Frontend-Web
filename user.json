@@ -1,0 +1,185 @@
+/* login gestor */
+
+{
+  "hasSuccess": true,
+  "data": {
+    "user": {
+      "id": 15,
+      "email": "gestordikma@dikma.com",
+      "personId": 25,
+      "status": "ACTIVE",
+      "createdAt": "2025-09-23T12:32:16.483Z",
+      "updatedAt": "2025-09-23T12:32:16.483Z",
+      "person": {
+        "id": 25,
+        "name": "Gestor de Contrato Dikma",
+        "tradeName": "Gestor de Contrato Dikma",
+        "document": "54127702079",
+        "briefDescription": "Gestor de Contrato Dikma",
+        "createdAt": "2025-09-23T12:32:16.483Z",
+        "updatedAt": "2025-09-23T12:32:16.483Z",
+        "deletedAt": null,
+        "birthDate": "2025-09-23T12:21:05.189Z",
+        "gender": "MALE",
+        "personType": "INDIVIDUAL",
+        "addresses": [
+          {
+            "id": 17,
+            "address": "Rua das Flores",
+            "personId": 25,
+            "number": "123",
+            "complement": "Apto 45",
+            "district": "Centro",
+            "city": "São Paulo",
+            "state": "SP",
+            "postalCode": "01001000",
+            "createdAt": "2025-09-23T12:32:16.483Z",
+            "updatedAt": "2025-09-23T12:32:16.483Z",
+            "deletedAt": null,
+            "addressType": "HOME",
+            "stateAbbreviation": "SP",
+            "country": "Brasil",
+            "isDefault": true,
+            "isOptIn": true,
+            "latitude": "-123654",
+            "longitude": "-155687"
+          }
+        ],
+        "phones": [
+          {
+            "id": 20,
+            "phoneNumber": "27989886533",
+            "personId": 25,
+            "isDefault": true,
+            "createdAt": "2025-09-23T12:32:16.483Z",
+            "updatedAt": "2025-09-23T12:32:16.483Z",
+            "deletedAt": null
+          }
+        ],
+        "emails": [
+          {
+            "id": 20,
+            "email": "gestordikma@dikma.com",
+            "personId": 25,
+            "isDefault": true,
+            "createdAt": "2025-09-23T12:32:16.483Z",
+            "updatedAt": "2025-09-23T12:32:16.483Z",
+            "deletedAt": null
+          }
+        ]
+      },
+      "role": {
+        "id": 2,
+        "name": "Gestor de Contrato",
+        "createdAt": "2025-09-10T23:13:40.231Z",
+        "updatedAt": "2025-09-10T23:13:40.231Z",
+        "deletedAt": null,
+        "isActive": true
+      },
+      "firstLogin": true,
+      "contractId": 1,
+      "positionId": 2,
+      "managerId": 1,
+      "supervisorId": 1
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE1LCJkYXRhIjp7ImlkIjoxNSwibmFtZSI6Ikdlc3RvciBkZSBDb250cmF0byBEaWttYSIsImVtYWlsIjoiZ2VzdG9yZGlrbWFAZGlrbWEuY29tIiwicm9sZSI6eyJpZCI6MiwibmFtZSI6Ikdlc3RvciBkZSBDb250cmF0byIsImNyZWF0ZWRBdCI6IjIwMjUtMDktMTBUMjM6MTM6NDAuMjMxWiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMTBUMjM6MTM6NDAuMjMxWiIsImRlbGV0ZWRBdCI6bnVsbCwiaXNBY3RpdmUiOnRydWV9LCJwZXJzb25JZCI6MjUsInVzZXJUeXBlIjoiQ09OVFJBQ1RfTUFOQUdFUiIsImNvbnRyYWN0SWQiOjEsImNvbnRyYWN0IjpudWxsLCJwb3NpdGlvbklkIjoyLCJzdXBlcnZpc29ySWQiOjEsIm1hbmFnZXJJZCI6MSwic291cmNlIjoiQURNSU4ifSwianRpIjoxNSwiaWF0IjoxNzU5MjM4MDE0LCJleHAiOjE3NTkyNDE2MTR9.W0WeaNydrmJvk3fQIablDN_5vHRoCM9NUZOUL68mIwA",
+    "refreshToken": "50865b7b-5182-4ffe-9407-434361f85f2d"
+  },
+  "messages": [
+    "Login realizado com sucesso."
+  ]
+}
+
+
+
+
+/* Login Diretor */
+
+{
+  "hasSuccess": true,
+  "data": {
+    "user": {
+      "id": 16,
+      "email": "diretordikma@dikma.com",
+      "personId": 26,
+      "status": "ACTIVE",
+      "createdAt": "2025-09-23T12:34:35.115Z",
+      "updatedAt": "2025-09-23T12:34:35.115Z",
+      "person": {
+        "id": 26,
+        "name": "Diretor Dikma",
+        "tradeName": "Diretor Dikma",
+        "document": "12876729067",
+        "briefDescription": "Diretor Dikma",
+        "createdAt": "2025-09-23T12:34:35.115Z",
+        "updatedAt": "2025-09-23T12:34:35.115Z",
+        "deletedAt": null,
+        "birthDate": "2025-09-23T12:21:05.189Z",
+        "gender": "MALE",
+        "personType": "INDIVIDUAL",
+        "addresses": [
+          {
+            "id": 18,
+            "address": "Rua das Flores",
+            "personId": 26,
+            "number": "123",
+            "complement": "Apto 45",
+            "district": "Centro",
+            "city": "São Paulo",
+            "state": "SP",
+            "postalCode": "01001000",
+            "createdAt": "2025-09-23T12:34:35.115Z",
+            "updatedAt": "2025-09-23T12:34:35.115Z",
+            "deletedAt": null,
+            "addressType": "HOME",
+            "stateAbbreviation": "SP",
+            "country": "Brasil",
+            "isDefault": true,
+            "isOptIn": true,
+            "latitude": "-123654",
+            "longitude": "-155687"
+          }
+        ],
+        "phones": [
+          {
+            "id": 21,
+            "phoneNumber": "27989886534",
+            "personId": 26,
+            "isDefault": true,
+            "createdAt": "2025-09-23T12:34:35.115Z",
+            "updatedAt": "2025-09-23T12:34:35.115Z",
+            "deletedAt": null
+          }
+        ],
+        "emails": [
+          {
+            "id": 21,
+            "email": "diretordikma@dikma.com",
+            "personId": 26,
+            "isDefault": true,
+            "createdAt": "2025-09-23T12:34:35.115Z",
+            "updatedAt": "2025-09-23T12:34:35.115Z",
+            "deletedAt": null
+          }
+        ]
+      },
+      "role": {
+        "id": 5,
+        "name": "Diretor Dikma",
+        "createdAt": "2025-09-10T23:13:40.257Z",
+        "updatedAt": "2025-09-10T23:13:40.257Z",
+        "deletedAt": null,
+        "isActive": true
+      },
+      "firstLogin": true,
+      "positionId": 3,
+      "managerId": 1,
+      "supervisorId": 1
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE2LCJkYXRhIjp7ImlkIjoxNiwibmFtZSI6IkRpcmV0b3IgRGlrbWEiLCJlbWFpbCI6ImRpcmV0b3JkaWttYUBkaWttYS5jb20iLCJyb2xlIjp7ImlkIjo1LCJuYW1lIjoiRGlyZXRvciBEaWttYSIsImNyZWF0ZWRBdCI6IjIwMjUtMDktMTBUMjM6MTM6NDAuMjU3WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMTBUMjM6MTM6NDAuMjU3WiIsImRlbGV0ZWRBdCI6bnVsbCwiaXNBY3RpdmUiOnRydWV9LCJwZXJzb25JZCI6MjYsInVzZXJUeXBlIjoiRElLTUFfRElSRUNUT1IiLCJjb250cmFjdElkIjpudWxsLCJjb250cmFjdCI6bnVsbCwicG9zaXRpb25JZCI6Mywic3VwZXJ2aXNvcklkIjoxLCJtYW5hZ2VySWQiOjEsInNvdXJjZSI6IkFETUlOIn0sImp0aSI6MTYsImlhdCI6MTc1OTIzODExNywiZXhwIjoxNzU5MjQxNzE3fQ.2e3gY-5qrHFmRhf2IFEkc4ilmmNW_hNbeiiFD54L7Dk",
+    "refreshToken": "da036082-acef-4153-b5a2-9fa2c60e4989"
+  },
+  "messages": [
+    "Login realizado com sucesso."
+  ]
+}
