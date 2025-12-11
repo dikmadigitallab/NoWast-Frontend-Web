@@ -59,6 +59,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
     
     // Função para buscar o nome do cargo pelo ID
     const getCargoName = (positionId: number) => {
+              
         const cargo = cargos?.find((c: any) => c.id === positionId);
         return cargo?.name || '';
     };
@@ -122,6 +123,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                 return positionId ? getCargoName(positionId) : '';
             }
         },
+ 
     ];
 
     return (
@@ -175,6 +177,7 @@ export default function FormPessoas({ control, setValue, watch, formState: { err
                                     const value = newValue?.id || '';
                                     field.onChange(Number(value));
                                 }}
+                              
                                 label="Líder/Gestor"
                                 error={!!errors?.managerId}
                                 helperText={errors?.managerId?.message}
